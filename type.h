@@ -150,13 +150,13 @@ typedef prange<-MAX_SPECIAL_KEYS, ORD_MAXCHAR> key_code_range;
 typedef prange<2, KEY_NAME_LEN>                key_name_len_range;
 typedef prange<0, MAX_NR_KEY_NAMES>            key_names_range;
 typedef parray<char, prange<1, KEY_NAME_LEN>>  key_name_str;
-typedef struct {
+typedef struct key_name_record {
     key_name_str   key_name;
     key_code_range key_code;
-} key_name_record;
+} *key_name_record_ptr;
 
-typedef parray<key_name_record, key_names_range> key_name_array;
-typedef key_name_array *key_name_array_ptr;
+// FIXME: remove: typedef parray<key_name_record, key_names_range> key_name_array;
+// FIXME: remove: typedef key_name_array *key_name_array_ptr;
 typedef prange<0, MAX_PARSE_TABLE> parse_table_index;
 typedef struct {
     char              ch;
@@ -662,7 +662,7 @@ struct command_object {
 };
 
 struct terminal_info_type {
-    str_ptr       name;
+    const char    *name;
     strlen_range  namelen;
     scr_col_range width;
     scr_row_range height;

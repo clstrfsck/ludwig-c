@@ -18,16 +18,22 @@ class perange {
     }
 
 public:
-    static constexpr int min() {
-        return static_cast<int>(min_);
+    typedef E type;
+
+    static constexpr type min() {
+        return min_;
     }
 
-    static constexpr int max() {
-        return static_cast<int>(max_);
+    static constexpr type max() {
+        return max_;
     }
 
     static constexpr size_t size() {
-        return max() - min() + 1;
+        return static_cast<int>(max_) - static_cast<int>(min_) + 1;
+    }
+
+    static constexpr size_t zero_based(type n) {
+        return static_cast<int>(n) - static_cast<int>(min_);
     }
 
     perange() {

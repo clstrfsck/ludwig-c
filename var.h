@@ -16,7 +16,7 @@ extern bool                  tt_winchanged;     // Window size has changed
 
 // Keyboard interface.
 extern key_names_range       nr_key_names;
-extern key_name_array_ptr    key_name_list_ptr;
+extern key_name_record_ptr   key_name_list_ptr;
 extern accept_set_type       key_introducers;
 
 // SPECIAL FRAMES.

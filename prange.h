@@ -18,20 +18,26 @@ class prange {
     }
 
 public:
-    static constexpr int min() {
+    typedef int type;
+
+    static constexpr type min() {
         return min_;
     }
 
-    static constexpr int max() {
+    static constexpr type max() {
         return max_;
     }
 
     static constexpr size_t size() {
-        return max() - min() + 1;
+        return max_ - min_ + 1;
+    }
+
+    static constexpr size_t zero_based(type n) {
+        return n - min_;
     }
 
     prange() {
-        m_value = min();
+        m_value = min_;
     }
 
     prange(int value) {
@@ -48,10 +54,44 @@ public:
 
     prange &operator=(const prange &rhs) {
         m_value = rhs.m_value;
+        return *this;
     }
 
     prange &operator=(int rhs) {
         m_value = check_range(rhs);
+        return *this;
+    }
+
+    prange &operator+=(int rhs) {
+        m_value = check_range(m_value + rhs);
+        return *this;
+    }
+
+    prange &operator++() {
+        m_value = check_range(m_value + 1);
+        return *this;
+    }
+
+    prange operator++(int) {
+        prange old(*this);
+        m_value = check_range(m_value + 1);
+        return old;
+    }
+
+    prange &operator-=(int rhs) {
+        m_value = check_range(m_value - rhs);
+        return *this;
+    }
+
+    prange &operator--() {
+        m_value = check_range(m_value - 1);
+        return *this;
+    }
+
+    prange operator--(int) {
+        prange old(*this);
+        m_value = check_range(m_value - 1);
+        return old;
     }
 
 private:
