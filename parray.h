@@ -71,8 +71,36 @@ public:
         return *this;
     }
 
-    typename array_type::const_pointer data() const {
-        return m_array.data();
+    parray &fillcopy(typename array_type::const_pointer src, size_t src_len,
+                     typename R::type dst_index, size_t dst_len, const T &value) {
+        size_t len = std::min(src_len, dst_len);
+        size_t dst = adjust_index(dst_index);
+        if (len != 0) {
+            std::copy(src, src + len, std::next(m_array.begin(), dst));
+        }
+        if (dst_len > len) {
+            typename array_type::iterator db = std::next(m_array.begin(), dst + len);
+            typename array_type::iterator de = std::next(db, dst_len - len);
+            std::fill(db, de, value);
+        }
+        return *this;
+    }
+
+    typename array_type::const_pointer data(typename R::type index = R::min()) const {
+        return m_array.data() + adjust_index(index);
+    }
+
+    size_t length(const T &value, typename R::type from = R::max()) const {
+        if (!m_array.empty()) {
+            size_t last = adjust_index(from);
+            while (last) {
+                if (m_array[last] != value)
+                    return last + 1;
+                last -= 1;
+            }
+            return m_array[0] == value ? 0 : 1;
+        }
+        return 0;
     }
 
     parray &operator=(parray rhs) {
