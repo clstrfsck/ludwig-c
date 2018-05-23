@@ -65,6 +65,10 @@ public:
         return *this;
     }
 
+    bool contains(T elt) const {
+        return m_value.test(bit(elt));
+    }
+
 private:
     std::bitset<range()> m_value;
 };
