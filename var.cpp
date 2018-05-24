@@ -46,7 +46,7 @@ parray<prompt_region_attrib, prange<1, MAX_TPCOUNT>> prompt_region;
 frame_ptr scr_frame;                     // Frame that screen currently mapped into.
 line_ptr scr_top_line;                   // Pointer to first line mapped on screen.
 line_ptr scr_bot_line;                   // Pointer to last line mapped on screen.
-prange<1, MAXINT> scr_msg_row;           // First (highest) msg on scr, 0 if none.
+scr_row_range scr_msg_row;               // First (highest) msg on scr, 0 if none.
 bool    scr_needs_fix;                   // Set when user is viewing a corrupt screen.
 
 // COMPILER VARIABLES.
