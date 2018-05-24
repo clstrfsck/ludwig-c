@@ -78,10 +78,14 @@ public:
         return *this;
     }
 
+    bool contains(T elt) const {
+        return m_value.test(adjust_value(elt));
+    }
+
 private:
     std::bitset<T::size()> m_value;
 
-    constexpr int adjust_value(T elt) {
+    constexpr int adjust_value(T elt) const {
         return elt - T::min();
     }
 };
