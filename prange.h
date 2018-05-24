@@ -94,6 +94,10 @@ public:
         return old;
     }
 
+    int value() const {
+        return m_value;
+    }
+
 private:
     int m_value;
 };
