@@ -65,9 +65,11 @@ public:
     parray &fill(const T &value, typename R::type begin = R::min(), typename R::type endi = R::max()) {
         size_t ibeg = adjust_index(begin);
         size_t iend = adjust_index(endi) + 1;
-        typename array_type::iterator b = std::next(m_array.begin(), ibeg);
-        typename array_type::iterator e = std::next(m_array.begin(), iend);
-        std::fill(b, e, value);
+        if (ibeg < iend) {
+            typename array_type::iterator b = std::next(m_array.begin(), ibeg);
+            typename array_type::iterator e = std::next(m_array.begin(), iend);
+            std::fill(b, e, value);
+        }
         return *this;
     }
 
