@@ -28,12 +28,12 @@ void screen_beep();
 void screen_home(bool clear);
 void screen_write_int(int int_, size_t width);
 void screen_write_ch(scr_col_range indent, char ch);
-void screen_write_str(scr_col_range indent, const char *str);
+void screen_write_str(scr_col_range indent, const char *str, scr_col_range width);
 void screen_write_name_str(scr_col_range indent, const name_str &str, size_t width);
 void screen_write_file_name_str(scr_col_range indent, const file_name_str &str, size_t width);
 void screen_writeln();
 void screen_writeln_clel();
-void screen_help_prompt(const write_str &prompt, strlen_range prompt_len,
+void screen_help_prompt(const write_str &prompt, scr_col_range prompt_len,
                         key_str &reply, int &reply_len);
 void screen_resize();
 
