@@ -47,6 +47,8 @@
 #include "line.h"
 
 #include <cstring>
+#include <iomanip>
+#include <iostream>
 
 enum class slide_type {
     slide_dont,
@@ -61,6 +63,33 @@ enum class scroll_type {
     scroll_back,
     scroll_redraw
 };
+
+const char PAUSE_MSG[] = "Pausing until RETURN pressed: ";
+const char YNAQM_MSG[] = "Reply Y(es),N(o),A(lways),Q(uit),M(ore)";
+ const std::string YNAQM_CHARS(" YNAQM123456789");
+
+void writeln(const char *message, size_t length) {
+    std::cout.write(message, length);
+    std::cout << std::endl;
+}
+
+void writeln(const char *message) {
+    writeln(message, std::strlen(message));
+}
+
+void write(const char *message, size_t length) {
+    std::cout.write(message, length);
+}
+
+void write(const char *message) {
+    write(message, std::strlen(message));
+}
+
+void write(char ch, size_t count) {
+    for (size_t i = 0; i < count; ++i) {
+        std::cout << ch;
+    }
+}
 
 void screen_message(const char *message, size_t length) {
     /*
@@ -85,9 +114,7 @@ void screen_message(const char *message, size_t length) {
     } else {
         /* if (ludwig_mode = ludwig_mode_type::ludwig_hardcopy) */
         /*     putchar(7); */
-        for (int i = 1; i <= length; ++i)
-            putchar(message[i]);
-        putchar('\n');
+        writeln(message, length);
     }
 }
 
@@ -107,7 +134,7 @@ void screen_message(msg_str message) {
     screen_message(message.data(), length);
 }
 
-void screen_str_message(str_object message) {
+void screen_str_message(const str_object &message) {
     /*
       Purpose  : Put a message out to the user.
       Inputs   : message: blank-filled message in a Ludwig string object.
@@ -116,9 +143,7 @@ void screen_str_message(str_object message) {
     if (hangup)
         return;
 
-    int length = MAX_STRLEN;
-    while (length > 0 && message[length] == ' ')
-        length -= 1;
+    int length = message.length(' ');
 
     screen_message(message.data(), length);
 }
@@ -225,7 +250,7 @@ void screen_slide_line(line_ptr line, int slide_dist, slide_type slide_state) {
                 vdu_deletechars(slide_dist);
                 vdu_movecurs(width + 1 - slide_dist, line->scr_row_nr);
             }
-            if (overlap > 0) { 
+            if (overlap > 0) {
                 if (overlap > slide_dist)
                     overlap = slide_dist;
                 vdu_displaystr(overlap, line->str->data() + offset + width + 1 - slide_dist, 2 /*anycurs*/);
@@ -451,7 +476,7 @@ void screen_scroll(int count, bool expand) {
         }
 
         // SCROLL 'COUNT' LINES ONTO THE SCREEN.
-        while (count > 0) {                           // Scroll lines on the                                      
+        while (count > 0) {                           // Scroll lines on the
             count -= 1;                               // the screen.
             vdu_movecurs(1, 1);
             vdu_insertlines(1);
@@ -674,1402 +699,1055 @@ void screen_lines_extract(line_ptr first_line, line_ptr last_line) {
     }
 }
 
-#ifdef XXXX
-procedure screen_lines_inject (
-                first_line  : line_ptr;
-                count       : line_range;
-                before_line : line_ptr);
-
-  { This routine is called just after LINES_INJECT has insert 'count' lines  }
-  { just above 'before_line', the first inserted being 'first_line'.         }
-  { LINES_INJECT has not changed any 'scr_row_nr' fields,  but has checked   }
-  { before_line->scr_row_nr != 0,  and before_line != scr_top_line.          }
-  {                                                                          }
-  { The rules for this routine are (1) 'first_line' should be   on the screen}
-  { and (2) no more than 'scr_height' lines are to be drawn onto the screen. }
-  label 1;
-  var
-    before_line_scr_row : scr_row_range;
-    i                   : integer;
-    line                : line_ptr;
-    row_nr              : scr_row_range;
-    scrollup_count      : integer;
-    lines_above_insert  : scr_row_range;
-    lines_below_insert  : scr_row_range;
-    free_space_above    : scr_row_range;
-    free_space_below    : scr_row_range;
-
-  begin {screen_lines_inject}
-  before_line_scr_row = before_line->scr_row_nr;
-  if trmflags_v_inln in tt_capabilities then
-    begin
-
-    {HEURISTIC -- KEEP AS MANY LINES ON THE SCREEN AS POSSIBLE.}
-    {          -- IT IS UNLIKELY THAT SCROLLUP WILL BE USED, DONT WASTE}
-    {             A LOT OF CODE OPTIMIZING IT.  LET IT HAPPEN IF POSSIBLE.}
-
-    free_space_below = terminal_info.height-scr_bot_line->scr_row_nr;
-    free_space_above = scr_top_line->scr_row_nr-1;
-
-    if free_space_above > 0 then
-    if before_line != scr_top_line then
-    if terminal_info.height > before_line->scr_row_nr-free_space_above+count then
-      begin
-      scrollup_count = count-free_space_below;
-      if scrollup_count > 0 then
-        begin
-
-        {Scrolling the screen upwards is useful to do, because it will}
-        {keep some lines on the screen that would otherwise have been lost.}
-
-        if scrollup_count > free_space_above then
-          scrollup_count = free_space_above;
-        vdu_scrollup(scrollup_count);
-        if scr_msg_row <= terminal_info.height then
-          scr_msg_row = scr_msg_row-scrollup_count;
-
-        { WARNING -- only the SCR_ROW_NR's up to and including BEFORE_LINE }
-        {         -- and SCR_BOT_LINE,                                     }
-        {         -- are corrected here.  There is not need to correct the }
-        {         -- rest because they are about to change again.          }
-
-        line = scr_top_line;
-        row_nr = line->scr_row_nr-scrollup_count;
-        repeat
-          with line^ do
-            begin
-            scr_row_nr = row_nr;
-            row_nr = row_nr+1;
-            line = flink;
-            end;
-        until line = first_line;
-
-        {Do the two weirdo exceptions, the order is crucial in case}
-        {they are the same line.}
-
-        with scr_bot_line^ do scr_row_nr = scr_row_nr-scrollup_count;
-        before_line->scr_row_nr = row_nr;
-        end;
-      end;
-
-    { The screen is now optimally placed for the insertion.  If sensible }
-    { extend the screen upwards. }
-
-    if before_line = scr_top_line then
-    if free_space_above > 0 then
-
-    (* if scr_top_line->scr_row_nr+count-free_space_above <= tt_height then *)
-    (* but free_space_above = scr_row_nr-1, hence the following 'weird' exp *)
-
-    if count+1 <= terminal_info.height then
-      begin
-      row_nr = scr_top_line->scr_row_nr-1;
-      while (row_nr > 1) and (count > 0) do
-        begin
-        scr_top_line = scr_top_line->blink;
-        scr_top_line->scr_row_nr = row_nr;   screen_draw_line(scr_top_line);
-        row_nr = row_nr-1;
-        count = count-1;
-        end;
-      before_line = scr_top_line;
-      end;
-
-    { Finally do the insert if one necessary. }
-
-    if count > 0 then
-      begin
-      if before_line = scr_top_line then scr_top_line = first_line;
-      row_nr = before_line->scr_row_nr;
-      vdu_movecurs(1,row_nr);
-      vdu_insertlines(count);
-      if scr_msg_row <= terminal_info.height then
-        begin
-        scr_msg_row = scr_msg_row+count;
-        if scr_msg_row > terminal_info.height then
-          scr_msg_row = terminal_info.height+1;
-        end;
-
-      { Patch up the pointers and scr_row_nr's of lines pushed off screen. }
-
-      line = scr_bot_line;
-      for i = line->scr_row_nr+count downto terminal_info.height+1 do
-        with line^ do
-          begin
-          if scr_row_nr = 0 then goto 1;
-          scr_row_nr = 0;
-          line = blink;
-          end;
-    1:
-      if line->scr_row_nr != 0 then
-        begin
-
-        { Lines were pushed but left on the screen. }
-        { Do all the lines on the screen, right up to 'first_line'. }
-
-        scr_bot_line = line;
-        row_nr = line->scr_row_nr+count;
-        repeat
-          with line^ do
-            begin
-            if scr_row_nr = 0 then
-              begin
-              scr_row_nr = row_nr;
-              screen_draw_line(line);
-              end
-            else
-              scr_row_nr = row_nr;
-            row_nr = row_nr-1;
-            line = blink;
-            end
-        until line = first_line;
-        line->scr_row_nr = row_nr;
-        screen_draw_line(line);
-        end
-      else
-        begin
-
-        { No lines were left on the screen.  Redraw downwards until enough }
-        { lines on the screen. }
-
-        scr_bot_line = first_line;
-        first_line->scr_row_nr = row_nr; screen_draw_line(first_line);
-        screen_expand(false,true);
-
-        end;
-      end;
-    end
-  else
-  {DUMB TERMINALS}
-    begin
-
-    {HEURISTIC -- REMOVE THE SMALLER OF THE TWO AREAS, THAT ABOVE OR BELOW }
-    {             THE NEW LINES.                                           }
-
-    scr_needs_fix = true;
-    lines_above_insert = before_line_scr_row-scr_top_line->scr_row_nr;
-    lines_below_insert = scr_bot_line->scr_row_nr-before_line_scr_row+1;
-
-    if (lines_above_insert>lines_below_insert)
-    or (count>=before_line_scr_row)
-    then
-      begin {Retain area above insert, remove area below insert.}
-      repeat
-        with scr_bot_line^ do
-          begin
-          scr_row_nr   = 0;
-          scr_bot_line = blink;
-          end;
-      until scr_bot_line = before_line->blink;
-      scr_bot_line = first_line->blink;
-      end
-    else
-      begin {Retain area below insert, remove area above insert.}
-      repeat
-        with scr_top_line^ do
-          begin
-          scr_row_nr   = 0;
-          scr_top_line = flink;
-          end;
-      until scr_top_line = first_line;
-      scr_top_line = before_line;
-      end;
-    end;
-  end; {screen_lines_inject}
-
-
-procedure screen_load (
-                line : line_ptr;
-                col  : col_range);
-
-  {LUDWIG_SCREEN:}
-  {Map the screen into the specified frame, the line and col specified must  }
-  {be on the screen,  it is placed in the most desirable location.           }
-  {LUDWIG_BATCH:}
-  {Do nothing.}
-  {LUDWIG_HARDCOPY:}
-  {Draw scr_height lines around the dot.}
-  label 99;
-  var
-    frame       : frame_ptr;
-    eop_line_nr,
-    line_nr     : line_range;
-    new_row     : integer;
-    dot_col     : col_range;
-    dot_line    : line_ptr;
-    half_width  : col_offset_range;
-    buflen      : strlen_range;
-{#if turbop}
-    i           : integer;
-{#endif}
-
-  begin {screen_load}
-  frame = line->group->frame;
-  with frame^ do
-  case ludwig_mode of
-    ludwig_batch:
-      ;
-    ludwig_hardcopy:
-      begin
-      new_row = scr_height div 2;
-      while (new_row>0) and (line->blink<>nullptr) do
-        begin
-        line = line->blink;
-        new_row = new_row-1;
-        end;
-      dot_line = dot->line;
-      dot_col  = dot->col;
-      new_row = 1;
-      while (new_row<=scr_height) and (line<>nullptr) do
-        begin
-        if new_row = 1 then writeln('WINDOW:');
-        buflen = 0;
-        with line^ do
-          begin
-          buflen = used;
-          if flink = nullptr then buflen = len;
-          if buflen > 0 then
-{#if turbop}
-            begin
-            for i = 1 to buflen do
-              write(str^[i]);
-            writeln;
-            end
-{#else}
-{##            writeln(str^:buflen)}
-{#endif}
-          else
-            writeln;
-          end;
-        if line = dot_line then
-          begin
-          if dot_col = 1 then
-            writeln('<')
-          else
-          if dot_col = max_strlenp then
-            writeln(' ':max_strlen-1,'>')
-          else
-            writeln(' ':dot_col-2,'><');
-          end;
-        new_row = new_row+1;
-        line = line->flink;
-        end;
-      end;
-
-    ludwig_screen:
-      begin
-      if scr_frame != nullptr then                { A frame mapped at present.   }
-        screen_unload                         {   Unload/clear it.           }
-      else
-        begin
-        vdu_clearscr;                         {   Clear the screen anyway.   }
-        scr_msg_row = terminal_info.height+1;
-        scr_needs_fix = false;
-        end;
-
-      with line->group->frame^ do
-        new_row = scr_dot_line;
-      if (not line_to_number(line,line_nr)) then goto 99;
-      eop_line_nr = last_group->first_line_nr+last_group->nr_lines-1;
-      if (eop_line_nr-line_nr)<(terminal_info.height-new_row) then
-        new_row = terminal_info.height-(eop_line_nr-line_nr);
-      if line_nr<new_row then new_row = line_nr;
-
-      line->scr_row_nr = new_row;
-
-      { Move left or right in 1/2 window chunks until DOT on screen. }
-
-      dot_col = dot->col;
-      while (dot_col <= scr_offset)
-         or (dot_col  > scr_offset+scr_width)
-      do
-        begin
-        half_width = scr_width div 2;
-        if half_width = 0 then half_width = 1;
-        if dot_col <= scr_offset then
-          if scr_offset > half_width then
-            scr_offset = scr_offset - half_width
-          else
-            scr_offset = 0
-        else
-          if scr_offset+half_width+scr_width < max_strlenp then
-            scr_offset = scr_offset+half_width
-          else
-            scr_offset = max_strlenp-scr_width;
-        end;
-
-      { Load the screen. }
-
-      scr_frame = frame;
-      scr_bot_line = line;
-      scr_top_line = line;
-      screen_draw_line(line);
-      screen_expand(true,true);
-      end;
-  end{case};
-  99:
-  end; {screen_load}
-
-
-procedure screen_position (
-                new_line : line_ptr;
-                new_col  : col_range);
-
-  { Position the screen so that                                              }
-  {       (1) The specified line and column are on the screen.               }
-  {       (2) At least scr_frame->scr_height lines are on the screen.        }
-  {       (3) If possible the specified line is between the top and          }
-  {           bottom margins.                                                }
-  {       (4) No more than scr_height lines are written to the screen.       }
-  label 99;
-  var
-    height         : scr_row_range;           {Copies of fields out of       }
-    offset         : col_offset_range;        {scr_frame,  taken for reasons }
-    width          : scr_col_range;           {of efficiency.                }
-    slide_dist     : integer;                 {Used during horizontal scroll.}
-    slide_state    : slide_type;
-    scroll_dist    : integer;
-    scroll_state   : scroll_type;
-    row_nr         : scr_row_range;
-    nr_rows        : scr_row_range;
-    line,
-    bot_line,
-    top_line       : line_ptr;
-    bot_line_nr,
-    new_line_nr,
-    top_line_nr    : line_range;
-    top_margin,
-    bot_margin     : scr_row_range;
-
-  begin {screen_position}
-  if new_line->group->frame != scr_frame then
-    begin
-    screen_load(new_line,new_col);
-    goto 99;
-    end;
-
-  with scr_frame^ do
-    begin
-    offset     = scr_offset;
-    width      = scr_width;
-    top_margin = margin_top;
-    bot_margin = margin_bottom;
-    end;
-
-  { Check that the specified position is not on the screen between margins.  }
-  { The very common case is that it is, and that the screen need not be      }
-  { moved.                                                                   }
-
-  if (new_line->scr_row_nr=0)
-  or (    (new_line->scr_row_nr-scr_top_line->scr_row_nr < top_margin)
-      and (scr_top_line->blink != nullptr)
-     )
-  or (    (scr_bot_line->scr_row_nr-new_line->scr_row_nr < bot_margin)
-      and (scr_bot_line->flink != nullptr)
-     )
-  or (new_col<=offset)
-  or (new_col> offset+width)
-  then
-    begin
-
-    { Unfortunately this is the uncommon case.     }
-
-    with scr_frame^ do
-      begin
-      height   = scr_height;
-      bot_line = scr_bot_line;
-      top_line = scr_top_line;
-      end;
-
-    slide_state = slide_dont;        { Compute horizontal adjusting needed. }
-    slide_dist  = offset+1-new_col;
-    if slide_dist > 0 then            { Col to left of screen.               }
-      begin
-      slide_state = slide_redraw;    { Redraw unless can slide there.       }
-      if offset < width div 4 then    { Heuristic, slide if sensible.        }
-      if trmflags_v_inch in tt_capabilities then
-        begin
-        slide_state = slide_left;
-        slide_dist  = offset;
-        end;
-      end
-    else
-      begin
-      slide_dist = new_col-(offset+width);
-      if slide_dist > 0 then          { Col to right of screen.              }
-        begin
-        slide_state = slide_redraw;  { Redraw unless can slide there.       }
-        if offset > max_strlenp-width div 4 then
-                                      { Heuristic, slide if sensible.        }
-        if trmflags_v_dlch in tt_capabilities then
-          begin
-          slide_state = slide_right;
-          slide_dist  = max_strlenp-(offset+width);
-          end;
-        end;
-      end;
-
-    scroll_state = scroll_dont;
-    if  (slide_state != slide_redraw)
-    and (   (new_line->scr_row_nr=0)
-         or (    (new_line->scr_row_nr-scr_top_line->scr_row_nr < top_margin)
-             and (scr_top_line->blink != nullptr)
-            )
-         or (    (scr_bot_line->scr_row_nr-new_line->scr_row_nr < bot_margin)
-             and (scr_bot_line->flink != nullptr)
-            )
-        )
-    then                              { Compute vertical adjusting needed.   }
-      begin
-      if (not line_to_number(bot_line,bot_line_nr))
-      or (not line_to_number(new_line,new_line_nr))
-      or (not line_to_number(top_line,top_line_nr)) then goto 99;
-
-      scroll_state = scroll_redraw;
-      if (new_line_nr < top_line_nr)
-      or (    (new_line_nr < top_line_nr+top_margin)
-          and (new_line_nr < bot_line_nr)
-         )
-      then
-        begin
-        scroll_state = scroll_back;
-        scroll_dist  = top_line_nr+top_margin-new_line_nr;
-        if scroll_dist >= top_line_nr then scroll_dist = top_line_nr-1;
-        if scroll_dist >= scr_top_line->scr_row_nr then
-          if not (trmflags_v_scdn in tt_capabilities) then
-            scroll_state = scroll_redraw;
-        end
-      else
-        begin
-        scroll_state = scroll_forward;
-        scroll_dist  = new_line_nr-(bot_line_nr-bot_margin);
-        if scroll_dist <= 0 then scroll_state = scroll_dont;
-        end;
-      if scroll_state != scroll_redraw then
-        if scroll_dist > height then
-          scroll_state = scroll_redraw;
-      end;
-
-    { At this point SLIDE_STATE, SLIDE_DIST, SCROLL_STATE and SCROLL_DIST    }
-    { are carrying all the advice about how to get to the new position.      }
-    { If either state has voted for a redraw, then a redraw it is, else      }
-    { a combined scroll and slide operation is embarked on.                  }
-
-    if (scroll_state = scroll_redraw)
-    or (slide_state  = slide_redraw)
-    then
-      screen_load(new_line,new_col)
-    else
-      begin
-      if slide_state != slide_dont then
-        begin
-
-        { Adjust the screen offset and the lines that are     }
-        { going to be left on the screen when scrolling.      }
-
-        with scr_frame^ do
-          begin
-          if slide_state = slide_left then
-            scr_offset = scr_offset-slide_dist
-          else
-            scr_offset = scr_offset+slide_dist;
-          end;
-        line = top_line;
-        case scroll_state of
-          scroll_redraw  : {impossible};
-          scroll_dont    ,
-          scroll_forward :
-            begin
-            if scroll_state = scroll_dont then scroll_dist = 0;
-
-            { Predict which lines are going to be left on the screen. }
-
-            nr_rows = terminal_info.height-bot_line->scr_row_nr;
-            if nr_rows >= scroll_dist then
-              row_nr = 0     { slide all the lines.                         }
-            else              { slide all but the lines that will scroll off.}
-              row_nr = scroll_dist-nr_rows;
-
-            { Adjust those lines that will be left on the screen. }
-
-            repeat
-              if line->scr_row_nr > row_nr then
-                screen_slide_line(line,slide_dist,slide_state);
-              if line<>bot_line then line = line->flink else line = nullptr;
-            until line = nullptr;
-            end;
-          scroll_back    :
-            begin
-
-            { Decide which lines are going to be left on the screen. }
-
-            nr_rows = top_line->scr_row_nr-1;
-            if nr_rows < scroll_dist then { slide all the lines }
-              row_nr = terminal_info.height
-            else    { slide all the lines that won't scroll off.}
-              row_nr = terminal_info.height-(scroll_dist-nr_rows);
-
-            { Adjust those lines that will be left on the screen. }
-
-            repeat
-              if line->scr_row_nr <= row_nr then
-                screen_slide_line(line,slide_dist,slide_state);
-              if line<>top_line then line = line->blink else line = nullptr;
-            until line = nullptr;
-            end;
-        end{case};
-        end; {slide_left,slide_right}
-
-      case scroll_state of
-        scroll_redraw  : {impossible};
-        scroll_forward : screen_scroll( scroll_dist,true);
-        scroll_back    : screen_scroll(-scroll_dist,true);
-        scroll_dont    : ;
-      end{case};
-      end; {slide_left,slide_right,slide_dont}
-    end;
-
-  screen_expand(true,true);
-  99:
-  end; {screen_position}
-
-
-procedure screen_pause{};
-
-  { Wait until user types a RETURN.  Only in SCREEN mode,  as in HARDCOPY   }
-  { or batch there is no point in it.                                       }
-  {                                                                         }
-  { This routine DOES NOT use SCREEN_GETLINEP because then an infinite loop }
-  { would result FIXUP --> CLEAR_MSGS --> PAUSE --> GETLINEP --> FIXUP.     }
-  var
-    buffer  : str_object;
-    outlen  : strlen_range;
-{#if turbop}
-    tmp_str : string;
-{#endif}
-
-  begin {screen_pause}
-  if ludwig_mode = ludwig_screen then
-    begin
-    if scr_frame != nullptr then
-      vdu_movecurs(1,1)
-    else
-      vdu_displaycrlf;
-    {
-    ! The prompt parameter to vdu_get_input is passed by reference for Unix
-    ! version as "pc" actually passes strings by value! So we stuff the prompt
-    ! in a temporary buffer and pass that.
+void screen_lines_inject(line_ptr first_line, line_range count, line_ptr before_line) {
+    // This routine is called just after LINES_INJECT has insert 'count' lines
+    // just above 'before_line', the first inserted being 'first_line'.
+    // LINES_INJECT has not changed any 'scr_row_nr' fields,  but has checked
+    // before_line->scr_row_nr != 0,  and before_line != scr_top_line.
+    //
+    // The rules for this routine are (1) 'first_line' should be   on the screen
+    // and (2) no more than 'scr_height' lines are to be drawn onto the screen.
+
+    int i;
+    line_ptr line;
+    scr_row_range row_nr;
+    int scrollup_count;
+    scr_row_range lines_above_insert;
+    scr_row_range lines_below_insert;
+
+    scr_row_range before_line_scr_row = before_line->scr_row_nr;
+
+    // HEURISTIC -- KEEP AS MANY LINES ON THE SCREEN AS POSSIBLE.
+    //           -- IT IS UNLIKELY THAT SCROLLUP WILL BE USED, DONT WASTE
+    //              A LOT OF CODE OPTIMIZING IT.  LET IT HAPPEN IF POSSIBLE.
+
+    scr_row_range free_space_below = terminal_info.height - scr_bot_line->scr_row_nr;
+    scr_row_range free_space_above = scr_top_line->scr_row_nr - 1;
+
+    if ((free_space_above > 0) && (before_line != scr_top_line) &&
+        (terminal_info.height > before_line->scr_row_nr - free_space_above + count)) {
+        scrollup_count = count - free_space_below;
+        if (scrollup_count > 0) {
+
+            // Scrolling the screen upwards is useful to do, because it will
+            // keep some lines on the screen that would otherwise have been lost.
+
+            if (scrollup_count > free_space_above)
+                scrollup_count = free_space_above;
+            vdu_scrollup(scrollup_count);
+            if (scr_msg_row <= terminal_info.height)
+                scr_msg_row = scr_msg_row - scrollup_count;
+
+            // WARNING -- only the SCR_ROW_NR's up to and including BEFORE_LINE
+            //         -- and SCR_BOT_LINE,
+            //         -- are corrected here.  There is not need to correct the
+            //         -- rest because they are about to change again.
+
+            line = scr_top_line;
+            row_nr = line->scr_row_nr-scrollup_count;
+            do {
+                line->scr_row_nr = row_nr;
+                row_nr += 1;
+                line = line->flink;
+            } while (line != first_line);
+
+            // Do the two weirdo exceptions, the order is crucial in case
+            // they are the same line.
+            //with scr_bot_line^ do
+            scr_bot_line->scr_row_nr -= scrollup_count;
+            before_line->scr_row_nr = row_nr;
+        }
     }
-{#if turbop}
-    tmp_str = 'Pausing until RETURN pressed: ';
-    move(tmp_str[1], buffer[1], length(tmp_str));
-    fillchar(buffer[succ(length(tmp_str))], sizeof(buffer)-length(tmp_str), ' ');
-{#else}
-{##    buffer = 'Pausing until RETURN pressed: ';}
-{#endif}
-    vdu_get_input(buffer,30,buffer,max_strlen,outlen);
-    if scr_top_line != nullptr then
-    if scr_top_line->scr_row_nr = 1 then
-      screen_draw_line(scr_top_line)
-    else
-      begin
-      vdu_movecurs(1,1);
-      vdu_cleareol;
-      if scr_top_line->scr_row_nr = 2 then scr_needs_fix = true;
-      end;
-    end;
-  end; {screen_pause}
 
+    // The screen is now optimally placed for the insertion.  If sensible
+    // extend the screen upwards.
 
-procedure screen_clear_msgs (
-                pause : boolean);
+    if ((before_line == scr_top_line) && (free_space_above > 0) &&
+        /* if scr_top_line->scr_row_nr+count-free_space_above <= tt_height then */
+        /* but free_space_above = scr_row_nr-1, hence the following 'weird' exp */
+        (count + 1 <= terminal_info.height)) {
+        row_nr = scr_top_line->scr_row_nr - 1;
+        while ((row_nr > 1) && (count > 0)) {
+            scr_top_line = scr_top_line->blink;
+            scr_top_line->scr_row_nr = row_nr;
+            screen_draw_line(scr_top_line);
+            row_nr -= 1;
+            count -= 1;
+        }
+        before_line = scr_top_line;
+    }
 
-  { Clear any messages off the screen. }
+    // Finally do the insert if one necessary.
 
-  begin {screen_clear_msgs}
-  if scr_msg_row <= terminal_info.height then
-    begin
-    if pause then screen_pause;
-    if scr_frame = nullptr then
-      vdu_clearscr
-    else
-      begin
-      vdu_movecurs(1,scr_msg_row);
-      vdu_cleareos;
-      end;
-    scr_msg_row = terminal_info.height+1;
-    end;
-  end; {screen_clear_msgs}
+    if (count > 0) {
+        if (before_line == scr_top_line)
+            scr_top_line = first_line;
+        row_nr = before_line->scr_row_nr;
+        vdu_movecurs(1, row_nr);
+        vdu_insertlines(count);
+        if (scr_msg_row <= terminal_info.height) {
+            scr_msg_row = scr_msg_row + count;
+            if (scr_msg_row > terminal_info.height)
+                scr_msg_row = terminal_info.height + 1;
+        }
 
-{#if WINDOWCHANGE or XWINDOWS}
-procedure screen_resize{};
-  { The screen has changed size, so erase it, get the new size, and redraw }
-  { it. }
+        // Patch up the pointers and scr_row_nr's of lines pushed off screen.
 
-  var next_span : span_ptr;
-      next_frame : frame_ptr;
-      band, half_screen : integer;
+        line = scr_bot_line;
+        for (i = line->scr_row_nr + count; i >= terminal_info.height + 1; --i) {
+            //with line^ do
+            if (line->scr_row_nr == 0)
+                break;
+            line->scr_row_nr = 0;
+            line = line->blink;
+        }
+        if (line->scr_row_nr != 0) {
 
-  procedure change_frame_size(frm : frame_ptr);
-  begin
-    with frm^ do
-      begin
-        if (scr_height = initial_scr_height) or
-          (scr_height > terminal_info.height) then
-            scr_height = terminal_info.height;
-        if (scr_width = initial_scr_width) or
-          (scr_width > terminal_info.width) then
-            scr_width = terminal_info.width;
-        { set the margins for the top and bottom }
-        { by default, they are 1/6 the height of the screen }
-        { if they are equal to initial_margin_top & bottom, then change them }
-        { if they are greater or equal to half the height, then change them }
-        if (margin_top = initial_margin_top) or (margin_top >=half_screen) then
-          margin_top = band;
-        if (margin_bottom = initial_margin_bottom)
-          or (margin_bottom >= half_screen) then
-            margin_bottom = band;
-        if (margin_left > terminal_info.width) then
-          margin_left = 1;
-        if (margin_right = initial_margin_right) or
-          (margin_right > terminal_info.width) then
-            margin_right = terminal_info.width;
-      end
-  end;
+            // Lines were pushed but left on the screen.
+            // Do all the lines on the screen, right up to 'first_line'.
 
-  begin {screen_resize}
+            scr_bot_line = line;
+            row_nr = line->scr_row_nr + count;
+            do {
+                //with line^ do
+                if (line->scr_row_nr == 0) {
+                    line->scr_row_nr = row_nr;
+                    screen_draw_line(line);
+                } else
+                    line->scr_row_nr = row_nr;
+                row_nr -= 1;
+                line = line->blink;
+            } while (line != first_line);
+            line->scr_row_nr = row_nr;
+            screen_draw_line(line);
+        } else {
+
+            // No lines were left on the screen.  Redraw downwards until enough
+            // lines on the screen.
+
+            scr_bot_line = first_line;
+            first_line->scr_row_nr = row_nr;
+            screen_draw_line(first_line);
+            screen_expand(false, true);
+        }
+    }
+}
+
+void screen_load(line_ptr line, col_range col) {
+    // LUDWIG_SCREEN:
+    // Map the screen into the specified frame, the line and col specified must
+    // be on the screen,  it is placed in the most desirable location.
+    // LUDWIG_BATCH:
+    // Do nothing.
+    // LUDWIG_HARDCOPY:
+    // Draw scr_height lines around the dot.
+
+    //  var
+    //    frame       : frame_ptr;
+    //    eop_line_nr,
+    //    line_nr     : line_range;
+    //    new_row     : integer;
+    //    dot_col     : col_range;
+    //    dot_line    : line_ptr;
+    //    half_width  : col_offset_range;
+    //    buflen      : strlen_range;
+    //{#if turbop}
+    //    i           : integer;
+    //{#endif}
+
+    const frame_ptr frame = line->group->frame;
+    switch (ludwig_mode) {
+    case ludwig_mode_type::ludwig_batch:
+        break;
+
+    case ludwig_mode_type::ludwig_hardcopy: {
+        int new_row = frame->scr_height / 2;
+        while ((new_row > 0) && (line->blink != nullptr)) {
+            line = line->blink;
+            new_row -= 1;
+        }
+        line_ptr dot_line = frame->dot->line;
+        col_range dot_col = frame->dot->col;
+        new_row = 1;
+        while ((new_row <= frame->scr_height) && (line != nullptr)) {
+            if (new_row == 1)
+                writeln("WINDOW:");
+            strlen_range buflen = 0;
+            //with line^ do
+            buflen = line->used;
+            if (line->flink == nullptr)
+                buflen = line->len;
+            if (buflen > 0)
+                writeln(line->str->data(), buflen);
+            else
+                writeln("");
+            if (line == dot_line) {
+                if (dot_col == 1)
+                    writeln("<");
+                else if (dot_col == MAX_STRLENP) {
+                    write(' ', MAX_STRLEN - 1);
+                    writeln(">");
+                } else {
+                    write(' ', dot_col - 2);
+                    writeln("><");
+                }
+            }
+            new_row += 1;
+            line = line->flink;
+        }
+    }
+        break;
+
+    case ludwig_mode_type::ludwig_screen: {
+        if (scr_frame != nullptr)             // A frame mapped at present.
+            screen_unload();                  //   Unload/clear it.
+        else {
+            vdu_clearscr();                   //   Clear the screen anyway.
+            scr_msg_row = terminal_info.height + 1;
+            scr_needs_fix = false;
+        }
+
+        //with line->group->frame^ do
+        int new_row = frame->scr_dot_line;
+        line_range line_nr;
+        if (!line_to_number(line, line_nr))
+            return;
+        line_range eop_line_nr = frame->last_group->first_line_nr + frame->last_group->nr_lines - 1;
+        if ((eop_line_nr - line_nr) < (terminal_info.height - new_row))
+            new_row = terminal_info.height - (eop_line_nr - line_nr);
+        if (line_nr < new_row)
+            new_row = line_nr;
+
+        line->scr_row_nr = new_row;
+
+        // Move left or right in 1/2 window chunks until DOT on screen.
+
+        col_range dot_col = frame->dot->col;
+        while ((dot_col <= frame->scr_offset) ||
+               (dot_col > frame->scr_offset + frame->scr_width)) {
+            col_offset_range half_width = frame->scr_width / 2;
+            if (half_width == 0)
+                half_width = 1;
+            if (dot_col <= frame->scr_offset) {
+                if (frame->scr_offset > half_width)
+                    frame->scr_offset -= half_width;
+                else
+                    frame->scr_offset = 0;
+            } else if (frame->scr_offset + half_width + frame->scr_width < MAX_STRLENP)
+                frame->scr_offset += half_width;
+            else
+                frame->scr_offset = MAX_STRLENP - frame->scr_width;
+        }
+
+        // Load the screen.
+
+        scr_frame = frame;
+        scr_bot_line = line;
+        scr_top_line = line;
+        screen_draw_line(line);
+        screen_expand(true, true);
+    }
+        break;
+    }
+}
+
+void screen_position(line_ptr new_line, col_range new_col) {
+    // Position the screen so that
+    //       (1) The specified line and column are on the screen.
+    //       (2) At least scr_frame->scr_height lines are on the screen.
+    //       (3) If possible the specified line is between the top and
+    //           bottom margins.
+    //       (4) No more than scr_height lines are written to the screen.
+//  var
+//    slide_dist     : integer;                 {Used during horizontal scroll.}
+//    slide_state    : slide_type;
+//    scroll_dist    : integer;
+//    scroll_state   : scroll_type;
+//    row_nr         : scr_row_range;
+//    nr_rows        : scr_row_range;
+//    line           : line_ptr;
+//    bot_line_nr,
+//    new_line_nr,
+//    top_line_nr    : line_range;
+
+    if (new_line->group->frame != scr_frame) {
+        screen_load(new_line, new_col);
+        return;
+    }
+
+    //with scr_frame^ do
+    col_offset_range offset     = scr_frame->scr_offset;
+    scr_col_range    width      = scr_frame->scr_width;
+    scr_row_range    top_margin = scr_frame->margin_top;
+    scr_row_range    bot_margin = scr_frame->margin_bottom;
+
+    // Check that the specified position is not on the screen between margins.
+    // The very common case is that it is, and that the screen need not be
+    // moved.
+
+    if ((new_line->scr_row_nr == 0) ||
+        ((new_line->scr_row_nr - scr_top_line->scr_row_nr < top_margin) && (scr_top_line->blink != nullptr)) ||
+        ((scr_bot_line->scr_row_nr - new_line->scr_row_nr < bot_margin) && (scr_bot_line->flink != nullptr)) ||
+        (new_col <= offset) ||
+        (new_col > offset + width)) {
+        // Unfortunately this is the uncommon case.
+        //with scr_frame^ do
+        scr_row_range height   = scr_frame->scr_height;
+        line_ptr      bot_line = scr_bot_line;
+        line_ptr      top_line = scr_top_line;
+
+        slide_type slide_state = slide_type::slide_dont; // Compute horizontal adjusting needed.
+        int        slide_dist  = offset + 1 - new_col;
+        if (slide_dist > 0) {                            // Col to left of screen.
+            slide_state = slide_type::slide_redraw;      // Redraw unless can slide there.
+            if (offset < width / 4) {                    // Heuristic, slide if sensible.
+                slide_state = slide_type::slide_left;
+                slide_dist  = offset;
+            }
+        } else {
+            slide_dist = new_col - (offset + width);
+            if (slide_dist > 0) {                        // Col to right of screen.
+                slide_state = slide_type::slide_redraw;  // Redraw unless can slide there.
+                if (offset > MAX_STRLENP - width / 4) {  // Heuristic, slide if sensible.
+                    slide_state = slide_type::slide_right;
+                    slide_dist  = MAX_STRLENP - (offset + width);
+                }
+            }
+        }
+        scroll_type scroll_state = scroll_type::scroll_dont;
+        int         scroll_dist;
+        if ((slide_state != slide_type::slide_redraw) &&
+            ((new_line->scr_row_nr == 0)  ||
+             ((new_line->scr_row_nr - scr_top_line->scr_row_nr < top_margin) && (scr_top_line->blink != nullptr)) ||
+             ((scr_bot_line->scr_row_nr-new_line->scr_row_nr < bot_margin) && (scr_bot_line->flink != nullptr)))) {
+            // Compute vertical adjusting needed.
+            line_range bot_line_nr;
+            line_range new_line_nr;
+            line_range top_line_nr;
+            if (!line_to_number(bot_line, bot_line_nr) || !line_to_number(new_line, new_line_nr) || !line_to_number(top_line, top_line_nr))
+                return;
+
+            scroll_state = scroll_type::scroll_redraw;
+            if ((new_line_nr < top_line_nr) || ((new_line_nr < top_line_nr+top_margin) && (new_line_nr < bot_line_nr))) {
+                scroll_state = scroll_type::scroll_back;
+                scroll_dist  = top_line_nr + top_margin - new_line_nr;
+                if (scroll_dist >= top_line_nr)
+                    scroll_dist = top_line_nr - 1;
+            } else {
+                scroll_state = scroll_type::scroll_forward;
+                scroll_dist  = new_line_nr - (bot_line_nr - bot_margin);
+                if (scroll_dist <= 0)
+                    scroll_state = scroll_type::scroll_dont;
+            }
+            if ((scroll_state != scroll_type::scroll_redraw) && (scroll_dist > height))
+                scroll_state = scroll_type::scroll_redraw;
+        }
+
+        // At this point SLIDE_STATE, SLIDE_DIST, SCROLL_STATE and SCROLL_DIST
+        // are carrying all the advice about how to get to the new position.
+        // If either state has voted for a redraw, then a redraw it is, else
+        // a combined scroll and slide operation is embarked on.
+
+        if ((scroll_state == scroll_type::scroll_redraw) || (slide_state == slide_type::slide_redraw))
+            screen_load(new_line, new_col);
+        else {
+            if (slide_state != slide_type::slide_dont) {
+                // Adjust the screen offset and the lines that are
+                // going to be left on the screen when scrolling.
+
+                //with scr_frame^ do
+                if (slide_state == slide_type::slide_left)
+                    scr_frame->scr_offset -= slide_dist;
+                else
+                    scr_frame->scr_offset += slide_dist;
+                line_ptr line = top_line;
+                switch (scroll_state) {
+                case scroll_type::scroll_redraw:
+                    // impossible
+                    break;
+                case scroll_type::scroll_dont:
+                case scroll_type::scroll_forward: {
+                    if (scroll_state == scroll_type::scroll_dont)
+                        scroll_dist = 0;
+
+                    // Predict which lines are going to be left on the screen.
+                    scr_row_range nr_rows = terminal_info.height - bot_line->scr_row_nr;
+                    scr_row_range row_nr;
+                    if (nr_rows >= scroll_dist)
+                        row_nr = 0;   // slide all the lines.
+                    else              // slide all but the lines that will scroll off.
+                        row_nr = scroll_dist - nr_rows;
+
+                    // Adjust those lines that will be left on the screen.
+
+                    do {
+                        if (line->scr_row_nr > row_nr)
+                            screen_slide_line(line, slide_dist, slide_state);
+                        if (line != bot_line)
+                            line = line->flink;
+                        else
+                            line = nullptr;
+                    } while (line != nullptr);
+                }
+                    break;
+
+                case scroll_type::scroll_back: {
+                    // Decide which lines are going to be left on the screen.
+
+                    scr_row_range nr_rows = top_line->scr_row_nr-1;
+                    scr_row_range row_nr;
+                    if (nr_rows < scroll_dist) // slide all the lines
+                        row_nr = terminal_info.height;
+                    else    // slide all the lines that won't scroll off.
+                        row_nr = terminal_info.height - (scroll_dist - nr_rows);
+
+                    // Adjust those lines that will be left on the screen.
+
+                    do {
+                        if (line->scr_row_nr <= row_nr)
+                            screen_slide_line(line, slide_dist, slide_state);
+                        if (line != top_line)
+                            line = line->blink;
+                        else
+                            line = nullptr;
+                    } while (line != nullptr);
+                }
+                    break;
+                }
+            }
+
+            switch (scroll_state) {
+            case scroll_type::scroll_redraw:
+                // impossible
+                break;
+            case scroll_type::scroll_forward:
+                screen_scroll(scroll_dist, true);
+                break;
+            case scroll_type::scroll_back:
+                screen_scroll(-scroll_dist, true);
+                break;
+            case scroll_type::scroll_dont:
+                break;
+            }
+        }
+    }
+    screen_expand(true,true);
+}
+
+void screen_pause() {
+    // Wait until user types a RETURN.  Only in SCREEN mode,  as in HARDCOPY
+    // or batch there is no point in it.
+    //
+    // This routine DOES NOT use SCREEN_GETLINEP because then an infinite loop
+    // would result FIXUP --> CLEAR_MSGS --> PAUSE --> GETLINEP --> FIXUP.
+//  var
+//    buffer  : str_object;
+//    outlen  : strlen_range;
+//{#if turbop}
+//    tmp_str : string;
+//{#endif}
+
+    if (ludwig_mode == ludwig_mode_type::ludwig_screen) {
+        if (scr_frame != nullptr)
+            vdu_movecurs(1, 1);
+        else
+            vdu_displaycrlf();
+        str_object buffer;
+        strlen_range outlen = std::strlen(PAUSE_MSG);
+        buffer.copy(PAUSE_MSG, outlen);
+        vdu_get_input(buffer, outlen, buffer, MAX_STRLEN, outlen);
+        if ((scr_top_line != nullptr) && (scr_top_line->scr_row_nr == 1))
+            screen_draw_line(scr_top_line);
+        else {
+            vdu_movecurs(1, 1);
+            vdu_cleareol();
+            if (scr_top_line->scr_row_nr == 2)
+                scr_needs_fix = true;
+        }
+    }
+}
+
+void screen_clear_msgs(bool pause) {
+    // Clear any messages off the screen.
+    if (scr_msg_row <= terminal_info.height) {
+        if (pause)
+            screen_pause();
+        if (scr_frame == nullptr)
+            vdu_clearscr();
+        else {
+            vdu_movecurs(1, scr_msg_row);
+            vdu_cleareos();
+        }
+        scr_msg_row = terminal_info.height + 1;
+    }
+}
+
+#ifdef WINDOWCHANGE
+
+void change_frame_size(frame_ptr frm, int band, int half_screen) {
+    //with frm^ do
+    if ((frm->scr_height == initial_scr_height) || (frm->scr_height > terminal_info.height))
+        frm->scr_height = terminal_info.height;
+    if ((frm->scr_width == initial_scr_width) || (frm->scr_width > terminal_info.width))
+        frm->scr_width = terminal_info.width;
+    // set the margins for the top and bottom
+    // by default, they are 1/6 the height of the screen
+    // if they are equal to initial_margin_top & bottom, then change them
+    // if they are greater or equal to half the height, then change them
+    if ((frm->margin_top == initial_margin_top) || (frm->margin_top >= half_screen))
+        frm->margin_top = band;
+    if ((frm->margin_bottom == initial_margin_bottom) || (frm->margin_bottom >= half_screen))
+        frm->margin_bottom = band;
+    if (frm->margin_left > terminal_info.width)
+        frm->margin_left = 1;
+    if ((frm->margin_right == initial_margin_right) || (frm->margin_right > terminal_info.width))
+        frm->margin_right = terminal_info.width;
+}
+
+void screen_resize() {
+    // The screen has changed size, so erase it, get the new size, and redraw
+    // it.
+
+//  var next_span : span_ptr;
+//      next_frame : frame_ptr;
+//      band, half_screen : integer;
+
     tt_winchanged = false;
-    vdu_get_new_dimensions( terminal_info.width, terminal_info.height );
+    vdu_get_new_dimensions(terminal_info.width, terminal_info.height);
     scr_msg_row = terminal_info.height + 1;
-    vdu_clearscr;
-    { change the screen height, width, and margins of all the frames }
-    band = terminal_info.height div 6;
-    half_screen = terminal_info.height div 2;
-    next_span = first_span;
-    while (next_span != nullptr) do
-      begin
+    vdu_clearscr();
+    // change the screen height, width, and margins of all the frames
+    int band = terminal_info.height / 6;
+    int half_screen = terminal_info.height / 2;
+    span_ptr next_span = first_span;
+    frame_ptr next_frame;
+    while (next_span != nullptr) {
         next_frame = next_span->frame;
-        if (next_frame != nullptr) then
-          change_frame_size(next_frame);
+        if (next_frame != nullptr)
+            change_frame_size(next_frame, band, half_screen);
         next_span = next_span->flink;
-      end;
+    }
     initial_margin_right = terminal_info.width;
     initial_margin_bottom = band;
     initial_margin_top = band;
     initial_scr_width = terminal_info.width;
     initial_scr_height = terminal_info.height;
 
-    { now actually repaint the screen with the current frame }
-    { I'm not terribly happy with this - there might be a memory leak in}
-    { here with the screen_load without doing a screen_unload. But since }
-    { nobody saw fit to provide any comments describing what the hell    }
-    { screen load/unload do, it can't be too much of a problem           }
+    // now actually repaint the screen with the current frame
+    // I'm not terribly happy with this - there might be a memory leak in
+    // here with the screen_load without doing a screen_unload. But since
+    // nobody saw fit to provide any comments describing what the hell
+    // screen load/unload do, it can't be too much of a problem
 
-    with current_frame^, dot^ do
-      begin
-        screen_load (line, col);
+    //with current_frame^, dot^ do
+    screen_load(current_frame->dot->line, current_frame->dot->col);
+    scr_needs_fix = false;
+    screen_expand(true, true);
+    vdu_movecurs(current_frame->dot->col - current_frame->scr_offset, current_frame->dot->line->scr_row_nr);
+}
+
+#endif
+
+void screen_fixup() {
+    // Make sure that the screen is user's view of the screen is correct.
+//  var
+//    key :key_code_range;
+
+#ifdef DEBUG
+    if (ludwig_mode != ludwig_mode_type::ludwig_screen) {
+        screen_message(DBG_INTERNAL_LOGIC_ERROR);
+        return;
+    }
+#endif
+#ifdef WINDOWCHANGE
+    if (tt_winchanged)
+        screen_resize();
+    else {
+#endif
+        //with current_frame^,dot^ do
+        if (scr_frame != current_frame) {
+            if (scr_msg_row <= terminal_info.height)
+                screen_clear_msgs(true);
+            screen_load(current_frame->dot->line, current_frame->dot->col);
+        } else {
+            if ((current_frame->dot->line->scr_row_nr = 0) ||
+                ((current_frame->dot->line->scr_row_nr - scr_top_line->scr_row_nr < current_frame->margin_top) &&
+                 (scr_top_line->blink != nullptr)) ||
+                ((scr_bot_line->scr_row_nr - current_frame->dot->line->scr_row_nr < current_frame->margin_bottom) &&
+                 (scr_bot_line->flink != nullptr)) ||
+                (current_frame->dot->col <= current_frame->scr_offset) ||
+                (current_frame->dot->col > current_frame->scr_offset + current_frame->scr_width)) {
+                if (scr_msg_row <= terminal_info.height)
+                    screen_clear_msgs(true);
+                screen_position(current_frame->dot->line, current_frame->dot->col);
+            } else if (scr_msg_row <= terminal_info.height) {
+                // Leave screen until key press if there are messages to read.
+                vdu_movecurs(current_frame->dot->col - current_frame->scr_offset, current_frame->dot->line->scr_row_nr);
+                key_code_range key = vdu_get_key();
+                screen_clear_msgs(false);
+                if (tt_controlc)
+                    return;
+                vdu_take_back_key(key);
+            }
+        }
         scr_needs_fix = false;
         screen_expand(true, true);
-        vdu_movecurs(col-scr_offset, line->scr_row_nr);
-      end
-  end; {screen_resize}
+        vdu_movecurs(current_frame->dot->col - current_frame->scr_offset, current_frame->dot->line->scr_row_nr);
+#ifdef WINDOWCHANGE
+    }
+#endif
+}
 
-{#endif}
+void screen_getlinep(const str_object &prompt, strlen_range prompt_len,
+                     str_object &outbuf, strlen_range &outlen,
+                     tpcount_type max_tp, tpcount_type this_tp) {
 
-procedure screen_fixup{};
+//  label
+//    1,2;
+//  var
+//    index    : tpcount_type;
+//    tmp_line : line_ptr;
+//    i : integer;
+//    ch : char;
 
-  {Make sure that the screen is user's view of the screen is correct.}
-  label 99;
-  var
-    key :key_code_range;
+    outlen = 0;       // THIS IS DONE BECAUSE ?_GET_INPUT MAY TREAT OUTLEN
+                      // AS A WORD, NOT AS A LONGWORD.
+    line_ptr tmp_line;
+    max_tp = std::abs(max_tp);        // this is negative with some file prompts
+    if (!tt_controlc) {
+        if (ludwig_mode == ludwig_mode_type::ludwig_screen) {
+            prompt_region[this_tp].line_nr = 0;
+            prompt_region[this_tp].redraw = nullptr;
 
-  begin {screen_fixup}
-{#if debug}
-  if ludwig_mode != ludwig_screen then
-    begin screen_message(dbg_internal_logic_error); goto 99; end;
-{#endif}
-{#if WINDOWCHANGE or XWINDOWS}
-  if tt_winchanged then
-    screen_resize
-  else
-  begin
-{#endif}
-  with current_frame^,dot^ do
-    begin
-    if scr_frame != current_frame then
-      begin
-      if scr_msg_row <= terminal_info.height then
-        screen_clear_msgs(true);
-      screen_load(line,col);
-      end
-    else
-      begin
-      if (line->scr_row_nr = 0)
-      or (    (line->scr_row_nr-scr_top_line->scr_row_nr < margin_top)
-          and (scr_top_line->blink != nullptr)
-         )
-      or (    (scr_bot_line->scr_row_nr-line->scr_row_nr < margin_bottom)
-          and (scr_bot_line->flink != nullptr)
-         )
-      or (col <= scr_offset)
-      or (col  > scr_offset+scr_width)
-      then
-        begin
-        if scr_msg_row <= terminal_info.height then
-          screen_clear_msgs(true);
-        screen_position(line,col);
-        end
-      else
-      if scr_msg_row <= terminal_info.height then
-        { Leave screen until key press if there are messages to read.}
-        begin
-        vdu_movecurs(col-scr_offset,line->scr_row_nr);
-        key = vdu_get_key;
-        screen_clear_msgs(false);
-        if tt_controlc then goto 99;
-        vdu_take_back_key(key);
-        end;
-      end;
+            if (scr_top_line == nullptr)
+                goto l1;
+            screen_fixup();
+            prompt_region[this_tp].line_nr = this_tp;
+            if (scr_top_line->scr_row_nr > max_tp)
+                goto l1;
+            if (scr_bot_line->scr_row_nr < scr_msg_row - max_tp) {
+                prompt_region[this_tp].line_nr = scr_msg_row - max_tp + this_tp - 1;
+                goto l1;
+            }
+            tmp_line = scr_top_line;
+            for (int index = scr_top_line->scr_row_nr; index <= this_tp - 1; ++index)
+                tmp_line = tmp_line->flink;
+            prompt_region[this_tp].redraw = tmp_line;
+            if (scr_frame->dot->line->scr_row_nr > 2)
+                goto l1;
 
-    scr_needs_fix = false;
-    screen_expand(true,true);
-    vdu_movecurs(col-scr_offset,line->scr_row_nr);
-    end;
-{#if WINDOWCHANGE or XWINDOWS}
-  end;
-{#endif}
-  99:
-  end; {screen_fixup}
+            tmp_line = scr_bot_line;
+            for (int index = terminal_info.height - scr_bot_line->scr_row_nr; index <= max_tp - this_tp - 1; ++index)
+                tmp_line = tmp_line->blink;
+            if (terminal_info.height - scr_bot_line->scr_row_nr > max_tp - this_tp)
+                tmp_line = nullptr;
+            prompt_region[this_tp].redraw = tmp_line;
+            prompt_region[this_tp].line_nr = terminal_info.height - max_tp + this_tp;
 
+    l1:
+            if (prompt_region[this_tp].line_nr != 0)
+                vdu_movecurs(1, prompt_region[this_tp].line_nr);
+            vdu_get_input(prompt, prompt_len, outbuf, MAX_STRLEN, outlen);
+            if (tt_controlc)
+                goto l2;
+            if (outlen == 0) {
+                for (int index = this_tp + 1; index <= max_tp; ++index) {
+                    prompt_region[index].line_nr = 0;
+                    prompt_region[index].redraw = nullptr;
+                }
+            }
+            if ((this_tp == max_tp) || (outlen == 0)) {
+                for (tpcount_type index = 1; index <= max_tp; ++index) {
+                    if (prompt_region[index].redraw != nullptr)
+                        screen_draw_line(prompt_region[index].redraw);
+                    else
+                        if (prompt_region[index].line_nr != 0) {
+                            vdu_movecurs(1, prompt_region[index].line_nr);
+                            vdu_cleareol();
+                        }
+                }
+            }
+            vdu_flush(false);
+        } else {
+            write(prompt.data(), prompt_len);
+            std::string input;
+            std::getline(std::cin, input);
+            outbuf.copy(input.data(), input.size());
+            outlen = input.size();
+        }
+    }
+l2:
+    if (tt_controlc)
+        outlen = 0;
+}
 
-{#if vms}
-{##procedure screen_getlinep #<(}
-{##                prompt     : packed array [l1..h1:strlen_range] of char;}
-{##                prompt_len : strlen_range;}
-{##        var     outbuf     : str_object;}
-{##        var     outlen     : strlen_range;}
-{##                max_tp,}
-{##                this_tp    : tpcount_type)#>;}
-{#else}
-procedure screen_getlinep (
-                prompt     : str_object;
-                prompt_len : strlen_range;
-        var     outbuf     : str_object;
-        var     outlen     : strlen_range;
-                max_tp,
-                this_tp    : tpcount_type);
-{#endif}
+void screen_free_bottom_line() {
+    // This routine assumes that the editor is in SCREEN mode.
+    // This routine frees the bottom line of the screen for use by the caller.
+    // The main use of the area is the outputting of messages.
+#ifdef DEBUG
+    if (ludwig_mode != ludwig_mode_type::ludwig_screen) {
+        screen_message(DBG_INTERNAL_LOGIC_ERROR);
+        return;
+    }
+#endif
+    if (scr_frame == nullptr) {                   // IF SCREEN NOT MAPPED.
+        vdu_displaycrlf();
+        vdu_deletelines(1, false);
+        return;
+    }
+    scr_needs_fix = true;
+    // IF BOTTOM LINE FREE.
+    if ((scr_msg_row > terminal_info.height) && (scr_bot_line->scr_row_nr < terminal_info.height)) {
+        // Nothing
+    } else if (scr_bot_line->scr_row_nr + 2 < scr_msg_row) { // IF ROOM BELOW BOT LINE.
+                                                             // +2 because of <eos> line.
+        vdu_movecurs(1, scr_bot_line->scr_row_nr + 2);
+        vdu_deletelines(1, false);
+    } else if (scr_top_line->scr_row_nr != 1) {      // IF TOP LINE FREE.
+        screen_scroll(1, false);
+    } else {
+        //with scr_bot_line^ do
+        if (scr_bot_line->scr_row_nr + 1 < scr_msg_row) {          // IF ROOM FOR MORE MSGS.
+            if (scr_bot_line->scr_row_nr + 2 < scr_msg_row)        // keep <eos> if possible.
+                vdu_movecurs(1, scr_bot_line->scr_row_nr + 2);
+            else
+                vdu_movecurs(1, scr_bot_line->scr_row_nr + 1);
+            vdu_deletelines(1,false);
+        } else if ((scr_frame->dot->line != scr_top_line) && // IF DOT NOT ON TOP LINE,
+                   !((scr_frame->dot->line != scr_bot_line) &&
+                     (scr_bot_line->scr_row_nr = terminal_info.height))) { // AND WE CANT USE THE BOT.
+            screen_scroll(1, false);
+        } else if (scr_msg_row <= terminal_info.height / 2) { // 1/2 SCREEN ALREADY MSGS.
+            vdu_movecurs(1, scr_msg_row);
+            vdu_deletelines(1, false);
+            return;
+        } else {                                     // CONTRACT SCREEN 1 LINE.
+            scr_bot_line->scr_row_nr = 0;
+            scr_bot_line = scr_bot_line->blink;
+            vdu_movecurs(1, scr_msg_row - 1);
+            vdu_deletelines(1, false);
+        }
+    }
+    scr_msg_row -= 1;
+}
 
-  label
-    1,2;
-  var
-    index    : tpcount_type;
-    tmp_line : line_ptr;
-{#if vms}
-{##    prompt_dsc : string_descriptor;}
-{##    outbuf_dsc : string_descriptor;}
-{#else}
-    i : integer;
-    ch : char;
-{#endif}
+verify_response screen_verify(str_object prompt, strlen_range prompt_len) {
+    // Issue a verify request to the user ... the user is to be shown the
+    // current dot position.
 
-  begin {screen_getlinep}
-  outlen = 0;       { THIS IS DONE BECAUSE ?_GET_INPUT MAY TREAT OUTLEN  }
-                     { AS A WORD, NOT AS A LONGWORD.                      }
+    const int ver_height = 4;
+//  var
+//    key        : key_code_range;
+//    more       : boolean;
+//    use_prompt : boolean;
+//    old_height : scr_row_range;
+//    old_top_m  : scr_row_range;
+//    old_bot_m  : scr_row_range;
+//    response   : str_object;
+//    resp_len   : strlen_range;
+//    verify     : verify_response;
+//    i          : integer;
+//    buffer     : str_object;
+//{#if turbop}
+//    tmp_str    : string;
+//{#endif}
 
-  max_tp = abs(max_tp);        {this is negative with some file prompts}
-  if not tt_controlc then
-    begin
-    if ludwig_mode = ludwig_screen then
-      begin
+    prompt.fill(' ', prompt_len + 1);
 
-      prompt_region[this_tp].line_nr = 0;
-      prompt_region[this_tp].redraw = nullptr;
+    //with current_frame^,dot^ do
+    verify_response verify = verify_response::verify_reply_quit;
 
-      if scr_top_line = nullptr then goto 1;
-      screen_fixup;
-      prompt_region[this_tp].line_nr = this_tp;
-      if scr_top_line->scr_row_nr > max_tp then goto 1;
-      if scr_bot_line->scr_row_nr < scr_msg_row-max_tp then
-        begin
-        prompt_region[this_tp].line_nr = scr_msg_row-max_tp+this_tp-1;
-        goto 1;
-        end;
-      tmp_line = scr_top_line;
-      for index = scr_top_line->scr_row_nr to this_tp-1 do
-        tmp_line = tmp_line->flink;
-      prompt_region[this_tp].redraw = tmp_line;
-      if scr_frame->dot->line->scr_row_nr > 2 then goto 1;
+    scr_row_range old_height = current_frame->scr_height;
+    scr_row_range old_top_m  = current_frame->margin_top;
+    scr_row_range old_bot_m  = current_frame->margin_bottom;
+    if (old_height > ver_height) {
+        current_frame->margin_top    = ver_height / 2;
+        current_frame->scr_height    = ver_height;
+        current_frame->margin_bottom = ver_height / 2;
+    }
 
-      tmp_line = scr_bot_line;
-      for index = terminal_info.height-scr_bot_line->scr_row_nr to max_tp-this_tp-1 do
-        tmp_line = tmp_line->blink;
-      if terminal_info.height - scr_bot_line->scr_row_nr > max_tp - this_tp then
-        tmp_line = nullptr;
-      prompt_region[this_tp].redraw = tmp_line;
-      prompt_region[this_tp].line_nr = terminal_info.height - max_tp + this_tp;
+    bool use_prompt = true;
+    key_code_range key;
+    bool more;
+    do {
+        switch (ludwig_mode) {
+        case ludwig_mode_type::ludwig_screen: {
+            screen_fixup();
+            if (use_prompt) {
+                screen_str_message(prompt);
+            } else {
+                screen_message(YNAQM_MSG);
+            }
+            vdu_movecurs(current_frame->dot->col - current_frame->scr_offset,
+                         current_frame->dot->line->scr_row_nr);
+            key = vdu_get_key();
+            if (lower_set.contains(key.value())) {
+                key = std::toupper(key.value());
+            }
+            if (key == 13)
+                key = 'N';     // RETURN <=> NO
+            screen_clear_msgs(false);
+        }
+            break;
 
-    1:
-      if prompt_region[this_tp].line_nr != 0 then
-        vdu_movecurs(1,prompt_region[this_tp].line_nr);
-      vdu_get_input(prompt,prompt_len,outbuf,max_strlen,outlen);
-      if tt_controlc then goto 2;
-      if outlen = 0 then
-        for index = this_tp+1 to max_tp do
-          begin
-            prompt_region[index].line_nr = 0;
-            prompt_region[index].redraw = nullptr;
-          end;
-      if (this_tp = max_tp) or (outlen = 0) then
-        for index = 1 to max_tp do
-          begin
-          if prompt_region[index].redraw != nullptr then
-            screen_draw_line(prompt_region[index].redraw)
-          else
-          if prompt_region[index].line_nr != 0 then
-            begin
-            vdu_movecurs(1,prompt_region[index].line_nr);
-            vdu_cleareol;
-            end;
-          end;
-      vdu_flush(false);
-      end
-    else
-      begin
-{#if vms}
-{##      vms_str_to_dsc(prompt,prompt_len,prompt_dsc);}
-{##      vms_str_to_dsc(outbuf,max_strlen,outbuf_dsc);}
-{##      vms_check_status(lib$get_input(outbuf_dsc,prompt_dsc,outlen));}
-{#else}
-      for i = 1 to prompt_len do
-        write(prompt[i]);
-      outlen = 0;
-      while not eoln do
-        begin
-        outlen = outlen+1;
-        read(ch);
-        outbuf[outlen] = ch;
-        end;
-      readln;
-{#endif}
-      end;
-    end;
-2:
-  if tt_controlc then
-    outlen = 0;
-  end; {screen_getlinep}
-
-
-procedure screen_free_bottom_line{};
-
-  label 99;
-
-  begin {screen_free_bottom_line}
-  { This routine assumes that the editor is in SCREEN mode.                  }
-  { This routine frees the bottom line of the screen for use by the caller.  }
-  { The main use of the area is the outputting of messages.                  }
-{#if debug}
-  if ludwig_mode != ludwig_screen then
-    begin screen_message(dbg_internal_logic_error); goto 99; end;
-{#endif}
-  if scr_frame = nullptr then                         { IF SCREEN NOT MAPPED.    }
-    begin
-    vdu_displaycrlf;
-    vdu_deletelines(1,false);
-    goto 99;
-    end;
-  scr_needs_fix = true;
-  if (scr_msg_row > terminal_info.height) and   { IF BOTTOM LINE FREE.     }
-     (scr_bot_line->scr_row_nr < terminal_info.height)
-  then
-    begin
-    end
-  else
-  if (trmflags_v_dlln in tt_capabilities) and     { IF ROOM BELOW BOT LINE.  }
-     (scr_bot_line->scr_row_nr+2 < scr_msg_row)   { +2 because of <eos> line.}
-  then
-    begin
-    vdu_movecurs(1,scr_bot_line->scr_row_nr+2);
-    vdu_deletelines(1,false);
-    end
-  else
-  if scr_top_line->scr_row_nr != 1 then           { IF TOP LINE FREE.        }
-    begin
-    screen_scroll(1,false);
-    end
-  else
-  with scr_bot_line^ do
-    begin
-    if scr_row_nr+1 < scr_msg_row then            { IF ROOM FOR MORE MSGS.   }
-      begin
-      if scr_row_nr+2 < scr_msg_row then          { keep <eos> if possible.  }
-        vdu_movecurs(1,scr_row_nr+2)
-      else
-        vdu_movecurs(1,scr_row_nr+1);
-      vdu_deletelines(1,false);
-      end
-    else
-    if  (scr_frame->dot->line != scr_top_line)   { IF DOT NOT ON TOP LINE,  }
-    and not (   (scr_frame->dot->line != scr_bot_line)
-            and (scr_bot_line->scr_row_nr = terminal_info.height)
-            )                                    { AND WE CANT USE THE BOT. }
-    then
-      begin
-      screen_scroll(1,false);
-      end
-    else
-    if scr_msg_row <= terminal_info.height div 2 then { 1/2 SCREEN ALREADY MSGS. }
-      begin
-      vdu_movecurs(1,scr_msg_row);
-      vdu_deletelines(1,false);
-      goto 99;
-      end
-    else
-      begin                                      { CONTRACT SCREEN 1 LINE.  }
-      scr_row_nr = 0;
-      scr_bot_line = blink;
-      vdu_movecurs(1,scr_msg_row-1);
-      vdu_deletelines(1,false);
-      end;
-    end;
-  scr_msg_row = scr_msg_row-1;
-  99:
-  end; {screen_free_bottom_line}
-
-
-function screen_verify (
-                prompt     : str_object;
-                prompt_len : strlen_range)
-        : verify_response;
-
-  { Issue a verify request to the user ... the user is to be shown the }
-  { current dot position. }
-  label
-    99;
-  const
-    ver_height = 4;
-  var
-    key        : key_code_range;
-    more       : boolean;
-    use_prompt : boolean;
-    old_height : scr_row_range;
-    old_top_m  : scr_row_range;
-    old_bot_m  : scr_row_range;
-    response   : str_object;
-    resp_len   : strlen_range;
-    verify     : verify_response;
-    i          : integer;
-    buffer     : str_object;
-{#if turbop}
-    tmp_str    : string;
-{#endif}
-
-  begin {screen_verify}
-  for i = prompt_len + 1 to max_strlen do
-    prompt[i] = ' ';
-  with current_frame^,dot^ do
-    begin
-    verify = verify_reply_quit;
-
-    old_height = scr_height;
-    old_top_m  = margin_top;
-    old_bot_m  = margin_bottom;
-    if old_height > ver_height then
-      begin
-      margin_top    = ver_height div 2;
-      scr_height    = ver_height;
-      margin_bottom = ver_height div 2;
-      end;
-
-    use_prompt = true;
-    repeat
-      case ludwig_mode of
-        ludwig_screen:
-          begin
-          screen_fixup;
-          if use_prompt then
-            screen_str_message(prompt)
-          else
-            begin
-{#if turbop}
-            tmp_str = 'Reply Y(es),N(o),A(lways),Q(uit),M(ore)';
-            move(tmp_str[1], buffer[1], length(tmp_str));
-            fillchar(buffer[succ(length(tmp_str))], sizeof(buffer)-length(tmp_str), ' ');
-{#else}
-{##            buffer = 'Reply Y(es),N(o),A(lways),Q(uit),M(ore)';}
-{#endif}
-            screen_str_message(buffer);
-            end;
-          vdu_movecurs(col-scr_offset,line->scr_row_nr);
-          key = vdu_get_key;
-          if key in lower_set then
-            key = ord(ch_upcase_chr(chr(key)));
-          if key = 13 then key = ord('N');     { RETURN <=> NO }
-          screen_clear_msgs(false);
-          end;
-        ludwig_batch,
-        ludwig_hardcopy:
-          begin
-          if use_prompt then
-            screen_getlinep(prompt, prompt_len, response, resp_len, 1, 1)
-          else
-            begin
-{#if turbop}
-            tmp_str = 'Reply Y(es),N(o),A(lways),Q(uit),M(ore)';
-            move(tmp_str[1], buffer[1], length(tmp_str));
-            fillchar(buffer[succ(length(tmp_str))], sizeof(buffer)-length(tmp_str), ' ');
-{#else}
-{##            buffer = 'Reply Y(es),N(o),A(lways),Q(uit),M(ore)';}
-{#endif}
-            screen_getlinep(buffer,39,
-                            response, resp_len, 1, 1);
-            end;
-          if resp_len = 0 then key = ord('N')
-          else key = ord(ch_upcase_chr(response[1]));
-          end;
-      end{case};
-      if tt_controlc then goto 99;
-      more = false;
-      if key in [ord(' '), ord('Y'), ord('N'), ord('A'), ord('Q'), ord('1')..ord('9'), ord('M')] then
-        case chr(key) of
-          ' ',                                {default for yes on Tops 20;CJB}
-          'Y' : verify = verify_reply_yes;
-          'N' : verify = verify_reply_no;
-          'A' : verify = verify_reply_always;
-          'Q' : verify = verify_reply_quit;
-          '1','2','3','4','5','6','7','8','9',
-          'M' : begin { MORE CONTEXT PLEASE! }
-                {How much is user getting now?}
-                if scr_top_line != nullptr then
-                scr_height = scr_bot_line->scr_row_nr+1
-                               -scr_top_line->scr_row_nr;
-                {How much more does he want?}
-                if key = ord('M') then key = ord('1');
-                if key-ord('0')+scr_height < terminal_info.height then
-                  scr_height = scr_height+key-ord('0')
+        case ludwig_mode_type::ludwig_batch:
+        case ludwig_mode_type::ludwig_hardcopy: {
+            str_object response;
+            strlen_range resp_len;
+            if (use_prompt) {
+                screen_getlinep(prompt, prompt_len, response, resp_len, 1, 1);
+            } else {
+                str_object buffer;
+                size_t buf_len = std::strlen(YNAQM_MSG);
+                buffer.copy(YNAQM_MSG, buf_len);
+                screen_getlinep(buffer, buf_len, response, resp_len, 1, 1);
+            }
+            if (resp_len == 0)
+                key = 'N';
+            else
+                key = std::toupper(response[1]);
+        }
+            break;
+        }
+        if (tt_controlc)
+            goto l99;
+        more = false;
+        if (YNAQM_CHARS.find(key.value()) != std::string::npos) {
+            switch (key.value()) {
+            case ' ':                                //default for yes on Tops 20;CJB
+            case 'Y':
+                verify = verify_response::verify_reply_yes;
+                break;
+            case 'N':
+                verify = verify_response::verify_reply_no;
+                break;
+            case 'A':
+                verify = verify_response::verify_reply_always;
+                break;
+            case 'Q':
+                verify = verify_response::verify_reply_quit;
+                break;
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+            case 'M': { // MORE CONTEXT PLEASE!
+                // How much is user getting now?
+                if (scr_top_line != nullptr)
+                    current_frame->scr_height = scr_bot_line->scr_row_nr + 1 - scr_top_line->scr_row_nr;
+                // How much more does he want?
+                if (key == 'M')
+                    key = '1';
+                if (key - '0' + current_frame->scr_height < terminal_info.height)
+                    current_frame->scr_height += key - '0';
                 else
-                  scr_height = terminal_info.height;
-                if scr_top_line = nullptr then
-                  screen_load(line,col)
+                    current_frame->scr_height = terminal_info.height;
+                if (scr_top_line == nullptr)
+                    screen_load(current_frame->dot->line, current_frame->dot->col);
                 else
-                  screen_expand(true,true);
+                    screen_expand(true, true);
                 more = true;
                 use_prompt = true;
-                end;
-        end{case}
-      else
-        begin
-        vdu_beep;
-        more = true;
-        use_prompt = false;
-        end;
-    until not more;
-99:
+            }
+                break;
+            }
+        } else {
+            screen_beep();
+            more = true;
+            use_prompt = false;
+        }
+    } while (more);
 
-    scr_height    = old_height;
-    margin_top    = old_top_m;
-    margin_bottom = old_bot_m;
+ l99:
 
-    if verify = verify_reply_quit then exit_abort = true;
-    screen_verify = verify;
-    end{with};
+    current_frame->scr_height    = old_height;
+    current_frame->margin_top    = old_top_m;
+    current_frame->margin_bottom = old_bot_m;
 
-  end; {screen_verify}
+    if (verify == verify_response::verify_reply_quit)
+        exit_abort = true;
+    return verify;
+}
 
+void screen_beep() {
+    // Beep the terminal bell.
+    switch (ludwig_mode) {
+    case ludwig_mode_type::ludwig_screen:
+        vdu_beep();
+        break;
+    case ludwig_mode_type::ludwig_hardcopy:
+        write('\007', 1);
+        break;
+    case ludwig_mode_type::ludwig_batch:
+        writeln("LUDWIG RINGS TERMINAL BELL <beep>!");
+        break;
+    }
+}
 
-procedure screen_beep{};
+void screen_home(bool clear) {
+    // If screen editing home the cursor, otherwise do a 'nice' equivalent.
+    if (ludwig_mode == ludwig_mode_type::ludwig_screen) {
+        if (clear) {
+            vdu_clearscr();
+            scr_msg_row = terminal_info.height + 1;
+        } else
+            vdu_movecurs(1,1);
+    } else {
+        writeln("");
+        writeln("");
+    }
+}
 
-  {Beep the terminal bell.}
+void screen_write_int(int intv, scr_col_range width) {
+    // Write an integer at the current cursor position, or to the output file.
 
-  begin {screen_beep}
-  case ludwig_mode of
-    ludwig_screen  : vdu_beep;
-    ludwig_hardcopy: writeln(chr(7));
-    ludwig_batch   : writeln('LUDWIG RINGS TERMINAL BELL <beep>!');
-  end{case};
-  end; {screen_beep}
+    std::string s = std::to_string(intv);
+    if (s.size() < width) {
+        std::string pad(width - s.size(), ' ');
+        s = pad + s;
+    }
+    if (ludwig_mode == ludwig_mode_type::ludwig_screen) {
+        for (char ch : s)
+            vdu_displaych(ch);
+    } else {
+        write(s.data(), s.size());
+    }
+}
 
+void screen_write_ch(scr_col_range indent, char ch) {
+    // Write a character at the current cursor position, or to the output file.
 
-procedure screen_home (
-                clear:boolean);
-
-  {If screen editing home the cursor, otherwise do a 'nice' equivalent.      }
-
-  begin {screen_home}
-  if ludwig_mode = ludwig_screen then
-    begin
-    if clear then
-      begin
-      vdu_clearscr;
-      scr_msg_row = terminal_info.height+1;
-      end
-    else
-      vdu_movecurs(1,1);
-    end
-  else
-    begin
-    writeln;
-    writeln;
-    end;
-  end; {screen_home}
-
-
-procedure screen_write_int (
-                int   : integer;
-                width : scr_col_range);
-
-  {Write an integer at the current cursor position, or to the output file.}
-{#if vms}
-{##  type}
-{##    number_string = packed array[1..20] of char;}
-{#endif}
-  var
-    i   : integer;
-{#if vms}
-{##    str : number_string;}
-{#else}
-    str : str_object;
-{#endif}
-    buffer : str_object;
-{#if turbop}
-    tmp_str : string;
-{#endif}
-
-  begin {screen_write_int}
-  if ludwig_mode = ludwig_screen then
-    begin
-{#if vms}
-{##    vms_check_status(ots$cvt_l_ti(int,str));  #< Convert integer to text.     #>}
-{##    if width>19 then                          #< Do any extra width.          #>}
-{##      begin}
-{##      for i = width-19 downto 0 do vdu_displaych(' ');}
-{##      width = 19;}
-{##      end;}
-{##    i = width;                               #< Adjust width so big enough.  #>}
-{##    while str[20-i] != ' ' do i = i+1;}
-{##    for i = 21-i to 20 do vdu_displaych(str[i]);}
-{#else}
-    if not cvt_int_str(int,str,width) then
-      begin
-{#if turbop}
-      tmp_str = 'Integer conversion failed.';
-      move(tmp_str[1], buffer[1], length(tmp_str));
-      fillchar(buffer[succ(length(tmp_str))], sizeof(buffer)-length(tmp_str), ' ');
-{#else}
-{##      buffer = 'Integer conversion failed.';}
-{#endif}
-      screen_str_message(buffer);
-      end;
-    i = 1;
-    while (ord(str[i])<>0) do
-      begin
-      vdu_displaych(str[i]);
-      i = i+1;
-      end;
-{#endif}
-    end
-  else
-    write(int:width);
-  end; {screen_write_int}
-
-
-procedure screen_write_ch (
-                indent : scr_col_range;
-                ch     : char);
-
-  {Write a character at the current cursor position, or to the output file.}
-  var
-    i : integer;
-
-  begin {screen_write_ch}
-  if ludwig_mode = ludwig_screen then
-    begin
-    for i = 1 to indent do vdu_displaych(' ');
-    vdu_displaych(ch);
-    end
-  else
-    begin
-    for i = 1 to indent do write(' ');
-    write(ch);
-    end;
-  end; {screen_write_ch}
-
-
-{#if vms}
-{##procedure screen_write_str #<(}
-{##                indent : scr_col_range;}
-{##                str    : packed array [l1..h1:strlen_range] of char;}
-{##                width  : scr_col_range)#>;}
-{#elseif unix}
-{##procedure screen_write_str #<(}
-{##                indent : scr_col_range;}
-{##                str    : write_str;}
-{##                width  : scr_col_range)#>;}
-{#elseif turbop}
-procedure screen_write_str (
-                indent : scr_col_range;
-                str    : string;
-                width  : scr_col_range);
-{#endif}
-
-  {Write a string at the current cursor position, or to the output file.}
-  var
-    i : integer;
-
-  begin {screen_write_str}
-  if ludwig_mode = ludwig_screen then
-    begin
-    for i = 1 to indent do vdu_displaych(' ');
-    for i = 1 to width  do
-      vdu_displaych(str[i]);
-    end
-  else
-    begin
-    for i = 1 to indent do write(' ');
-    for i = 1 to width do
-      write(str[i]);
-    end;
-  end; {screen_write_str}
-
-
-procedure screen_write_name_str (
-                indent : scr_col_range;
-                str    : name_str;
-                width  : scr_col_range);
-
-  {Write a name string at the current cursor position, or to the output file.}
-  var
-    i : integer;
-
-  begin {screen_write_name_str}
-  if ludwig_mode = ludwig_screen then
-    begin
-    for i = 1 to indent do vdu_displaych(' ');
-    for i = 1 to width  do
-      if i <= name_len then
-        vdu_displaych(str[i])
-      else
-        vdu_displaych(' ');
-    end
-  else
-    begin
-    for i = 1 to indent do write(' ');
-    for i = 1 to width do
-      if i <= name_len then
-        write(str[i])
-      else
-        write(' ');
-    end;
-  end; {screen_write_name_str}
-
-
-procedure screen_write_file_name_str (
-                indent : scr_col_range;
-                str    : file_name_str;
-                width  : scr_col_range);
-
-  {Write a file name at the current cursor position, or to the output file.}
-  var
-    i : integer;
-
-  begin {screen_write_file_name_str}
-  if ludwig_mode = ludwig_screen then
-    begin
-    for i = 1 to indent do vdu_displaych(' ');
-    for i = 1 to width  do
-      if i <= file_name_len then
-        vdu_displaych(str[i])
-      else
-        vdu_displaych(' ');
-    end
-  else
-    begin
-    for i = 1 to indent do write(' ');
-    for i = 1 to width do
-      if i <= file_name_len then
-        write(str[i])
-      else
-        write(' ');
-    end;
-  end; {screen_write_file_name_str}
-
-
-procedure screen_writeln{};
-
-  {Write a CRLF to the output file.}
-
-  begin {screen_writeln}
-  if ludwig_mode = ludwig_screen then
-    vdu_displaycrlf
-  else
-    writeln;
-  end; {screen_writeln}
-
-
-procedure screen_writeln_clel{};
-
-  {Write a CLEAR_EOL, CRLF to the output file.}
-
-  begin {screen_writeln_clel}
-  if ludwig_mode = ludwig_screen then
-    begin
-    vdu_cleareol;
-    vdu_displaycrlf;
-    end
-  else
-    writeln;
-  end; {screen_writeln_clel}
-
-
-{#if unix or turbop}
-procedure screen_help_prompt (
-                prompt     : write_str;
-                prompt_len : strlen_range;
-        var     reply      : key_str;
-        var     reply_len  : integer);
-
-  var
-    key        : key_code_range;
-    terminated : boolean;
-
-  begin {screen_help_prompt}
-  case ludwig_mode of
-    ludwig_screen,
-    ludwig_hardcopy:
-      begin
-      screen_write_str(0,prompt,prompt_len);
-      reply_len = 0;
-      terminated = false;
-      repeat
-        key = vdu_get_key;
-        if key = 13 then
-          terminated = true
-        else if key = 127 then
-          begin
-          if reply_len > 0 then
-            begin
-            reply_len = reply_len - 1;
-            vdu_displaych(chr(8));
+    if (ludwig_mode == ludwig_mode_type::ludwig_screen) {
+        for (int i = 0; i < indent; ++i)
             vdu_displaych(' ');
-            vdu_displaych(chr(8));
-            end
-          end
-        else if key in printable_set then
-          begin
-          vdu_displaych(chr(key));
-          reply_len = reply_len + 1;
-          reply[reply_len] = chr(key);
-          terminated = (key = ord(' ')) or (reply_len = key_len);
-          end;
-      until terminated;
-      screen_writeln;
-      end;
-    ludwig_batch:
-      reply_len = 0;
-  end{case};
-  end; {screen_help_prompt}
-{#endif}
+        vdu_displaych(ch);
+    } else {
+        write(' ', indent);
+        write(ch, 1);
+    }
+}
 
-{#if vms or turbop}
-end.
-{#endif}
-#endif
+void screen_write_str(scr_col_range indent, const char *str, scr_col_range width) {
+    // Write a string at the current cursor position, or to the output file.
+
+    if (ludwig_mode == ludwig_mode_type::ludwig_screen) {
+        for (size_t i = 0; i < indent; ++i)
+            vdu_displaych(' ');
+        for (size_t i = 0; i < width; ++i)
+            vdu_displaych(str[i]);
+    } else {
+        write(' ', indent);
+        write(str, width);
+    }
+}
+
+void screen_write_name_str(scr_col_range indent, name_str str, scr_col_range width) {
+    // Write a name string at the current cursor position, or to the output file.
+
+    if (ludwig_mode == ludwig_mode_type::ludwig_screen) {
+        for (int i = 0; i < indent; ++i)
+            vdu_displaych(' ');
+        for (int i = 0; i < width; ++i) {
+            if (i < NAME_LEN)
+                vdu_displaych(str[i]);
+            else
+                vdu_displaych(' ');
+        }
+    } else {
+        write(' ', indent);
+        for (int i = 0; i < width; ++i) {
+            if (i < NAME_LEN)
+                write(str[i], 1);
+            else
+                write(' ', 1);
+        }
+    }
+}
+
+void screen_write_file_name_str(scr_col_range indent, file_name_str str, scr_col_range width) {
+    // Write a file name at the current cursor position, or to the output file.
+
+    if (ludwig_mode == ludwig_mode_type::ludwig_screen) {
+        for (int i = 0; i < indent; ++i)
+            vdu_displaych(' ');
+        for (int i = 0; i < width; ++i) {
+            if (i < FILE_NAME_LEN)
+                vdu_displaych(str[i]);
+            else
+                vdu_displaych(' ');
+        }
+    } else {
+        write(' ', indent);
+        for (int i = 0; i < width; ++i) {
+            if (i < FILE_NAME_LEN)
+                write(str[i], 1);
+            else
+                write(' ', 1);
+        }
+    }
+}
+
+void screen_writeln() {
+    // Write a CRLF to the output file.
+
+    if (ludwig_mode == ludwig_mode_type::ludwig_screen)
+        vdu_displaycrlf();
+    else
+        writeln("");
+}
+
+void screen_writeln_clel() {
+    // Write a CLEAR_EOL, CRLF to the output file.
+
+    if (ludwig_mode == ludwig_mode_type::ludwig_screen) {
+        vdu_cleareol();
+        vdu_displaycrlf();
+    } else
+        writeln("");
+}
+
+void screen_help_prompt(write_str prompt, scr_col_range prompt_len, key_str &reply, int &reply_len) {
+
+//  var
+//    key        : key_code_range;
+//    terminated : boolean;
+
+    switch (ludwig_mode) {
+    case ludwig_mode_type::ludwig_screen:
+    case ludwig_mode_type::ludwig_hardcopy: {
+        screen_write_str(0, prompt.data(), prompt_len);
+        reply_len = 0;
+        bool terminated = false;
+        do {
+            key_code_range key = vdu_get_key();
+            if (key == 13)
+                terminated = true;
+            else if (key == 127) {
+                if (reply_len > 0) {
+                    reply_len -= 1;
+                    vdu_displaych(char(8));
+                    vdu_displaych(' ');
+                    vdu_displaych(char(8));
+                }
+            } else if (printable_set.contains(int(key))) {
+                vdu_displaych(char(key));
+                reply_len += 1;
+                reply[reply_len] = char(key);
+                terminated = (key == ' ') || (reply_len == KEY_LEN);
+            }
+        } while (!terminated);
+        screen_writeln();
+    }
+        break;
+
+    case ludwig_mode_type::ludwig_batch:
+        reply_len = 0;
+        break;
+    }
+}
