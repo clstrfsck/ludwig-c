@@ -9,6 +9,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <functional>
 #include <type_traits>
 
 // FIXME: Could use some range checking, possibly optional.
@@ -69,6 +70,35 @@ public:
             typename array_type::iterator b = std::next(m_array.begin(), ibeg);
             typename array_type::iterator e = std::next(m_array.begin(), iend);
             std::fill(b, e, value);
+        }
+        return *this;
+    }
+
+    parray &fill_n(const T &value, size_t n, typename R::type begin = R::min()) {
+        size_t ibeg = adjust_index(begin);
+        typename array_type::iterator b = std::next(m_array.begin(), ibeg);
+        typename array_type::iterator e = std::next(b, n);
+        std::fill(b, e, value);
+        return *this;
+    }
+
+    parray &apply(std::function<T(T)> f, typename R::type beg = R::min(), typename R::type endi = R::max()) {
+        size_t ibeg = adjust_index(beg);
+        size_t iend = adjust_index(endi) + 1;
+        if (ibeg < iend) {
+            typename array_type::iterator b = std::next(m_array.begin(), ibeg);
+            typename array_type::iterator e = std::next(m_array.begin(), iend);
+            std::transform(b, e, b, f);
+        }
+        return *this;
+    }
+
+    parray &apply_n(std::function<T(T)> f, size_t n, typename R::type beg = R::min()) {
+        if (n > 0) {
+            size_t ibeg = adjust_index(beg);
+            typename array_type::iterator b = std::next(m_array.begin(), ibeg);
+            typename array_type::iterator e = std::next(b, n);
+            std::transform(b, e, b, f);
         }
         return *this;
     }
