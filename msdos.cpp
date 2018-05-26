@@ -65,7 +65,10 @@ bool cvt_int_str(int num, str_object &strng, scr_col_range width) {
 
     // FIXME: Not sure if we should throw exception
     // if s.size() > width ?
-    if (s.size() > width)
+    // Check for negative, as we do an unsigned/signed compare next.
+    if (width < 0)
+        return false;
+    if (s.size() > static_cast<size_t>(width))
         return false;
 
     strng.fill(' ');
