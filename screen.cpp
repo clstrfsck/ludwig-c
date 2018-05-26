@@ -91,7 +91,7 @@ void write(char ch, size_t count) {
     }
 }
 
-void screen_message(const char *message, size_t length) {
+void screen_message(const char *message, int length) {
     /*
       Purpose  : Put a message out to the user.
       Inputs   : message: null-terminated message.
@@ -714,8 +714,6 @@ void screen_lines_inject(line_ptr first_line, line_range count, line_ptr before_
     int scrollup_count;
     scr_row_range lines_above_insert;
     scr_row_range lines_below_insert;
-
-    scr_row_range before_line_scr_row = before_line->scr_row_nr;
 
     // HEURISTIC -- KEEP AS MANY LINES ON THE SCREEN AS POSSIBLE.
     //           -- IT IS UNLIKELY THAT SCROLLUP WILL BE USED, DONT WASTE
@@ -1608,7 +1606,9 @@ void screen_write_int(int intv, scr_col_range width) {
     // Write an integer at the current cursor position, or to the output file.
 
     std::string s = std::to_string(intv);
-    if (s.size() < width) {
+    if (width <= 0)
+        return;
+    if (s.size() < static_cast<size_t>(width)) {
         std::string pad(width - s.size(), ' ');
         s = pad + s;
     }
@@ -1637,9 +1637,9 @@ void screen_write_str(scr_col_range indent, const char *str, scr_col_range width
     // Write a string at the current cursor position, or to the output file.
 
     if (ludwig_mode == ludwig_mode_type::ludwig_screen) {
-        for (size_t i = 0; i < indent; ++i)
+        for (int i = 0; i < indent; ++i)
             vdu_displaych(' ');
-        for (size_t i = 0; i < width; ++i)
+        for (int i = 0; i < width; ++i)
             vdu_displaych(str[i]);
     } else {
         write(' ', indent);

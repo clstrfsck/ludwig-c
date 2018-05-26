@@ -26,11 +26,11 @@ void screen_free_bottom_line();
 verify_response screen_verify(const str_object &prompt, strlen_range prompt_len);
 void screen_beep();
 void screen_home(bool clear);
-void screen_write_int(int int_, size_t width);
+void screen_write_int(int int_, scr_col_range width);
 void screen_write_ch(scr_col_range indent, char ch);
 void screen_write_str(scr_col_range indent, const char *str, scr_col_range width);
-void screen_write_name_str(scr_col_range indent, const name_str &str, size_t width);
-void screen_write_file_name_str(scr_col_range indent, const file_name_str &str, size_t width);
+void screen_write_name_str(scr_col_range indent, const name_str &str, scr_col_range width);
+void screen_write_file_name_str(scr_col_range indent, const file_name_str &str, scr_col_range width);
 void screen_writeln();
 void screen_writeln_clel();
 void screen_help_prompt(const write_str &prompt, scr_col_range prompt_len,
