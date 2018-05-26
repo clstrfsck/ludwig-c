@@ -117,7 +117,7 @@ bool text_insert(bool update_screen, int count, str_object buf, strlen_range buf
         return false;
     }
 #endif
-    size_t insert_len = count * buf_len;
+    int insert_len = count * buf_len;
     if (insert_len > 0) {
         //with dst^ do
         line_ptr dst_line = dst->line;
@@ -395,7 +395,7 @@ bool text_intra_remove(mark_ptr mark_one, strlen_range size) {
     if (ln->scr_row_nr == 0)
         return true;
     //with group->frame^ do
-    size_t offset_p_width = ln->group->frame->scr_offset + ln->group->frame->scr_width;
+    int offset_p_width = ln->group->frame->scr_offset + ln->group->frame->scr_width;
     if (col_one > offset_p_width)
         return true;
     scr_col_range distance = col_two - col_one;
