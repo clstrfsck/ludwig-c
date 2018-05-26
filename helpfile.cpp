@@ -79,7 +79,7 @@ bool helpfile_open(bool old_version) {
     helpfile >> contents_lines;
 
     // Read in index_size keys.
-    for (size_t i = 0; i < index_size; ++i) {
+    for (long i = 0; i < index_size; ++i) {
         key_type k;
         helpfile >> k.key;
         helpfile >> k.start_pos;
@@ -98,7 +98,7 @@ bool helpfile_open(bool old_version) {
     key_type contents;
     contents.key = "0";
     contents.start_pos = helpfile.tellg();
-    for (size_t i = 0; i < contents_lines; ++i) {
+    for (long i = 0; i < contents_lines; ++i) {
         helpfile.ignore(WRITE_STR_LEN + 1, '\n');
     }
     contents.end_pos = helpfile.tellg();
