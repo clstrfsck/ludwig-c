@@ -122,6 +122,10 @@ public:
         return m_array.data() + adjust_index(index);
     }
 
+    typename array_type::pointer data(typename R::type index = R::min()) {
+        return m_array.data() + adjust_index(index);
+    }
+
     size_t length(const T &value, typename R::type from = R::max()) const {
         if (!m_array.empty()) {
             size_t last = adjust_index(from);
