@@ -13,6 +13,8 @@
 #include "prangeset.h"
 
 #include <set>
+#include <string>
+#include <vector>
 
 //{#if turbop}
 //  integer = longint;
@@ -202,17 +204,16 @@ struct file_object {
     int           l_counter;
 
     // FIELDS FOR "FILESYS" ONLY.
-    file_name_str memory;
-    file_name_str tnm;
+    std::string   memory;
+    std::string   tnm;
     bool          entab;
     bool          create;
     int           fd;
     int           mode;
     int           idx;
     int           len;
-    str_object    buf;
-    int           previous_file_id_1;
-    int           previous_file_id_2;
+    std::vector<char> buf;
+    long          previous_file_id;
 
     // Fields for controlling version backup
     bool          purge;
