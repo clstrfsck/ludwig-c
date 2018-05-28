@@ -35,15 +35,7 @@
 namespace {
     template <class R>
     std::string to_string(const parray<char, R> &strng) {
-        // Scan from back to find first non-space character
-        int index = R::max();
-        while (index >= R::min() && strng[index] == ' ')
-            index -= 1;
-        std::string s;
-        // This is correct for the empty string case
-        for (int i = R::min(); i <= index; ++i)
-            s += strng[i];
-        return s;
+        return std::string(strng.data(), strng.length(' '));
     }
 }
 
@@ -81,17 +73,17 @@ bool cvt_int_str(int num, str_object &strng, scr_col_range width) {
     return true;
 }
 
- bool cvt_str_int(int &num, const str_object &strng) {
-     std::string s = to_string(strng);
-     while (!s.empty() && std::isspace(s[0])) {
-         s.erase(0, 1);
-     }
-     size_t converted = 0;
-     num = std::stoi(s, &converted);
-     return converted > 0;
- }
+bool cvt_str_int(int &num, const str_object &strng) {
+    std::string s = to_string(strng);
+    while (!s.empty() && std::isspace(s[0])) {
+        s.erase(0, 1);
+    }
+    size_t converted = 0;
+    num = std::stoi(s, &converted);
+    return converted > 0;
+}
 
-bool get_environment(const name_str &environ, strlen_range &reslen, str_object &result) {
+bool get_environment(const std::string &environ, strlen_range &reslen, str_object &result) {
     std::string s = to_string(environ);
     char *env = ::getenv(s.c_str());
     if (env == NULL)
