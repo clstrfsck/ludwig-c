@@ -52,6 +52,10 @@ public:
         m_value = rhs.m_value;
     }
 
+    E value() const {
+        return m_value;
+    }
+
 private:
     E m_value;
 };
