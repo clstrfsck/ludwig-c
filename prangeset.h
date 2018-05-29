@@ -11,6 +11,8 @@ template <typename T>
 class prangeset {
     static_assert(T::min() < T::max(), "min must be strictly less than max");
 public:
+    typedef T element_type;
+
     prangeset<T> &add(T elt) {
         m_value.set(adjust_value(elt));
         return *this;
