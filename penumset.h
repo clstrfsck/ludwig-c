@@ -56,7 +56,7 @@ public:
     }
 
     penumset &remove(T elt) {
-        m_value.remove(elt);
+        m_value.reset(bit(elt));
         return *this;
     }
 
