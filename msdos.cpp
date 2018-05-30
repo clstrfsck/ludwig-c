@@ -84,8 +84,7 @@ bool cvt_str_int(int &num, const str_object &strng) {
 }
 
 bool get_environment(const std::string &environ, strlen_range &reslen, str_object &result) {
-    std::string s = to_string(environ);
-    char *env = ::getenv(s.c_str());
+    char *env = ::getenv(environ.c_str());
     if (env == NULL)
         return false;
     size_t len = std::strlen(env);
