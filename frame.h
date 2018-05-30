@@ -3,7 +3,7 @@
 
 #include "type.h"
 
-bool frame_edit(const name_str &frame_name);
+bool frame_edit(name_str frame_name);
 bool frame_kill(const name_str &frame_name);
 
 bool frame_setheight(int sh, bool set_initial);
