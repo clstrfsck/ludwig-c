@@ -1647,6 +1647,10 @@ void screen_write_str(scr_col_range indent, const char *str, scr_col_range width
     }
 }
 
+void screen_write_str(scr_col_range indent, const char *str) {
+    screen_write_str(indent, str, std::strlen(str));
+}
+
 void screen_write_name_str(scr_col_range indent, name_str str, scr_col_range width) {
     // Write a name string at the current cursor position, or to the output file.
 

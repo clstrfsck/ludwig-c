@@ -28,6 +28,7 @@ void screen_beep();
 void screen_home(bool clear);
 void screen_write_int(int int_, scr_col_range width);
 void screen_write_ch(scr_col_range indent, char ch);
+void screen_write_str(scr_col_range indent, const char *str);
 void screen_write_str(scr_col_range indent, const char *str, scr_col_range width);
 void screen_write_name_str(scr_col_range indent, const name_str &str, scr_col_range width);
 void screen_write_file_name_str(scr_col_range indent, const file_name_str &str, scr_col_range width);
