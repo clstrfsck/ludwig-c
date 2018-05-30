@@ -39,6 +39,11 @@ public:
         return *this;
     }
 
+    penumset &add(const penumset &other) {
+        m_value |= other.m_value;
+        return *this;
+    }
+
     penumset &add(std::initializer_list<T> elts) {
         for (T elt : elts) {
             add(elt);
@@ -60,6 +65,27 @@ public:
         return *this;
     }
 
+    penumset &remove(const penumset &other) {
+        m_value &= ~other.m_value;
+        return *this;
+    }
+
+    penumset &remove(std::initializer_list<T> elts) {
+        for (T elt : elts) {
+            remove(elt);
+        }
+        return *this;
+    }
+
+    penumset &remove_range(T begin, T endi) {
+        while (begin != endi) {
+            remove(begin);
+            begin = next_enum(begin);
+        }
+        remove(begin);
+        return *this;
+    }
+
     penumset &clear() {
         m_value.reset();
         return *this;
@@ -67,6 +93,28 @@ public:
 
     bool contains(T elt) const {
         return m_value.test(bit(elt));
+    }
+
+    penumset set_union(const penumset &other) const {
+        penumset copy(*this);
+        copy.m_value |= other.m_value;
+        return copy;
+    }
+
+    penumset set_difference(const penumset &other) const {
+        penumset copy(*this);
+        copy.m_value &= ~other.m_value;
+        return copy;
+    }
+
+    penumset set_intersection(const penumset &other) const {
+        penumset copy(*this);
+        copy.m_value &= other.m_value;
+        return copy;
+    }
+
+    bool empty() const {
+        return m_value.none();
     }
 
 private:
