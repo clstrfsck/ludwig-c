@@ -80,7 +80,9 @@ public:
         return *this;
     }
 
-    bool contains(T elt) const {
+    bool contains(int elt) const {
+        if (elt < T::min() || elt > T::max())
+            return false;
         return m_value.test(adjust_value(elt));
     }
 
