@@ -86,6 +86,28 @@ public:
         return m_value.test(adjust_value(elt));
     }
 
+    prangeset<T> set_union(const prangeset<T> &other) const {
+        prangeset<T> copy(*this);
+        copy.m_value |= other.m_value;
+        return copy;
+    }
+
+    prangeset<T> set_difference(const prangeset<T> &other) const {
+        prangeset<T> copy(*this);
+        copy.m_value &= ~other.m_value;
+        return copy;
+    }
+
+    prangeset<T> set_intersection(const prangeset<T> &other) const {
+        prangeset<T> copy(*this);
+        copy.m_value &= other.m_value;
+        return copy;
+    }
+
+    bool empty() const {
+        return m_value.none();
+    }
+
 private:
     std::bitset<T::size()> m_value;
 
