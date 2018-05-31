@@ -13,6 +13,10 @@ class prangeset {
 public:
     typedef T element_type;
 
+    bool operator==(const prangeset<T> &other) const {
+        return m_value == other.m_value;
+    }
+
     prangeset<T> &add(T elt) {
         m_value.set(adjust_value(elt));
         return *this;
@@ -37,6 +41,11 @@ public:
         }
         add(begin);
         return *this;
+    }
+
+    prangeset<T> &set(T elt) {
+        clear();
+        return add(elt);
     }
 
     prangeset<T> &set(std::initializer_list<T> elts) {
