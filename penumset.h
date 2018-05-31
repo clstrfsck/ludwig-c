@@ -34,6 +34,10 @@ public:
         add(elts);
     }
 
+    bool operator==(const penumset &other) const {
+        return m_value == other.m_value;
+    }
+
     penumset &add(T elt) {
         m_value.set(bit(elt));
         return *this;
@@ -58,6 +62,21 @@ public:
         }
         add(begin);
         return *this;
+    }
+
+    penumset &set(T elt) {
+        clear();
+        return add(elt);
+    }
+
+    penumset &set(std::initializer_list<T> elts) {
+        clear();
+        return add(elts);
+    }
+
+    penumset &set_range(T begin, T endi) {
+        clear();
+        return add_range(begin, endi);
     }
 
     penumset &remove(T elt) {
