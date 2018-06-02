@@ -613,6 +613,22 @@ enum class msg_class {
 // more Pattern Matcher stuff
 
 struct nfa_transition_type {
+    nfa_transition_type() {
+        indefinite = false;
+        fail = false;
+        epsilon_out = false;
+        eout_false.next_state = 0;
+    }
+    nfa_transition_type(const nfa_transition_type &other) {
+        indefinite = other.indefinite;
+        fail = other.fail;
+        epsilon_out = other.epsilon_out;
+        if (epsilon_out) {
+            eout_true = other.eout_true;
+        } else {
+            eout_false = other.eout_false;
+        }
+    }
     bool indefinite;
     bool fail;
     bool epsilon_out;
