@@ -13,6 +13,18 @@ class prangeset {
 public:
     typedef T element_type;
 
+    prangeset() {
+        // Nothing to do
+    }
+
+    prangeset(std::initializer_list<T> elts) {
+        add(elts);
+    }
+
+    prangeset(T begin, T endi) {
+        add_range(begin, endi);
+    }
+
     bool operator==(const prangeset<T> &other) const {
         return m_value == other.m_value;
     }
