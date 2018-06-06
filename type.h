@@ -617,16 +617,16 @@ struct nfa_transition_type {
         indefinite = false;
         fail = false;
         epsilon_out = false;
-        eout_false.next_state = 0;
+        epf.next_state = 0;
     }
     nfa_transition_type(const nfa_transition_type &other) {
         indefinite = other.indefinite;
         fail = other.fail;
         epsilon_out = other.epsilon_out;
         if (epsilon_out) {
-            eout_true = other.eout_true;
+            ept = other.ept;
         } else {
-            eout_false = other.eout_false;
+            epf = other.epf;
         }
     }
     bool indefinite;
@@ -636,11 +636,11 @@ struct nfa_transition_type {
         struct {
             nfa_state_range first_out;
             nfa_state_range second_out;
-        } eout_true;
+        } ept;
         struct {
             nfa_state_range next_state;
             accept_set_type accept_set;
-        } eout_false;
+        } epf;
     };
 };
 
