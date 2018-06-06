@@ -21,6 +21,10 @@ public:
         add(elts);
     }
 
+    prangeset(T elt) {
+        add(elt);
+    }
+
     prangeset(T begin, T endi) {
         add_range(begin, endi);
     }

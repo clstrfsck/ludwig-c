@@ -30,6 +30,10 @@ public:
         // Nothing to do
     }
 
+    penumset(T elt) {
+        add(elt);
+    }
+
     penumset(std::initializer_list<T> elts) {
         add(elts);
     }
