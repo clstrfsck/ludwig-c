@@ -373,7 +373,7 @@ bool filesys_close(file_ptr fyle, int action, bool msgs) {
     std::string tname = bname + "%ld";
     /* if directory is "/" it is OK to make it "" since we add a '/' later */
     dir.erase(ls);
-    long max_vnum = std::numeric_limits<long>::min();
+    long max_vnum = 0;
     if (fyle->purge) {
         /*
          * make sure we allocate some space, even if fyle->versions = 0
@@ -408,7 +408,7 @@ bool filesys_close(file_ptr fyle, int action, bool msgs) {
         closedir(dirp);
         max_vnum = versions.empty() ? 0 : versions[0];
     } else {
-        long min_vnum = std::numeric_limits<long>::max();
+        long min_vnum = -1;
         long entries = 0;
         DIR *dirp = opendir(dir.empty() ? "/" : dir.c_str());
         for (struct dirent *dp = readdir(dirp); dp != NULL; dp = readdir(dirp)) {
@@ -435,7 +435,7 @@ bool filesys_close(file_ptr fyle, int action, bool msgs) {
      *    a. fyle->versions != 0
      * or b. doing single backup and backup already done at least once
      */
-    if (fyle->versions != 0 || (!fyle->purge && max_vnum != std::numeric_limits<long>::min())) {
+    if (fyle->versions != 0 || (!fyle->purge && max_vnum != 0)) {
         /* does the real file already exist? */
         if (stat(fyle->fnm.data(), &stat_buffer) == 0) {
             /* try to rename current file to backup */
