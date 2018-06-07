@@ -168,14 +168,14 @@ bool pattern_dfa_convert(nfa_table_type &nfa_table,
             if (nta.fail)
                 fail_equivalent = true;
             if (nta.epsilon_out) {
-                if (nta.eout_true.first_out != PATTERN_NULL) {
-                    if (!closure.equiv_set.contains(nta.eout_true.first_out))
-                        if (!push_stack(nta.eout_true.first_out))
+                if (nta.ept.first_out != PATTERN_NULL) {
+                    if (!closure.equiv_set.contains(nta.ept.first_out))
+                        if (!push_stack(nta.ept.first_out))
                             return false;
                 }
-                if (nta.eout_true.second_out != PATTERN_NULL) {
-                    if (!closure.equiv_set.contains(nta.eout_true.second_out))
-                        if (!push_stack(nta.eout_true.second_out))
+                if (nta.ept.second_out != PATTERN_NULL) {
+                    if (!closure.equiv_set.contains(nta.ept.second_out))
+                        if (!push_stack(nta.ept.second_out))
                             return false;
                 }
             }
@@ -383,15 +383,15 @@ bool pattern_dfa_convert(nfa_table_type &nfa_table,
                 partition_ptr = new accept_set_partition_type;
                 //with partition_ptr^ do
                 // build list of transitions with accept sets
-                partition_ptr->accept_set_partition = nta.eout_false.accept_set;
-                kill_set.remove(nta.eout_false.accept_set); // update kill set
+                partition_ptr->accept_set_partition = nta.epf.accept_set;
+                kill_set.remove(nta.epf.accept_set); // update kill set
                 partition_ptr->flink = aux_partition_ptr;   // link forward
                 partition_ptr->blink = nullptr;             // top of list so no blink
                 if (partition_ptr->flink != nullptr)        // if there is a next one down
                     partition_ptr->flink->blink = partition_ptr; // link it back here
                 partition_ptr->nfa_transition_list.equiv_list = new state_elt_object; // create the NFA state
                 partition_ptr->nfa_transition_list.equiv_list->next_elt = nullptr; // (only one)
-                partition_ptr->nfa_transition_list.equiv_list->state_elt = nta.eout_false.next_state;
+                partition_ptr->nfa_transition_list.equiv_list->state_elt = nta.epf.next_state;
             }
             aux_equiv_ptr = aux_equiv_ptr->next_elt;
         }
