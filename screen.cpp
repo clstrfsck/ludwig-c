@@ -118,7 +118,7 @@ void screen_message(const char *message, int length) {
     }
 }
 
-void screen_message(msg_str message) {
+void screen_message(const msg_str &message) {
     /*
       Purpose  : Put a message out to the user.
       Inputs   : message: blank-filled message.
@@ -1258,9 +1258,9 @@ void screen_fixup() {
     }
 #endif
 #ifdef WINDOWCHANGE
-    if (tt_winchanged)
+    if (tt_winchanged) {
         screen_resize();
-    else {
+    } else {
 #endif
         //with current_frame^,dot^ do
         if (scr_frame != current_frame) {
@@ -1268,7 +1268,7 @@ void screen_fixup() {
                 screen_clear_msgs(true);
             screen_load(current_frame->dot->line, current_frame->dot->col);
         } else {
-            if ((current_frame->dot->line->scr_row_nr = 0) ||
+            if ((current_frame->dot->line->scr_row_nr == 0) ||
                 ((current_frame->dot->line->scr_row_nr - scr_top_line->scr_row_nr < current_frame->margin_top) &&
                  (scr_top_line->blink != nullptr)) ||
                 ((scr_bot_line->scr_row_nr - current_frame->dot->line->scr_row_nr < current_frame->margin_bottom) &&
@@ -1651,7 +1651,7 @@ void screen_write_str(scr_col_range indent, const char *str) {
     screen_write_str(indent, str, std::strlen(str));
 }
 
-void screen_write_name_str(scr_col_range indent, name_str str, scr_col_range width) {
+void screen_write_name_str(scr_col_range indent, const name_str &str, scr_col_range width) {
     // Write a name string at the current cursor position, or to the output file.
 
     if (ludwig_mode == ludwig_mode_type::ludwig_screen) {
@@ -1674,7 +1674,7 @@ void screen_write_name_str(scr_col_range indent, name_str str, scr_col_range wid
     }
 }
 
-void screen_write_file_name_str(scr_col_range indent, file_name_str str, scr_col_range width) {
+void screen_write_file_name_str(scr_col_range indent, const file_name_str &str, scr_col_range width) {
     // Write a file name at the current cursor position, or to the output file.
 
     if (ludwig_mode == ludwig_mode_type::ludwig_screen) {
@@ -1716,7 +1716,7 @@ void screen_writeln_clel() {
         writeln("");
 }
 
-void screen_help_prompt(write_str prompt, scr_col_range prompt_len, key_str &reply, int &reply_len) {
+void screen_help_prompt(const write_str &prompt, scr_col_range prompt_len, key_str &reply, int &reply_len) {
 
 //  var
 //    key        : key_code_range;

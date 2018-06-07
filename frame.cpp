@@ -74,7 +74,7 @@ bool frame_edit(name_str frame_name) {
     int created = 0;
     if (frame_name.length(' ') == 0)
         frame_name.fillcopy(DEFAULT_FRAME_NAME, std::strlen(DEFAULT_FRAME_NAME),
-                            name_str::min(), name_str::size(), ' ');
+                            name_str::index_type::min(), name_str::index_type::size(), ' ');
     span_ptr ptr;
     span_ptr oldp;
     if (span_find(frame_name, ptr, oldp)) {

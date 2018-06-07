@@ -767,7 +767,7 @@ bool lines_extract(line_ptr first_line, line_ptr last_line) {
     return true;
 }
 
-bool line_change_length(line_ptr &line, strlen_range new_length) {
+bool line_change_length(line_ptr line, strlen_range new_length) {
     /*
       Purpose  : Change the length of the allocated text of a line.
       Inputs   : line: pointer to the line to be adjusted.
@@ -797,7 +797,8 @@ bool line_change_length(line_ptr &line, strlen_range new_length) {
             screen_message(MSG_EXCEEDED_DYNAMIC_MEMORY);
             return false;
         }
-        new_str->copy(line->str->data(), line->len);
+        if (line->len > 0)
+            new_str->copy(line->str->data(), line->len);
     } else
         new_str = nullptr;
     // Dispose the old str_object.

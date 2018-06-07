@@ -219,7 +219,8 @@ bool file_create_open(file_name_str &fn, parse_type parse, file_ptr &inputfp, fi
         break;
     }
 
-    bool result = filesys_parse(fn, parse, file_data, inputfp, outputfp);
+    std::string fname(fn.data(), fn.length(' '));
+    bool result = filesys_parse(fname.c_str(), parse, file_data, inputfp, outputfp);
     if (inputfp != nullptr && !inputfp->valid) {
         delete inputfp;
         inputfp = nullptr;
@@ -467,14 +468,14 @@ bool file_page(frame_ptr current_frame, bool &exit_abort) {
         goto l98;
     while ((current_frame->space_left * 10 > current_frame->space_limit) && !tt_controlc) {
         int i;
-        if (file_read(files[current_frame->input_file], 50, true, first_line, last_line, i))
+        if (!file_read(files[current_frame->input_file], 50, true, first_line, last_line, i))
             return false;
         current_frame->input_count += i;
 
         // Inject the inputted lines.
         if (first_line == nullptr)
             goto l98;
-        if (lines_inject(first_line, last_line, current_frame->last_group->last_line))
+        if (!lines_inject(first_line, last_line, current_frame->last_group->last_line))
             return false;
 
         // IF DOT WAS ON THE NULL LINE, SHIFT IT ONTO THE FIRST LINE

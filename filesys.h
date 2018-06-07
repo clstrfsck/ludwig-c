@@ -12,7 +12,7 @@ bool filesys_write(file_ptr fyle, str_object &buffer, strlen_range bufsiz);
 
 bool filesys_save(file_ptr i_fyle, file_ptr o_file, int copy_lines);
 
-bool filesys_parse(file_name_str &command_line, parse_type parse,
+bool filesys_parse(const char *command_line, parse_type parse,
                    file_data_type &file_data, file_ptr &input_file, file_ptr &output_file);
 
 #endif

@@ -53,15 +53,6 @@ void ask_user(const char *prompt, key_str &reply, int &reply_len) {
 
 void help_help(int selection_len, str_object &selection) {
     // The argument selects a particular part of the help file to read e.g. SD
-//  var
-//    buf : help_record;
-//    reply : key_str;
-//    i,len,reply_len,
-//    sts : integer;
-//    read_on : boolean;
-//    topic     : key_str;
-//    topic_len : integer;
-//    continue : boolean;
 
     screen_unload();
     screen_home(true);

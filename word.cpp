@@ -756,7 +756,7 @@ l2:;
                 goto l99; // BAIL OUT!
             this_line = this_line->flink;
         }
-        while ((this_line->str)[pos] == ' ')
+        while ((*this_line->str)[pos] == ' ')
             pos += 1;
         if (!mark_create(this_line, pos, current_frame->dot))
             goto l99;

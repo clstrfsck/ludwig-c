@@ -48,7 +48,7 @@ const char *lwoptarg;         /* argument associated with option */
  *  Parse argc/argv argument vector.
  */
 int
-lwgetopt(int nargc, char * const nargv[], const char *ostr) {
+lwgetopt(int nargc, const char **nargv, const char *ostr) {
     static const char *place = EMSG;    /* option letter processing */
     const char *oli;                    /* option letter list index */
 

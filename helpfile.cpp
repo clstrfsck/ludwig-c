@@ -61,6 +61,13 @@ bool try_openfile(const char *env_name, const char *default_filename) {
     return true;
 }
 
+std::string pad(std::string s, size_t len) {
+    while (s.size() < len) {
+        s += ' ';
+    }
+    return s;
+}
+
 bool helpfile_open(bool old_version) {
     if (helpfile.is_open()) /* we have done this before, dont do it again! */
         return true;
@@ -84,6 +91,7 @@ bool helpfile_open(bool old_version) {
         helpfile >> k.key;
         helpfile >> k.start_pos;
         helpfile >> k.end_pos;
+        k.key = pad(k.key, KEY_LEN);
         table[k.key] = k;
     }
     // Skip final newline in index.
@@ -96,7 +104,7 @@ bool helpfile_open(bool old_version) {
      * entries.
      */
     key_type contents;
-    contents.key = "0";
+    contents.key = pad("0", KEY_LEN);
     contents.start_pos = helpfile.tellg();
     for (long i = 0; i < contents_lines; ++i) {
         helpfile.ignore(WRITE_STR_LEN + 1, '\n');
@@ -141,9 +149,9 @@ int helpfile_read(const key_str &keystr, int keylen, help_record &buffer, int bu
     buffer.key.fill(' ');
     buffer.txt.fill(' ');
     buffer.key.copy(current_key.key.data(),
-                         std::min(current_key.key.size(), key_str::size()));
+                         std::min(current_key.key.size(), key_str::index_type::size()));
     buffer.txt.copy(buf.data(),
-                         std::min(buf.size(), write_str::size()));
+                         std::min(buf.size(), write_str::index_type::size()));
     return 1;
 }
 
@@ -161,9 +169,9 @@ int helpfile_next(help_record &buffer, int buflen, int &reclen) {
         buffer.key.fill(' ');
         buffer.txt.fill(' ');
         buffer.key.copy(current_key.key.data(),
-                        std::min(current_key.key.size(), key_str::size()));
+                        std::min(current_key.key.size(), key_str::index_type::size()));
         buffer.txt.copy(buf.data(),
-                        std::min(buf.size(), write_str::size()));
+                        std::min(buf.size(), write_str::index_type::size()));
     }
     return 1;
 }

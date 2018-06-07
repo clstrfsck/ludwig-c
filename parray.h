@@ -15,7 +15,7 @@
 // FIXME: Could use some range checking, possibly optional.
 
 template <class T, class R>
-class parray : public R {
+class parray {
     static_assert(R::min() < R::max(), "min must be strictly less than max");
 
     constexpr size_t adjust_index(typename R::type index) const {
@@ -25,6 +25,8 @@ class parray : public R {
     typedef std::vector<T> array_type;
 
 public:
+    typedef R index_type;
+
     explicit parray(const T &init_value = T())
         : m_array(R::size(), init_value) {
         // Nothing more to do here
@@ -142,6 +144,38 @@ public:
     parray &operator=(parray rhs) {
         std::swap(m_array, rhs.m_array);
         return *this;
+    }
+
+    bool operator==(const parray &rhs) const {
+        typename array_type::const_pointer l = data();
+        typename array_type::const_pointer r = rhs.data();
+        typename array_type::const_pointer endl = l + index_type::size();
+        while (l != endl) {
+            const T &lelt = *l++;
+            const T &relt = *r++;
+            if (lelt != relt)
+                return false;
+        }
+        return true;
+    }
+
+    bool operator!=(const parray &rhs) const {
+        return !operator==(rhs);
+    }
+
+    bool operator<(const parray &rhs) const {
+        typename array_type::const_pointer l = data();
+        typename array_type::const_pointer r = rhs.data();
+        typename array_type::const_pointer endl = l + index_type::size();
+        while (l != endl) {
+            const T &lelt = *l++;
+            const T &relt = *r++;
+            if (lelt < relt)
+                return true;
+            if (lelt != relt)
+                break;
+        }
+        return false;
     }
 
 private:

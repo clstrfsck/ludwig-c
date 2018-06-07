@@ -45,7 +45,9 @@ namespace {
 
     template <class R>
     void assign(parray<char, R> dst, const char *src) {
-        dst.fillcopy(src, std::strlen(src), parray<char, R>::min(), parray<char, R>::size(), ' ');
+        dst.fillcopy(src, std::strlen(src),
+                     parray<char, R>::index_type::min(),
+                     parray<char, R>::index_type::size(), ' ');
     }
 
     struct parse_state {

@@ -11,6 +11,6 @@ bool text_insert_tpar(tpar_object tp, mark_ptr before_mark, mark_ptr &equals_mar
 bool text_remove(mark_ptr mark_one, mark_ptr mark_two);
 bool text_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two, mark_ptr dst,
                mark_ptr &new_start, mark_ptr &new_end);
-bool text_split_line(mark_ptr before_mark, int new_col, mark_ptr equals_mark);
+bool text_split_line(mark_ptr before_mark, int new_col, mark_ptr &equals_mark);
 
 #endif // !defined(TEXT_H)

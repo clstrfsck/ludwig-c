@@ -23,7 +23,7 @@ void screen_getlinep(const str_object &prompt, strlen_range prompt_len,
                      str_object &outbuf, strlen_range &outlen,
                      tpcount_type max_tp, tpcount_type this_tp);
 void screen_free_bottom_line();
-verify_response screen_verify(const str_object &prompt, strlen_range prompt_len);
+verify_response screen_verify(str_object prompt, strlen_range prompt_len);
 void screen_beep();
 void screen_home(bool clear);
 void screen_write_int(int int_, scr_col_range width);

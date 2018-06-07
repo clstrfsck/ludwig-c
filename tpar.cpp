@@ -446,7 +446,8 @@ bool tpar_analyse(user_commands cmd, tpar_object &tran, int depth, tpcount_type 
                         // nested delimiters
                         tran.dlm = ts1;
                         tran.len -= 1;
-                        tran.str.copy(tran.str.data(2), tran.len);
+                        std::vector<char> temp(tran.str.data(2), tran.str.data(2) + tran.len);
+                        tran.str.copy(temp.data(), tran.len);
                         tmp_tp->len -= 1;
                         if (!tpar_analyse(cmd, tran, depth + 1, this_tp))
                             return false;
@@ -517,8 +518,9 @@ void trim(tpar_object &request) {
             i += 1;
         } while (request.str[i] == ' ' && i != request.len);
         //with request do
-        request.len -= i + 1;
-        request.str.fillcopy(request.str.data(i), request.len, 1, MAX_STRLEN, ' ');
+        request.len -= i - 1;
+        std::vector<char> temp(request.str.data(i), request.str.data(i) + request.len);
+        request.str.fillcopy(temp.data(), request.len, 1, MAX_STRLEN, ' ');
         request.str.apply(ch_toupper);
     }
 }

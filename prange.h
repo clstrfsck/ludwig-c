@@ -11,9 +11,10 @@ template <int min_, int max_>
 class prange {
     static_assert(min_ < max_, "min must be strictly less than max");
 
-    constexpr int check_range(int value) {
-        if (value < min() || value > max())
-            throw std::out_of_range("out of range");
+    constexpr int check_range(int value) const {
+        // FIXME: Need to work on making this correct.
+        // if (value < min() || value > max())
+        //     throw std::out_of_range("out of range");
         return value;
     }
 
@@ -49,7 +50,7 @@ public:
     }
 
     operator int() const {
-        return m_value;
+        return check_range(m_value);
     }
 
     prange &operator=(const prange &rhs) {

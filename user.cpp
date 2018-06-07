@@ -31,6 +31,7 @@
 #include "span.h"
 #include "text.h"
 #include "tpar.h"
+#include "msdos.h"
 #include "screen.h"
 
 namespace {
@@ -241,43 +242,15 @@ bool user_key(const tpar_object &key, const tpar_object &strng) {
     return result;
 }
 
-#ifdef XXXX
-function user_parent 
-        : boolean;
+bool user_parent() {
+    return fpc_suspend();
+}
 
-  begin {user_parent}
-{#if vms}
-{##  user_parent = vms_attach_parent;}
-{#elseif unix}
-{##  user_parent = unix_suspend;}
-{#elseif fpc}
-  user_parent = fpc_suspend;
-{#endif}
-  end; {user_parent}
+bool user_subprocess() {
+    return fpc_shell();
+}
 
-function user_subprocess 
-        : boolean;
-
-  begin {user_subprocess}
-{#if vms}
-{##  user_subprocess = vms_subprocess;}
-{#elseif unix}
-{##  user_subprocess = unix_shell;}
-{#elseif fpc}
-  user_subprocess = fpc_shell;
-{#endif}
-  end; {user_subprocess}
-
-function user_undo 
-        : boolean;
-
-  begin {user_undo}
-  user_undo = false;
-  screen_message(msg_not_implemented);
-  end; {user_undo}
-
-{#if vms or turbop}
-end.
-{#endif}
-#endif
- 
+bool user_undo() {
+    screen_message(MSG_NOT_IMPLEMENTED);
+    return false;
+}

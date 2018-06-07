@@ -291,7 +291,7 @@ static bool filesys_read_file_name(const char *mem, file_name_str &fnm, int &fns
 {
     int envfd;
     if (mem != nullptr && (envfd = open(mem, O_RDONLY)) >= 0) {
-        int read_len = read(envfd, fnm.data(), file_name_str::size() - 1);
+        int read_len = read(envfd, fnm.data(), file_name_str::index_type::size() - 1);
         close(envfd);
         if (read_len > 0) {
             int nl_idx;
@@ -546,7 +546,7 @@ bool filesys_write(file_ptr fyle, str_object &buffer, strlen_range bufsiz) {
         for (i = 1; i <= tabs; i++)
             buffer[offset + i] = '\t';
     }
-    int count = write(fyle->fd, buffer.data(offset), bufsiz - offset);
+    int count = write(fyle->fd, buffer.data() + offset, bufsiz - offset);
     if (tabs) {
         for (int i = 1; i <= tabs; i++)
             buffer[offset + i] = ' ';
@@ -659,7 +659,7 @@ bool filesys_parse(const char *command_line, parse_type parse,
         argv.push_back(temp);
     argv.push_back(nullptr);
 
-    int  argc     = argv.size();
+    int  argc     = argv.size() - 1; // Exclude nullptr
     bool entab    = file_data.entab;
     int  space    = file_data.space;
     bool purge    = file_data.purge;
