@@ -98,19 +98,6 @@ bool text_realize_null(line_ptr old_null) {
 }
 
 bool text_insert(bool update_screen, int count, str_object buf, strlen_range buf_len, mark_ptr dst) {
-    //  var
-    //    dst_line         : line_ptr;
-    //    dst_col          : col_range;
-    //    i                : integer;
-    //    insert_len       : 0..maxint;
-    //    tail_len,
-    //    len_redraw,
-    //    final_len        : integer;
-    //    first_col_redraw,
-    //    last_col_redraw  : integer;
-    //    new_col          : col_range;
-    //    scr_col          : integer;
-
 #ifdef DEBUG
     if (count < 0) {
         screen_message(DBG_REPEAT_NEGATIVE);
@@ -145,11 +132,16 @@ bool text_insert(bool update_screen, int count, str_object buf, strlen_range buf
         if (!marks_shift(dst_line, dst_col, MAX_STRLENP - dst_col,
                          dst_line, dst_col + insert_len))
             return false;
-        if (tail_len > 0) // to avoid subscript error when dst_col=400
-            dst_line->str->copy(dst_line->str->data(dst_col + insert_len), tail_len, dst_col);
+        if (tail_len > 0) { // to avoid subscript error when dst_col=400
+            // FIXME: Copy via transfer buffer as copy doesn't work with
+            // overlapping src/dst
+            const char *data = dst_line->str->data(dst_col);
+            std::vector<char> temp(data, data + tail_len);
+            dst_line->str->copy(temp.data(), tail_len, dst_col + insert_len);
+        }
         col_range new_col = dst_col;
         for (int i = 0; i < count; ++i) {
-            dst_line->str->copy(buf.data(1), buf_len, new_col);
+            dst_line->str->copy(buf.data(), buf_len, new_col);
             new_col += buf_len;
         }
 
