@@ -45,10 +45,6 @@ namespace {
 
 void file_name(file_ptr fp, int max_len, file_name_str &act_fnm, int &act_len) {
     // Return a file's name, in the specified width.
-//  var
-//    head_len       ,
-//    tail_len       : 0..file_name_len;
-//    i              : 1..file_name_len;
 
     //with fp^ do
     int head_len;
@@ -73,17 +69,11 @@ void file_name(file_ptr fp, int max_len, file_name_str &act_fnm, int &act_len) {
             act_fnm[head_len] = fp->fnm[i];
         }
     }
+    act_len = head_len;
 }
 
 void file_table() {
     // List the current files.
-//  var
-//    file_slot      : file_range;
-//    frame_name     : name_str;
-//    len            : integer;
-//    compressed_fnm : file_name_str;
-//    room           : integer;
-//    file_len       : integer;
 
     screen_unload();
     screen_home(false);
@@ -434,11 +424,6 @@ bool file_rewind(file_ptr &fp) {
 }
 
 bool file_page(frame_ptr current_frame, bool &exit_abort) {
-//  var
-//    i              : integer;
-//    first_line,
-//    last_line      : line_ptr;
-
     //with current_frame^,dot^ do
     line_ptr first_line;
     line_ptr last_line;
@@ -572,19 +557,6 @@ bool get_file_name(tpar_ptr tparam, file_name_str &fnm, commands command) {
 }
 
 bool file_command(commands command, leadparam rept, int count, tpar_ptr tparam, bool from_span) {
-//  var
-//    first,last    : line_ptr;
-//    lines_to_read : integer;
-//    lines_written : integer;
-//    status        : msg_str;
-//    saved_cmd     : commands;
-//    file_slot     : slot_range;
-//    file_slot_2   : slot_range;
-//    fnm           : file_name_str;
-//    i             : integer;
-//    dummy_fptr    : file_ptr;
-//    nr_lines      : line_range;
-
     //with current_frame^ do
     // Fudge some of the commands that accept rept = minus.
     commands saved_cmd = command;
