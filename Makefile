@@ -1,6 +1,7 @@
 OBJS = \
 	arrow.o \
 	caseditto.o \
+	ch.o \
 	charcmd.o \
 	code.o \
 	const.o \

@@ -24,6 +24,7 @@
 
 #include "help.h"
 
+#include "ch.h"
 #include "var.h"
 #include "screen.h"
 #include "helpfile.h"
@@ -31,12 +32,10 @@
 #include <cstring>
 
 namespace {
+
     const int  STS_RNF     = 98994;  // Record not found status return.
     const char INDEX[]     = "0   "; // The index key.
 
-    char ch_toupper(char ch) {
-        return std::toupper(ch);
-    }
 };
 
 void ask_user(const char *prompt, key_str &reply, int &reply_len) {

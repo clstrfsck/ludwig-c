@@ -24,6 +24,7 @@
 
 #include "eqsgetrep.h"
 
+#include "ch.h"
 #include "var.h"
 #include "dfa.h"
 #include "mark.h"
@@ -33,88 +34,13 @@
 #include "patparse.h"
 #include "recognize.h"
 
+#include <algorithm>
+
 namespace {
+
     const std::string THIS_ONE("This one?");
     const std::string REPLACE_THIS_ONE("Replace this one?");
 
-    template <typename T>
-    int sgn(T val) {
-        return (T(0) < val) - (val < T(0));
-    }
-
-    int ch_compare_str(const str_object &target, strlen_range st1, strlen_range len1,
-                       const str_object &text,   strlen_range st2, strlen_range len2,
-                       bool exactcase, strlen_range &nch_ident) {
-        int i;
-        if (exactcase) {
-            for (i = 0; i < len1 && i < len2; ++i) {
-                if (target[st1 + i] != std::toupper(text[st2 + i]))
-                    break;
-            }
-        } else {
-            for (i = 0; i < len1 && i < len2; ++i) {
-                if (target[st1 + i] != text[st2 + i])
-                    break;
-            }
-        }
-        nch_ident = i;
-        int diff = 0;
-        if (i < len1 && i < len2) {
-            char ch1 = target[st1 + i];
-            char ch2 = exactcase ? text[st2 + i] : std::toupper(text[st2 + i]);
-            diff = sgn(ch1 - ch2);
-        } else {
-            diff = sgn(len1 - len2);
-        }
-        return diff;
-    }
-
-    void ch_reverse_str(str_object &src, str_object &dst, strlen_range len) {
-        for (int i = 0; i < len; ++i) {
-            dst[len - i] = src[i + 1];
-        }
-    }
-
-    char ch_toupper(char ch) {
-        return std::toupper(ch);
-    }
-
-    bool streq(const char *s1, const char *s2, size_t len) {
-        while (len--) {
-            if (*s1++ != *s2++)
-                return false;
-        }
-        return true;
-    }
-
-    bool ch_search_str(str_object &target, strlen_range st1, strlen_range len1,
-                       str_object &text,   strlen_range st2, strlen_range len2,
-                       bool exactcase, bool backwards,
-                       strlen_range &found_loc) {
-        // FIXME: No need to copy whole of text, just between st2 and st2 + len2 - 1
-        str_object s;
-        if (backwards) {
-            for (int i = 0; i < len2; ++i) {
-                s[len2 - i] = text[st2 + i];
-            }
-            found_loc = len2;
-        } else {
-            s = text;
-            found_loc = 0;
-        }
-        if (!exactcase)
-            s.apply_n(ch_toupper, len2); // not sure about length here was len2-st2
-        for (int i = 1; i <= len2 - len1 + 1; ++i) {
-            if (streq(target.data(st1), s.data(i), len1)) {
-                if (backwards)
-                    found_loc = len2 - (i + len1) + 1;
-                else
-                    found_loc = i - 1;
-                return true;
-            }
-        }
-        return false;
-    }
 };
 
 bool eqsgetrep_exactcase(tpar_object &target) {

@@ -24,6 +24,7 @@
 
 #include "frame.h"
 
+#include "ch.h"
 #include "dfa.h"
 #include "var.h"
 #include "vdu.h"
@@ -38,13 +39,11 @@
 #include <cstring>
 
 namespace {
+
     const std::string END_OF_FILE("<End of File>   ");
     const std::string NEW_VALUES("  New Values: ");
     const accept_set_type NPUNCT = accept_set_type(alpha_set).add(numeric_set).add(space_set);
 
-    char ch_toupper(char ch) {
-        return std::toupper(ch);
-    }
 }
 
 bool frame_edit(name_str frame_name) {

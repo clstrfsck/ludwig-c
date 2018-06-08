@@ -24,6 +24,7 @@
 
 #include "tpar.h"
 
+#include "ch.h"
 #include "var.h"
 #include "span.h"
 #include "msdos.h"
@@ -41,10 +42,6 @@ namespace {
         opsys,
         ludwig
     };
-
-    char ch_toupper(char ch) {
-        return std::toupper(ch);
-    }
 
     template <class R>
     std::string to_string(const parray<char, R> &a) {
