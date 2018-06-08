@@ -29,13 +29,6 @@
 #include "filesys.h"
 
 bool opsys_command(const tpar_object &command, line_ptr &first, line_ptr &last, int &actual_cnt) {
-//  var
-//    mbx      : file_ptr;
-//    result   : str_object;
-//    line,
-//    line_2   : line_ptr;
-//    outlen   : strlen_range;
-
     first = nullptr;
     last = nullptr;
     actual_cnt = 0;

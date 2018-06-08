@@ -37,18 +37,6 @@ bool key_in_set(key_code_range key, const accept_set_type &s) {
 }
 
 bool charcmd_insert(commands cmd, leadparam rept, int count, bool from_span) {
-
-    //  label 9;
-    //  var
-    //    cmstatus,
-    //    cmd_valid  : boolean;
-    //    old_dot_col,
-    //    eql_col    : col_range;
-    //    maximum,
-    //    inserted   : strlen_range;
-    //    key        : key_code_range;
-    //    temp_mark  : mark_ptr;
-
     bool cmd_status = false;
     if (rept == leadparam::minus)
         rept = leadparam::nint;
@@ -119,19 +107,6 @@ l9:;
 }
 
 bool charcmd_delete (commands cmd, leadparam rept, int count, bool from_span) {
-//  label 9;
-//  var
-//    cmd_status,
-//    cmd_valid   : boolean;
-//    first_col,
-//    scr_col     : integer;
-//    old_dot_col : col_range;
-//    old_str     : str_object;
-//    old_used    : strlen_range;
-//    deleted     : integer;
-//    key         : key_code_range;
-//    length      : integer;
-
     bool cmd_status = false;
     //with current_frame^,dot^,line^ do
     col_range old_dot_col = current_frame->dot->col;
@@ -253,16 +228,6 @@ l9:;
 }
 
 bool charcmd_rubout(commands cmd, leadparam rept, int count, bool from_span) {
-//  label 9;
-//  var
-//    cmd_status,
-//    cmd_valid   : boolean;
-//    old_dot_col : col_range;
-//    old_str     : str_object;
-//    dot_used    : strlen_range;
-//    eql_col     : col_range;
-//    key         : key_code_range;
-
     bool cmd_status;
     if (edit_mode == mode_type::mode_insert) {
         if (rept == leadparam::pindef)

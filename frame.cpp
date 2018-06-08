@@ -302,10 +302,6 @@ char nextchar(tpar_object &request, int &pos) {
 }
 
 bool setmemory(int sz, bool set_initial) {
-
-    //var
-    //  used_storage,min_size: integer;
-
     if (sz >= MAX_SPACE)
         sz = MAX_SPACE;
     if (set_initial)
@@ -513,16 +509,6 @@ bool set_mode(tpar_object &request, int &pos) {
 }
 
 bool set_tabs(tpar_object &request, int &pos, bool set_initial) {
-    //    var
-    //      i,j        : integer;
-    //      ch         : char;
-    //      temptab    : tab_array;
-    //      first_line,
-    //      last_line  : line_ptr;
-    //      last_margin: (lm_none,lm_left,lm_right);
-    //      legal      : boolean;
-    //      dot_col    : col_range;
-
     //with current_frame^ do
     char ch = nextchar(request,pos);
     switch (ch) {
@@ -795,13 +781,6 @@ bool set_tbmargin(tpar_object &request, int &pos, bool set_initial) {
 }
 
 bool setparam(tpar_object &request) {
-    //    var
-    //      temp,
-    //      pos : integer;
-    //      ch  : char;
-    //      ok  : boolean;
-    //      set_initial : boolean;
-
     int pos = 1;
     char ch = nextchar(request, pos);
     bool set_initial = false;
@@ -922,13 +901,6 @@ void print_margins(int m1, int m2) {
 }
 
 bool frame_parameter(tpar_ptr tpar) {
-    //  var
-    //    i        : integer;
-    //    temp     : line_range;
-    //    request  : tpar_object;
-    //    key_name : key_name_str;
-    //    buffer : str_object;
-
     bool result = false;
     //with request do
     tpar->nxt = nullptr;

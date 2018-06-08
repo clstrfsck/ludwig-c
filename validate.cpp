@@ -34,17 +34,6 @@ bool validate_command() {
       Outputs  : none.
       Bugchecks: .lots and lots of them!
     */
-    //  var
-    //    this_span, prev_span : span_ptr;
-    //    this_frame : frame_ptr;
-    //    this_group, prev_group, end_group : group_ptr;
-    //    this_line, prev_line, end_line : line_ptr;
-    //    line_nr : line_range;
-    //    line_count : group_line_range;
-    //    this_mark : mark_ptr;
-    //    mark_nr : mark_range;
-    //    scr_row : scr_row_range;
-    //    frame_list : set of (oops,cmd,heap);
     const int OOPS = 0x0001;
     const int CMD  = 0x0002;
     const int HEAP = 0x0004;

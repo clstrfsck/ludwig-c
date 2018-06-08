@@ -423,14 +423,6 @@ bool newword_advance_paragraph(leadparam rept, int count, bool from_span) {
 }
 
 bool newword_delete_paragraph(leadparam rept, int count, bool from_span) {
-    //  var
-    //    old_pos,
-    //    here,
-    //    another_mark,
-    //    the_other_mark : mark_ptr;
-    //    line_nr,
-    //    new_line_nr : line_range;
-
     bool result = false;
     //with current_frame^ do
     mark_ptr old_pos = nullptr;

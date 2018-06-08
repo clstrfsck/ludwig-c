@@ -162,8 +162,6 @@ void screen_message(const char *message) {
 
 void screen_draw_line(line_ptr line) {
     // Draw a line if it is on the screen.
-    //  var
-    //    strlen,offset : integer;
 
 #ifdef DEBUG
     if (line->scr_row_nr == 0) {
@@ -194,8 +192,6 @@ void screen_draw_line(line_ptr line) {
 
 void screen_redraw() {
     // Redraw the screen, exactly as is.
-    //  var
-    //    line : line_ptr;
 
     if (scr_frame != nullptr) {
         vdu_clearscr();
@@ -216,11 +212,6 @@ void screen_slide_line(line_ptr line, int slide_dist, slide_type slide_state) {
     //      AND FOR                              SCREEN_SLIDE.
     // It assumes the scr_offset has been changed by slide_dist
     // and that the lines on the screen are being accordingly fixed.
-
-    //var
-    // overlap : integer;
-    // offset  : col_offset_range;
-    // width   : scr_col_range;
 
     if (line->flink == nullptr)
         return;  // Dont slide NULL line.
@@ -261,9 +252,6 @@ void screen_slide_line(line_ptr line, int slide_dist, slide_type slide_state) {
 
 void screen_slide(int dist) {
     // Slide the whole screen the specified dist, -ve means left.
-//  var
-//    l : line_ptr;
-//    s : slide_type;
 
     if (scr_frame != nullptr) {
         if (dist != 0) {
@@ -313,29 +301,16 @@ void screen_unload() {
 void screen_expand(bool init_upwards, bool init_downwards);
 
 void screen_scroll(int count, bool expand) {
-  // Scroll the screen forward or back by the specified number of lines.
-  // The only limit is the final screen must contain at least one line.
-  // If expand is true, the screen must keep the same number of lines.
-  // Count is +ve, means scroll forward, -ve means backwards.
-  // The actual method of moving is optimized into a REDRAW if "nicer".
-  //
-  // WARNING Screen_Position predicts the behaviour of this routine.
-  //         In particular it predicts which lines this routine will not
-  //         scroll off the screen. Any changes here therefore must have
-  //         implications there also.
-
-  //var
-  //  frame           : frame_ptr;
-  //  row_nr,
-  //  top_line_row,
-  //  bot_line_row    : scr_row_range;
-  //  eop_line_nr,
-  //  free_lines,
-  //  remaining_lines : integer;
-  //  bot_line_nr,
-  //  top_line_nr     : line_range;
-  //  top_line,
-  //  bot_line        : line_ptr;
+    // Scroll the screen forward or back by the specified number of lines.
+    // The only limit is the final screen must contain at least one line.
+    // If expand is true, the screen must keep the same number of lines.
+    // Count is +ve, means scroll forward, -ve means backwards.
+    // The actual method of moving is optimized into a REDRAW if "nicer".
+    //
+    // WARNING Screen_Position predicts the behaviour of this routine.
+    //         In particular it predicts which lines this routine will not
+    //         scroll off the screen. Any changes here therefore must have
+    //         implications there also.
 
     if (scr_frame == nullptr)
         return;
@@ -526,14 +501,6 @@ void screen_expand(bool init_upwards, bool init_downwards) {
     // Expand a screen out to at least the frame's specified screen height.
     // Use the allowed directions to control the expansion.
 
-    //var
-    //  upwards,downwards : boolean;
-    //  lines_on_scr,
-    //  cur_row,height : scr_row_range;
-    //  bot_line,
-    //  top_line       : line_ptr;
-    //  nr_lines       : line_range;
-
     bool upwards   = init_upwards;
     bool downwards = init_downwards;
 
@@ -627,10 +594,6 @@ void screen_expand(bool init_upwards, bool init_downwards) {
 }
 
 void screen_lines_extract(line_ptr first_line, line_ptr last_line) {
-//  var
-//    count      : scr_row_range;
-//    line_limit : line_ptr;
-
     // The lines specified are removed from the screen.  If the whole screen
     // is removed then it is unmapped.
 
@@ -840,19 +803,6 @@ void screen_load(line_ptr line, col_range col) {
     // LUDWIG_HARDCOPY:
     // Draw scr_height lines around the dot.
 
-    //  var
-    //    frame       : frame_ptr;
-    //    eop_line_nr,
-    //    line_nr     : line_range;
-    //    new_row     : integer;
-    //    dot_col     : col_range;
-    //    dot_line    : line_ptr;
-    //    half_width  : col_offset_range;
-    //    buflen      : strlen_range;
-    //{#if turbop}
-    //    i           : integer;
-    //{#endif}
-
     const frame_ptr frame = line->group->frame;
     switch (ludwig_mode) {
     case ludwig_mode_type::ludwig_batch:
@@ -956,17 +906,6 @@ void screen_position(line_ptr new_line, col_range new_col) {
     //       (3) If possible the specified line is between the top and
     //           bottom margins.
     //       (4) No more than scr_height lines are written to the screen.
-//  var
-//    slide_dist     : integer;                 {Used during horizontal scroll.}
-//    slide_state    : slide_type;
-//    scroll_dist    : integer;
-//    scroll_state   : scroll_type;
-//    row_nr         : scr_row_range;
-//    nr_rows        : scr_row_range;
-//    line           : line_ptr;
-//    bot_line_nr,
-//    new_line_nr,
-//    top_line_nr    : line_range;
 
     if (new_line->group->frame != scr_frame) {
         screen_load(new_line, new_col);
@@ -1138,12 +1077,6 @@ void screen_pause() {
     //
     // This routine DOES NOT use SCREEN_GETLINEP because then an infinite loop
     // would result FIXUP --> CLEAR_MSGS --> PAUSE --> GETLINEP --> FIXUP.
-//  var
-//    buffer  : str_object;
-//    outlen  : strlen_range;
-//{#if turbop}
-//    tmp_str : string;
-//{#endif}
 
     if (ludwig_mode == ludwig_mode_type::ludwig_screen) {
         if (scr_frame != nullptr)
@@ -1154,13 +1087,15 @@ void screen_pause() {
         strlen_range outlen = std::strlen(PAUSE_MSG);
         buffer.copy(PAUSE_MSG, outlen);
         vdu_get_input(buffer, outlen, buffer, MAX_STRLEN, outlen);
-        if ((scr_top_line != nullptr) && (scr_top_line->scr_row_nr == 1))
-            screen_draw_line(scr_top_line);
-        else {
-            vdu_movecurs(1, 1);
-            vdu_cleareol();
-            if (scr_top_line->scr_row_nr == 2)
-                scr_needs_fix = true;
+        if (scr_top_line != nullptr) {
+            if (scr_top_line->scr_row_nr == 1) {
+                screen_draw_line(scr_top_line);
+            } else {
+                vdu_movecurs(1, 1);
+                vdu_cleareol();
+                if (scr_top_line->scr_row_nr == 2)
+                    scr_needs_fix = true;
+            }
         }
     }
 }
@@ -1170,9 +1105,9 @@ void screen_clear_msgs(bool pause) {
     if (scr_msg_row <= terminal_info.height) {
         if (pause)
             screen_pause();
-        if (scr_frame == nullptr)
+        if (scr_frame == nullptr) {
             vdu_clearscr();
-        else {
+        } else {
             vdu_movecurs(1, scr_msg_row);
             vdu_cleareos();
         }
@@ -1205,10 +1140,6 @@ void change_frame_size(frame_ptr frm, int band, int half_screen) {
 void screen_resize() {
     // The screen has changed size, so erase it, get the new size, and redraw
     // it.
-
-//  var next_span : span_ptr;
-//      next_frame : frame_ptr;
-//      band, half_screen : integer;
 
     tt_winchanged = false;
     vdu_get_new_dimensions(terminal_info.width, terminal_info.height);
@@ -1248,8 +1179,6 @@ void screen_resize() {
 
 void screen_fixup() {
     // Make sure that the screen is user's view of the screen is correct.
-//  var
-//    key :key_code_range;
 
 #ifdef DEBUG
     if (ludwig_mode != ludwig_mode_type::ludwig_screen) {
@@ -1299,14 +1228,6 @@ void screen_fixup() {
 void screen_getlinep(const str_object &prompt, strlen_range prompt_len,
                      str_object &outbuf, strlen_range &outlen,
                      tpcount_type max_tp, tpcount_type this_tp) {
-
-//  label
-//    1,2;
-//  var
-//    index    : tpcount_type;
-//    tmp_line : line_ptr;
-//    i : integer;
-//    ch : char;
 
     outlen = 0;       // THIS IS DONE BECAUSE ?_GET_INPUT MAY TREAT OUTLEN
                       // AS A WORD, NOT AS A LONGWORD.
@@ -1435,21 +1356,6 @@ verify_response screen_verify(str_object prompt, strlen_range prompt_len) {
     // current dot position.
 
     const int ver_height = 4;
-//  var
-//    key        : key_code_range;
-//    more       : boolean;
-//    use_prompt : boolean;
-//    old_height : scr_row_range;
-//    old_top_m  : scr_row_range;
-//    old_bot_m  : scr_row_range;
-//    response   : str_object;
-//    resp_len   : strlen_range;
-//    verify     : verify_response;
-//    i          : integer;
-//    buffer     : str_object;
-//{#if turbop}
-//    tmp_str    : string;
-//{#endif}
 
     prompt.fill(' ', prompt_len + 1);
 
@@ -1659,7 +1565,7 @@ void screen_write_name_str(scr_col_range indent, const name_str &str, scr_col_ra
             vdu_displaych(' ');
         for (int i = 0; i < width; ++i) {
             if (i < NAME_LEN)
-                vdu_displaych(str[i]);
+                vdu_displaych(str[i + 1]);
             else
                 vdu_displaych(' ');
         }
@@ -1667,7 +1573,7 @@ void screen_write_name_str(scr_col_range indent, const name_str &str, scr_col_ra
         write(' ', indent);
         for (int i = 0; i < width; ++i) {
             if (i < NAME_LEN)
-                write(str[i], 1);
+                write(str[i + 1], 1);
             else
                 write(' ', 1);
         }
@@ -1681,8 +1587,8 @@ void screen_write_file_name_str(scr_col_range indent, const file_name_str &str, 
         for (int i = 0; i < indent; ++i)
             vdu_displaych(' ');
         for (int i = 0; i < width; ++i) {
-            if (i < FILE_NAME_LEN)
-                vdu_displaych(str[i]);
+            if (i < FILE_NAME_LEN && std::isprint(str[i + 1]))
+                vdu_displaych(str[i + 1]);
             else
                 vdu_displaych(' ');
         }
@@ -1690,7 +1596,7 @@ void screen_write_file_name_str(scr_col_range indent, const file_name_str &str, 
         write(' ', indent);
         for (int i = 0; i < width; ++i) {
             if (i < FILE_NAME_LEN)
-                write(str[i], 1);
+                write(str[i + 1], 1);
             else
                 write(' ', 1);
         }
@@ -1717,11 +1623,6 @@ void screen_writeln_clel() {
 }
 
 void screen_help_prompt(const write_str &prompt, scr_col_range prompt_len, key_str &reply, int &reply_len) {
-
-//  var
-//    key        : key_code_range;
-//    terminated : boolean;
-
     switch (ludwig_mode) {
     case ludwig_mode_type::ludwig_screen:
     case ludwig_mode_type::ludwig_hardcopy: {

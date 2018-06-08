@@ -32,15 +32,6 @@
 #include "screen.h"
 
 bool window_command(commands command, leadparam rept, int count, tpar_ptr tparam, bool from_span) {
-    //  var
-    //    cmd_success    : boolean;
-    //    new_line       : line_ptr;
-    //    key            : key_code_range;
-    //    i              : integer;
-    //    line_nr,
-    //    line2_nr,
-    //    line3_nr       : line_range;
-
     bool cmd_success = false;
 
     //with current_frame^,dot^ do

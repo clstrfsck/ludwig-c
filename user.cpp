@@ -72,10 +72,6 @@ bool user_key_name_to_code(const key_name_str &key_name, key_code_range &key_cod
 void user_key_initialize() {
     // WARNING - A value of 40 for key_name_len is assumed here
 
-    //  var
-    //    key_code : key_code_range;
-    //    tpar : tpar_ptr;
-
     // Initialize terminal-defined key map table.
     key_code_range key_code;
     vdu_keyboard_init(nr_key_names, key_name_list_ptr, key_introducers, terminal_info);
@@ -136,10 +132,6 @@ void user_key_initialize() {
 }
 
 bool user_command_introducer() {
-    //  var
-    //    temp : str_object;
-    //    cmd_success : boolean;
-
     if (!printable_set.contains(command_introducer)) {
         screen_message(MSG_NONPRINTABLE_INTRODUCER);
         return false;
@@ -175,12 +167,6 @@ bool user_command_introducer() {
 }
 
 bool user_key(const tpar_object &key, const tpar_object &strng) {
-    //  var
-    //    i : integer;
-    //    key_span, old_span : span_ptr;
-    //    key_code : key_code_range;
-    //    key_name : key_name_str;
-
     bool result = false;
     key_code_range key_code;
     if (key.len == 1) {

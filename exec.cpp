@@ -61,9 +61,6 @@ bool exec_compute_line_range(frame_ptr frame, leadparam rept, int count, line_pt
     // It returns First_Line as NIL if the range is empty.
     // The range returned WILL NOT include the null line.
     // It is assumed that the mark (if any) has been checked for validity.
-//  var
-//    line_nr,mark_line_nr : line_range;
-//    mark_line            : line_ptr;
 
     bool result = false;
     //with frame^,dot^ do
@@ -168,30 +165,6 @@ l99:;
 }
 
 bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool from_span) {
-//  var
-//    cmd_success    : boolean;
-//    new_col,
-//    dot_col        : col_range;
-//    new_line,
-//    first_line,
-//    last_line      : line_ptr;
-//    key            : key_code_range;
-//    i,j            : integer;
-//    line_nr,
-//    line2_nr       : line_range;
-//    new_name       : name_str;
-//    new_span,
-//    old_span       : span_ptr;
-//    new_tparam     : tpar_ptr;
-//    request,
-//    request2       : tpar_object;
-//    the_mark       : mark_ptr;
-//    the_other_mark : mark_ptr;
-//    another_mark   : mark_ptr;
-//    eq_set         : boolean;            { These 3 are used for      }
-//    old_frame      : frame_ptr;          { the setting up of         }
-//    old_dot        : mark_object;        { the commands = behaviour }
-//    new_str        : str_object;
     bool           cmd_success;
     col_range      new_col;
     col_range      dot_col;
@@ -212,9 +185,9 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
     mark_ptr       the_mark;
     mark_ptr       the_other_mark;
     mark_ptr       another_mark;
-    bool           eq_set;
-    frame_ptr      old_frame;
-    mark_object    old_dot;
+    bool           eq_set;            // These 3 are used for
+    frame_ptr      old_frame;         // the setting up of
+    mark_object    old_dot;           // the commands = behaviour
     str_object     new_str;
 
     cmd_success = false;

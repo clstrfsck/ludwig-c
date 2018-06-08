@@ -247,7 +247,7 @@ bool eqsgetrep_eqs(leadparam rept, int count, tpar_object tpar, bool from_span) 
 bool eqsgetrep_dumb_get(leadparam rept, int count, tpar_object tpar, bool from_span) {
     bool result = (count == 0);
     //with current_frame^ do
-    // Initialize the search variables. }
+    // Initialize the search variables.
     line_ptr  dot_line  = current_frame->dot->line;  // Remember initial dot.
     col_range dot_col   = current_frame->dot->col;
     bool exactcase      = eqsgetrep_exactcase(tpar); // Decide if exact case.
@@ -385,19 +385,6 @@ l99:;
 }
 
 bool eqsgetrep_pattern_get(leadparam rept, int count, tpar_object tpar, bool from_span, bool replace_flag) {
-//    var
-//      backwards : boolean;
-//      dot_col   : col_range;
-//      dot_line  : line_ptr;
-//      line      : line_ptr;
-//      result    : boolean;
-//      start_col : strlen_range;
-//      pattern_ptr : dfa_table_ptr;
-//      matched_start_col   : col_range;
-//      matched_finish_col   : col_range;
-//      mark_flag         : boolean;
-//      buffer : str_object;
-
     bool result = (count == 0);
     //with current_frame^ do
     dfa_table_ptr pattern_ptr;
@@ -409,7 +396,7 @@ bool eqsgetrep_pattern_get(leadparam rept, int count, tpar_object tpar, bool fro
         // is a get within a replace, pattern table already exists
         pattern_ptr = current_frame->rep_pattern_ptr;
     }
-    // Initialize the search variables. }
+    // Initialize the search variables.
     line_ptr  dot_line = current_frame->dot->line; // Remember initial dot.
     col_range dot_col  = current_frame->dot->col;
     line_ptr  line     = dot_line;                 // Line to start on.
@@ -521,17 +508,6 @@ bool eqsgetrep_get(leadparam rept, int count, tpar_object tpar, bool from_span) 
 }
 
 bool eqsgetrep_rep(leadparam rept, int count, tpar_object tpar, tpar_object tpar2, bool from_span) {
-//  var
-//    getcount  : -1..1;
-//    getrept   : leadparam;
-//    length    : integer;
-//    delta     : integer;
-//    start_col : col_range;
-//    okay      : boolean;
-//    old_equals,
-//    old_dot   : mark_ptr;
-//    buffer : str_object;
-
     int getcount;
     leadparam getrept;
     int length;

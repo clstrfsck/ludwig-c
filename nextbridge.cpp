@@ -35,14 +35,6 @@ namespace {
 };
 
 bool nextbridge_command(leadparam rept, int count, const tpar_object &tpar, bool bridge) {
-//  label 1,2,99;
-//  var
-//    i        : integer;
-//    new_col  : integer;
-//    new_line : line_ptr;
-//    ch1,ch2  : char;
-//    chars    : set of char;
-
     chset chars;
     // Form the character set.
     //with tpar do

@@ -50,23 +50,6 @@ bool key_is_lower(key_code_range key) {
 }
 
 bool caseditto_command(commands command, leadparam rept, int count, bool from_span) {
-    //  label 9, 99;
-    //  var
-    //    cmd_status,
-    //    cmd_valid   : boolean;
-    //    old_dot_col,
-    //    first_col,
-    //    new_col     : col_range;
-    //    old_str,
-    //    new_str     : str_object;
-    //    command_set : set of commands;
-    //    other_line  : line_ptr;
-    //    key,
-    //    key_up      : key_code_range;
-    //    ch          : char;
-    //    i           : integer;
-    //    insert      : boolean;
-
     bool cmd_status = false;
     bool insert = (command == commands::cmd_ditto_up || command == commands::cmd_ditto_down) &&
         ((edit_mode == mode_type::mode_insert) ||

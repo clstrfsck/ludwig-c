@@ -32,11 +32,6 @@ namespace {
 
 void pattern_get_input_elt(line_ptr line, char &ch, accept_set_type &input_set, col_range &column,
                            strlen_range length, bool &mark_flag, bool &end_of_line) {
-
-//    var
-//      mark_no     : mark_range;
-//      mark_found  : boolean;
-
     input_set.clear();
     if (length == 0) {
         ch = PATTERN_SPACE; // not 100% corrrect but OK
@@ -95,11 +90,6 @@ void pattern_get_input_elt(line_ptr line, char &ch, accept_set_type &input_set, 
 
 bool pattern_next_state(dfa_table_ptr dfa_table_pointer, char ch,
                         const accept_set_type &input_set, bool mark_flag, dfa_state_range &state, bool &started) {
-//    var
-//      found              : boolean;
-//      transition_pointer : transition_ptr;
-//      aux_state          : dfa_state_range;
-
     bool found = false;
     transition_ptr transition_pointer = dfa_table_pointer->dfa_table[state].transitions;
     if (mark_flag) { // look for transitions on positionals only
@@ -140,18 +130,6 @@ bool pattern_next_state(dfa_table_ptr dfa_table_pointer, char ch,
 
 bool pattern_recognize(dfa_table_ptr dfa_table_pointer, line_ptr line, col_range start_col,
                        bool &mark_flag, col_range &start_pos, col_range &finish_pos) {
-//  var
-//    state               : dfa_state_range;
-//    found               : boolean;
-//    positional_set      : accept_set_type;
-//    started             : boolean;
-//    end_of_line         : boolean;
-//    fail                : boolean;
-//    flag                : boolean;
-//    left_flag           : boolean;
-//    line_counter        : strlen_range;
-//    ch                  : char;
-
     col_range line_counter = start_col;
     start_pos    = start_col;
     finish_pos   = start_col;

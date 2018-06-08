@@ -38,26 +38,6 @@ const penumset<commands> ARROW_COMMANDS{
         commands::cmd_down, commands::cmd_up};
 
 bool arrow_command(commands command, leadparam rept, int count, bool from_span) {
-
-    //  label
-    //    1,        { EXITLOOP label. }
-    //    9;        { Exit. }
-    //
-    //  var
-    //    key          : key_code_range;
-    //    cmd_status,
-    //    cmd_valid    : boolean;
-    //    step         : integer;
-    //    line_nr      : line_range;
-    //    eop_line_nr  : line_range;
-    //    new_col      : col_width_range;
-    //    dot_col      : col_range;
-    //    dot_line     : line_ptr;
-    //    old_dot,
-    //    new_eql      : mark_object;
-    //    counter      : integer;
-
-
     bool cmd_status = false;
     mark_object new_eql;
     //with current_frame^ do

@@ -30,12 +30,6 @@
 
 bool swap_line(leadparam rept, int count) {
     // SW is implemented as a ST of the dot line to before the other line.
-    //  var
-    //    this_line, next_line, dest_line : line_ptr;
-    //    top_mark, end_mark, dest_mark : mark_ptr;
-    //    dot_col : col_range;
-    //    i : integer;
-
     bool result = false;
     mark_ptr  top_mark  = nullptr;
     mark_ptr  end_mark  = nullptr;

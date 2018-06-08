@@ -60,23 +60,6 @@ namespace {
 };
 
 void execute_immed() {
-//  var
-//    i            : integer;
-//    key          : key_code_range;
-//    input_buf    : str_object;
-//    col_1,col_2,
-//    input_len    : strlen_range;
-//    scr_col      : scr_col_range;
-//    jammed       : boolean;
-//    cmd_success  : boolean;
-//    { Variables supporting Batch/Hardcopy mode. NOTE THE FUDGE OF THE }
-//    { CMD_SPAN that is not inside a frame! }
-//    cmd_span     : span_ptr;
-//    cmd_fnm      : file_name_str;
-//    cmd_file     : file_ptr;
-//    dummy_fptr   : file_ptr;
-//    cmd_count    : integer;
-
     scr_col_range scr_col;
     span_ptr cmd_span = new span_object;
     //with cmd_span^ do

@@ -137,10 +137,6 @@ bool tpar_to_mark(tpar_object &strng, int &mark) {
 }
 
 bool tpar_to_int(tpar_object &strng, int &chpos, int &int_) {
-    //  var
-    //    number,digit : integer;
-    //    ch : char;
-
     //with strng do
     char ch = (chpos > strng.len) ? '\0' : strng.str[chpos];
     if (ch < '0' || ch > '0') {
@@ -168,12 +164,6 @@ bool tpar_to_int(tpar_object &strng, int &chpos, int &int_) {
 }
 
 bool tpar_substitute(tpar_object &tpar, user_commands cmd, tpcount_type this_tp) {
-    //    var
-    //      srclen      : 0..max_strlen;
-    //      name        : name_str;
-    //      tmp_tp_2,
-    //      tmp_tp      : tpar_ptr;
-
     //with tpar do
     if (tpar.con != nullptr) {
         screen_message(MSG_SPAN_NAMES_ARE_ONE_LINE);
@@ -252,11 +242,6 @@ bool tpar_substitute(tpar_object &tpar, user_commands cmd, tpcount_type this_tp)
 }
 
 bool find_enquiry(const name_str &name, str_object &result, strlen_range &reslen) {
-//      var
-//        variable_type : (unknown,terminal,frame,opsys,ludwig);
-//        item          : name_str;
-//        i,j           : integer;
-//        len           : strlen_range;
     bool enquiry_result = false;
     vartype variable_type = vartype::unknown;
     std::string item;
@@ -402,15 +387,6 @@ bool tpar_enquire(tpar_object &tpar) {
 }
 
 bool tpar_analyse(user_commands cmd, tpar_object &tran, int depth, tpcount_type this_tp) {
-//  var
-//    ended : boolean;
-//    verify_reply : verify_response;
-//    delim : char;
-//    tmp_tp : tpar_ptr;
-//    buffer : str_object;
-
-
-    //tpar_analyse = false;
     bool ended = false;
     if (depth > MAX_TPAR_RECURSION) {
         screen_message(MSG_TPAR_TOO_DEEP);

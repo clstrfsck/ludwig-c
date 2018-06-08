@@ -44,9 +44,6 @@ bool mark_create(line_ptr in_line, col_range column, mark_ptr &mark) {
       Outputs  : mark: a pointer to the created mark.
       Bugchecks: .in_line pointer is nil
     */
-    //  var
-    //    this_mark, prev_mark : mark_ptr;
-    //    this_line : line_ptr;
 
 #ifdef DEBUG
     if (in_line == nullptr) {
@@ -95,9 +92,6 @@ bool mark_destroy(mark_ptr &mark) {
       Outputs  : mark: nil.
       Bugchecks: .mark pointer is nil
     */
-    //  var
-    //    this_mark, prev_mark : mark_ptr;
-    //    this_line : line_ptr;
 
 #ifdef DEBUG
     if (mark == nullptr) {
@@ -134,9 +128,6 @@ bool marks_squeeze(line_ptr first_line, col_range first_column, line_ptr last_li
                  .first and last lines in different frames
                  .first line > last line
     */
-    //  var
-    //    this_mark, prev_mark, next_mark : mark_ptr;
-    //    this_line : line_ptr;
 
 #ifdef DEBUG
     if ((first_line == nullptr) || (last_line == nullptr)) {
@@ -220,11 +211,6 @@ bool marks_shift(line_ptr source_line, col_range source_column, col_width_range 
                  .source and dest lines in different frames
                  .source ranges exceed maximum line length
     */
-    //  var
-    //    new_col    : integer;
-    //    source_end : col_range;
-    //    offset : integer;
-    //    this_mark, prev_mark, next_mark : mark_ptr;
 
 #ifdef DEBUG
     if ((source_line == nullptr) || (dest_line == nullptr)) {

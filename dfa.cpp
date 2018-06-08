@@ -101,7 +101,6 @@ bool pattern_dfa_convert(nfa_table_type &nfa_table,
                          nfa_state_range right_context_start,
                          dfa_state_range &dfa_start,
                          dfa_state_range &dfa_end) {
-    //    var
     state_elt_ptr_type aux_elt;
     dfa_state_range    state, current_state;
     nfa_set_type       closure_set;
@@ -189,7 +188,6 @@ bool pattern_dfa_convert(nfa_table_type &nfa_table,
 
     auto epsilon_and_mask = [&](nfa_state_range state, nfa_set_type &closure,
                                 nfa_set_type &mask, bool maxim) -> bool {
-        //      var
         nfa_state_range    aux_elt;
         nfa_attribute_type transition_set;
 
@@ -251,7 +249,6 @@ bool pattern_dfa_convert(nfa_table_type &nfa_table,
         // to transfer_state.
         // if the DFA_state already exists then just add the transition to the
         // from_states transition list
-//      var
         dfa_state_range position;
 
         auto dfa_search = [&](nfa_set_type state_head, dfa_state_range &position) -> bool {
