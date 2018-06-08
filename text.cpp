@@ -31,14 +31,6 @@
 #include "screen.h"
 
 col_range text_return_col(line_ptr cur_line, col_range cur_col, bool splitting) {
-    //  var
-    //    new_line : line_ptr;
-    //    new_col  : col_range;
-    //    str_1,
-    //    str_2    : str_ptr;
-    //    used_1,
-    //    used_2   : strlen_range;
-
     // Calculate which col to place dot on.
     //with cur_line->group->frame^ do
     line_ptr new_line = cur_line;
@@ -78,9 +70,6 @@ col_range text_return_col(line_ptr cur_line, col_range cur_col, bool splitting) 
 }
 
 bool text_realize_null(line_ptr old_null) {
-    //  var
-    //    new_null : line_ptr;
-
     line_ptr new_null;
     if (lines_create(1, new_null, new_null)) {
         if (lines_inject(new_null, new_null, old_null)) {
@@ -197,16 +186,6 @@ bool text_overtype(bool update_screen, int count, str_object buf, strlen_range b
       !   dst               Modified to point past the insertion.
     */
 
-    //  var
-    //    i                : integer;
-    //    dst_line         : line_ptr;
-    //    len_on_scr,
-    //    first_col_on_scr,
-    //    last_col_on_scr,
-    //    overtype_len,
-    //    final_len        : integer;
-    //    new_col          : col_range;
-
 #ifdef DEBUG
     if (count < 0) {
         screen_message(DBG_REPEAT_NEGATIVE);
@@ -276,13 +255,6 @@ bool text_insert_tpar(tpar_object tp, mark_ptr before_mark, mark_ptr &equals_mar
       !   before_mark       Marks the end of the inserted text.
       !   equals_mark       Marks the beginning of the inserted text.
     */
-    //  var
-    //    line_count, lc : integer;
-    //    tmp_tp : tpar_ptr;
-    //    tmp_line : line_ptr;
-    //    first_line,
-    //    last_line : line_ptr;
-    //    discard : boolean;
 
     bool result = false;
     line_ptr first_line;
@@ -351,17 +323,6 @@ bool text_insert_tpar(tpar_object tp, mark_ptr before_mark, mark_ptr &equals_mar
 }
 
 bool text_intra_remove(mark_ptr mark_one, strlen_range size) {
-//    var
-//      buf_len         : integer;
-//      ln              : line_ptr;
-//      offset_p_width  : 0..maxint;
-//      first_col_on_scr,
-//      col_one,col_two : col_range;
-//      old_used,
-//      dst_len         : strlen_range;
-//      distance        : col_width_range;
-
-
     //with mark_one^ do
     line_ptr ln = mark_one->line;
     col_range col_one = mark_one->col;
@@ -419,16 +380,6 @@ bool text_intra_remove(mark_ptr mark_one, strlen_range size) {
 }
 
 bool text_inter_remove(mark_ptr mark_one, mark_ptr mark_two) {
-//    var
-//      mark_start        : mark_ptr;
-//      extr_one,extr_two : line_ptr;
-//      text_len          : strlen_range;
-//      strng             : str_object;
-//      strng_tail        : str_object;
-//      delta             : integer;
-//      line_one          : line_ptr;
-//      col_one           : col_range;
-
     bool result = false;
 
     mark_ptr mark_start = nullptr;
@@ -530,16 +481,6 @@ bool text_remove(mark_ptr mark_one, mark_ptr mark_two) {
 
 bool text_intra_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two, mark_ptr dst, mark_ptr &new_start, mark_ptr &new_end) {
     // ASSUMES COUNT >= 1, MARKS ON SAME LINE,  MARK_ONE AT OR BEFORE _TWO.
-//    var
-//      full_len : strlen_range;
-//      text_len : strlen_range;
-//      text_str : str_object;
-//      i        : integer;
-//      tail_len : strlen_range;
-//      col_one,col_two : col_range;
-//      dst_col  : col_range;
-//      dst_used : strlen_range;
-
     col_range col_one = mark_one->col;
     col_range col_two = mark_two->col;
 
@@ -749,10 +690,12 @@ bool text_inter_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two,
                 goto l99;
         }
         // PLACE THE END OF THE COPY IN POSITION
-        if (col_two <= next_src_line->used)
-            next_dst_line->str->copy(next_src_line->str->data(), col_two - 1);
-        else
+        if (col_two <= next_src_line->used) {
+            if (col_two > 1)
+                next_dst_line->str->copy(next_src_line->str->data(), col_two - 1);
+        } else {
             next_dst_line->str->fillcopy(next_src_line->str->data(), next_src_line->used, 1, col_two - 1, ' ');
+        }
         if (i != 0)
             next_dst_line->used = next_dst_line->str->length(' ', col_two - 1 + text_len);
         else
@@ -785,7 +728,7 @@ bool text_inter_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two,
             goto l99;
         last_line->str->copy(dst_line->str->data(dst_col), i, last_line_length + 1);
         last_line->used = last_line->str->length(' ', last_line_length + i);
-    } else {
+    } else if (last_line_length > 0) {
         last_line->used = last_line->str->length(' ', last_line_length);
     }
 
@@ -868,9 +811,6 @@ bool text_inter_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two,
 }
 
 bool text_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two, mark_ptr dst, mark_ptr &new_start, mark_ptr &new_end) {
-    //  var
-    //    cmd_success : boolean;
-
 #ifdef DEBUG
     line_range line_one_nr;
     if (!line_to_number(mark_one->line, line_one_nr))
