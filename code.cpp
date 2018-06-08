@@ -341,6 +341,20 @@ bool scan_leading_param(parse_state &ps, leadparam &repsym, int &repcount) {
         }
         break;
 
+    case '=':
+        if (!nextkey(ps))
+            return false;
+        repsym = leadparam::marker;
+        repcount = MARK_EQUALS;
+        break;
+
+    case '%':
+        if (!nextkey(ps))
+            return false;
+        repsym = leadparam::marker;
+        repcount = MARK_MODIFIED;
+        break;
+
     default:
         repsym = leadparam::none;
         repcount = 1;
@@ -536,16 +550,6 @@ bool scan_compound_command(parse_state &ps, leadparam repsym, int repcount, int 
 }
 
 bool scan_command(parse_state &ps, bool full_scan) {
-//    var
-//      pc1,pc2,
-//      pc3,pc4     : integer;   { These are always offsets from code_base }
-//      repsym      : leadparam;
-//      repcount    : integer;
-//      command     : commands;
-//      tparam      : tpar_ptr;
-//      lookup_code : code_ptr;
-//      i,j         : 1..expand_lim;
-
     int pc1, pc2, pc3, pc4;
     int repcount;
     leadparam repsym;
@@ -597,17 +601,6 @@ bool scan_command(parse_state &ps, bool full_scan) {
 }
 
 bool code_compile(span_object &span, bool from_span) {
-//  var
-//    status       : msg_str;
-//    key          : key_code_range;
-//    eoln         : boolean;     { Used to signal end of line }
-//    pc           : integer;     { This is always an offset from code_top }
-//    code_base    : code_idx;    { Base in code array for new code }
-//    startpoint,
-//    endpoint,
-//    currentpoint : mark_object;
-//    verify_count : integer;
-
     bool result = false;
     parse_state ps;
     ps.status.fill(' ');
@@ -668,11 +661,6 @@ l99:
 #include <iostream>
 
 void writecode() {
-//   var
-//     j,k : integer;
-//     hp : code_ptr;
-//     tp : tpar_ptr;
-
     code_ptr hp = code_list->flink;
     while (hp != code_list) {
         //with hp^ do
@@ -706,25 +694,6 @@ void writecode() {
 
 
 bool code_interpret(leadparam rept, int count, code_ptr code_head, bool from_span) {
-//  var
-//    curr_rep      : leadparam;                { repeat count type }
-//    curr_cnt      : integer;                  { repeat count value }
-//    curr_op       : commands;                 { op-code }
-//    curr_tpar     : tpar_ptr;                 { trailing parameter record ptr}
-//    curr_lbl      : code_idx;                 { label field }
-//    curr_code     : code_ptr;
-//    labels        : array [1..100] of
-//                      record
-//                        exitlabel : code_idx;
-//                        faillabel : code_idx;
-//                        count : integer
-//                      end;
-//    level         : 0..100;
-//    pc            : code_idx;
-//    interp_status : (success,failure,failforever);
-//    request       : tpar_object;
-//    verify_always : verify_array;
-
     struct labels_type {
         code_idx exitlabel;
         code_idx faillabel;
@@ -764,11 +733,11 @@ bool code_interpret(leadparam rept, int count, code_ptr code_head, bool from_spa
             // Note! code_head->code may be changed by a span compilation/creation.
             //with compiler_code[code_head->code-1 + pc] do
             auto &cc(compiler_code[code_head->code - 1 + pc]);
-            code_idx  curr_lbl  = cc.lbl;
-            commands  curr_op   = cc.op;
-            leadparam curr_rep  = cc.rep;
-            int       curr_cnt  = cc.cnt;
-            tpar_ptr  curr_tpar = cc.tpar;
+            code_idx  curr_lbl  = cc.lbl;                // label field
+            commands  curr_op   = cc.op;                 // op-code
+            leadparam curr_rep  = cc.rep;                // repeat count type
+            int       curr_cnt  = cc.cnt;                // repeat count value
+            tpar_ptr  curr_tpar = cc.tpar;               // trailing parameter record ptr
             code_ptr  curr_code = cc.code;
             pc += 1;
 
