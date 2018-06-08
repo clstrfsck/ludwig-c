@@ -798,9 +798,10 @@ bool line_change_length(line_ptr line, strlen_range new_length) {
             return false;
         }
         if (line->len > 0)
-            new_str->copy(line->str->data(), line->len);
-    } else
+            new_str->fillcopy(line->str->data(), line->len, 1, new_length, ' ');
+    } else {
         new_str = nullptr;
+    }
     // Dispose the old str_object.
     if (line->str != nullptr)
         delete line->str;
