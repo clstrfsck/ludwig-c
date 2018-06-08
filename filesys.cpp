@@ -75,7 +75,6 @@ static bool filesys_expand_file_name(file_name_str &fnm, int *fns) {
             return false;
         }
         std::string cwd(vcwd.data());
-        cwd.erase(cwd.find('\0'));
         std::string tmp;
         if (cwd == "/") {
             tmp = std::string("/") + fnm.data();
