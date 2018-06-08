@@ -25,19 +25,24 @@ class parray {
     typedef std::vector<T> array_type;
 
 public:
-    typedef R index_type;
+    typedef R                                    index_type;
+    typedef typename array_type::value_type      value_type;
+    typedef typename array_type::reference       reference;
+    typedef typename array_type::const_reference const_reference;
+    typedef typename array_type::pointer         pointer;
+    typedef typename array_type::const_pointer   const_pointer;
 
-    explicit parray(const T &init_value = T())
-        : m_array(R::size(), init_value) {
+    explicit parray(const_reference init_value = value_type())
+        : m_array(index_type::size(), init_value) {
         // Nothing more to do here
     }
 
-    explicit parray(const T *values)
+    explicit parray(const_pointer values)
         : m_array(values, values + R::size()) {
         // Nothing more to do here
     }
 
-    explicit parray(size_t size, const T &init_value = T())
+    explicit parray(size_t size, const_reference init_value = T())
         : m_array(size, init_value) {
         // Nothing more to do here.  Be careful with this!
     }
@@ -50,22 +55,23 @@ public:
         // Nothing to do here
     }
 
-    typename array_type::reference operator[] (typename R::type index) {
+    reference operator[] (typename index_type::type index) {
         return m_array[adjust_index(index)];
     }
 
-    typename array_type::const_reference operator[] (typename R::type index) const {
+    const_reference operator[] (typename index_type::type index) const {
         return m_array[adjust_index(index)];
     }
 
-    parray &copy(typename array_type::const_pointer src, size_t count, typename R::type dst_offset = R::min()) {
+    parray &copy(const_pointer src, size_t count, typename index_type::type dst_offset = index_type::min()) {
         size_t offset_index = adjust_index(dst_offset);
         typename array_type::iterator i = std::next(m_array.begin(), offset_index);
         std::copy(src, src + count, i);
         return *this;
     }
 
-    parray &fill(const T &value, typename R::type begin = R::min(), typename R::type endi = R::max()) {
+    parray &fill(const T &value, typename index_type::type begin = index_type::min(),
+                 typename index_type::type endi = index_type::max()) {
         size_t ibeg = adjust_index(begin);
         size_t iend = adjust_index(endi) + 1;
         if (ibeg < iend) {
@@ -76,7 +82,7 @@ public:
         return *this;
     }
 
-    parray &fill_n(const T &value, size_t n, typename R::type begin = R::min()) {
+    parray &fill_n(const T &value, size_t n, typename index_type::type begin = index_type::min()) {
         size_t ibeg = adjust_index(begin);
         typename array_type::iterator b = std::next(m_array.begin(), ibeg);
         typename array_type::iterator e = std::next(b, n);
@@ -84,7 +90,8 @@ public:
         return *this;
     }
 
-    parray &apply(std::function<T(T)> f, typename R::type beg = R::min(), typename R::type endi = R::max()) {
+    parray &apply(std::function<T(T)> f, typename index_type::type beg = index_type::min(),
+                  typename index_type::type endi = index_type::max()) {
         size_t ibeg = adjust_index(beg);
         size_t iend = adjust_index(endi) + 1;
         if (ibeg < iend) {
@@ -95,7 +102,7 @@ public:
         return *this;
     }
 
-    parray &apply_n(std::function<T(T)> f, size_t n, typename R::type beg = R::min()) {
+    parray &apply_n(std::function<T(T)> f, size_t n, typename index_type::type beg = index_type::min()) {
         if (n > 0) {
             size_t ibeg = adjust_index(beg);
             typename array_type::iterator b = std::next(m_array.begin(), ibeg);
@@ -105,8 +112,7 @@ public:
         return *this;
     }
 
-    parray &fillcopy(typename array_type::const_pointer src, size_t src_len,
-                     typename R::type dst_index, size_t dst_len, const T &value) {
+    parray &fillcopy(const_pointer src, size_t src_len, typename index_type::type dst_index, size_t dst_len, const_reference value) {
         size_t len = std::min(src_len, dst_len);
         size_t dst = adjust_index(dst_index);
         if (len != 0) {
@@ -120,18 +126,18 @@ public:
         return *this;
     }
 
-    typename array_type::const_pointer data(typename R::type index = R::min()) const {
+    const_pointer data(typename index_type::type index = index_type::min()) const {
         return m_array.data() + adjust_index(index);
     }
 
-    typename array_type::pointer data(typename R::type index = R::min()) {
+    pointer data(typename index_type::type index = index_type::min()) {
         return m_array.data() + adjust_index(index);
     }
 
-    size_t length(const T &value, typename R::type from = R::max()) const {
+    size_t length(const_reference value, typename index_type::type from = index_type::max()) const {
         if (!m_array.empty()) {
-            size_t last = adjust_index(from);
-            while (last) {
+            int last = adjust_index(from);
+            while (last >= 0) {
                 if (m_array[last] != value)
                     return last + 1;
                 last -= 1;
@@ -147,9 +153,9 @@ public:
     }
 
     bool operator==(const parray &rhs) const {
-        typename array_type::const_pointer l = data();
-        typename array_type::const_pointer r = rhs.data();
-        typename array_type::const_pointer endl = l + index_type::size();
+        const_pointer l = data();
+        const_pointer r = rhs.data();
+        const_pointer endl = l + index_type::size();
         while (l != endl) {
             const T &lelt = *l++;
             const T &relt = *r++;
@@ -164,9 +170,9 @@ public:
     }
 
     bool operator<(const parray &rhs) const {
-        typename array_type::const_pointer l = data();
-        typename array_type::const_pointer r = rhs.data();
-        typename array_type::const_pointer endl = l + index_type::size();
+        const_pointer l = data();
+        const_pointer r = rhs.data();
+        const_pointer endl = l + index_type::size();
         while (l != endl) {
             const T &lelt = *l++;
             const T &relt = *r++;
