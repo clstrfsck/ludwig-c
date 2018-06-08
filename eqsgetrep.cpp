@@ -103,7 +103,7 @@ namespace {
             found_loc = 0;
         }
         if (!exactcase)
-            s.apply(ch_toupper, len2); // not sure about length here was len2-st2
+            s.apply_n(ch_toupper, len2); // not sure about length here was len2-st2
         for (int i = 1; i <= len2 - len1 + 1; ++i) {
             if (streq(target.data(st1), s.data(i), len1)) {
                 if (backwards)
@@ -113,14 +113,14 @@ namespace {
                 return true;
             }
         }
-        return true;
+        return false;
     }
 };
 
 bool eqsgetrep_exactcase(tpar_object &target) {
     if (target.dlm != '"') {
         // only use non-exact if necessary
-        for (int i = 1; i < target.len; ++i) {
+        for (int i = 1; i <= target.len; ++i) {
             if (alpha_set.contains(target.str[i]))
                 target.str[i] = std::toupper(target.str[i]);
         }
