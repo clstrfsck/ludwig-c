@@ -74,12 +74,6 @@ bool span_create(const name_str &span_name, mark_ptr first_mark, mark_ptr last_m
      *           already exist. If it does, it re-defines it                    *
      * Errors  : Fails if span already exists and is a frame                    *
      ****************************************************************************/
-//  var
-//    line_nr_first,
-//    line_nr_last   : line_range;
-//    oldp,
-//    p,ptr          : span_ptr;
-//    mrk1,mrk2      : mark_ptr;
 
     span_ptr p;
     span_ptr ptr;
