@@ -57,4 +57,8 @@ void vdu_free();
 
 void vdu_get_new_dimensions(scr_col_range &new_x, scr_row_range &new_y);
 
+void vdu_attr_bold();
+void vdu_attr_reverse();
+void vdu_attr_normal();
+
 #endif // !define(VDU_H)

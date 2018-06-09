@@ -108,7 +108,9 @@ void screen_message(const char *message, int length) {
             int j = length - i;
             if (j > terminal_info.width - 1)
                 j = terminal_info.width - 1;
+            vdu_attr_bold();
             vdu_displaystr(j, message + i, 3);     // due to wrap avoidance.
+            vdu_attr_normal();
             i += j;
         } while (i < length);
     } else {
@@ -1378,11 +1380,13 @@ verify_response screen_verify(str_object prompt, strlen_range prompt_len) {
         switch (ludwig_mode) {
         case ludwig_mode_type::ludwig_screen: {
             screen_fixup();
+            vdu_attr_bold();
             if (use_prompt) {
                 screen_str_message(prompt);
             } else {
                 screen_message(YNAQM_MSG);
             }
+            vdu_attr_normal();
             vdu_movecurs(current_frame->dot->col - current_frame->scr_offset,
                          current_frame->dot->line->scr_row_nr);
             key = vdu_get_key();
@@ -1626,7 +1630,11 @@ void screen_help_prompt(const write_str &prompt, scr_col_range prompt_len, key_s
     switch (ludwig_mode) {
     case ludwig_mode_type::ludwig_screen:
     case ludwig_mode_type::ludwig_hardcopy: {
+        if (ludwig_mode == ludwig_mode_type::ludwig_screen)
+            vdu_attr_bold();
         screen_write_str(0, prompt.data(), prompt_len);
+        if (ludwig_mode == ludwig_mode_type::ludwig_screen)
+            vdu_attr_normal();
         reply_len = 0;
         bool terminated = false;
         do {

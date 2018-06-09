@@ -214,7 +214,9 @@ void vdu_get_input(const str_object &prompt, strlen_range prompt_len,
                    str_object &get, strlen_range get_len,
                    strlen_range &outlen) {
     scr_col_range plen{int(prompt_len)};
+    vdu_attr_bold();
     vdu_displaystr(plen, prompt.data(), OUT_M_CLEAREOL);
+    vdu_attr_normal();
     get.fill(' ');
 
     int maxlen = ::COLS - getcurx(stdscr);
@@ -539,4 +541,17 @@ void vdu_free() {
 void vdu_get_new_dimensions(scr_col_range &new_x, scr_row_range &new_y) {
     new_x = scr_col_range(::COLS);
     new_y = scr_row_range(::LINES);
+}
+
+void vdu_attr_bold() {
+    attron(A_BOLD);
+}
+
+void vdu_attr_reverse() {
+    attron(A_REVERSE);
+}
+
+void vdu_attr_normal() {
+    attroff(A_BOLD);
+    attroff(A_REVERSE);
 }
