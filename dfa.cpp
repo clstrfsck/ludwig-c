@@ -533,7 +533,7 @@ bool pattern_dfa_convert(nfa_table_type &nfa_table,
         //with dfa_table[aux_count],nfa_attributes do
         dfa_state_type &dtac(dfa_table_pointer->dfa_table[aux_count]);
         if (dtac.nfa_attributes.equiv_set.contains(middle_context_start) &&
-            !dtac.nfa_attributes.equiv_set.set_difference(mask).empty())
+            dtac.nfa_attributes.equiv_set.set_difference(mask).empty())
             dtac.left_transition = true;
         aux_set = closure_set.set_intersection(nfa_set_type(middle_context_start, right_context_start));
         for (aux_count_2 = PATTERN_DFA_START; aux_count_2 <= states_used; ++aux_count_2) {
@@ -578,7 +578,7 @@ bool pattern_dfa_convert(nfa_table_type &nfa_table,
         //with dfa_table[aux_count],nfa_attributes do
         dfa_state_type &dtac(dfa_table_pointer->dfa_table[aux_count]);
         if (dtac.nfa_attributes.equiv_set.contains(right_context_start) &&
-            !dtac.nfa_attributes.equiv_set.set_difference(mask).empty())
+            dtac.nfa_attributes.equiv_set.set_difference(mask).empty())
             dtac.right_transition = true;
     }
 //    if states_used = pattern_dfa_start then
