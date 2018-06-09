@@ -402,7 +402,9 @@ bool tpar_analyse(user_commands cmd, tpar_object &tran, int depth, tpcount_type 
                         // nested delimiters
                         tran.dlm = ts1;
                         tran.len -= 2;
-                        tran.str.copy(tran.str.data(2), tran.len);
+                        // FIXME: Copy via temp as overlap doesn't work
+                        std::vector<char> temp(tran.str.data(2), tran.str.data(2) + tran.len);
+                        tran.str.copy(temp.data(), tran.len);
                         if (!tpar_analyse(cmd, tran, depth + 1, this_tp))
                             return false;
                     }
@@ -419,6 +421,7 @@ bool tpar_analyse(user_commands cmd, tpar_object &tran, int depth, tpcount_type 
                         // nested delimiters
                         tran.dlm = ts1;
                         tran.len -= 1;
+                        // FIXME: Copy via temp as overlap doesn't work
                         std::vector<char> temp(tran.str.data(2), tran.str.data(2) + tran.len);
                         tran.str.copy(temp.data(), tran.len);
                         tmp_tp->len -= 1;
