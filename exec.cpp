@@ -1319,13 +1319,10 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
         //with old_frame^,old_dot do
         switch (cmd_attrib[command].eq_action) {
         case equalaction::eqold:
-            eq_set = mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_EQUALS]);
+            eq_set = mark_create(old_dot.line, old_dot.col, old_frame->marks[MARK_EQUALS]);
             break;
         case equalaction::eqdel:
-            if (current_frame->marks[MARK_EQUALS] == nullptr)
-                eq_set = true;
-            else
-                eq_set = mark_destroy(current_frame->marks[MARK_EQUALS]);
+            eq_set = (old_frame->marks[MARK_EQUALS] == nullptr) || mark_destroy(old_frame->marks[MARK_EQUALS]);
             break;
         case equalaction::eqnil:
             eq_set = true;
