@@ -251,10 +251,11 @@ bool file_read(file_ptr fp, line_range count, bool best_try, line_ptr &first, li
     line_ptr line_2;
     while ((count > fp->line_count) && !fp->eof) {
         // Try to read another line.
-        str_object buffer;
+        str_object buffer(' ');
         strlen_range outlen;
         if (filesys_read(fp, buffer, outlen)) {
-            outlen = buffer.length(' ', outlen);
+            if (outlen > 0)
+                outlen = buffer.length(' ', outlen);
             if (!lines_create(1, line, line_2))
                 return false;
             if (!line_change_length(line, outlen)) {

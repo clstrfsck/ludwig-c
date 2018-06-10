@@ -504,9 +504,8 @@ bool filesys_read(file_ptr fyle, str_object &output_buffer, strlen_range &outlen
         } else if (ch == '\n' || ch == '\r' || ch == '\v' || ch == '\f') {
             break;              /* finished if newline or carriage return */
         } /* forget other control characters */
-    } while (outlen < MAX_STRLEN - 1);
+    } while (outlen < MAX_STRLEN);
     fyle->l_counter += 1;
-    output_buffer[outlen + 1] = '\0';
     return true;           /* succeed, return true  */
 }
 
