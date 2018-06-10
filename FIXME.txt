@@ -12,9 +12,17 @@ Things that are known not to be working in the Ludwig/C++ port.
    I have not done any significant testing.  The main issue, I think, is
    that "pattern_getnumb(...)" (currently a lambda inside
    "pattern_parser(...)" in the C++ port) should take the "int number"
-   parameter by reference to that callers can actually use the value.
+   argument by reference so that callers can actually use the value.
    This seems to be a problem in the original pascal version also, as
    far as I can tell.
 
-   2018-06-10 This is now fixed.  Number is now taken by reference, and
-   other necessary tweaks to code made to support this.
+   2018-06-10 This is now fixed.  Argument number is now taken by
+   reference, and other necessary tweaks to code made to support this.
+
+3. J command doesn't seem to set equals mark.  For example, using
+   command sequence '9J=J' does not return dot to it's original column.
+
+   2018-06-10 This is now fixed.  Some transcription issues with Pascal
+   "with" statements resulted in the equalaction "eqold" being a no-op.
+   Other equalaction logic was potentially broken for commands that
+   switch frames also. This has all been corrected.
