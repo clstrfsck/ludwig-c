@@ -605,6 +605,7 @@ bool code_compile(span_object &span, bool from_span) {
     parse_state ps;
     ps.status.fill(' ');
     ps.eoln = false;
+    ps.from_span = from_span;
 
     //with span do
     if (from_span) {
