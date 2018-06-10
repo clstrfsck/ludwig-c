@@ -334,7 +334,7 @@ bool file_write(line_ptr first_line, line_ptr last_line, file_ptr fp) {
 
     while (first_line != nullptr) {
         //with first_line^ do
-        if (!filesys_write(fp, *(first_line->str), first_line->used))
+        if (!filesys_write(fp, first_line->str, first_line->used))
             return false;
         if (first_line == last_line)
             return true;
@@ -389,7 +389,8 @@ bool file_windthru(frame_ptr current, bool from_span) {
                         str_object buffer;
                         strlen_range outlen;
                         while (filesys_read(files[current->input_file], buffer, outlen)) {
-                            if (!filesys_write(files[current->output_file], buffer, buffer.length(' ', outlen))) {
+                            size_t buflen = outlen > 0 ? buffer.length(' ', outlen) : 0;
+                            if (!filesys_write(files[current->output_file], &buffer, buflen)) {
                                 // Whoops, something went wrong
                                 result = false;
                                 goto l98;

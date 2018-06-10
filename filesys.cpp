@@ -527,30 +527,31 @@ bool filesys_rewind(file_ptr fyle) {
 
 /*----------------------------------------------------------------------------*/
 
-bool filesys_write(file_ptr fyle, str_object &buffer, strlen_range bufsiz) {
+bool filesys_write(file_ptr fyle, str_ptr buffer, strlen_range bufsiz) {
 /* Attempts to write bufsiz characters from buffer to the file described by
  * fyle. Returns true (1) on success, false (0) on failure.
  */
     const static char nl = '\n';
-
-    int offset = 0;
-    int tabs = 0;
-    if (fyle->entab) {
-        int i;
-        for (i = 0; i < bufsiz; ++i)
-            if (buffer[i + 1] != ' ') break;
-        tabs = i / 8;
-        offset = tabs * 7;
-        for (i = 1; i <= tabs; i++)
-            buffer[offset + i] = '\t';
+    if (bufsiz > 0) {
+        int offset = 0;
+        int tabs = 0;
+        if (fyle->entab) {
+            int i;
+            for (i = 0; i < bufsiz; ++i)
+                if ((*buffer)[i + 1] != ' ') break;
+            tabs = i / 8;
+            offset = tabs * 7;
+            for (i = 1; i <= tabs; i++)
+                (*buffer)[offset + i] = '\t';
+        }
+        int count = write(fyle->fd, buffer->data() + offset, bufsiz - offset);
+        if (tabs) {
+            for (int i = 1; i <= tabs; i++)
+                (*buffer)[offset + i] = ' ';
+        }
+        if (count != bufsiz - offset)
+            return false;
     }
-    int count = write(fyle->fd, buffer.data() + offset, bufsiz - offset);
-    if (tabs) {
-        for (int i = 1; i <= tabs; i++)
-            buffer[offset + i] = ' ';
-    }
-    if (count != bufsiz - offset)
-        return false;
     write(fyle->fd, &nl, 1);
     fyle->l_counter += 1;
     return true; /* succeed, return true  */
@@ -579,7 +580,7 @@ bool filesys_save(file_ptr i_fyle, file_ptr o_fyle, int copy_lines) {
         /*  copy unread portion of input file to output file */
         do {
             if (filesys_read(i_fyle, line, line_len))
-                filesys_write(o_fyle, line, line_len);
+                filesys_write(o_fyle, &line, line_len);
         } while (!i_fyle->eof);
 
         /* close input file */
@@ -614,7 +615,7 @@ bool filesys_save(file_ptr i_fyle, file_ptr o_fyle, int copy_lines) {
     for (int i = 0; i < copy_lines; i++) {
         if (!filesys_read(i_fyle, line, line_len))
             return false;
-        if (!filesys_write(o_fyle, line, line_len))
+        if (!filesys_write(o_fyle, &line, line_len))
             return false;
     }
 
