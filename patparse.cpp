@@ -165,10 +165,8 @@ bool pattern_parser(tpar_object &pattern, nfa_table_type &nfa_table,
 
     // FIXME: Is "number" supposed to be a reference/var here?
     auto pattern_getnumb = [&](strlen_range &parse_count, int number, char &ch, tpar_object in_string) -> bool {
-        bool aux_bool;
-
-        aux_bool = pattern_getch(parse_count, ch, in_string);
-        bool result = (ch >= '0' && ch <= '9') && aux_bool;
+        bool aux_bool = pattern_getch(parse_count, ch, in_string);
+        bool result   = aux_bool && (ch >= '0' && ch <= '9');
 
         number =  0;
         while (aux_bool && (ch >= '0' && ch <= '9')) {
