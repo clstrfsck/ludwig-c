@@ -164,7 +164,7 @@ bool pattern_parser(tpar_object &pattern, nfa_table_type &nfa_table,
     };
 
     // FIXME: Is "number" supposed to be a reference/var here?
-    auto pattern_getnumb = [&](strlen_range &parse_count, int number, char &ch, tpar_object in_string) -> bool {
+    auto pattern_getnumb = [&](strlen_range &parse_count, int &number, char &ch, tpar_object in_string) -> bool {
         bool aux_bool = pattern_getch(parse_count, ch, in_string);
         bool result   = aux_bool && (ch >= '0' && ch <= '9');
 
@@ -208,6 +208,7 @@ bool pattern_parser(tpar_object &pattern, nfa_table_type &nfa_table,
             nfa_state_range range_patch;
             int range_start;
             int range_end;
+            int auxi;
             bool range_indefinite;
 
             auto pattern_range_delimgen = [&](nfa_state_range &range_patch, int &range_start, int &range_end,
@@ -556,14 +557,14 @@ bool pattern_parser(tpar_object &pattern, nfa_table_type &nfa_table,
                         }
                         break;
                     case PATTERN_MARK:
-                        if (pattern_getnumb(parse_count, aux, pat_ch, in_string)) {
-                            if ((aux == 0) || (aux > MAX_MARK_NUMBER)) {
+                        if (pattern_getnumb(parse_count, auxi, pat_ch, in_string)) {
+                            if ((auxi == 0) || (auxi > MAX_MARK_NUMBER)) {
                                 screen_message(MSG_PAT_ILLEGAL_MARK_NUMBER);
                                 throw local_exception();
                             }
                             //with nfa_table[current_state] do
                             nfa_table[current_state].epsilon_out = false;
-                            nfa_table[current_state].epf.accept_set = accept_set_type(aux + PATTERN_MARKS_START);
+                            nfa_table[current_state].epf.accept_set = accept_set_type(auxi + PATTERN_MARKS_START);
                             nfa_table[current_state].epf.next_state = pattern_new_nfa();
                             current_state = nfa_table[current_state].epf.next_state;
                         } else {

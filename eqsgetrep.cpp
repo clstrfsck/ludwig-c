@@ -61,8 +61,9 @@ bool eqsgetrep_same_pattern_def(const pattern_def_type &pattern_1, const pattern
             if (pattern_1.strng[count] != pattern_2.strng[count])
                 return false;
         }
+        return true;
     }
-    return true;
+    return false;
 }
 
 bool eqsgetrep_pattern_build(tpar_object tpar, dfa_table_ptr &pattern_ptr) {

@@ -1,4 +1,4 @@
-  /**********************************************************************}
+/**********************************************************************}
 {                                                                      }
 {            L      U   U   DDDD   W      W  IIIII   GGGG              }
 {            L      U   U   D   D   W    W     I    G                  }
@@ -269,16 +269,16 @@ bool pattern_dfa_convert(nfa_table_type &nfa_table,
             // create new DFA state
             if (!pattern_new_dfa(transfer_state, position))
                 return false;
-            //with dfa_table_pointer->dfa_table[from_state] do
-            dfa_state_type &dtf(dfa_table_pointer->dfa_table[from_state]);
-            transition_ptr aux_transition = new transition_object; // create a new transition in from_state
-            //with aux_transition^ do                              // to position on input accept_elt
-            aux_transition->next_transition = dtf.transitions;
-            dtf.transitions = aux_transition;
-            aux_transition->transition_accept_set = accept_set;
-            aux_transition->accept_next_state = position;
-            aux_transition->start_flag = false;
         }
+        //with dfa_table_pointer->dfa_table[from_state] do
+        dfa_state_type &dtf(dfa_table_pointer->dfa_table[from_state]);
+        transition_ptr aux_transition = new transition_object; // create a new transition in from_state
+        //with aux_transition^ do                              // to position on input accept_elt
+        aux_transition->next_transition = dtf.transitions;
+        dtf.transitions = aux_transition;
+        aux_transition->transition_accept_set = accept_set;
+        aux_transition->accept_next_state = position;
+        aux_transition->start_flag = false;
         return true;
     };
 
