@@ -219,8 +219,8 @@ bool lines_destroy(line_ptr &first_line, line_ptr &last_line) {
         screen_message(DBG_FLINK_OR_BLINK_NOT_NIL);
         return false;
     }
-#endif
     line_ptr prev_line = nullptr;
+#endif
     line_ptr this_line = first_line;
     while (this_line != nullptr) {
 #ifdef DEBUG
@@ -253,8 +253,8 @@ bool lines_destroy(line_ptr &first_line, line_ptr &last_line) {
         }
 #ifdef DEBUG
         this_line->len = 0;
-#endif
         prev_line = this_line;
+#endif
         line_ptr next_line = this_line->flink;
         this_line = next_line;
     }
