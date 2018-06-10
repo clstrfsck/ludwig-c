@@ -34,11 +34,11 @@ bool validate_command() {
       Outputs  : none.
       Bugchecks: .lots and lots of them!
     */
+#ifdef DEBUG
     const int OOPS = 0x0001;
     const int CMD  = 0x0002;
     const int HEAP = 0x0004;
 
-#ifdef DEBUG
     if ((current_frame == nullptr) || (frame_oops == nullptr) || (frame_cmd == nullptr) || (frame_heap == nullptr)) {
         screen_message(DBG_INVALID_FRAME_PTR);
         return false;
