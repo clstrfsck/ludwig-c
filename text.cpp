@@ -415,7 +415,8 @@ bool text_inter_remove(mark_ptr mark_one, mark_ptr mark_two) {
     text_len = mark_one->line->used;
     if (mark_one->col <= text_len)
         text_len = mark_one->col - 1;
-    strng.fillcopy(mark_one->line->str->data(1), text_len, 1, mark_one->col - 1, ' ');
+    if (mark_one->col > 1)
+        strng.fillcopy(mark_one->line->str->data(1), text_len, 1, mark_one->col - 1, ' ');
     text_len = mark_one->col - 1;
     delta = mark_one->col - mark_two->col;
     if (delta < 0) {
@@ -690,11 +691,12 @@ bool text_inter_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two,
                 goto l99;
         }
         // PLACE THE END OF THE COPY IN POSITION
-        if (col_two <= next_src_line->used) {
-            if (col_two > 1)
+        if (col_two > 1) {
+            if (col_two <= next_src_line->used) {
                 next_dst_line->str->copy(next_src_line->str->data(), col_two - 1);
-        } else {
-            next_dst_line->str->fillcopy(next_src_line->str->data(), next_src_line->used, 1, col_two - 1, ' ');
+            } else {
+                next_dst_line->str->fillcopy(next_src_line->str->data(), next_src_line->used, 1, col_two - 1, ' ');
+            }
         }
         if (i != 0)
             next_dst_line->used = next_dst_line->str->length(' ', col_two - 1 + text_len);
