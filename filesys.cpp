@@ -41,6 +41,11 @@
 #include <sys/wait.h>
 #include <sys/param.h>
 
+namespace {
+    const std::string NL("\n");
+    const int NL_SIZE = NL.size();
+};
+
 /*----------------------------------------------------------------------------*/
 
 static bool filesys_expand_file_name(file_name_str &fnm, int *fns) {
@@ -153,13 +158,13 @@ bool filesys_create_open(file_ptr fyle, file_ptr rfyle, bool ordinary_open) {
             } else if (pid == 0) {
                 close(fd[0]);
                 if (dup2(fd[1], 1) == -1 || dup2(fd[1], 2) == -1)
-                    exit(1);
+                    exit(EXIT_FAILURE);
                 close(0);
                 open("/dev/null", O_RDONLY); // Just assuming this will be fd == 0
                 fyle->fnm[fyle->fns] = '\0';
-                system(fyle->fnm.data());
+                int exitval = system(fyle->fnm.data());
                 close(fd[1]);
-                exit(0);
+                exit(WEXITSTATUS(exitval));
             } else {
                 close(fd[1]);
                 fyle->fd = fd[0];
@@ -275,10 +280,11 @@ static bool filesys_write_file_name(const char *mem, const char *fnm, int fns) {
     if (mem != NULL && mem[0] != '\0') {
         int envfd = open(mem, O_CREAT | O_WRONLY | O_TRUNC, 0666);
         if (envfd >= 0) {
-            write(envfd, fnm, fns);
-            write(envfd, "\n", strlen("\n"));
+            bool ok = true;
+            ok = write(envfd, fnm, fns) == fns && ok;
+            ok = write(envfd, NL.data(), NL_SIZE) == NL_SIZE && ok;
             close(envfd);
-            return true;
+            return ok;
         }
     }
     return false;
@@ -531,7 +537,6 @@ bool filesys_write(file_ptr fyle, str_ptr buffer, strlen_range bufsiz) {
 /* Attempts to write bufsiz characters from buffer to the file described by
  * fyle. Returns true (1) on success, false (0) on failure.
  */
-    const static char nl = '\n';
     if (bufsiz > 0) {
         int offset = 0;
         int tabs = 0;
@@ -552,9 +557,9 @@ bool filesys_write(file_ptr fyle, str_ptr buffer, strlen_range bufsiz) {
         if (count != bufsiz - offset)
             return false;
     }
-    write(fyle->fd, &nl, 1);
+    int ok = write(fyle->fd, NL.data(), NL_SIZE) == NL_SIZE;
     fyle->l_counter += 1;
-    return true; /* succeed, return true  */
+    return ok; // succeed, return true if all written
 }
 
 /*----------------------------------------------------------------------------*/
