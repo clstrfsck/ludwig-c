@@ -1,0 +1,20 @@
+Things that are known not to be working in the Ludwig/C++ port.
+
+1. Kleene '+' is not working correctly in regexes.  Currently the
+   command \G`+N` will only match one digit at a time, even for
+   consecutive digits.
+
+   2018-06-10 This is now fixed.  Block indentation issue in
+   pattern_add_dfa in dfa.cpp caused transition not to be added when the
+   equivalence set was already in the dfa_table.
+
+2. I'm pretty sure that numeric quantifiers will not work correctly, but
+   I have not done any significant testing.  The main issue, I think, is
+   that "pattern_getnumb(...)" (currently a lambda inside
+   "pattern_parser(...)" in the C++ port) should take the "int number"
+   parameter by reference to that callers can actually use the value.
+   This seems to be a problem in the original pascal version also, as
+   far as I can tell.
+
+   2018-06-10 This is now fixed.  Number is now taken by reference, and
+   other necessary tweaks to code made to support this.
