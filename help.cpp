@@ -43,7 +43,7 @@ void ask_user(const char *prompt, key_str &reply, int &reply_len) {
     reply.fill(' ');
     write_str pstr;
     scr_col_range plen = std::strlen(prompt);
-    pstr.copy(prompt, plen);
+    pstr.copy_n(prompt, plen);
     screen_help_prompt(pstr, plen, reply, reply_len);
     // Note that all characters not overwritten by the user will be spaces!
     screen_writeln();
@@ -58,7 +58,7 @@ void help_help(int selection_len, str_object &selection) {
     key_str topic;
     int topic_len;
     if (selection_len == 0) {
-        topic.copy(INDEX, KEY_LEN);
+        topic.copy_n(INDEX, KEY_LEN);
         topic_len = KEY_LEN;
     } else {
         if (selection_len > KEY_LEN)
@@ -66,7 +66,7 @@ void help_help(int selection_len, str_object &selection) {
         else
             topic_len = selection_len;
         topic.fill(' ');
-        topic.copy(selection.data(), topic_len);
+        topic.copy(selection, 1, topic_len);
     }
     if (!helpfile_open(file_data.old_cmds)) {
         screen_write_str(3, "Can't open HELP file", 20);
@@ -125,7 +125,7 @@ void help_help(int selection_len, str_object &selection) {
             if (topic[1] == ' ') {
                 ask_user("Command or Section or <return> to exit : ", topic, topic_len);
                 if ((topic_len != 0) && (topic[1] == ' ')) {
-                    topic.copy(INDEX, KEY_LEN);
+                    topic.copy_n(INDEX, KEY_LEN);
                     topic_len = KEY_LEN;
                 }
                 if (tt_controlc)

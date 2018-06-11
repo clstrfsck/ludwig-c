@@ -24,6 +24,7 @@
 
 #include "charcmd.h"
 
+#include "ch.h"
 #include "var.h"
 #include "vdu.h"
 #include "mark.h"
@@ -58,7 +59,7 @@ bool charcmd_insert(commands cmd, leadparam rept, int count, bool from_span) {
         if (cmd_valid) {
             maximum -= count;
             inserted += count;
-            if (!text_insert(true, 1, blank_string, count, current_frame->dot))
+            if (!text_insert(true, 1, BLANK_STRING, count, current_frame->dot))
                 goto l9;
             //with dot^ do
             if (rept == leadparam::nint) {
@@ -106,12 +107,12 @@ l9:;
     return cmd_status || !from_span;
 }
 
-bool charcmd_delete (commands cmd, leadparam rept, int count, bool from_span) {
+bool charcmd_delete(commands cmd, leadparam rept, int count, bool from_span) {
     bool cmd_status = false;
     //with current_frame^,dot^,line^ do
     col_range old_dot_col = current_frame->dot->col;
     str_object old_str;
-    old_str.fillcopy(current_frame->dot->line->str->data(), current_frame->dot->line->used, 1, MAX_STRLEN, ' ');
+    ch_fillcopy(current_frame->dot->line->str, 1, current_frame->dot->line->used, &old_str, 1, MAX_STRLEN, ' ');
     int deleted = 0;
     key_code_range key;
     do {
@@ -148,7 +149,8 @@ bool charcmd_delete (commands cmd, leadparam rept, int count, bool from_span) {
             int length = (current_frame->dot->line->used + 1) - (current_frame->dot->col + count);
             if (length > 0) {
                 line_ptr l = current_frame->dot->line;
-                l->str->copy(l->str->data(current_frame->dot->col + count), length, current_frame->dot->col);
+                const auto &dotcol = current_frame->dot->col;
+                l->str->erase(count, dotcol);
                 l->str->fill_n(' ', count, l->used + 1 - count);
                 l->used -= count;
             } else if (current_frame->dot->col <= current_frame->dot->line->used) {
@@ -241,7 +243,7 @@ bool charcmd_rubout(commands cmd, leadparam rept, int count, bool from_span) {
         col_range old_dot_col = current_frame->dot->col;
         strlen_range dot_used = current_frame->dot->line->used;
         str_object old_str;
-        old_str.fillcopy(current_frame->dot->line->str->data(), dot_used, 1, MAX_STRLEN, ' ');
+        ch_fillcopy(current_frame->dot->line->str, 1, dot_used, &old_str, 1, MAX_STRLEN, ' ');
         key_code_range key;
         col_range eql_col;
         do {
@@ -251,7 +253,7 @@ bool charcmd_rubout(commands cmd, leadparam rept, int count, bool from_span) {
             if (cmd_valid) {
                 eql_col = current_frame->dot->col;
                 current_frame->dot->col -= count;
-                if (!text_overtype(true, 1, blank_string, count, current_frame->dot))
+                if (!text_overtype(true, 1, BLANK_STRING, count, current_frame->dot))
                     goto l9;
 // Comment retained for posterity
 //{#if ns32000}

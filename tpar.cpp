@@ -198,7 +198,7 @@ bool tpar_substitute(tpar_object &tpar, user_commands cmd, tpcount_type this_tp)
                 tpar.len = 0;
             else
                 tpar.len = start_mark.line->used - start_mark.col + 1;
-            tpar.str.copy(start_mark.line->str->data(start_mark.col), tpar.len);
+            tpar.str.copy(*start_mark.line->str, start_mark.col, tpar.len);
             // Anything between the start and end marks?
             tpar_ptr tmp_tp = nullptr;
             start_mark.line = start_mark.line->flink;
@@ -214,7 +214,7 @@ bool tpar_substitute(tpar_object &tpar, user_commands cmd, tpcount_type this_tp)
                 tmp_tp->nxt = nullptr;
                 tmp_tp->con = nullptr;
                 tmp_tp->len = start_mark.line->used;
-                tmp_tp->str.copy(start_mark.line->str->data(), tmp_tp->len);
+                tmp_tp->str.copy(*start_mark.line->str, 1, tmp_tp->len);
                 start_mark.line = start_mark.line->flink;
             }
             //with end_mark do
@@ -402,9 +402,7 @@ bool tpar_analyse(user_commands cmd, tpar_object &tran, int depth, tpcount_type 
                         // nested delimiters
                         tran.dlm = ts1;
                         tran.len -= 2;
-                        // FIXME: Copy via temp as overlap doesn't work
-                        std::vector<char> temp(tran.str.data(2), tran.str.data(2) + tran.len);
-                        tran.str.copy(temp.data(), tran.len);
+                        tran.str.erase(1, 1);
                         if (!tpar_analyse(cmd, tran, depth + 1, this_tp))
                             return false;
                     }
@@ -421,9 +419,7 @@ bool tpar_analyse(user_commands cmd, tpar_object &tran, int depth, tpcount_type 
                         // nested delimiters
                         tran.dlm = ts1;
                         tran.len -= 1;
-                        // FIXME: Copy via temp as overlap doesn't work
-                        std::vector<char> temp(tran.str.data(2), tran.str.data(2) + tran.len);
-                        tran.str.copy(temp.data(), tran.len);
+                        tran.str.erase(1, 1);
                         tmp_tp->len -= 1;
                         if (!tpar_analyse(cmd, tran, depth + 1, this_tp))
                             return false;
@@ -448,7 +444,7 @@ bool tpar_analyse(user_commands cmd, tpar_object &tran, int depth, tpcount_type 
                         verify_response verify_reply;
                         if (tran.len == 0) {
                             //with cmd_attrib[cmd].tpar_info[this_tp] do
-                            buffer.copy(dflt_prompts[cmd_attrib[cmd.value()].tpar_info[this_tp].prompt_name].data(), TPAR_PROM_LEN);
+                            buffer.copy(dflt_prompts[cmd_attrib[cmd.value()].tpar_info[this_tp].prompt_name], 1, TPAR_PROM_LEN);
                             verify_reply = screen_verify(buffer, TPAR_PROM_LEN);
                         } else {
                             verify_reply = screen_verify(tran.str, tran.len);
@@ -463,7 +459,7 @@ bool tpar_analyse(user_commands cmd, tpar_object &tran, int depth, tpcount_type 
                     } else if (tran.len == 0) {
                         // change first str and len with cmd values
                         //with cmd_attrib[cmd].tpar_info[this_tp] do
-                        buffer.copy(dflt_prompts[cmd_attrib[cmd.value()].tpar_info[this_tp].prompt_name].data(), TPAR_PROM_LEN);
+                        buffer.copy(dflt_prompts[cmd_attrib[cmd.value()].tpar_info[this_tp].prompt_name], 1, TPAR_PROM_LEN);
                         screen_getlinep(buffer, TPAR_PROM_LEN, tran.str, tran.len, cmd_attrib[cmd.value()].tpcount, this_tp);
                     } else {
                         if (tran.con != nullptr) {

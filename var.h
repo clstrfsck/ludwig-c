@@ -71,7 +71,6 @@ extern code_ptr                                 code_list;
 extern prange<0, MAX_CODE>                      code_top;
 
 // VARIABLES USED IN INTERPRETING A COMMAND
-extern char_set repeatsyms;
 extern penumset<commands> prefixes;
 extern parray<command_object, key_code_range> lookup;
 
@@ -100,9 +99,9 @@ extern tab_array          initial_tab_stops;
 extern frame_options      initial_options;
 
 // USEFUL STUFF.
-extern str_object         blank_string;
-extern verify_array       initial_verify;
-extern tab_array          default_tab_stops;
+extern const str_object   BLANK_STRING;
+extern const verify_array INITIAL_VERIFY;
+extern const tab_array    DEFAULT_TAB_STOPS;
 
 // STRUCTURE POOLS
 extern group_ptr          free_group_pool;

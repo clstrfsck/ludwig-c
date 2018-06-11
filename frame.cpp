@@ -169,8 +169,9 @@ bool frame_edit(name_str frame_name) {
                 fptr->rep_pattern_ptr = nullptr;
                 if (line_change_length(gptr->last_line, NAME_LEN + END_OF_FILE.size())) {
                     //with gptr->last_line^ do
-                    gptr->last_line->str->copy(END_OF_FILE.data(), END_OF_FILE.size());
-                    gptr->last_line->str->copy(frame_name.data(), NAME_LEN, 1 + END_OF_FILE.size());
+                    // Guaranteed that gptr->last_line->str != nullptr here if line_change_length OK
+                    gptr->last_line->str->copy_n(END_OF_FILE.data(), END_OF_FILE.size());
+                    gptr->last_line->str->copy(frame_name, 1, NAME_LEN, 1 + END_OF_FILE.size());
                     gptr->last_line->used = 0; // Special feature of the NULL line !
                     current_frame = fptr;
                     return true;
@@ -517,8 +518,8 @@ bool set_tabs(tpar_object &request, int &pos, bool set_initial) {
     switch (ch) {
     case 'D': // default tabs
         if (set_initial)
-            initial_tab_stops = default_tab_stops;
-        current_frame->tab_stops = default_tab_stops;
+            initial_tab_stops = DEFAULT_TAB_STOPS;
+        current_frame->tab_stops = DEFAULT_TAB_STOPS;
         break;
     case 'T': // template match
         //with dot->line^ do
@@ -719,9 +720,9 @@ bool get_margins(int lo_bnd, int hi_bnd, tpar_object &request, int &pos, int &lo
             else
                 upper = current_frame->scr_height - current_frame->dot->line->scr_row_nr;
             ch = nextchar(request, pos);
+        } else if (!get_mar(ch, pos, request, lo_bnd, hi_bnd, upper)) {
+            return false;
         }
-    } else if (!get_mar(ch, pos, request, lo_bnd, hi_bnd, upper)) {
-        return false;
     }
     if (ch != ')') {
         screen_message(MSG_MARGIN_SYNTAX_ERROR);
@@ -1019,7 +1020,7 @@ bool frame_parameter(tpar_ptr tpar) {
         screen_writeln();
         screen_writeln_clel();
         str_object buffer;
-        buffer.copy(NEW_VALUES.data(), NEW_VALUES.size());
+        buffer.copy_n(NEW_VALUES.data(), NEW_VALUES.size());
         screen_getlinep(buffer, NEW_VALUES.size(), request.str, request.len, 1, 1);
         if (request.len > 0) {
             request.str.apply_n(ch_toupper, request.len);

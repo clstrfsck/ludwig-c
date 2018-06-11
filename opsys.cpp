@@ -25,6 +25,7 @@
 
 #include "opsys.h"
 
+#include "ch.h"
 #include "line.h"
 #include "filesys.h"
 
@@ -40,7 +41,7 @@ bool opsys_command(const tpar_object &command, line_ptr &first, line_ptr &last, 
     mbx.line_count  = 0;
     mbx.output_flag = false;
     if (command.len <= FILE_NAME_LEN) {
-        mbx.fnm.copy(command.str.data(), FILE_NAME_LEN);
+        mbx.fnm.copy(command.str, 1, FILE_NAME_LEN);
     } else {
         mbx.fnm.fill(0);
         mbx.fns = 0;
@@ -62,8 +63,7 @@ bool opsys_command(const tpar_object &command, line_ptr &first, line_ptr &last, 
                 lines_destroy(line, line_2);
                 goto l98;
             }
-            if (line->len > 0)
-                line->str->fillcopy(result.data(), outlen, 1, line->len, ' ');
+            ch_fillcopy(&result, 1, outlen, line->str, 1, line->len, ' ');
             line->used  = outlen;
             line->blink = last;
             if (last != nullptr)

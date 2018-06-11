@@ -18,6 +18,7 @@ template <class T, class R>
 class parray {
     static_assert(R::min() < R::max(), "min must be strictly less than max");
 
+public:
     constexpr size_t adjust_index(typename R::type index) const {
         return R::zero_based(index);
     }
@@ -26,6 +27,11 @@ class parray {
         if (index < R::min() || index > R::max()) {
             throw std::out_of_range("index out of range");
         }
+        // Also check if we have been created with a smaller size
+        // and are out of range.
+        if (adjust_index(index) >= m_array.size()) {
+            throw std::out_of_range("index out of range");
+        }            
     }
 
     typedef std::vector<T> array_type;
@@ -37,6 +43,8 @@ public:
     typedef typename array_type::const_reference const_reference;
     typedef typename array_type::pointer         pointer;
     typedef typename array_type::const_pointer   const_pointer;
+    typedef typename array_type::iterator        iterator;
+    typedef typename array_type::const_iterator  const_iterator;
 
     explicit parray(const_reference init_value = value_type())
         : m_array(index_type::size(), init_value) {
@@ -51,6 +59,22 @@ public:
     explicit parray(size_t size, const_reference init_value = T())
         : m_array(size, init_value) {
         // Nothing more to do here.  Be careful with this!
+    }
+
+    // Initialize with repeating values
+    explicit parray(std::initializer_list<T> values) {
+        auto i = values.begin();
+        if (i == values.end()) {
+            // Empty initializer_list
+            throw std::out_of_range("initializer_list empty");
+        }
+        size_t sz = index_type::size();
+        m_array.reserve(sz);
+        while (sz-- > 0) {
+            m_array.push_back(*i++);
+            if (i == values.end())
+                i = values.begin();
+        }
     }
 
     parray(const parray &other) : m_array(other.m_array) {
@@ -71,37 +95,71 @@ public:
         return m_array[adjust_index(index)];
     }
 
-    parray &copy(const_pointer src, size_t count, typename index_type::type dst_offset = index_type::min()) {
+    template <typename R2>
+    parray &copy(const parray<T, R2> &src, typename index_type::type src_offset, size_t count,
+                 typename index_type::type dst_offset = index_type::min()) {
         if (count > 0) {
-            check_index(dst_offset); // First index used
+            check_index(dst_offset);             // First index used
             check_index(dst_offset + count - 1); // Last index used
-            size_t offset_index = adjust_index(dst_offset);
-            typename array_type::iterator i = std::next(m_array.begin(), offset_index);
-            std::copy(src, src + count, i);
+            src.check_index(src_offset);
+            src.check_index(src_offset + count - 1);
+            auto srcb = std::next(src.begin(), src.adjust_index(src_offset));
+            auto srce = std::next(srcb, count);
+            auto dst = std::next(begin(), adjust_index(dst_offset));
+            std::copy(srcb, srce, dst);
         }
         return *this;
     }
 
-    parray &fill(const T &value, typename index_type::type begin = index_type::min(),
+    parray &copy_n(const_pointer src, size_t count, typename index_type::type dst_offset = index_type::min()) {
+        if (count > 0) {
+            check_index(dst_offset);             // First index used
+            check_index(dst_offset + count - 1); // Last index used
+            auto dst = std::next(begin(), adjust_index(dst_offset));
+            std::copy(src, src + count, dst);
+        }
+        return *this;
+    }
+
+    parray &fillcopy(const_pointer src, size_t src_len,
+                     typename index_type::type dst_index, size_t dst_len, const_reference value) {
+        if (dst_len > 0) {
+            check_index(dst_index);
+            check_index(dst_index + dst_len - 1);
+            size_t len = std::min(src_len, dst_len);
+            size_t dst = adjust_index(dst_index);
+            if (len != 0) {
+                std::copy(src, src + len, std::next(begin(), dst));
+            }
+            if (dst_len > len) {
+                typename array_type::iterator db = std::next(begin(), dst + len);
+                typename array_type::iterator de = std::next(db, dst_len - len);
+                std::fill(db, de, value);
+            }
+        }
+        return *this;
+    }
+
+    parray &fill(const T &value, typename index_type::type beg = index_type::min(),
                  typename index_type::type endi = index_type::max()) {
-        check_index(begin);
+        check_index(beg);
         check_index(endi);
-        size_t ibeg = adjust_index(begin);
+        size_t ibeg = adjust_index(beg);
         size_t iend = adjust_index(endi) + 1;
         if (ibeg < iend) {
-            typename array_type::iterator b = std::next(m_array.begin(), ibeg);
-            typename array_type::iterator e = std::next(m_array.begin(), iend);
+            typename array_type::iterator b = std::next(begin(), ibeg);
+            typename array_type::iterator e = std::next(begin(), iend);
             std::fill(b, e, value);
         }
         return *this;
     }
 
-    parray &fill_n(const T &value, size_t n, typename index_type::type begin = index_type::min()) {
+    parray &fill_n(const T &value, size_t n, typename index_type::type beg = index_type::min()) {
         if (n > 0) {
-            check_index(begin);
-            check_index(begin + n - 1);
-            size_t ibeg = adjust_index(begin);
-            typename array_type::iterator b = std::next(m_array.begin(), ibeg);
+            check_index(beg);
+            check_index(beg + n - 1);
+            size_t ibeg = adjust_index(beg);
+            typename array_type::iterator b = std::next(begin(), ibeg);
             typename array_type::iterator e = std::next(b, n);
             std::fill(b, e, value);
         }
@@ -115,8 +173,8 @@ public:
         size_t ibeg = adjust_index(beg);
         size_t iend = adjust_index(endi) + 1;
         if (ibeg < iend) {
-            typename array_type::iterator b = std::next(m_array.begin(), ibeg);
-            typename array_type::iterator e = std::next(m_array.begin(), iend);
+            typename array_type::iterator b = std::next(begin(), ibeg);
+            typename array_type::iterator e = std::next(begin(), iend);
             std::transform(b, e, b, f);
         }
         return *this;
@@ -127,28 +185,33 @@ public:
             check_index(beg);
             check_index(beg + n - 1);
             size_t ibeg = adjust_index(beg);
-            typename array_type::iterator b = std::next(m_array.begin(), ibeg);
+            typename array_type::iterator b = std::next(begin(), ibeg);
             typename array_type::iterator e = std::next(b, n);
             std::transform(b, e, b, f);
         }
         return *this;
     }
 
-    parray &fillcopy(const_pointer src, size_t src_len,
-                     typename index_type::type dst_index, size_t dst_len, const_reference value) {
-        if (dst_len > 0) {
-            check_index(dst_index);
-            check_index(dst_index + dst_len - 1);
-            size_t len = std::min(src_len, dst_len);
-            size_t dst = adjust_index(dst_index);
-            if (len != 0) {
-                std::copy(src, src + len, std::next(m_array.begin(), dst));
-            }
-            if (dst_len > len) {
-                typename array_type::iterator db = std::next(m_array.begin(), dst + len);
-                typename array_type::iterator de = std::next(db, dst_len - len);
-                std::fill(db, de, value);
-            }
+    parray &insert(size_t n, typename index_type::type at) {
+        if (n > 0) {
+            check_index(at);
+            check_index(at + n - 1);
+            typename array_type::iterator b = std::next(begin(), adjust_index(at));
+            typename array_type::iterator e = std::prev(end(), n);
+            typename array_type::iterator d = std::next(b, n);
+            std::copy(b, e, d);
+        }
+        return *this;
+    }
+
+    parray &erase(size_t n, typename index_type::type from) {
+        if (n > 0) {
+            check_index(from);
+            check_index(from + n - 1);
+            typename array_type::iterator dste = std::next(begin(), adjust_index(from));
+            typename array_type::iterator b  = std::next(dste, n);
+            typename array_type::iterator e  = end();
+            std::copy_backward(b, e, dste);
         }
         return *this;
     }
@@ -175,6 +238,22 @@ public:
             return m_array[0] == value ? 0 : 1;
         }
         return 0;
+    }
+
+    iterator begin() {
+        return m_array.begin();
+    }
+
+    const_iterator begin() const {
+        return m_array.begin();
+    }
+
+    iterator end() {
+        return m_array.end();
+    }
+
+    const_iterator end() const {
+        return m_array.end();
     }
 
     parray &operator=(parray rhs) {

@@ -24,6 +24,7 @@
 
 #include "line.h"
 
+#include "ch.h"
 #include "var.h"
 #include "screen.h"
 
@@ -797,8 +798,7 @@ bool line_change_length(line_ptr line, strlen_range new_length) {
             screen_message(MSG_EXCEEDED_DYNAMIC_MEMORY);
             return false;
         }
-        if (line->len > 0)
-            new_str->fillcopy(line->str->data(), line->len, 1, new_length, ' ');
+        ch_fillcopy(line->str, 1, line->len, new_str, 1, new_length, ' ');
     } else {
         new_str = nullptr;
     }

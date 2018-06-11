@@ -67,23 +67,11 @@
         initial_margin_bottom  = 0;
         initial_options.clear();
 
-        for (int i = 1; i <= MAX_STRLEN; ++i)
-            blank_string[i]  = ' ';
-        for (int i = 1; i <= MAX_VERIFY; ++i)
-            initial_verify[i]  = false;
-        default_tab_stops[0]   = true;
-        for (int i = 1; i <= MAX_STRLEN; ++i)
-            default_tab_stops[i]  = false;
-        default_tab_stops[MAX_STRLENP]  = true;
-
         // set up sets for prefixes
 
         // NOTE - this matches prefixcommands
         prefixes.clear();
         prefixes.add_range(commands::cmd_prefix_ast, commands::cmd_prefix_tilde);
-
-        repeatsyms.clear();
-        repeatsyms.insert({'+','-','@','<','>','=','0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ',', '.'});
 
         dflt_prompts[prompt_type::no_prompt         ]  = prompt_str("        ");
         dflt_prompts[prompt_type::char_prompt       ]  = prompt_str("Charset:");

@@ -1087,7 +1087,7 @@ void screen_pause() {
             vdu_displaycrlf();
         str_object buffer;
         strlen_range outlen = std::strlen(PAUSE_MSG);
-        buffer.copy(PAUSE_MSG, outlen);
+        buffer.copy_n(PAUSE_MSG, outlen);
         vdu_get_input(buffer, outlen, buffer, MAX_STRLEN, outlen);
         if (scr_top_line != nullptr) {
             if (scr_top_line->scr_row_nr == 1) {
@@ -1293,7 +1293,7 @@ void screen_getlinep(const str_object &prompt, strlen_range prompt_len,
             write(prompt.data(), prompt_len);
             std::string input;
             std::getline(std::cin, input);
-            outbuf.copy(input.data(), input.size());
+            outbuf.copy_n(input.data(), input.size());
             outlen = input.size();
         }
     }
@@ -1408,7 +1408,7 @@ verify_response screen_verify(str_object prompt, strlen_range prompt_len) {
             } else {
                 str_object buffer;
                 size_t buf_len = std::strlen(YNAQM_MSG);
-                buffer.copy(YNAQM_MSG, buf_len);
+                buffer.copy_n(YNAQM_MSG, buf_len);
                 screen_getlinep(buffer, buf_len, response, resp_len, 1, 1);
             }
             if (resp_len == 0)

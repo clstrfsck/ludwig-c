@@ -162,7 +162,8 @@ void error(parse_state &ps, const char *err_text) {
             }
             if (!line_change_length(e_line, i))
                 return;
-            e_line->str->copy(str.data(), i);
+            // "i" can't be zero here, so e_line->str != nullptr
+            e_line->str->copy(str, 1, i);
             e_line->used = str.length(' ', i);
             if (!lines_inject(e_line, e_line, ps.currentpoint.line))
                 return;
@@ -711,7 +712,7 @@ bool code_interpret(leadparam rept, int count, code_ptr code_head, bool from_spa
     if (rept == leadparam::pindef)
         count = -1;
     enum { success, failure, failforever} interp_status = success;
-    verify_array verify_always = initial_verify;
+    verify_array verify_always = INITIAL_VERIFY;
 
     while ((count != 0) && (interp_status == success)) {
         count -= 1;

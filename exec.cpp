@@ -779,7 +779,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
             count = i;
         if (count > i)
             goto l99;
-        new_str = blank_string;
+        new_str = BLANK_STRING;
         i = 0;
         while (i < count) {
             key = vdu_get_key();

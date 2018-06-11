@@ -24,6 +24,7 @@
 
 #include "caseditto.h"
 
+#include "ch.h"
 #include "var.h"
 #include "vdu.h"
 #include "mark.h"
@@ -59,8 +60,7 @@ bool caseditto_command(commands command, leadparam rept, int count, bool from_sp
     col_range old_dot_col = current_frame->dot->col;
 
     str_object old_str;
-    old_str.fillcopy(current_frame->dot->line->str->data(),
-                     current_frame->dot->line->used, 1, MAX_STRLEN, ' ');
+    ch_fillcopy(current_frame->dot->line->str, 1, current_frame->dot->line->used, &old_str, 1, MAX_STRLEN, ' ');
     penumset<commands> command_set;
     line_ptr other_line;
     switch (command) {
@@ -146,7 +146,7 @@ bool caseditto_command(commands command, leadparam rept, int count, bool from_sp
             if (i <= 0)
                 new_str.fill_n(' ', count);
             else
-                new_str.fillcopy(other_line->str->data(first_col), i, 1, count, ' ');
+                ch_fillcopy(other_line->str, first_col.value(), i, &new_str, 1, count, ' ');
             switch (command) {
             case commands::cmd_case_up:
                 new_str.apply_n(char_toupper, count);

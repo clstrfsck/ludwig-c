@@ -88,7 +88,7 @@ bool word_fill(leadparam rept, int count, bool from_span) {
                 if ((start_char < current_frame->margin_left) && (start_char < current_frame->dot->line->used)) {
                     if (!mark_create(current_frame->dot->line, start_char, here))
                         goto l99;
-                    if (!text_insert(true, 1, blank_string,
+                    if (!text_insert(true, 1, BLANK_STRING,
                                      current_frame->margin_left - start_char, here))
                         goto l99;
                     mark_destroy(here);
@@ -234,7 +234,7 @@ bool word_fill(leadparam rept, int count, bool from_span) {
                         goto l99;
                     if (start_char < current_frame->margin_left) {
                         // Must insert some chars here
-                        if (!text_insert(true, 1, blank_string, current_frame->margin_left - start_char, there))
+                        if (!text_insert(true, 1, BLANK_STRING, current_frame->margin_left - start_char, there))
                             goto l99;
                     } else {
                         if (!mark_create(current_frame->dot->line->flink, current_frame->margin_left, here))
@@ -323,7 +323,7 @@ bool word_centre(leadparam rept, int count, bool from_span) {
             here = nullptr;
             result = mark_create(current_frame->dot->line, current_frame->margin_left, here);
             if (space_to_add > 0) {
-                result = text_insert(true, 1, blank_string, space_to_add, here);
+                result = text_insert(true, 1, BLANK_STRING, space_to_add, here);
             } else {
                 there = nullptr;
                 result = mark_create(current_frame->dot->line, current_frame->margin_left - space_to_add, there);
@@ -424,7 +424,7 @@ bool word_justify(leadparam rept, int count, bool from_span) {
                 here = nullptr;
                 if (!mark_create(current_frame->dot->line, start_char, here))
                     goto l2;
-                if (!text_insert(true, 1, blank_string, space_to_add, here))
+                if (!text_insert(true, 1, BLANK_STRING, space_to_add, here))
                     goto l2;
                 if (!mark_destroy(here))
                     goto l2;
@@ -571,7 +571,7 @@ bool word_right(leadparam rept, int count, bool from_span) {
             here = nullptr;
             if (!mark_create(current_frame->dot->line, 1, here))
                 goto l2;
-            if (!text_insert(true, 1, blank_string, space_to_add, here))
+            if (!text_insert(true, 1, BLANK_STRING, space_to_add, here))
                 goto l2;
             if (!mark_destroy(here))
                 goto l2;

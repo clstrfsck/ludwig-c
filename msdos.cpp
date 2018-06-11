@@ -89,7 +89,7 @@ bool get_environment(const std::string &environ, strlen_range &reslen, str_objec
         return false;
     size_t len = std::strlen(env);
     reslen = len;
-    result.copy(env, len);
+    result.copy_n(env, len);
     return true;
 }
 

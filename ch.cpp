@@ -33,6 +33,24 @@ namespace {
 
 };
 
+// FIXME: Wrapper for parray::copy that handles copies of length 0 to nullptrs
+//void ch_copy(str_ptr src, strlen_range srcofs, str_ptr dst, strlen_range dstofs, size_t len) {
+//    if (len > 0) {
+//        dst->copy(src->data(srcofs), len, dstofs);
+//    }
+//}
+
+// FIXME: Wrapper for parray::fillcopy that handles copies of length 0 to/from nullptrs
+void ch_fillcopy(str_ptr src, strlen_range srcofs, size_t srclen, str_ptr dst, strlen_range dstofs, size_t dstlen, char fill) {
+    if (dstlen > 0) {
+        if (srclen == 0) {
+            dst->fill_n(fill, dstlen, dstofs);
+        } else {
+            dst->fillcopy(src->data(srcofs), srclen, dstofs, dstlen, fill);
+        }
+    }
+}
+
 // FIXME: This could probably be improved.
 int ch_compare_str(const str_object &target, strlen_range st1, strlen_range len1,
                    const str_object &text,   strlen_range st2, strlen_range len2,
@@ -75,7 +93,7 @@ bool ch_search_str(const str_object &target, strlen_range st1, strlen_range len1
                    bool exactcase, bool backwards,
                    strlen_range &found_loc) {
     str_object s;
-    s.copy(text.data(st2), len2);
+    s.copy(text, st2, len2);
     if (backwards) {
         std::reverse(s.data(), s.data() + len2);
         found_loc = len2;

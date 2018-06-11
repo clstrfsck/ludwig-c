@@ -148,10 +148,8 @@ int helpfile_read(const key_str &keystr, int keylen, help_record &buffer, int bu
     reclen = KEY_LEN + buf.size();
     buffer.key.fill(' ');
     buffer.txt.fill(' ');
-    buffer.key.copy(current_key.key.data(),
-                         std::min(current_key.key.size(), key_str::index_type::size()));
-    buffer.txt.copy(buf.data(),
-                         std::min(buf.size(), write_str::index_type::size()));
+    buffer.key.copy_n(current_key.key.data(), std::min(current_key.key.size(), key_str::index_type::size()));
+    buffer.txt.copy_n(buf.data(), std::min(buf.size(), write_str::index_type::size()));
     return 1;
 }
 
@@ -168,10 +166,8 @@ int helpfile_next(help_record &buffer, int buflen, int &reclen) {
 	reclen = KEY_LEN + buf.size();
         buffer.key.fill(' ');
         buffer.txt.fill(' ');
-        buffer.key.copy(current_key.key.data(),
-                        std::min(current_key.key.size(), key_str::index_type::size()));
-        buffer.txt.copy(buf.data(),
-                        std::min(buf.size(), write_str::index_type::size()));
+        buffer.key.copy_n(current_key.key.data(), std::min(current_key.key.size(), key_str::index_type::size()));
+        buffer.txt.copy_n(buf.data(), std::min(buf.size(), write_str::index_type::size()));
     }
     return 1;
 }

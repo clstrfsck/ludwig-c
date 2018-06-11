@@ -25,6 +25,7 @@
 
 #include "fyle.h"
 
+#include "ch.h"
 #include "var.h"
 #include "vdu.h"
 #include "exec.h"
@@ -92,7 +93,7 @@ void file_table() {
                 while ((len > 6) && (frame_name[len] == ' '))
                     len -= 1;
             } else {
-                frame_name.copy(BLANK_NAME.data(), BLANK_NAME.size());
+                frame_name.copy_n(BLANK_NAME.data(), BLANK_NAME.size());
                 len = 6;
             }
 
@@ -146,11 +147,12 @@ void file_table() {
 }
 
 void file_fix_eop(bool eof, line_ptr eop_line) {
+    // Here we are just going to assume that eop_line->str != nullptr
     //with eop_line^ do
     if (eof) {
-        eop_line->str->copy("<End of File>  ", 15);
+        eop_line->str->copy_n("<End of File>  ", 15);
     } else {
-        eop_line->str->copy("<Page Boundary>", 15);
+        eop_line->str->copy_n("<Page Boundary>", 15);
     }
     if (eop_line->scr_row_nr != 0)
         screen_draw_line(eop_line);
@@ -262,7 +264,7 @@ bool file_read(file_ptr fp, line_range count, bool best_try, line_ptr &first, li
                 lines_destroy(line, line_2);
                 return false;
             }
-            line->str->fillcopy(buffer.data(), outlen, 1, line->len, ' ');
+            ch_fillcopy(&buffer, 1, outlen, line->str, 1, line->len, ' ');
             line->used  = outlen;
             line->blink = fp->last_line;
             if (fp->last_line != nullptr)
@@ -480,9 +482,9 @@ l98:;
 bool check_slot_allocation(slot_range slot, bool must_be_allocated, msg_str &status) {
     if ((slot == 0) == must_be_allocated) {
         if (must_be_allocated)
-            status.copy(MSG_NO_FILE_OPEN, std::strlen(MSG_NO_FILE_OPEN));
+            status.copy_n(MSG_NO_FILE_OPEN, std::strlen(MSG_NO_FILE_OPEN));
         else
-            status.copy(MSG_FILE_ALREADY_OPEN, std::strlen(MSG_FILE_ALREADY_OPEN));
+            status.copy_n(MSG_FILE_ALREADY_OPEN, std::strlen(MSG_FILE_ALREADY_OPEN));
         return false;
     }
     return true;
@@ -492,9 +494,9 @@ bool check_slot_usage(slot_range slot, bool must_be_in_use, msg_str &status) {
     if (check_slot_allocation(slot, true, status)) {
         if ((files[slot] == nullptr) == must_be_in_use) {
             if (must_be_in_use)
-                status.copy(MSG_NO_FILE_OPEN, std::strlen(MSG_NO_FILE_OPEN));
+                status.copy_n(MSG_NO_FILE_OPEN, std::strlen(MSG_NO_FILE_OPEN));
             else
-                status.copy(MSG_FILE_ALREADY_OPEN, std::strlen(MSG_FILE_ALREADY_OPEN));
+                status.copy_n(MSG_FILE_ALREADY_OPEN, std::strlen(MSG_FILE_ALREADY_OPEN));
         } else
             return true;
     }
@@ -505,9 +507,9 @@ bool check_slot_direction(slot_range slot, bool must_be_output, msg_str &status)
     if (check_slot_usage(slot, true, status)) {
         if (files[slot]->output_flag != must_be_output) {
             if (must_be_output) 
-                status.copy(MSG_NOT_OUTPUT_FILE, std::strlen(MSG_NOT_OUTPUT_FILE));
+                status.copy_n(MSG_NOT_OUTPUT_FILE, std::strlen(MSG_NOT_OUTPUT_FILE));
             else
-                status.copy(MSG_NOT_INPUT_FILE, std::strlen(MSG_NOT_INPUT_FILE));
+                status.copy_n(MSG_NOT_INPUT_FILE, std::strlen(MSG_NOT_INPUT_FILE));
         } else
             return true;
     }
@@ -538,7 +540,7 @@ bool get_free_slot(slot_range &new_slot, msg_str &status) {
     while ((slot < MAX_FILES) && ((files[slot] != nullptr) || (slot == new_slot)))
         slot += 1;
     if (slot > MAX_FILES || files[slot] != nullptr) {
-        status.copy(MSG_NO_MORE_FILES_ALLOWED, std::strlen(MSG_NO_MORE_FILES_ALLOWED));
+        status.copy_n(MSG_NO_MORE_FILES_ALLOWED, std::strlen(MSG_NO_MORE_FILES_ALLOWED));
         return false;
     }
     new_slot = slot;
@@ -835,7 +837,7 @@ bool file_command(commands command, leadparam rept, int count, tpar_ptr tparam, 
 
     case commands::cmd_file_save: {
         if (current_frame->output_file == 0) {
-            status.copy(MSG_NO_OUTPUT, std::strlen(MSG_NO_OUTPUT));
+            status.copy_n(MSG_NO_OUTPUT, std::strlen(MSG_NO_OUTPUT));
             goto l99;
         }
         if (!current_frame->text_modified) {

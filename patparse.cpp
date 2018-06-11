@@ -387,10 +387,8 @@ bool pattern_parser(tpar_object &pattern, nfa_table_type &nfa_table,
                     if (QUOTED.contains(deref_span.dlm)) {
                         //with deref_span do
                         // H A C K !!!!!!!!!
-                        // Copy into secondary buffer as overlapping copy doesn't work.
-                        std::vector<char> copy(deref_span.str.data(), deref_span.str.data() + deref_span.len);
-                        deref_span.str.copy(copy.data(), copy.size(), 2); // Tpar_get strips off the quotes
-                        deref_span.len += 2;                          // so we've got to put them back
+                        deref_span.str.insert(1, 1); // Tpar_get strips off the quotes
+                        deref_span.len += 2;         // so we've got to put them back
                         deref_span.str[deref_span.len] = deref_span.dlm;
                         deref_span.str[1] = deref_span.dlm;
                     }
@@ -482,10 +480,7 @@ bool pattern_parser(tpar_object &pattern, nfa_table_type &nfa_table,
                                     }
                                     //with deref_span do
                                     // wrap it in quotes
-                                    // Need to do this via interim buffer as parray.copy doesn't
-                                    // work for overlapping copies.
-                                    std::vector<char> tmp_buf(deref_span.str.data(), deref_span.str.data() + deref_span.len);
-                                    deref_span.str.copy(tmp_buf.data(), tmp_buf.size(), 2);
+                                    deref_span.str.insert(1, 1);
                                     deref_span.len += 2;
                                     deref_span.str[deref_span.len] = aux_ch_1;
                                     deref_span.str[1] = aux_ch_1;

@@ -54,7 +54,7 @@ bool quit_command() {
                         screen_fixup();
                     screen_beep();
                     str_object tmp_buffer(' ');
-                    tmp_buffer.copy(NO_OUTPUT_FILE_MSG.data(), NO_OUTPUT_FILE_MSG.size());
+                    tmp_buffer.copy_n(NO_OUTPUT_FILE_MSG.data(), NO_OUTPUT_FILE_MSG.size());
                     switch (screen_verify(tmp_buffer, NO_OUTPUT_FILE_MSG.size())) {
                     case verify_response::verify_reply_yes:
                         // Nothing to do here.

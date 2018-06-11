@@ -122,15 +122,11 @@ bool text_insert(bool update_screen, int count, str_object buf, strlen_range buf
                          dst_line, dst_col + insert_len))
             return false;
         if (tail_len > 0) { // to avoid subscript error when dst_col=400
-            // FIXME: Copy via transfer buffer as copy doesn't work with
-            // overlapping src/dst
-            const char *data = dst_line->str->data(dst_col);
-            std::vector<char> temp(data, data + tail_len);
-            dst_line->str->copy(temp.data(), tail_len, dst_col + insert_len);
+            dst_line->str->insert(insert_len, dst_col);
         }
         col_range new_col = dst_col;
         for (int i = 0; i < count; ++i) {
-            dst_line->str->copy(buf.data(), buf_len, new_col);
+            dst_line->str->copy(buf, 1, buf_len, new_col);
             new_col += buf_len;
         }
 
@@ -212,7 +208,7 @@ bool text_overtype(bool update_screen, int count, str_object buf, strlen_range b
         }
         col_range new_col = dst->col;
         for (int i = 0; i < count; ++i) {
-            dst_line->str->copy(buf.data(1), buf_len, new_col);
+            dst_line->str->copy(buf, 1, buf_len, new_col);
             new_col += buf_len;
         }
 
@@ -301,8 +297,8 @@ bool text_insert_tpar(tpar_object tp, mark_ptr before_mark, mark_ptr &equals_mar
         for (int lc = 0; lc < line_count; ++lc) {
             if (!line_change_length(tmp_line, tmp_tp->len))
                 goto l99;
-            tmp_line->str->copy(tmp_tp->str.data(1), tmp_tp->len, 1);
-            tmp_line->used = tmp_line->str->length(' ', tmp_tp->len);
+            tmp_line->str->copy(tmp_tp->str, 1, tmp_tp->len, 1);
+            tmp_line->used = tmp_tp->len == 0 ? 0 : tmp_line->str->length(' ', tmp_tp->len);
             tmp_tp = tmp_tp->con;
             tmp_line = tmp_line->flink;
         }
@@ -425,7 +421,7 @@ bool text_inter_remove(mark_ptr mark_one, mark_ptr mark_two) {
         if (!text_intra_remove(mark_start, mark_two->col - mark_start->col))
             goto l99;
     } else if (delta > 0) {
-        strng_tail.copy(strng.data(mark_two->col), delta);
+        strng_tail.copy(strng, mark_two->col, delta);
         if (!text_insert(true, 1, strng_tail, delta, mark_two))
             goto l99;
         text_len -= delta;
@@ -502,7 +498,7 @@ bool text_intra_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two,
         text_str.fillcopy(mark_one->line->str->data(col_one), text_len, 1, full_len, ' ');
         text_len = full_len;
         for (int i = 0; i < 2; ++i) {
-            text_str.copy(text_str.data(), text_len, 1 + full_len);
+            text_str.copy(text_str, 1, text_len, 1 + full_len);
             full_len += text_len;
             if (tt_controlc)
                 return false;
@@ -630,7 +626,7 @@ bool text_inter_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two,
     text_len = 0;
     if (col_one <= line_one->used) {
         text_len = line_one->used + 1 - col_one;
-        text_str.copy(line_one->str->data(col_one), text_len);
+        text_str.copy(*line_one->str, col_one, text_len);
     }
 
     // Complete taking the COUNT copies, including nicking the interior lines
@@ -671,7 +667,7 @@ bool text_inter_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two,
             //with next_src_line^ do
             if (!line_change_length(next_dst_line, next_src_line->used))
                 goto l99;
-            next_dst_line->str->copy(next_src_line->str->data(), next_src_line->used);
+            next_dst_line->str->copy(*next_src_line->str, 1, next_src_line->used);
             next_dst_line->used = next_src_line->used;
             next_src_line = next_src_line->flink;
             next_dst_line = next_dst_line->flink;
@@ -684,7 +680,7 @@ bool text_inter_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two,
             // PLACE START OF NEXT COPY AT END OF LINE
             if (!line_change_length(next_dst_line, col_two - 1 + text_len))
                 goto l99;
-            next_dst_line->str->copy(text_str.data(), text_len, col_two);
+            next_dst_line->str->copy(text_str, 1, text_len, col_two);
         } else {
             // JUST MAKE LONG ENOUGH FOR THE END OF COPY.
             if (!line_change_length(next_dst_line, col_two - 1))
@@ -693,7 +689,7 @@ bool text_inter_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two,
         // PLACE THE END OF THE COPY IN POSITION
         if (col_two > 1) {
             if (col_two <= next_src_line->used) {
-                next_dst_line->str->copy(next_src_line->str->data(), col_two - 1);
+                next_dst_line->str->copy(*next_src_line->str, 1, col_two - 1);
             } else {
                 next_dst_line->str->fillcopy(next_src_line->str->data(), next_src_line->used, 1, col_two - 1, ' ');
             }
@@ -728,7 +724,7 @@ bool text_inter_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two,
     if (i > 0) {
         if (!line_change_length(last_line, last_line->used + i))
             goto l99;
-        last_line->str->copy(dst_line->str->data(dst_col), i, last_line_length + 1);
+        last_line->str->copy(*dst_line->str, dst_col, i, last_line_length + 1);
         last_line->used = last_line->str->length(' ', last_line_length + i);
     } else if (last_line_length > 0) {
         last_line->used = last_line->str->length(' ', last_line_length);
@@ -919,8 +915,8 @@ bool text_split_line(mark_ptr before_mark, int new_col, mark_ptr &equals_mark) {
         if (length > 0) {
             if (!line_change_length(new_line, new_col + length - 1))
                 goto l99;
-            new_line->str->fill(' ', new_col - 1);
-            new_line->str->copy(before_mark->line->str->data(before_mark->col), length, new_col);
+            new_line->str->fill_n(' ', new_col - 1);
+            new_line->str->copy(*before_mark->line->str, before_mark->col, length, new_col);
             before_mark->line->str->fill(' ', before_mark->col, before_mark->col + length - 1);
             before_mark->line->used = before_mark->line->str->length(' ', before_mark->line->used);
             new_line->used = new_col + length - 1;
@@ -951,7 +947,7 @@ bool text_split_line(mark_ptr before_mark, int new_col, mark_ptr &equals_mark) {
         if (shift > 0) {
             if (!line_change_length(new_line, shift))
                 goto l99;
-            new_line->str->copy(before_mark->line->str->data(), shift);
+            new_line->str->copy(*before_mark->line->str, 1, shift);
             new_line->used = new_line->str->length(' ', shift);
         }
         if (!lines_inject(new_line, new_line, before_mark->line))
@@ -971,17 +967,17 @@ bool text_split_line(mark_ptr before_mark, int new_col, mark_ptr &equals_mark) {
             if (new_col > 1) {
                 save_col = before_mark->col;
                 before_mark->col = 1;
-                if (!text_overtype(true, 1, blank_string, new_col - 1, before_mark))
+                if (!text_overtype(true, 1, BLANK_STRING, new_col - 1, before_mark))
                     goto l99;
                 before_mark->col = save_col;
             }
         } else {
-            if (!text_insert(true, 1, blank_string, shift, before_mark))
+            if (!text_insert(true, 1, BLANK_STRING, shift, before_mark))
                  goto l99;
             if (new_col > 1) {
                 save_col = before_mark->col;
                 before_mark->col = 1;
-                if (!text_overtype(true, 1, blank_string, new_col - 1, before_mark))
+                if (!text_overtype(true, 1, BLANK_STRING, new_col - 1, before_mark))
                     goto l99;
                 before_mark->col = save_col;
             }

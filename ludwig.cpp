@@ -60,11 +60,7 @@ void prog_windup(bool set_hangup) {
 }
 
 void initialize() {
-    // Set up the Default Tab stops, this can't be done by VALUE
-    for (int i = 1; i <= MAX_STRLEN; i += 8) {
-        default_tab_stops[i] = true;
-    }
-    initial_tab_stops = default_tab_stops;
+    initial_tab_stops = DEFAULT_TAB_STOPS;
 
     // Now create the Code Header for the compiler to use
     code_top = 0;
@@ -813,7 +809,7 @@ bool start_up(int argc, char **argv) {
         //with tparam^ do
         tparam->len = initial_len;
         tparam->dlm = TPD_EXACT;
-        tparam->str.copy(file_data.initial.data(), tparam->len);
+        tparam->str.copy(file_data.initial, 1, tparam->len);
         tparam->nxt = nullptr;
         tparam->con = nullptr;
         if (!execute(commands::cmd_file_execute, leadparam::none, 1, tparam, true)) {

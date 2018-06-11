@@ -255,7 +255,7 @@ bool eqsgetrep_dumb_get(leadparam rept, int count, tpar_object tpar, bool from_s
                     goto l99;
                 if (!from_span) {
                     str_object buffer(' ');
-                    buffer.copy(THIS_ONE.data(), THIS_ONE.size());
+                    buffer.copy_n(THIS_ONE.data(), THIS_ONE.size());
                     switch (screen_verify(buffer, THIS_ONE.size())) {
                     case verify_response::verify_reply_always:
                     case verify_response::verify_reply_yes:
@@ -357,7 +357,7 @@ bool eqsgetrep_pattern_get(leadparam rept, int count, tpar_object tpar, bool fro
                     }
                     if (!from_span) {
                         str_object buffer;
-                        buffer.copy(THIS_ONE.data(), THIS_ONE.size());
+                        buffer.copy_n(THIS_ONE.data(), THIS_ONE.size());
                         switch (screen_verify(buffer, THIS_ONE.size())) {
                         case verify_response::verify_reply_always:
                         case verify_response::verify_reply_yes:
@@ -479,7 +479,7 @@ bool eqsgetrep_rep(leadparam rept, int count, tpar_object tpar, tpar_object tpar
                 goto l1;
             if (!from_span) {
                 str_object buffer;
-                buffer.copy(REPLACE_THIS_ONE.data(), REPLACE_THIS_ONE.size());
+                buffer.copy_n(REPLACE_THIS_ONE.data(), REPLACE_THIS_ONE.size());
                 switch (screen_verify(buffer, REPLACE_THIS_ONE.size())) {
                 case verify_response::verify_reply_always:
                     from_span = true;

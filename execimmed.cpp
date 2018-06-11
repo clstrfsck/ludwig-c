@@ -65,7 +65,7 @@ void execute_immed() {
     //with cmd_span^ do
     cmd_span->flink    = nullptr;
     cmd_span->blink    = nullptr;
-    cmd_span->name.copy(DEFAULT_SPAN_NAME.data(), DEFAULT_SPAN_NAME.size());
+    cmd_span->name.copy_n(DEFAULT_SPAN_NAME.data(), DEFAULT_SPAN_NAME.size());
     cmd_span->frame    = nullptr;
     cmd_span->mark_one = nullptr;
     cmd_span->mark_two = nullptr;

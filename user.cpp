@@ -178,7 +178,7 @@ bool user_key(const tpar_object &key, const tpar_object &strng) {
             use_len = KEY_NAME_LEN;
             screen_message(MSG_KEY_NAME_TRUNCATED);
         }
-        key_name.copy(key.str.data(), use_len);
+        key_name.copy(key.str, 1, use_len);
         if (!user_key_name_to_code(key_name, key_code)) {
             screen_message(MSG_UNRECOGNIZED_KEY_NAME);
             return false;

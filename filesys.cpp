@@ -70,7 +70,7 @@ static bool filesys_expand_file_name(file_name_str &fnm, int *fns) {
             start = passwd->pw_dir;
         }
         start += end;
-        fnm.copy(start.c_str(), start.size() + 1);
+        fnm.copy_n(start.c_str(), start.size() + 1);
         *fns = start.size();
         return true;
     } else if (fnm[1] != '.') {
@@ -89,7 +89,7 @@ static bool filesys_expand_file_name(file_name_str &fnm, int *fns) {
         } else {
             tmp = cwd;
         }
-        fnm.copy(tmp.data(), tmp.size() + 1);
+        fnm.copy_n(tmp.c_str(), tmp.size() + 1);
         *fns = tmp.size();
         return true;
     } else {
@@ -120,7 +120,7 @@ static bool filesys_expand_file_name(file_name_str &fnm, int *fns) {
         std::string new_fnm = cwd;
         if (!new_fnm.empty() && new_fnm[new_fnm.size() - 1] != '/')
             new_fnm += "/";
-        fnm.copy(new_fnm.c_str(), new_fnm.size() + 1);
+        fnm.copy_n(new_fnm.c_str(), new_fnm.size() + 1);
         *fns = new_fnm.size();
         return true;
     }
@@ -199,7 +199,7 @@ bool filesys_create_open(file_ptr fyle, file_ptr rfyle, bool ordinary_open) {
             *related = '\0';
         if (fyle->fns == 0) { /* default to related filename */
             size_t len = std::strlen(related);
-            fyle->fnm.copy(related, len);
+            fyle->fnm.copy_n(related, len + 1);
             fyle->fns = len;
         }
         if (fyle->fns == 0)
@@ -224,9 +224,9 @@ bool filesys_create_open(file_ptr fyle, file_ptr rfyle, bool ordinary_open) {
              */
             p = rindex(related,'/');
             if (strcmp(fyle->fnm.data(), "/") == 0)
-                fyle->fnm.copy(p, std::strlen(p) + 1);
+                fyle->fnm.copy_n(p, std::strlen(p) + 1);
             else
-                fyle->fnm.copy(p, std::strlen(p) + 1, std::strlen(fyle->fnm.data()) + 1);
+                fyle->fnm.copy_n(p, std::strlen(p) + 1, std::strlen(fyle->fnm.data()) + 1);
             exists = (stat(fyle->fnm.data(), &stat_buffer) == 0);
         }
         if (exists) {
@@ -759,7 +759,7 @@ bool filesys_parse(const char *command_line, parse_type parse,
         if (!initialize.empty()) {
             int len = initialize.size();
             file_data.initial.fill(' ');
-            file_data.initial.copy(initialize.data(), len);
+            file_data.initial.copy_n(initialize.data(), len);
         } else {
             file_data.initial.fill(' ');
         }
@@ -791,7 +791,7 @@ bool filesys_parse(const char *command_line, parse_type parse,
     case parse_type::parse_edit:
         if (file.size() > 0) {
             input->fns = file[0].size();
-            input->fnm.copy(file[0].c_str(), file[0].size() + 1);
+            input->fnm.copy_n(file[0].c_str(), file[0].size() + 1);
         } else if (!memory.empty()) {
             if (filesys_read_file_name(memory.c_str(), input->fnm, input->fns)) {
                 check_input = true;
@@ -814,7 +814,7 @@ bool filesys_parse(const char *command_line, parse_type parse,
         }
         if (file.size() > 1) {
             output->fns = file[1].size();
-            output->fnm.copy(file[1].c_str(), file[1].size() + 1);
+            output->fnm.copy_n(file[1].c_str(), file[1].size() + 1);
         } else {
             output->fns = input->fns;
             output->fnm = input->fnm;
@@ -860,7 +860,7 @@ bool filesys_parse(const char *command_line, parse_type parse,
     case parse_type::parse_input:
         if (file.size() == 1) {
             input->fns = file[0].size();
-            input->fnm.copy(file[0].c_str(), file[0].size() + 1);
+            input->fnm.copy_n(file[0].c_str(), file[0].size() + 1);
         } else if (memory.empty() || !filesys_read_file_name(memory.c_str(), input->fnm, input->fns)) {
             input->fns = 0;
             return false;
@@ -877,7 +877,7 @@ bool filesys_parse(const char *command_line, parse_type parse,
     case parse_type::parse_execute:
         if (file.size() == 1) {
             input->fns = file[0].size();
-            input->fnm.copy(file[0].c_str(), file[0].size() + 1);
+            input->fnm.copy_n(file[0].c_str(), file[0].size() + 1);
         } else {
             input->fns = 0;
         }
@@ -889,7 +889,7 @@ bool filesys_parse(const char *command_line, parse_type parse,
     case parse_type::parse_output:
         if (file.size() == 1) {
             output->fns = file[0].size();
-            output->fnm.copy(file[0].c_str(), file[0].size() + 1);
+            output->fnm.copy_n(file[0].c_str(), file[0].size() + 1);
         } else if (input != nullptr) {
             output->fns = input->fns;
             output->fnm = input->fnm;

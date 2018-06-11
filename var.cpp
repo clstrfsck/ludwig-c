@@ -55,7 +55,6 @@ code_ptr                                 code_list;
 prange<0, MAX_CODE>                      code_top;
 
 // VARIABLES USED IN INTERPRETING A COMMAND
-char_set                                 repeatsyms;
 penumset<commands>                       prefixes;
 parray<command_object, key_code_range>   lookup;
 parray<lookupexp_type, expand_lim_range> lookupexp;
@@ -77,9 +76,9 @@ tab_array          initial_tab_stops;
 frame_options      initial_options;
 
 // USEFUL STUFF.
-str_object         blank_string;
-verify_array       initial_verify;
-tab_array          default_tab_stops;
+const str_object   BLANK_STRING(' ');       // Blank chars only
+const verify_array INITIAL_VERIFY(false);   //
+const tab_array    DEFAULT_TAB_STOPS({false, true, false, false, false, false, false, false});
 
 // STRUCTURE POOLS
 group_ptr          free_group_pool;
@@ -99,21 +98,21 @@ parray<accept_set_type, word_set_range> word_elements;
 
 // ' '
 // the S (space) pattern specifier
-const accept_set_type SPACE_SET(32);
+const accept_set_type SPACE_SET(' ');
 // 'a'..'z'
 // the L (lowercase) pattern specifier
-const accept_set_type LOWER_SET(97, 122);
+const accept_set_type LOWER_SET('a', 'z');
 // 'A'..'Z'
 // the U (uppercase) pattern specifier
-const accept_set_type UPPER_SET(65, 90);
+const accept_set_type UPPER_SET('A', 'Z');
 // the A (alphabetic) pattern specifier
 const accept_set_type ALPHA_SET(LOWER_SET.set_union(UPPER_SET));
 // '0'..'9'
 // the N (numeric) pattern specifier
-const accept_set_type NUMERIC_SET(48, 57);
+const accept_set_type NUMERIC_SET('0', '9');
 // ' '..'~'
 // the C (printable char) pattern specifier
 const accept_set_type PRINTABLE_SET(32, 126);
 // '!','"','''','(',')',',','.',':',';','?','`'
 // the P (punctuation) pattern specifier
-const accept_set_type PUNCTUATION_SET({ 33, 34,  39, 40, 41, 44, 46, 58, 59, 63, 96});
+const accept_set_type PUNCTUATION_SET({33, 34,  39, 40, 41, 44, 46, 58, 59, 63, 96});
