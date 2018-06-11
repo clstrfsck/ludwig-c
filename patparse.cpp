@@ -704,13 +704,13 @@ bool pattern_parser(tpar_object &pattern, nfa_table_type &nfa_table,
                             } else {
                                 // predefined char sets
                                 switch (std::toupper(pat_ch)) {
-                                case 'S': nfa_table[current_state].epf.accept_set = space_set;       break;
-                                case 'C': nfa_table[current_state].epf.accept_set = printable_set;   break;
-                                case 'A': nfa_table[current_state].epf.accept_set = alpha_set;       break;
-                                case 'L': nfa_table[current_state].epf.accept_set = lower_set;       break;
-                                case 'U': nfa_table[current_state].epf.accept_set = upper_set;       break;
-                                case 'N': nfa_table[current_state].epf.accept_set = numeric_set;     break;
-                                case 'P': nfa_table[current_state].epf.accept_set = punctuation_set; break;
+                                case 'S': nfa_table[current_state].epf.accept_set = SPACE_SET;       break;
+                                case 'C': nfa_table[current_state].epf.accept_set = PRINTABLE_SET;   break;
+                                case 'A': nfa_table[current_state].epf.accept_set = ALPHA_SET;       break;
+                                case 'L': nfa_table[current_state].epf.accept_set = LOWER_SET;       break;
+                                case 'U': nfa_table[current_state].epf.accept_set = UPPER_SET;       break;
+                                case 'N': nfa_table[current_state].epf.accept_set = NUMERIC_SET;     break;
+                                case 'P': nfa_table[current_state].epf.accept_set = PUNCTUATION_SET; break;
                                 }
                                 if (negate) {
                                     nfa_table[current_state].epf.accept_set =

@@ -136,7 +136,7 @@ bool tpar_to_mark(tpar_object &strng, int &mark) {
 bool tpar_to_int(tpar_object &strng, int &chpos, int &int_) {
     //with strng do
     char ch = (chpos > strng.len) ? '\0' : strng.str[chpos];
-    if (ch < '0' || ch > '0') {
+    if (ch < '0' || ch > '9') {
         screen_message(MSG_INVALID_INTEGER);
         return false;
     }
@@ -335,7 +335,7 @@ bool find_enquiry(const name_str &name, str_object &result, strlen_range &reslen
                 result.fillcopy(SYSTEM_NAME, std::strlen(SYSTEM_NAME), 1, MAX_STRLEN, ' ');
                 reslen = result.length(' ');
             } else if (item == "COMMAND_INTRODUCER") {
-                if (!printable_set.contains(command_introducer.value())) {
+                if (!PRINTABLE_SET.contains(command_introducer.value())) {
                     reslen = 0;
                     screen_message(MSG_NONPRINTABLE_INTRODUCER);
                 } else {

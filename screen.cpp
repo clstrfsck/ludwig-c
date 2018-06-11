@@ -1390,7 +1390,7 @@ verify_response screen_verify(str_object prompt, strlen_range prompt_len) {
             vdu_movecurs(current_frame->dot->col - current_frame->scr_offset,
                          current_frame->dot->line->scr_row_nr);
             key = vdu_get_key();
-            if (lower_set.contains(key.value())) {
+            if (LOWER_SET.contains(key.value())) {
                 key = std::toupper(key.value());
             }
             if (key == 13)
@@ -1648,7 +1648,7 @@ void screen_help_prompt(const write_str &prompt, scr_col_range prompt_len, key_s
                     vdu_displaych(' ');
                     vdu_displaych(char(8));
                 }
-            } else if (printable_set.contains(int(key))) {
+            } else if (PRINTABLE_SET.contains(int(key))) {
                 vdu_displaych(char(key));
                 reply_len += 1;
                 reply[reply_len] = char(key);

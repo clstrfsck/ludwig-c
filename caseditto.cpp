@@ -46,7 +46,7 @@ char char_tolower(char ch) {
 bool key_is_lower(key_code_range key) {
     if (key < 0)
         return false;
-    return lower_set.contains(key.value());
+    return LOWER_SET.contains(key.value());
 }
 
 bool caseditto_command(commands command, leadparam rept, int count, bool from_span) {

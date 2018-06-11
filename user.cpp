@@ -132,7 +132,7 @@ void user_key_initialize() {
 }
 
 bool user_command_introducer() {
-    if (!printable_set.contains(command_introducer)) {
+    if (!PRINTABLE_SET.contains(command_introducer)) {
         screen_message(MSG_NONPRINTABLE_INTRODUCER);
         return false;
     } else {

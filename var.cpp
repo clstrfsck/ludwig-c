@@ -86,15 +86,6 @@ group_ptr          free_group_pool;
 line_ptr           free_line_pool;
 mark_ptr           free_mark_pool;
 
-// Pattern matcher parser stuff
-accept_set_type    printable_set;
-accept_set_type    space_set;
-accept_set_type    alpha_set;
-accept_set_type    lower_set;
-accept_set_type    upper_set;
-accept_set_type    numeric_set;
-accept_set_type    punctuation_set;
-
 // Output file actions
 file_data_type     file_data;
 
@@ -103,3 +94,26 @@ terminal_info_type terminal_info;
 
 // Word definition sets
 parray<accept_set_type, word_set_range> word_elements;
+
+// Pattern matcher parser stuff
+
+// ' '
+// the S (space) pattern specifier
+const accept_set_type SPACE_SET(32);
+// 'a'..'z'
+// the L (lowercase) pattern specifier
+const accept_set_type LOWER_SET(97, 122);
+// 'A'..'Z'
+// the U (uppercase) pattern specifier
+const accept_set_type UPPER_SET(65, 90);
+// the A (alphabetic) pattern specifier
+const accept_set_type ALPHA_SET(LOWER_SET.set_union(UPPER_SET));
+// '0'..'9'
+// the N (numeric) pattern specifier
+const accept_set_type NUMERIC_SET(48, 57);
+// ' '..'~'
+// the C (printable char) pattern specifier
+const accept_set_type PRINTABLE_SET(32, 126);
+// '!','"','''','(',')',',','.',':',';','?','`'
+// the P (punctuation) pattern specifier
+const accept_set_type PUNCTUATION_SET({ 33, 34,  39, 40, 41, 44, 46, 58, 59, 63, 96});

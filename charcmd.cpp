@@ -80,7 +80,7 @@ bool charcmd_insert(commands cmd, leadparam rept, int count, bool from_span) {
             goto l9;
         rept = leadparam::none;
         count = 1;
-        if (key_in_set(key, printable_set))
+        if (key_in_set(key, PRINTABLE_SET))
             cmd = commands::cmd_noop;
         else
             cmd = lookup[key].command;
@@ -192,7 +192,7 @@ bool charcmd_delete (commands cmd, leadparam rept, int count, bool from_span) {
             goto l9;
         rept = leadparam::none;
         count = 1;
-        if (key_in_set(key, printable_set))
+        if (key_in_set(key, PRINTABLE_SET))
             cmd = commands::cmd_noop;
         else
             cmd = lookup[key].command;
@@ -272,7 +272,7 @@ bool charcmd_rubout(commands cmd, leadparam rept, int count, bool from_span) {
                 goto l9;
             rept  = leadparam::none;
             count = 1;
-            if (key_in_set(key, printable_set))
+            if (key_in_set(key, PRINTABLE_SET))
                 cmd = commands::cmd_noop;
             else
                 cmd = lookup[key].command;

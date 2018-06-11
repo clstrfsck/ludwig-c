@@ -105,34 +105,6 @@
         dflt_prompts[prompt_type::pattern_prompt    ]  = prompt_str("Pattern:");
         dflt_prompts[prompt_type::pattern_set_prompt]  = prompt_str("Pat Set:");
 
-        space_set.set({ 32});
-        // ' '
-        // the S (space) pattern specifier
-
-        numeric_set.set_range(48, 57);
-        // '0'..'9'
-        // the N (numeric) pattern specifier
-
-        upper_set.set_range(65, 90);
-        // 'A'..'Z'
-        // the U (uppercase) pattern specifier
-
-        lower_set.set_range(97, 122);
-        // 'a'..'z'
-        // the L (lowercase) pattern specifier
-
-        alpha_set = upper_set;
-        alpha_set.add(lower_set);
-        // the A (alphabetic) pattern specifier
-
-        punctuation_set.set({ 33, 34,  39, 40, 41, 44, 46, 58, 59, 63, 96});
-        // '!','"','''','(',')',',','.',':',';','?','`'
-        // the P (punctuation) pattern specifier
-
-        printable_set.set_range(32, 126);
-        // ' '..'~'
-        // the C (printable char) pattern specifier 
-
         file_data.old_cmds  = true;
         file_data.entab  = false;
         file_data.space  = 500000;
@@ -141,11 +113,11 @@
         file_data.purge  = false;
         file_data.versions  = 1;
 
-        word_elements[0]  = space_set;
-        /* word_elements[1]  = alpha_set + numeric_set; */
-        /* word_elements[2]  = printable_set - (word_elements[0] + word_elements[1]); */
-        word_elements[1] = printable_set;
-        word_elements[1].remove(space_set);
+        word_elements[0]  = SPACE_SET;
+        /* word_elements[1]  = ALPHA_SET + NUMERIC_SET; */
+        /* word_elements[2]  = PRINTABLE_SET - (word_elements[0] + word_elements[1]); */
+        word_elements[1] = PRINTABLE_SET;
+        word_elements[1].remove(SPACE_SET);
     }
 
     void init_cmd(commands cmd,

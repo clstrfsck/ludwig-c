@@ -98,7 +98,7 @@ void execute_immed() {
                         key = vdu_get_key();
                         if (tt_controlc)
                             goto l9;
-                        if (printable_set.contains(key) && key != command_introducer) {
+                        if (PRINTABLE_SET.contains(key) && key != command_introducer) {
                             cmd_success = false;
                             goto l9;
                         }
@@ -120,7 +120,7 @@ void execute_immed() {
                         if (tt_controlc)
                             goto l9;
                         vdu_take_back_key(key);
-                        if (printable_set.contains(key) && key != command_introducer) {
+                        if (PRINTABLE_SET.contains(key) && key != command_introducer) {
                             // If printing char, realize NULL, re-fix cursor.
                             if (!text_realize_null(current_frame->dot->line)) {
                                 cmd_success = false;
@@ -174,7 +174,7 @@ void execute_immed() {
                             key = vdu_get_key();
                             if (tt_controlc)
                                 goto l9;
-                            if (printable_set.contains(key) && key != command_introducer) {
+                            if (PRINTABLE_SET.contains(key) && key != command_introducer) {
                                 //with dot^ do
                                 col_range col_1 = current_frame->margin_right;
                                 if (key != ' ') {
@@ -209,7 +209,7 @@ void execute_immed() {
 
 #ifdef DEBUG
                 if (key >= 0) {
-                    if (printable_set.contains(key) && key != command_introducer) {
+                    if (PRINTABLE_SET.contains(key) && key != command_introducer) {
                         screen_message(DBG_NOT_IMMED_CMD);
                         goto l99;
                     }

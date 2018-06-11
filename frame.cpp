@@ -42,8 +42,12 @@ namespace {
 
     const std::string END_OF_FILE("<End of File>   ");
     const std::string NEW_VALUES("  New Values: ");
-    const accept_set_type NPUNCT = accept_set_type(alpha_set).add(numeric_set).add(space_set);
 
+    const accept_set_type npunct() {
+        // Here to ensure initialisation after ALPHA_SET et al
+        static const accept_set_type NPUNCT = accept_set_type(ALPHA_SET).add(NUMERIC_SET).add(SPACE_SET);
+        return NPUNCT;
+    }
 }
 
 bool frame_edit(name_str frame_name) {
@@ -466,7 +470,7 @@ bool setcmdintr(tpar_object &request, int &pos) {
         }
         key_code_range key_code;
         if (i == 1) {
-            if (!NPUNCT.contains(key_name[1])) {
+            if (!npunct().contains(key_name[1])) {
                 command_introducer = key_name[1];
                 vdu_new_introducer(command_introducer);
                 return true;

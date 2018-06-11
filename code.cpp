@@ -36,12 +36,19 @@
 #include <cstring>
 
 namespace {
-    const accept_set_type PUNCT = accept_set_type(printable_set)
-        .remove(alpha_set).remove(numeric_set).remove(space_set);
     const penumset<commands> INTERP_CMDS({commands::cmd_pcjump, commands::cmd_exitto,
                 commands::cmd_failto, commands::cmd_iterate, commands::cmd_exit_success,
                 commands::cmd_exit_fail, commands::cmd_exit_abort, commands::cmd_extended,
                 commands::cmd_verify, commands::cmd_noop});
+
+    const accept_set_type &punct() {
+        // Here to ensure initialised after PRINTABLE_SET et al
+        static const accept_set_type PUNCT = accept_set_type(PRINTABLE_SET)
+                                             .remove(ALPHA_SET)
+                                             .remove(NUMERIC_SET)
+                                             .remove(SPACE_SET);
+        return PUNCT;
+    }
 
     template <class R>
     void assign(parray<char, R> dst, const char *src) {
@@ -57,23 +64,14 @@ namespace {
         parse_state &operator=(const parse_state&) = delete;
         msg_str        status;
         key_code_range key;
-        bool           eoln;
-        int            pc;
-        code_idx       code_base;
+        bool           eoln;          // Used to signal end of line
+        int            pc;            // This is always an offset from code_top
+        code_idx       code_base;     // Base in code array for new code
         mark_object    currentpoint;
         mark_object    startpoint;
         mark_object    endpoint;
         int            verify_count;
         bool           from_span;
-//    status       : msg_str;
-//    key          : key_code_range;
-//    eoln         : boolean;     { Used to signal end of line }
-//    pc           : integer;     { This is always an offset from code_top }
-//    code_base    : code_idx;    { Base in code array for new code }
-//    startpoint,
-//    endpoint,
-//    currentpoint : mark_object;
-//    verify_count : integer;
     };
 }
 
@@ -379,7 +377,7 @@ bool scan_trailing_param(parse_state &ps, commands command, leadparam repsym, tp
         key_code_range pardelim = ps.key;
         if (ps.key < accept_set_type::element_type::min() ||
             ps.key > accept_set_type::element_type::max() ||
-            !PUNCT.contains(pardelim.value())) {
+            !punct().contains(pardelim.value())) {
             error(ps, "Illegal parameter delimiter");
             return false;
         }
@@ -556,7 +554,7 @@ bool scan_command(parse_state &ps, bool full_scan) {
     if (!scan_leading_param(ps, repsym, repcount))
         return false;
     if (ps.key >= accept_set_type::element_type::min() && ps.key <= accept_set_type::element_type::max() &&
-        lower_set.contains(ps.key.value()))
+        LOWER_SET.contains(ps.key.value()))
         ps.key = std::toupper(ps.key);
     commands command = lookup[ps.key].command;
     while (prefixes.contains(command)) {

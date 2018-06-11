@@ -109,14 +109,15 @@ extern group_ptr          free_group_pool;
 extern line_ptr           free_line_pool;
 extern mark_ptr           free_mark_pool;
 
+// Sets of characters
 // Pattern matcher parser stuff
-extern accept_set_type    printable_set;
-extern accept_set_type    space_set;
-extern accept_set_type    alpha_set;
-extern accept_set_type    lower_set;
-extern accept_set_type    upper_set;
-extern accept_set_type    numeric_set;
-extern accept_set_type    punctuation_set;
+extern const accept_set_type PRINTABLE_SET;
+extern const accept_set_type SPACE_SET;
+extern const accept_set_type ALPHA_SET;
+extern const accept_set_type LOWER_SET;
+extern const accept_set_type UPPER_SET;
+extern const accept_set_type NUMERIC_SET;
+extern const accept_set_type PUNCTUATION_SET;
 
 // Output file actions
 extern file_data_type     file_data;
