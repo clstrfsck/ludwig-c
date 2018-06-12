@@ -8,51 +8,22 @@
 #                                                                      #
 ########################################################################
 #                                                                      #
-#   Copyright (C) 2018                                                 #
+#   Makefile Copyright (C) 2018                                        #
 #   Martin Sandiford, Adelaide, Australia                              #
 #   All rights reserved.                                               #
 #                                                                      #
 ########################################################################
 
-OBJS =	arrow.o \
-	caseditto.o \
-	ch.o \
-	charcmd.o \
-	code.o \
-	const.o \
-	dfa.o \
-	eqsgetrep.o \
-	exec.o \
-	execimmed.o \
-	filesys.o \
-	frame.o \
-	fyle.o \
-	help.o \
-	helpfile.o \
-	line.o \
-	ludwig.o \
-	lwgetopt.o \
-	mark.o \
-	msdos.o \
-	newword.o \
-	nextbridge.o \
-	opsys.o \
-	patparse.o \
-	quit.o \
-	recognize.o \
-	screen.o \
-	span.o \
-	swap.o \
-	text.o \
-	tpar.o \
-	user.o \
-	validate.o \
-	value.o \
-	var.o \
-	vdu.o \
-	version.o \
-	window.o \
-	word.o
+OBJS =	arrow.o		caseditto.o	ch.o		charcmd.o	\
+	code.o		const.o		dfa.o		eqsgetrep.o	\
+	exec.o		execimmed.o	filesys.o	frame.o		\
+	fyle.o		help.o		helpfile.o	line.o		\
+	ludwig.o	lwgetopt.o	mark.o		msdos.o		\
+	newword.o	nextbridge.o	opsys.o		patparse.o	\
+	quit.o		recognize.o	screen.o	span.o		\
+	swap.o		text.o		tpar.o		user.o		\
+	validate.o	value.o		var.o		vdu.o		\
+	version.o	window.o	word.o
 
 # Either g++ or clang++ should work.
 # Tested with clang++ 6.0.0 and g++ 7.3.0
@@ -66,6 +37,8 @@ CFLAGS   = -g -Wall -DMKSTEMP
 # Works for g++, clang++ doesn't understand -Wno-maybe-uninitialized
 #CXXFLAGS = -Wno-maybe-uninitialized -O3 -Wall -std=c++14
 #CFLAGS   = -O3 -Wall -DMKSTEMP
+
+.PHONY: all tests clean
 
 all:	ludwig ludwighlp.idx ludwignewhlp.idx
 	echo Done.
@@ -81,6 +54,9 @@ ludwighlp.idx:  ludwighlpbld ludwighlp.t
 
 ludwignewhlp.idx:  ludwighlpbld ludwignewhlp.t
 	./ludwighlpbld ludwignewhlp.t ludwignewhlp.idx
+
+tests:
+	$(MAKE) -C $@
 
 clean:
 	rm -f $(OBJS) ludwighlpbld ludwighlp.idx ludwignewhlp.idx
