@@ -1,5 +1,20 @@
-OBJS = \
-	arrow.o \
+########################################################################
+#                                                                      #
+#            L      U   U   DDDD   W      W  IIIII   GGGG              #
+#            L      U   U   D   D   W    W     I    G                  #
+#            L      U   U   D   D   W ww W     I    G   GG             #
+#            L      U   U   D   D    W  W      I    G    G             #
+#            LLLLL   UUU    DDDD     W  W    IIIII   GGGG              #
+#                                                                      #
+########################################################################
+#                                                                      #
+#   Copyright (C) 2002                                                 #
+#   Martin Sandiford, Adelaide, Australia                              #
+#   All rights reserved.                                               #
+#                                                                      #
+########################################################################
+
+OBJS =	arrow.o \
 	caseditto.o \
 	ch.o \
 	charcmd.o \
@@ -42,13 +57,16 @@ OBJS = \
 # Either g++ or clang++ should work.
 # Tested with clang++ 6.0.0 and g++ 7.3.0
 CXX = g++
-CC = gcc
+CC  = gcc
 # These are debug flags. Works for both g++ and clang++.
-CXXFLAGS = -fdiagnostics-color=never -g -Wall -std=c++14 -DDEBUG -DWINDOWCHANGE -D_GLIBCXX_DEBUG
-CFLAGS = -fdiagnostics-color=never -g -Wall -DMKSTEMP
-# These are release flags. Works for g++, clang++ doesn't understand -Wno-maybe-uninitialized
-#CXXFLAGS = -fdiagnostics-color=never -Wno-maybe-uninitialized -O3 -Wall -std=c++14 -DWINDOWCHANGE
-#CFLAGS = -fdiagnostics-color=never -O3 -Wall -DMKSTEMP
+DEFS     = -DDEBUG -DWINDOWCHANGE -D_GLIBCXX_DEBUG
+CXXFLAGS = -g -Wall -std=c++14 $(DEFS)
+CFLAGS   = -g -Wall -DMKSTEMP
+# These are release flags.
+# Works for g++, clang++ doesn't understand -Wno-maybe-uninitialized
+#DEFS     = -DWINDOWCHANGE
+#CXXFLAGS = -Wno-maybe-uninitialized -O3 -Wall -std=c++14 $(DEFS)
+#CFLAGS   = -O3 -Wall -DMKSTEMP
 
 all:	ludwig ludwighlp.idx ludwignewhlp.idx
 	echo Done.
@@ -71,9 +89,9 @@ clean:
 arrow.o: arrow.cpp arrow.h type.h const.h parray.h prange.h perange.h \
  penumset.h prangeset.h var.h vdu.h line.h mark.h text.h screen.h
 caseditto.o: caseditto.cpp caseditto.h type.h const.h parray.h prange.h \
- perange.h penumset.h prangeset.h var.h vdu.h mark.h text.h screen.h
+ perange.h penumset.h prangeset.h ch.h var.h vdu.h mark.h text.h screen.h
 charcmd.o: charcmd.cpp charcmd.h type.h const.h parray.h prange.h \
- perange.h penumset.h prangeset.h var.h vdu.h mark.h text.h screen.h
+ perange.h penumset.h prangeset.h ch.h var.h vdu.h mark.h text.h screen.h
 ch.o: ch.cpp ch.h type.h const.h parray.h prange.h perange.h penumset.h \
  prangeset.h
 code.o: code.cpp code.h type.h const.h parray.h prange.h perange.h \
@@ -99,14 +117,14 @@ frame.o: frame.cpp frame.h type.h const.h parray.h prange.h perange.h \
  penumset.h prangeset.h ch.h dfa.h var.h vdu.h line.h mark.h span.h \
  tpar.h user.h screen.h version.h
 fyle.o: fyle.cpp fyle.h type.h const.h parray.h prange.h perange.h \
- penumset.h prangeset.h var.h vdu.h exec.h line.h mark.h tpar.h screen.h \
- filesys.h
+ penumset.h prangeset.h ch.h var.h vdu.h exec.h line.h mark.h tpar.h \
+ screen.h filesys.h
 help.o: help.cpp help.h type.h const.h parray.h prange.h perange.h \
  penumset.h prangeset.h ch.h var.h screen.h helpfile.h
 helpfile.o: helpfile.cpp type.h const.h parray.h prange.h perange.h \
  penumset.h prangeset.h
 line.o: line.cpp line.h type.h const.h parray.h prange.h perange.h \
- penumset.h prangeset.h var.h screen.h
+ penumset.h prangeset.h ch.h var.h screen.h
 ludwig.o: ludwig.cpp var.h type.h const.h parray.h prange.h perange.h \
  penumset.h prangeset.h vdu.h exec.h fyle.h quit.h user.h frame.h msdos.h \
  value.h screen.h filesys.h execimmed.h
@@ -120,7 +138,7 @@ newword.o: newword.cpp newword.h type.h const.h parray.h prange.h \
 nextbridge.o: nextbridge.cpp nextbridge.h type.h const.h parray.h \
  prange.h perange.h penumset.h prangeset.h var.h mark.h
 opsys.o: opsys.cpp opsys.h type.h const.h parray.h prange.h perange.h \
- penumset.h prangeset.h line.h filesys.h
+ penumset.h prangeset.h ch.h line.h filesys.h
 parray.o: parray.cpp type.h const.h parray.h prange.h perange.h \
  penumset.h prangeset.h
 patparse.o: patparse.cpp patparse.h type.h const.h parray.h prange.h \
