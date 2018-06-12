@@ -29,6 +29,8 @@
 #include <ncurses.h>
 #include <unordered_set>
 
+#include <signal.h>
+
 namespace {
     const char BS  = 8;
     const char CR  = 13;
@@ -66,28 +68,29 @@ namespace {
     bool contains(const std::unordered_set<T> &s, const T &value) {
         return s.find(value) != s.end();
     }
-}
 
+    bool *g_ctrl_c = nullptr;
+    bool *g_winchange = nullptr;
 
-key_code_range massage_key(int key_code) {
-    if ((key_code >= MIN_NORMAL_CODE) && (key_code <= MAX_NORMAL_CODE))
-        return key_code_range(key_code);
-    else if ((key_code >= MIN_CURSES_KEY) && (key_code <= MAX_CURSES_KEY)) {
-        if (key_code == KEY_BACKSPACE)
-            return DEL;
-        else
-            return key_code_range(NCURSES_SUBTRACT - key_code);
+    key_code_range massage_key(int key_code) {
+        if ((key_code >= MIN_NORMAL_CODE) && (key_code <= MAX_NORMAL_CODE))
+            return key_code_range(key_code);
+        else if ((key_code >= MIN_CURSES_KEY) && (key_code <= MAX_CURSES_KEY)) {
+            if (key_code == KEY_BACKSPACE)
+                return DEL;
+            else
+                return key_code_range(NCURSES_SUBTRACT - key_code);
+        }
+        return 0;
     }
-    return 0;
-}
 
-
-int unmassage_key(key_code_range key) {
-    if ((key >= MIN_NORMAL_CODE) && (key <= MAX_NORMAL_CODE))
-        return int(key);
-    else if ((key < MIN_NORMAL_CODE) && (key >= MASSAGED_MIN))
-        return NCURSES_SUBTRACT - int(key);
-    return 0;
+    int unmassage_key(key_code_range key) {
+        if ((key >= MIN_NORMAL_CODE) && (key <= MAX_NORMAL_CODE))
+            return int(key);
+        else if ((key < MIN_NORMAL_CODE) && (key >= MASSAGED_MIN))
+            return NCURSES_SUBTRACT - int(key);
+        return 0;
+    }
 }
 
 void vdu_movecurs(scr_col_range x, scr_row_range y) {
@@ -207,6 +210,8 @@ key_code_range vdu_get_key() {
     do {
         raw_key = ::getch();
     } while (raw_key == ERR);
+    if (raw_key == KEY_RESIZE && g_winchange)
+        *g_winchange = true;
     return massage_key(raw_key);
 }
 
@@ -494,6 +499,8 @@ bool vdu_init(int outbuflen,
               bool &ctrl_c_flag, bool &winchange_flag) {
     // capabilities.clear();
     // capabilities.add(terminal_capabilities::trmflags_v_hard);
+    g_ctrl_c = &ctrl_c_flag;
+    g_winchange = &winchange_flag;
     terminal_info.width = 80;
     terminal_info.height = 4;
     if (isatty(0) && isatty(1)) {
@@ -509,17 +516,6 @@ bool vdu_init(int outbuflen,
             ::scrollok(stdscr, false);
             terminal_info.width = ::COLS;
             terminal_info.height = ::LINES;
-            //capabilities.add({
-            //        trmflags_v_clel, // Clear to end of line
-            //        trmflags_v_cles, // Clear to end of screen
-            //        trmflags_v_clsc, // Clear screen
-            //        trmflags_v_dlch, // Delete char
-            //        trmflags_v_dlln, // Delete line
-            //        trmflags_v_inln, // Insert line
-            //        trmflags_v_inch, // Insert char
-            //        trmflags_v_scdn, // Scroll down
-            //        trmflags_v_wrap  // Wrap at margins
-            //});
             vdu_clearscr();
             vdu_flush(true);
             ::flushinp();
@@ -539,6 +535,8 @@ void vdu_free() {
 }
 
 void vdu_get_new_dimensions(scr_col_range &new_x, scr_row_range &new_y) {
+    ::endwin();
+    ::refresh();
     new_x = scr_col_range(::COLS);
     new_y = scr_row_range(::LINES);
 }

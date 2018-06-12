@@ -1117,8 +1117,6 @@ void screen_clear_msgs(bool pause) {
     }
 }
 
-#ifdef WINDOWCHANGE
-
 void change_frame_size(frame_ptr frm, int band, int half_screen) {
     //with frm^ do
     if ((frm->scr_height == initial_scr_height) || (frm->scr_height > terminal_info.height))
@@ -1177,8 +1175,6 @@ void screen_resize() {
     vdu_movecurs(current_frame->dot->col - current_frame->scr_offset, current_frame->dot->line->scr_row_nr);
 }
 
-#endif
-
 void screen_fixup() {
     // Make sure that the screen is user's view of the screen is correct.
 
@@ -1188,11 +1184,9 @@ void screen_fixup() {
         return;
     }
 #endif
-#ifdef WINDOWCHANGE
     if (tt_winchanged) {
         screen_resize();
     } else {
-#endif
         //with current_frame^,dot^ do
         if (scr_frame != current_frame) {
             if (scr_msg_row <= terminal_info.height)
@@ -1222,9 +1216,7 @@ void screen_fixup() {
         scr_needs_fix = false;
         screen_expand(true, true);
         vdu_movecurs(current_frame->dot->col - current_frame->scr_offset, current_frame->dot->line->scr_row_nr);
-#ifdef WINDOWCHANGE
     }
-#endif
 }
 
 void screen_getlinep(const str_object &prompt, strlen_range prompt_len,

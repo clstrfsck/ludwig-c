@@ -8,7 +8,7 @@
 #                                                                      #
 ########################################################################
 #                                                                      #
-#   Copyright (C) 2002                                                 #
+#   Copyright (C) 2018                                                 #
 #   Martin Sandiford, Adelaide, Australia                              #
 #   All rights reserved.                                               #
 #                                                                      #
@@ -59,13 +59,12 @@ OBJS =	arrow.o \
 CXX = g++
 CC  = gcc
 # These are debug flags. Works for both g++ and clang++.
-DEFS     = -DDEBUG -DWINDOWCHANGE -D_GLIBCXX_DEBUG
+DEFS     = -DDEBUG -D_GLIBCXX_DEBUG
 CXXFLAGS = -g -Wall -std=c++14 $(DEFS)
 CFLAGS   = -g -Wall -DMKSTEMP
 # These are release flags.
 # Works for g++, clang++ doesn't understand -Wno-maybe-uninitialized
-#DEFS     = -DWINDOWCHANGE
-#CXXFLAGS = -Wno-maybe-uninitialized -O3 -Wall -std=c++14 $(DEFS)
+#CXXFLAGS = -Wno-maybe-uninitialized -O3 -Wall -std=c++14
 #CFLAGS   = -O3 -Wall -DMKSTEMP
 
 all:	ludwig ludwighlp.idx ludwignewhlp.idx

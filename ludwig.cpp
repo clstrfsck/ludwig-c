@@ -718,11 +718,7 @@ bool start_up(int argc, char **argv) {
     // Try to get started on the terminal.  If this fails assume carry on
     // in BATCH mode.
 
-    if (vdu_init(OUTBUFLEN, terminal_info, tt_controlc
-#ifdef WINDOWCHANGE
-                 , tt_winchanged
-#endif
-            )) {
+    if (vdu_init(OUTBUFLEN, terminal_info, tt_controlc, tt_winchanged)) {
         initial_scr_width  = terminal_info.width;
         initial_scr_height = terminal_info.height;
         initial_margin_right = terminal_info.width;

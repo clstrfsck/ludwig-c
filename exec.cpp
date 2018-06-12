@@ -1291,12 +1291,10 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
         cmd_success = window_command(command, rept, count, tparam, from_span);
         break;
 
-#ifdef WINDOWCHANGE
     case commands::cmd_resize_window:
         screen_resize();
         cmd_success = true;
         break;
-#endif
 
 #ifdef DEBUG
     case commands::cmd_validate:

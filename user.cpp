@@ -125,10 +125,8 @@ void user_key_initialize() {
         lookup[key_code].command = commands::cmd_window_backward;
     if (user_key_name_to_code(key_name_str("PAGE-DOWN                               "), key_code))
         lookup[key_code].command = commands::cmd_window_forward;
-#ifdef WINDOWCHANGE
     if (user_key_name_to_code(key_name_str("WINDOW-RESIZE-EVENT                     "), key_code))
         lookup[key_code].command = commands::cmd_resize_window;
-#endif
 }
 
 bool user_command_introducer() {
