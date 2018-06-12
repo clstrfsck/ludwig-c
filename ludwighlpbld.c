@@ -47,9 +47,7 @@
 void process_files(FILE *, FILE *);
 
 int
-main(argc,argv)
-long argc;
-char *argv[];
+main(int argc, char **argv)
 {
     char infile[BUFSIZE],outfile[BUFSIZE];
     FILE *in,*out;
