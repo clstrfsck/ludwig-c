@@ -196,10 +196,10 @@ public:
         if (n > 0) {
             check_index(at);
             check_index(at + n - 1);
-            typename array_type::iterator b = std::next(begin(), adjust_index(at));
-            typename array_type::iterator e = std::prev(end(), n);
-            typename array_type::iterator d = std::next(b, n);
-            std::copy(b, e, d);
+            typename array_type::iterator b  = std::next(begin(), adjust_index(at));
+            typename array_type::iterator e  = std::prev(end(), n);
+            typename array_type::iterator de = end();
+            std::copy_backward(b, e, de);
         }
         return *this;
     }
@@ -208,10 +208,10 @@ public:
         if (n > 0) {
             check_index(from);
             check_index(from + n - 1);
-            typename array_type::iterator dste = std::next(begin(), adjust_index(from));
-            typename array_type::iterator b  = std::next(dste, n);
-            typename array_type::iterator e  = end();
-            std::copy_backward(b, e, dste);
+            typename array_type::iterator d = std::next(begin(), adjust_index(from));
+            typename array_type::iterator b = std::next(d, n);
+            typename array_type::iterator e = end();
+            std::copy(b, e, d);
         }
         return *this;
     }

@@ -497,7 +497,7 @@ bool text_intra_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two,
         }
         text_str.fillcopy(mark_one->line->str->data(col_one), text_len, 1, full_len, ' ');
         text_len = full_len;
-        for (int i = 0; i < 2; ++i) {
+        for (int i = 1; i < count; ++i) {
             text_str.copy(text_str, 1, text_len, 1 + full_len);
             full_len += text_len;
             if (tt_controlc)

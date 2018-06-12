@@ -514,14 +514,14 @@ bool word_squeeze(leadparam rept, int count, bool from_span) {
             }
         } while (true);
 l1:;
-      count -= 1;
-      if (!mark_create(current_frame->dot->line->flink, current_frame->margin_left, current_frame->dot))
-          goto l2;
-      current_frame->text_modified = true;
-      if (!mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_MODIFIED]))
-          goto l2;
+        count -= 1;
+        if (!mark_create(current_frame->dot->line->flink, current_frame->margin_left, current_frame->dot))
+            goto l2;
+        current_frame->text_modified = true;
+        if (!mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_MODIFIED]))
+            goto l2;
     }
-    result = (count = 0) || (rept == leadparam::pindef);
+    result = (count == 0) || (rept == leadparam::pindef);
 l2:;
     // Clean up those temporary marks if necessary
     if (here != nullptr)
