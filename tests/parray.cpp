@@ -18,9 +18,12 @@ namespace {
         EXPECT_EQ(100, hundred_chars::index_type::max());
 
         hundred_chars test0;
-        for (int i = 1; i <= 100; ++i) {
-            EXPECT_EQ(0, test0[i]);
+        size_t count = 0;
+        for (auto ch : test0) {
+            EXPECT_EQ(0, ch);
+            count += 1;
         }
+        EXPECT_EQ(hundred_chars::index_type::size(), count);
         hundred_chars test1(' ');
         for (int i = 1; i <= 100; ++i) {
             EXPECT_EQ(' ', test1[i]);
@@ -88,6 +91,23 @@ namespace {
         for (int i = 1; i <= 10; ++i) {
             EXPECT_EQ('A' + i - 1, test1[i]);
         }
+
+        EXPECT_THROW({
+                // Src index underflow
+                test1.copy(test2, 0, 1, 5);
+            }, std::out_of_range);
+        EXPECT_THROW({
+                // Src index overflow
+                test1.copy(test2, 7, 5);
+            }, std::out_of_range);
+        EXPECT_THROW({
+                // Dst index underflow
+                test1.copy(test2, 1, 1, 0);
+            }, std::out_of_range);
+        EXPECT_THROW({
+                // Dst index overflow
+                test1.copy(test2, 1, 5, 7);
+            }, std::out_of_range);
     }
 
     // Test the copy_n method.
@@ -101,6 +121,101 @@ namespace {
         for (int i = 1; i <= 10; ++i) {
             EXPECT_EQ('A' + i - 1, test1[i]);
         }
+        EXPECT_THROW({
+                // Dst index underflow
+                test1.copy_n("ABCDE", 5, 0);
+            }, std::out_of_range);
+        EXPECT_THROW({
+                // Dst index overflow
+                test1.copy_n("ABCDE", 5, 7);
+            }, std::out_of_range);
+    }
+
+    // Test the fillcopy method.
+    TEST(parray_test, method_fillcopy) {
+        // We test these to avoid unexpected failures elsewhere.
+        EXPECT_EQ( 1, ten_chars::index_type::min());
+        EXPECT_EQ(10, ten_chars::index_type::max());
+
+        ten_chars test1('X');
+        // Src shorter than target -> fill
+        test1.fillcopy("Y", 1, 1, ten_chars::index_type::size(), ' ');
+        EXPECT_EQ('Y', test1[1]);
+        for (int i = 2; i <= 10; ++i) {
+            EXPECT_EQ(' ', test1[i]);
+        }
+        test1.fill('X');
+        // Src longer than target -> no fill
+        test1.fillcopy("ABCDEFGHIJKLMNOPQRST", 20, 1, ten_chars::index_type::size(), ' ');
+        for (int i = 1; i <= 10; ++i) {
+            EXPECT_EQ('A' + i - 1, test1[i]);
+        }
+        EXPECT_THROW({
+                // Dst index underflow
+                test1.fillcopy("ABCDE", 5, 0, 5, ' ');
+            }, std::out_of_range);
+        EXPECT_THROW({
+                // Dst index overflow
+                test1.fillcopy("ABCDE", 5, 7, 5, ' ');
+            }, std::out_of_range);
+    }
+
+    // Test the fill method.
+    TEST(parray_test, method_fill) {
+        // We test these to avoid unexpected failures elsewhere.
+        EXPECT_EQ( 1, ten_chars::index_type::min());
+        EXPECT_EQ(10, ten_chars::index_type::max());
+
+        ten_chars test1('X');
+        test1.fill(' ');
+        for (int i = 1; i <= 10; ++i) {
+            EXPECT_EQ(' ', test1[i]);
+        }
+        test1.fill('X', 6, 10);
+        for (int i = 1; i <= 5; ++i) {
+            EXPECT_EQ(' ', test1[i]);
+        }
+        for (int i = 6; i <= 10; ++i) {
+            EXPECT_EQ('X', test1[i]);
+        }
+        
+        EXPECT_THROW({
+                // Dst index underflow
+                test1.fill('.', 0);
+            }, std::out_of_range);
+        EXPECT_THROW({
+                // Dst index overflow
+                test1.fill('.', 1, 11);
+            }, std::out_of_range);
+    }
+
+    // Test the fill_n method.
+    TEST(parray_test, method_fill_n) {
+        // We test these to avoid unexpected failures elsewhere.
+        EXPECT_EQ( 1, ten_chars::index_type::min());
+        EXPECT_EQ(10, ten_chars::index_type::max());
+
+        ten_chars test1('X');
+        test1.fill_n(' ', ten_chars::index_type::size());
+        for (int i = 1; i <= 10; ++i) {
+            EXPECT_EQ(' ', test1[i]);
+        }
+        test1.fill_n('X', 5, 6);
+        for (int i = 1; i <= 5; ++i) {
+            EXPECT_EQ(' ', test1[i]);
+        }
+        for (int i = 6; i <= 10; ++i) {
+            EXPECT_EQ('X', test1[i]);
+        }
+
+        EXPECT_THROW({
+                // Dst index underflow
+                test1.fill_n('.', 1, 0);
+            }, std::out_of_range);
+        EXPECT_THROW({
+                // Dst index overflow
+                test1.fill_n('.', 10, 2);
+            }, std::out_of_range);
     }
 
 } // namespace
