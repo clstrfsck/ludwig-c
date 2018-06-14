@@ -328,7 +328,7 @@ bool text_intra_remove(mark_ptr mark_one, strlen_range size) {
     if (!marks_shift(ln, col_two, MAX_STRLENP + 1 - col_two, ln, col_one))
         return false;
     if (size == 0)
-        return false;
+        return true;
     //with ln^ do
     strlen_range old_used = ln->used;
     if (col_one > old_used)
