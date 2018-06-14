@@ -218,4 +218,98 @@ namespace {
             }, std::out_of_range);
     }
 
+    // Test the apply_n method.
+    TEST(parray_test, method_apply_n) {
+        // We test these to avoid unexpected failures elsewhere.
+        EXPECT_EQ( 1, ten_chars::index_type::min());
+        EXPECT_EQ(10, ten_chars::index_type::max());
+
+        ten_chars test1('X');
+        test1.apply_n([](char) -> char { return ' '; }, 10);
+        for (int i = 1; i <= 10; ++i) {
+            EXPECT_EQ(' ', test1[i]);
+        }
+        test1.apply_n([](char ch) -> char { return ch + 1; }, 5, 6);
+        for (int i = 1; i <= 5; ++i) {
+            EXPECT_EQ(' ', test1[i]);
+        }
+        for (int i = 6; i <= 10; ++i) {
+            EXPECT_EQ(' ' + 1, test1[i]);
+        }
+
+        EXPECT_THROW({
+                // Dst index underflow
+                test1.apply_n([](char) -> char { return ' '; }, 1, 0);
+            }, std::out_of_range);
+        EXPECT_THROW({
+                // Dst index overflow
+                test1.apply_n([](char) -> char { return ' '; }, 6, 6);
+            }, std::out_of_range);
+    }
+
+    // Test the insert method.
+    TEST(parray_test, method_insert) {
+        // We test these to avoid unexpected failures elsewhere.
+        EXPECT_EQ( 1, ten_chars::index_type::min());
+        EXPECT_EQ(10, ten_chars::index_type::max());
+
+        ten_chars test1("1234567890");
+        test1.insert(1, 1);
+        EXPECT_EQ('1', test1[1]);               // Old value remains
+        for (int i = 2; i <= 10; ++i) {         // Other values moved right
+            EXPECT_EQ('0' + i - 1, test1[i]);
+        }
+        test1.copy_n("0123456789", 10);
+        test1.insert(2, 6);
+        for (int i = 1; i <= 7; ++i) {
+            EXPECT_EQ('0' + i - 1, test1[i]);
+        }
+        EXPECT_EQ('5', test1[8]);
+        EXPECT_EQ('6', test1[9]);
+        EXPECT_EQ('7', test1[10]);
+
+        EXPECT_THROW({
+                // Dst index underflow
+                test1.insert(1, 0);
+            }, std::out_of_range);
+        EXPECT_THROW({
+                // Dst index overflow
+                test1.insert(6, 6);
+            }, std::out_of_range);
+    }
+
+    // Test the delete method.
+    TEST(parray_test, method_delete) {
+        // We test these to avoid unexpected failures elsewhere.
+        EXPECT_EQ( 1, ten_chars::index_type::min());
+        EXPECT_EQ(10, ten_chars::index_type::max());
+
+        ten_chars test1("0123456789");
+        test1.erase(1, 1);
+        EXPECT_EQ('1', test1[1]);
+        for (int i = 1; i <= 9; ++i) {
+            EXPECT_EQ('0' + i, test1[i]);
+        }
+        EXPECT_EQ('9', test1[10]);
+        test1.copy_n("0123456789", 10);
+        test1.erase(2, 6);
+        for (int i = 1; i <= 5; ++i) {
+            EXPECT_EQ('0' + i - 1, test1[i]);
+        }
+        for (int i = 6; i <= 8; ++i) {
+            EXPECT_EQ('1' + i, test1[i]);
+        }
+        EXPECT_EQ('8', test1[9]);
+        EXPECT_EQ('9', test1[10]);
+
+        EXPECT_THROW({
+                // Dst index underflow
+                test1.erase(1, 0);
+            }, std::out_of_range);
+        EXPECT_THROW({
+                // Dst index overflow
+                test1.erase(6, 6);
+            }, std::out_of_range);
+    }
+
 } // namespace

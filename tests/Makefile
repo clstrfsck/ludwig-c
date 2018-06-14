@@ -18,21 +18,29 @@ OBJS =	parray.o
 
 # Either g++ or clang++ should work.
 # Tested with clang++ 6.0.0 and g++ 7.3.0
-CXX = g++
+CXX = clang++
 
 # Flags used for all builds
 AFLAGS = -I. -I.. -Iinclude
 
+# Flags used for code coverage
+GFLAGS = -fprofile-instr-generate -fcoverage-mapping
+
 # These are debug flags. Works for both g++ and clang++.
-CXXFLAGS = -g -Wall -std=c++14 -DDEBUG -D_GLIBCXX_DEBUG $(AFLAGS)
+DFLAGS = -g -Wall -std=c++14 -DDEBUG -D_GLIBCXX_DEBUG
 # These are release flags.
 # Works for g++, clang++ doesn't understand -Wno-maybe-uninitialized
-#CXXFLAGS = -Wno-maybe-uninitialized -O3 -Wall -std=c++14 $(AFLAGS)
+RFLAGS = -Wno-maybe-uninitialized -O3 -Wall -std=c++14 $(AFLAGS)
+
+# Actual flags we use
+CXXFLAGS = $(AFLAGS) $(GFLAGS) $(DFLAGS)
 
 .PHONY: all clean
 
 all:	tests
 	./tests
+#	llvm-profdata merge -sparse default.profraw -o default.profdata
+#	llvm-cov show -instr-profile default.profdata ./tests ../parray.h
 
 tests:	$(OBJS) gtest-all.o gtest_main.o
 	$(CXX) -o tests $(CXXFLAGS) $(OBJS) gtest-all.o gtest_main.o -lpthread
