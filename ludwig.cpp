@@ -681,7 +681,6 @@ void load_command_table(bool old_version) {
 }
 
 bool start_up(int argc, char **argv) {
-
 #ifdef DEBUG_SCREEN
     const int OUTBUFLEN = 1;
 #else
@@ -699,8 +698,12 @@ bool start_up(int argc, char **argv) {
 
     // Get the command line.
     std::stringstream ss;
-    for (int i = 1; i < argc; ++i)
-        ss << argv[i];
+    if (argc > 1) {
+        ss << argv[1];
+        for (int i = 2; i < argc; ++i)
+            ss << " " << argv[i];
+    }
+
     std::string cmd_line = ss.str();
     if (cmd_line.size() > FILE_NAME_LEN) {
         screen_message(MSG_PARAMETER_TOO_LONG);
@@ -717,7 +720,7 @@ bool start_up(int argc, char **argv) {
 
     // Try to get started on the terminal.  If this fails assume carry on
     // in BATCH mode.
-
+    ludwig_mode  = ludwig_mode_type::ludwig_batch;
     if (vdu_init(OUTBUFLEN, terminal_info, tt_controlc, tt_winchanged)) {
         initial_scr_width  = terminal_info.width;
         initial_scr_height = terminal_info.height;
@@ -765,7 +768,7 @@ bool start_up(int argc, char **argv) {
         screen_fixup();
 
     // Load the key definitions.
-    
+
     if (ludwig_mode == ludwig_mode_type::ludwig_screen)
         user_key_initialize();
 

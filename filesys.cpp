@@ -482,7 +482,7 @@ bool filesys_read(file_ptr fyle, str_object &output_buffer, strlen_range &outlen
  */
     outlen = 0;
     do {
-        if (fyle->idx == fyle->len) {
+        if (fyle->idx >= fyle->len) {
             fyle->buf.resize(MAX_STRLEN);
             fyle->len = read(fyle->fd, fyle->buf.data(), MAX_STRLEN);
             fyle->idx = 0;
@@ -566,11 +566,6 @@ bool filesys_write(file_ptr fyle, str_ptr buffer, strlen_range bufsiz) {
 
 bool filesys_save(file_ptr i_fyle, file_ptr o_fyle, int copy_lines) {
 /*  Implements part of the File Save command. */
-//        BOOLEAN input_eof;
-//        int input_position;
-//        STR_OBJECT line;
-//        STRLEN_RANGE line_len;
-//        int i;
     file_object fyle;
 
     bool input_eof;
@@ -693,57 +688,57 @@ bool filesys_parse(const char *command_line, parse_type parse,
     int c;
     while ((c = lwgetopt(argc, argv.data(), "cri:Is:m:MtTb:B:oOu")) != -1) {
         switch (c) {
-        case 'c' :
+        case 'c':
             if (read_only_flag)
                 errors++;
             else
                 create_flag = 1;
             break;
-        case 'r' :
+        case 'r':
             if (create_flag)
                 errors++;
             else
                 read_only_flag = 1;
             break;
-        case 'i' :
+        case 'i':
             initialize = lwoptarg;
             break;
-        case 'I' :
+        case 'I':
             initialize = "";
             break;
-        case 's' :
+        case 's':
             space_flag = 1;
             sscanf(lwoptarg, "%d", &space);
             break;
-        case 'm' :
+        case 'm':
             memory = lwoptarg;
             break;
-        case 'M' :
+        case 'M':
             memory = "";
             break;
-        case 't' :
+        case 't':
             entab = 1;
             break;
-        case 'T' :
+        case 'T':
             entab = 0;
             break;
-        case 'b' :
+        case 'b':
             purge = 0;
             sscanf(lwoptarg, "%d", &versions);
             break;
-        case 'B' :
+        case 'B':
             purge = 1;
             sscanf(lwoptarg, "%d", &versions);
             break;
-        case 'o' :
+        case 'o':
             version_flag = 1;
             file_data.old_cmds = true;
             break;
-        case 'O' :
+        case 'O':
             version_flag = 1;
             file_data.old_cmds = false;
             break;
-        case 'u' :
+        case 'u':
             usage_flag = 1;
             break;
         }
