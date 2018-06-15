@@ -8,24 +8,27 @@ namespace {
     // We'll use these everywhere
     typedef prange<1, 10>                one_to_ten;
     typedef parray<char, one_to_ten>     ten_chars;
-    typedef prange<1, 100>               one_to_hundred;
-    typedef parray<char, one_to_hundred> hundred_chars;
 
     // Constructor with single initialisation value.
     TEST(parray_test, construct_single_value) {
         // We test these to avoid unexpected failures elsewhere.
-        EXPECT_EQ(  1, hundred_chars::index_type::min());
-        EXPECT_EQ(100, hundred_chars::index_type::max());
+        EXPECT_EQ( 1,  ten_chars::index_type::min());
+        EXPECT_EQ(10,  ten_chars::index_type::max());
+        EXPECT_EQ(10u, ten_chars::index_type::size());
 
-        hundred_chars test0;
+        ten_chars test0;
         size_t count = 0;
+        // Make sure that begin() and end() are working ok too.
+        // Default here should be char() which is 0.
         for (auto ch : test0) {
             EXPECT_EQ(0, ch);
             count += 1;
         }
-        EXPECT_EQ(hundred_chars::index_type::size(), count);
-        hundred_chars test1(' ');
-        for (int i = 1; i <= 100; ++i) {
+        // Same thing, only with spaces and an index.
+        // This should test operator[] const.
+        EXPECT_EQ(ten_chars::index_type::size(), count);
+        const ten_chars test1(' ');
+        for (int i = 1; i <= 10; ++i) {
             EXPECT_EQ(' ', test1[i]);
         }
     }
@@ -36,10 +39,12 @@ namespace {
         EXPECT_EQ( 1, ten_chars::index_type::min());
         EXPECT_EQ(10, ten_chars::index_type::max());
 
+        // Excess characters ignored
         ten_chars test1("0123456789ABCD");
         for (int i = 1; i <= 10; ++i) {
             EXPECT_EQ('0' + i - 1, test1[i]);
         }
+        // This one includes the trailing '\0'.
         ten_chars test2("ABCDEFGHI");
         for (int i = 1; i <= 9; ++i) {
             EXPECT_EQ('A' + i - 1, test2[i]);
@@ -53,11 +58,18 @@ namespace {
         EXPECT_EQ( 1, ten_chars::index_type::min());
         EXPECT_EQ(10, ten_chars::index_type::max());
 
+        // Result string should be ABABABABAB
         ten_chars test1({'A', 'B'});
         for (int i = 1; i <= 10; i += 2) {
             EXPECT_EQ('A', test1[i]);
             EXPECT_EQ('B', test1[i + 1]);
         }
+
+        EXPECT_THROW({
+                // Empty init list
+                ten_chars test2({});
+                EXPECT_EQ(999, test2[1]);
+            }, std::out_of_range);
     }
 
     // Test copy construction.
@@ -166,11 +178,13 @@ namespace {
         EXPECT_EQ( 1, ten_chars::index_type::min());
         EXPECT_EQ(10, ten_chars::index_type::max());
 
+        // Create full of 'X' and then replace with space.
         ten_chars test1('X');
         test1.fill(' ');
         for (int i = 1; i <= 10; ++i) {
             EXPECT_EQ(' ', test1[i]);
         }
+        // Fill right half with 'X' again.
         test1.fill('X', 6, 10);
         for (int i = 1; i <= 5; ++i) {
             EXPECT_EQ(' ', test1[i]);
@@ -178,7 +192,7 @@ namespace {
         for (int i = 6; i <= 10; ++i) {
             EXPECT_EQ('X', test1[i]);
         }
-        
+
         EXPECT_THROW({
                 // Dst index underflow
                 test1.fill('.', 0);
@@ -195,6 +209,8 @@ namespace {
         EXPECT_EQ( 1, ten_chars::index_type::min());
         EXPECT_EQ(10, ten_chars::index_type::max());
 
+        // This is the same test as fill(...), but
+        // modified for fill_n(...).
         ten_chars test1('X');
         test1.fill_n(' ', ten_chars::index_type::size());
         for (int i = 1; i <= 10; ++i) {
@@ -278,8 +294,8 @@ namespace {
             }, std::out_of_range);
     }
 
-    // Test the delete method.
-    TEST(parray_test, method_delete) {
+    // Test the erase method.
+    TEST(parray_test, method_erase) {
         // We test these to avoid unexpected failures elsewhere.
         EXPECT_EQ( 1, ten_chars::index_type::min());
         EXPECT_EQ(10, ten_chars::index_type::max());
@@ -290,15 +306,21 @@ namespace {
         for (int i = 1; i <= 9; ++i) {
             EXPECT_EQ('0' + i, test1[i]);
         }
+        // Previous value remains in place at end.
         EXPECT_EQ('9', test1[10]);
+
+
         test1.copy_n("0123456789", 10);
         test1.erase(2, 6);
+        // 01234
         for (int i = 1; i <= 5; ++i) {
             EXPECT_EQ('0' + i - 1, test1[i]);
         }
+        // 789
         for (int i = 6; i <= 8; ++i) {
             EXPECT_EQ('1' + i, test1[i]);
         }
+        // Previous values remain in place at end.
         EXPECT_EQ('8', test1[9]);
         EXPECT_EQ('9', test1[10]);
 

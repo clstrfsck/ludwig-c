@@ -18,13 +18,13 @@ OBJS =	parray.o
 
 # Either g++ or clang++ should work.
 # Tested with clang++ 6.0.0 and g++ 7.3.0
-CXX = clang++
+CXX = g++
 
 # Flags used for all builds
 AFLAGS = -I. -I.. -Iinclude
 
 # Flags used for code coverage
-GFLAGS = -fprofile-instr-generate -fcoverage-mapping
+GFLAGS = -fprofile-arcs -ftest-coverage
 
 # These are debug flags. Works for both g++ and clang++.
 DFLAGS = -g -Wall -std=c++14 -DDEBUG -D_GLIBCXX_DEBUG
@@ -39,8 +39,6 @@ CXXFLAGS = $(AFLAGS) $(GFLAGS) $(DFLAGS)
 
 all:	tests
 	./tests
-#	llvm-profdata merge -sparse default.profraw -o default.profdata
-#	llvm-cov show -instr-profile default.profdata ./tests ../parray.h
 
 tests:	$(OBJS) gtest-all.o gtest_main.o
 	$(CXX) -o tests $(CXXFLAGS) $(OBJS) gtest-all.o gtest_main.o -lpthread
