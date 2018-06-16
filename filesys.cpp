@@ -372,7 +372,7 @@ bool filesys_close(file_ptr fyle, int action, bool msgs) {
     }
     std::string dir(fyle->fnm.data());
     /* find out what directory we are putting this file in */
-    std::string::size_type ls = dir.rfind(dir, '/');
+    std::string::size_type ls = dir.rfind('/');
     // Backup name
     std::string bname = dir.substr(ls + 1) + "~";
     std::string tname = bname + "%ld";
@@ -466,7 +466,7 @@ bool filesys_close(file_ptr fyle, int action, bool msgs) {
          * Time to set the memory, if it's required and we aren't writing in
          * one of the global tmp directories
          */
-        if (dir != "/tmp" && dir != "/usr/tmp") {
+        if (dir != "/tmp" && dir != "/usr/tmp" && dir != "/var/tmp") {
             filesys_write_file_name(fyle->memory.c_str(), fyle->fnm.data(), fyle->fns);
         }
         return true;       /* succeed, return true  */
