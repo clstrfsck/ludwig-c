@@ -16,11 +16,36 @@
 {                                                                      }
 {**********************************************************************/
 
-/*
+/**
 ! Name:         NEWWORD
 !
 ! Description:  Word Processing Commands for the new Ludwig command set.
-*/
+!
+! $Header: /home/martin/src/ludwig/current/fpc/../RCS/newword.pas,v 4.6 1990/01/18 17:45:17 ludwig Exp $
+! $Author: ludwig $
+! $Locker:  $
+! $Log: newword.pas,v $
+! Revision 4.6  1990/01/18 17:45:17  ludwig
+! Entered into RCS at revision level 4.6
+!
+!
+!
+! Revision History:
+! 4-001 Mark R. Prior                                        ??
+!       New code.
+! 4-002 Tracy Schunke                                          -Apr-1989
+!       Fix bug in DW command, a mark pointer was being copied instead
+!       of the mark structure being duplicated.
+! 4-003 Jeff Blows                                              Jul-1989
+!       IBM PC developments incorporated into main source code.
+! 4-004 Kelvin B. Nicolle                                    12-Jul-1989
+!       VMS include files renamed from ".ext" to ".h", and from ".inc"
+!       to ".i".  Remove the "/nolist" qualifiers.
+! 4-005 Kelvin B. Nicolle                                    13-Sep-1989
+!       Add includes etc. for Tower version.
+! 4-006 Kelvin B. Nicolle                                    25-Oct-1989
+!       Correct the includes for the Tower version.
+!**/
 
 #include "newword.h"
 

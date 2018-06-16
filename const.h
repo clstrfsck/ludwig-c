@@ -2,6 +2,56 @@
  * Declarations of constants used throughout the Ludwig code base.
  */
 
+/**
+! $Log: const.i,v $
+! Revision 4.15  2002/07/20 16:46:00  martin
+! Remove special turbop constants.  They are now in the units
+! that they are used by.  Changed some constants to be conditional
+! on msdos rather than turbop, and added some fpc conditionals
+! for use by the fpc port.
+!
+! Revision 4.15  2002/07/20 15:50:36  martin
+! Remove random constants in #if turbop section.
+!
+! Revision 4.14  1990/10/19 14:32:16  ludwig
+! Make dbg messages conditional on debug flag.  KBN
+!
+! Revision 4.13  90/02/28  10:53:56  ludwig
+! Add two messages for File Save command.
+!
+! Revision 4.12  90/02/17  16:09:16  ludwig
+! increaed the maximum number of special keys and key names up to 1000 for
+! the XWINDOWS version
+!
+! Revision 4.11  90/01/18  18:20:29  ludwig
+! Entered into RCS at revision level 4.11
+!
+! Revision History:
+! 4-001 Ludwig V4.0 release.                                  7-Apr-1987
+! 4-002 Kelvin B. Nicolle                                     5-May-1987
+!       Add definition of ascii_vt.
+! 4-003 Kelvin B. Nicolle                                     5-May-1987
+!       Remove lw_vers--it is now ludwig_version in var.inc.
+! 4-004 Mark R. Prior                                        12-Dec-1987
+!       Add max_word_sets.
+! 4-005 Mark R. Prior                                        19-Feb-1988
+!       Add max_word_sets_m1.
+! 4-006 Kelvin B. Nicolle                                     9-Dec-1988
+!       Move the ascii constants to filesys.pas.
+! 4-007 Kelvin B. Nicolle                                     9-Dec-1988
+!       Work around a bug in Ultrix pc which does not allow double
+!       quotes in string when compiled with the debug option.
+! 4-008 Kelvin B. Nicolle                                    16-Dec-1988
+!       Expand all message string constants to msg_str_len characters.
+! 4-009 Jeff Blows                                              Jul-1989
+!       IBM PC developments incorporated into main source code.
+! 4-010 Kelvin B. Nicolle                                    12-Jul-1989
+!       VMS include files renamed from ".ext" to ".h", and from ".inc"
+!       to ".i".  Remove the "/nolist" qualifiers.
+! 4-011 Kelvin B. Nicolle                                    12-Jul-1989
+!       Set max_word_sets to 2 to revert to old definition of a word.
+!**/
+
 #ifndef CONST_H
 #define CONST_H
 

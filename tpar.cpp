@@ -20,7 +20,39 @@
 ! Name:         TPAR
 !
 ! Description:  Tpar maintenance.
-*/
+!
+! $Log: tpar.pas,v $
+! Revision 4.9  2002/07/21 02:24:41  martin
+! Added some comments and operating system environment variable
+! retrieval under fpc port. MPS
+!
+! Revision 4.8  2002/07/20 16:16:43  martin
+! Fixed up index variable naming bug in TERMINAL-(HEIGHT,WIDTH,SPEED)
+! environment variables.  Added fpc/Linux opsys name, and fallthrough
+! case for Unknown operating systems.  Removed unused variable.
+!
+! Revision 4.7  1990/09/21 12:42:50  ludwig
+! Change name of IBM-PC module system to msdos (system is reserved name).
+!
+! Revision 4.6  90/01/18  17:22:32  ludwig
+! Entered into RCS at reviosion level 4.6.
+!
+! Revision History:
+! 4-001 Ludwig V4.0 release.                                  7-Apr-1987
+! 4-002 Kelvin B. Nicolle                                     5-May-1987
+!       tpar_duplicate was passing back the pointer to the last nxt of
+!       the tpar chain.  Added a local variable which is now used to
+!       follow the nxt pointer.
+! 4-003 Jeff Blows                                              Jul-1989
+!       IBM PC developments incorporated into main source code.
+! 4-004 Kelvin B. Nicolle                                    12-Jul-1989
+!       VMS include files renamed from ".ext" to ".h", and from ".inc"
+!       to ".i".  Remove the "/nolist" qualifiers.
+! 4-005 Kelvin B. Nicolle                                    13-Sep-1989
+!       Add includes etc. for Tower version.
+! 4-006 Kelvin B. Nicolle                                    25-Oct-1989
+!       Correct the includes for the Tower version.
+!**/
 
 #include "tpar.h"
 

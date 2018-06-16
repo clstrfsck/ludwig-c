@@ -25,7 +25,56 @@
 !               Also SCREEN supports the HARDCOPY/BATCH mode of editing,
 !               by providing methods of outputting lines and error
 !               messages under these circumstances as well.
-*/
+!
+! $Log: screen.pas,v $
+! Revision 4.13  2002/07/21 02:56:27  martin
+! Make screen_unix_message conditional on fpc as well as unix.
+! Changed turbop conditional for screen_msdos_message to msdos.
+! Removed CRT unit from uses statement.  MPS
+!
+! Revision 4.12  1990/10/12 11:00:10  ludwig
+! Turbo Pascal write will not accept a packed array of char > 255 in length.
+! Modified screen_str_message.   KBN
+!
+! Revision 4.11  90/09/21  12:41:50  ludwig
+! Change name of IBM-PC module system to msdos (system is reserved name).
+!
+! Revision 4.10  90/02/28  16:44:38  ludwig
+! Stop copying NUL characters at end of Unix messages.
+!
+! Revision 4.9  90/02/08  17:04:27  ludwig
+! fixed one-off error in assignment to margin_left.
+!
+! Revision 4.8  90/02/08  10:03:24  ludwig
+! Steven Nairn.
+! new procedure screen_resize. called from exec when the command is cmd_resize
+! also called if tt_winchanged is true, wich can be so if the pseudo key-stroke
+! of the windiow resize event is nat handled properly.
+!
+! Revision 4.7  90/01/22  18:57:14  ludwig
+! modified screen_fixup to handle redrawing the screen if the window has
+! changed size.
+!
+! Revision 4.6  90/01/18  17:36:07  ludwig
+! Entered into RCS at revision level 4.6
+!
+! Revision History:
+! 4-001 Ludwig V4.0 release.                                  7-Apr-1987
+! 4-002 Kelvin B. Nicolle                                    11-Nov-1988
+!       In screen_message, test the hangup flag and don't write any
+!       messages when it is set.  Both Umax and Mach have a bug where
+!       output to a process that has lost its terminal causes a process
+!       hang in a CPU loop!
+! 4-003 Jeff Blows                                              Jul-1989
+!       IBM PC developments incorporated into main source code.
+! 4-004 Kelvin B. Nicolle                                    12-Jul-1989
+!       VMS include files renamed from ".ext" to ".h", and from ".inc"
+!       to ".i".  Remove the "/nolist" qualifiers.
+! 4-005 Kelvin B. Nicolle                                    13-Sep-1989
+!       Add includes etc. for Tower version.
+! 4-006 Kelvin B. Nicolle                                    25-Oct-1989
+!       Correct the includes for the Tower version.
+!**/
 
 #include "screen.h"
 

@@ -21,7 +21,62 @@
 !
 ! Description:  LUDWIG startup and shutdown.   Organize the timing of
 !               the session, and the other general details.
-*/
+!
+! $Log: ludwig.pas,v $
+! Revision 4.15  2002/07/21 02:14:58  martin
+! Assigned cmd_user_parent to ^Z to allow suspend under fpc port.
+! Tidied up some local variables.  MPS
+!
+! Revision 4.14  1991/02/22 13:29:01  ludwig
+! Add the X Mouse (Handle,Cut,Paste) commands to the lookupexp tables. SN.
+!
+! Revision 4.13  90/11/14  09:59:45  ludwig
+! For IBM-PC version, make Backspace key execute rubout command.  KBN
+!
+! Revision 4.12  90/10/24  17:00:12  ludwig
+! Include call to value_initializations in Turbo Pascal version.   KBN
+!
+! Revision 4.11  90/09/21  12:39:54  ludwig
+! Change name of IBM-PC module system to msdos (system is reserved name).
+!
+! Revision 4.10  90/02/08  10:09:45  ludwig
+! Steven Nairn.
+! Added extra parameter tt_winchanged to vdu_init call in start_up for those
+! versions in which the window size can change
+!
+! Revision 4.9  90/01/18  17:53:40  ludwig
+! Entered into RCS at revision level 4.9
+!
+! Revision History:
+! 4-001 Ludwig V4.0 release.                                  7-Apr-1987
+! 4-002 Mark R. Prior                                        19-Dec-1987
+!       Add the AP and DP commands to the command lookup table.
+! 4-003 Mark R. Prior                                        20-Feb-1988
+!       Strings passed to ch routines are now passed using conformant
+!         arrays, or as type str_object.
+!               string[offset],length -> string,offset,length
+!       In all calls of ch_length, ch_upcase_str, ch_locase_str, and
+!         ch_reverse_str, the offset was 1 and is now omitted.
+!       Where conformant arrays are not implemented and the array is not
+!         of type str_object, separate routines are provided for each
+!         type.
+! 4-004 Jeff Blows                                              Jul-1989
+!       IBM PC developments incorporated into main source code.
+! 4-005 Kelvin B. Nicolle                                    12-Jul-1989
+!       VMS include files renamed from ".ext" to ".h", and from ".inc"
+!       to ".i".  Remove the "/nolist" qualifiers.
+! 4-006 Kelvin B. Nicolle                                    13-Sep-1989
+!       Add includes etc. for Tower version.
+! 4-007 Kelvin B. Nicolle                                    25-Oct-1989
+!       Correct the includes for the Tower version.
+!       Change files.h to fyle.h.
+! 4-008 Kelvin B. Nicolle                                    22-Nov-1989
+!       Modify the code in load_command_table that fills in the nil
+!       pointers in the lookup table to use a with statment. This seems
+!       to cure a very intermittent fault on the Pyramid version.
+! 4-009 Kelvin B. Nicolle                                    17-Jan-1990
+!       Add the File Save FS command to the lookupexp tables.
+!**/
 
 #include "var.h"
 

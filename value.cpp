@@ -20,7 +20,66 @@
 ! Name:         VALUE
 !
 ! Description:  Initialization of global variables.
-*/
+!
+! $Log: value.pas,v $
+! Revision 4.18  2002/07/21 02:46:58  martin
+! Added get_program_directory for fpc port.  Corrected some space
+! issues with shared turbop/fpc port.  MPS
+!
+! Revision 4.17  1991/02/21 17:12:01  ludwig
+! Added command table initialisation for the mouse handling functions
+! for the X window system version.
+! SN.
+!
+! Revision 4.16  90/10/31  14:58:58  ludwig
+! Change initialization of ludwig_aborted to false.   KBN
+! 
+! Revision 4.15  90/10/24  17:31:31  ludwig
+! Initialize some global variables that were not initialized.
+! Clean up the method of setting the Ludwig version string.   KBN
+!
+! Revision 4.14  90/02/08  10:27:16  ludwig
+! changed #if for xwindows now I know the correct pcc syntax.
+!
+! Revision 4.13  90/02/05  13:57:24  ludwig
+! Steven Nairn.
+! Initialized cmd_resize_window in cmd_attrib.
+! Removed reference to tt_winchanged
+!
+! Revision 4.12  90/01/19  10:58:02  ludwig
+! Steven Nairn.
+! Initialised the tt_winchanged flag to false.
+!
+! Revision 4.11  90/01/18  17:11:09  ludwig
+! Entered into RCS at revision level 4.11
+!
+! Revision History:
+! 4-001 Ludwig V4.0 release.                                  7-Apr-1987
+! 4-002 Kelvin B. Nicolle                                     5-May-1987
+!       Add the definition of the new variable ludwig_version.
+! 4-003 Kelvin B. Nicolle                                    22-May-1987
+!       Move the definition of ludwig_version into "version.i".
+! 4-004 Kelvin B. Nicolle                                    29-May-1987
+!       Change the prompt on the I and O commands from no_prompt to
+!       text_prompt.
+!       Unix: Allow multi-line tpar on the I command.
+! 4-005 Francis A. Vaughan                                    6-Mar-1988
+!       Split routine up to prevent exceeding compliler code-tree
+!       limits.
+! 4-006 Francis Vaughan                                      24-Aug-1988
+!       Replace underscores in identifiers.
+! 4-007 Jeff Blows                                              Jul-1989
+!       IBM PC developments incorporated into main source code.
+! 4-008 Kelvin B. Nicolle                                    12-Jul-1989
+!       Change the definition of word_elements to restore the old
+!       definition of a word.
+! 4-009 Kelvin B. Nicolle                                    13-Sep-1989
+!       Add includes etc. for Tower version.
+! 4-010 Kelvin B. Nicolle                                    25-Oct-1989
+!       Correct the includes for the Tower version.
+! 4-011 Kelvin B. Nicolle                                    17-Jan-1990
+!       Initialize the command table for the new File Save command.
+!**/
 
 #include "value.h"
 

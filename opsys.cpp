@@ -21,7 +21,37 @@
 !
 ! Description:  This routine executes a command in a subprocess and
 !               transfers the result into the current frame.
-*/
+!
+! $Log: opsys.pas,v $
+! Revision 4.8  2002/07/21 02:18:47  martin
+! The fpc port uses the same command line setup code as unix. MPS
+!
+! Revision 4.7  1990/10/24 14:56:42  ludwig
+! Fix call to filesys_close.   KBN
+!
+! Revision 4.6  90/01/18  17:43:02  ludwig
+! Entered into RCS at revision level 4.6
+!
+! Revision History:
+! 4-001 Mark R. Prior                                           Apr-1987
+!       Original code
+! 4-002 Mark R. Prior                                        20-Feb-1988
+!       Strings passed to ch routines are now passed using conformant
+!         arrays, or as type str_object.
+!               string[offset],length -> string,offset,length
+!       Where conformant arrays are not implemented and the array is not
+!         of type str_object, separate routines are provided for each
+!         type.
+! 4-003 Jeff Blows                                              Jul-1989
+!       IBM PC developments incorporated into main source code.
+! 4-004 Kelvin B. Nicolle                                    12-Jul-1989
+!       VMS include files renamed from ".ext" to ".h", and from ".inc"
+!       to ".i".  Remove the "/nolist" qualifiers.
+! 4-005 Kelvin B. Nicolle                                    13-Sep-1989
+!       Add includes etc. for Tower version.
+! 4-006 Kelvin B. Nicolle                                    25-Oct-1989
+!       Correct the includes for the Tower version.
+!**/
 
 #include "opsys.h"
 

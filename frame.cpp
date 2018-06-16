@@ -20,7 +20,36 @@
 ! Name:         FRAME
 !
 ! Description:  Creation/destruction, manipulation of Frames.
-*/
+!
+! $Log: frame.pas,v $
+! Revision 4.8  1991/02/26 18:03:20  ludwig
+! Added code to initialise the selection marker when creating frames for
+! the X Window System version.
+! SN.
+!
+! Revision 4.7  90/01/18  18:53:47  ludwig
+! Entered into RCS at revision level 4.7
+!
+! Revision History:
+! 4-001 Ludwig V4.0 release.                                  7-Apr-1987
+! 4-002 Kelvin B. Nicolle                                     5-May-1987
+!       In the parameters display, increase the width of the Ludwig
+!       version from 6 to 8 characters.
+!       Use the variable ludwig_version instead of the constant lw_vers.
+!       Tidy up the underlining in the ep/o=s/ display.
+! 4-003 Jeff Blows                                            3-Jul-1989
+!       Initialize all pointers in tpar_objects in a frame_object.
+! 4-004 Jeff Blows                                              Jul-1989
+!       IBM PC developments incorporated into main source code.
+! 4-005 Kelvin B. Nicolle                                    12-Jul-1989
+!       VMS include files renamed from ".ext" to ".h", and from ".inc"
+!       to ".i".  Remove the "/nolist" qualifiers.
+! 4-006 Kelvin B. Nicolle                                    13-Sep-1989
+!       Add includes etc. for Tower version.
+! 4-007 Kelvin B. Nicolle                                    25-Oct-1989
+!       Correct the includes for the Tower version.
+!       Remove the superfluous include of system.h.
+!**/
 
 #include "frame.h"
 

@@ -20,7 +20,26 @@
 ! Name:         VALIDATE
 !
 ! Description:  Validation of entire Ludwig data structure.
-*/
+!
+! $Log: validate.pas,v $
+! Revision 4.6  1990/10/19 14:35:30  ludwig
+! Make body of validate_command conditional on debug flag.  KBN
+!
+! Revision 4.5  90/01/18  17:16:22  ludwig
+! Entered into RCS at revision level 4.5
+!
+! Revision History:
+! 4-001 Ludwig V4.0 release.                                  7-Apr-1987
+! 4-002 Jeff Blows                                              Jul-1989
+!       IBM PC developments incorporated into main source code.
+! 4-003 Kelvin B. Nicolle                                    12-Jul-1989
+!       VMS include files renamed from ".ext" to ".h", and from ".inc"
+!       to ".i".  Remove the "/nolist" qualifiers.
+! 4-004 Kelvin B. Nicolle                                    13-Sep-1989
+!       Add includes etc. for Tower version.
+! 4-005 Kelvin B. Nicolle                                    25-Oct-1989
+!       Correct the includes for the Tower version.
+!**/
 
 #include "validate.h"
 

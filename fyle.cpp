@@ -21,7 +21,45 @@
 !
 ! Description:  Open/Create, Read/Write, Close/Delete Input/Output
 !               files.
-*/
+!
+! $Log: fyle.pas,v $
+! Revision 4.11  2002/07/20 16:24:16  martin
+! Changed some conditionals to msdos from turbop to allow use
+! for fpc compilation.
+!
+! Revision 4.10  1990/11/21 16:41:58  ludwig
+! In the IBM-PC version, disable the File Save command until the code in
+! the filesys module is fixed.    KBN
+!
+! Revision 4.9  90/10/24  15:08:17  ludwig
+! Fix call to filesys_close.   KBN
+!
+! Revision 4.8  90/05/30  14:16:52  ludwig
+! Fix a bug in the File Save command.
+! Saving an empty frame produced a segmentation fault.
+!
+! Revision 4.7  90/02/28  12:07:45  ludwig
+! Implement the File Save command.
+!
+! Revision 4.6  90/01/18  18:08:13  ludwig
+! Entered into RCS at revision level 4.6
+!
+! Revision History:
+! 4-001 Ludwig V4.0 release.                                  7-Apr-1987
+! 4-002 Jeff Blows                                              Jul-1989
+!       IBM PC developments incorporated into main source code.
+! 4-003 Kelvin B. Nicolle                                    12-Jul-1989
+!       VMS include files renamed from ".ext" to ".h", and from ".inc"
+!       to ".i".  Remove the "/nolist" qualifiers.
+! 4-004 Kelvin B. Nicolle                                    13-Sep-1989
+!       Add includes etc. for Tower version.
+! 4-005 Kelvin B. Nicolle                                    25-Oct-1989
+!       Correct the includes for the Tower version.
+!       Change the module name from files to fyle.
+!       Remove the superfluous include of system.h.
+! 4-006 Kelvin B. Nicolle                                    17-Jan-1990
+!       Add code to implement the File Save command.
+!**/
 
 #include "fyle.h"
 
