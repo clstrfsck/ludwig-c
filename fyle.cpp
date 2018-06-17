@@ -757,7 +757,7 @@ bool file_command(commands command, leadparam rept, int count, tpar_ptr tparam, 
 
     case commands::cmd_file_global_kill: {
         file_slot = fgo_file;
-        if (free_file(file_slot, status))
+        if (!free_file(file_slot, status))
             goto l99;
         if (!file_close_delete(files[file_slot], true, true))
             goto l99;
