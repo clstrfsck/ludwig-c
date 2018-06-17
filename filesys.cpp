@@ -120,6 +120,7 @@ static bool filesys_expand_file_name(file_name_str &fnm, int *fns) {
         std::string new_fnm = cwd;
         if (!new_fnm.empty() && new_fnm[new_fnm.size() - 1] != '/')
             new_fnm += "/";
+        new_fnm += (*q == '/') ? ++q : s;
         fnm.copy_n(new_fnm.c_str(), new_fnm.size() + 1);
         *fns = new_fnm.size();
         return true;
@@ -784,7 +785,7 @@ bool filesys_parse(const char *command_line, parse_type parse,
     switch (parse) {
     case parse_type::parse_command:
     case parse_type::parse_edit:
-        if (file.size() > 0) {
+        if (!file.empty()) {
             input->fns = file[0].size();
             input->fnm.copy_n(file[0].c_str(), file[0].size() + 1);
         } else if (!memory.empty()) {
