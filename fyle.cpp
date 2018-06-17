@@ -573,11 +573,11 @@ bool free_file(slot_range slot, msg_str &status) {
     return true;
 }
 
-bool get_free_slot(slot_range &new_slot, msg_str &status) {
+bool get_free_slot(slot_range &new_slot, slot_range file_slot, msg_str &status) {
     slot_range slot = 1;
-    while ((slot < MAX_FILES) && ((files[slot] != nullptr) || (slot == new_slot)))
+    while ((slot < MAX_FILES) && ((files[slot] != nullptr) || (slot == file_slot)))
         slot += 1;
-    if (slot > MAX_FILES || files[slot] != nullptr) {
+    if (files[slot] != nullptr) {
         status.copy_n(MSG_NO_MORE_FILES_ALLOWED, std::strlen(MSG_NO_MORE_FILES_ALLOWED));
         return false;
     }
@@ -616,12 +616,12 @@ bool file_command(commands command, leadparam rept, int count, tpar_ptr tparam, 
     case commands::cmd_file_input: {
         if (!check_slot_allocation(current_frame->input_file, false, status))
             goto l99;
-        if (!get_free_slot(file_slot, status))
+        if (!get_free_slot(file_slot, file_slot, status))
             goto l99;
         if (!get_file_name(tparam, fnm, command))
             goto l99;
         file_ptr dummy_fptr = nullptr;
-        if (file_create_open(fnm, parse_type::parse_input, files[file_slot], dummy_fptr))
+        if (!file_create_open(fnm, parse_type::parse_input, files[file_slot], dummy_fptr))
             goto l99;
         current_frame->input_file = file_slot;
         files_frames[file_slot] = current_frame;
@@ -641,7 +641,7 @@ bool file_command(commands command, leadparam rept, int count, tpar_ptr tparam, 
     case commands::cmd_file_global_input: {
         if (!check_slot_allocation(fgi_file, false, status))
             goto l99;
-        if (!get_free_slot(file_slot, status))
+        if (!get_free_slot(file_slot, file_slot, status))
             goto l99;
         if (files[file_slot] == nullptr) {
             if (!get_file_name(tparam, fnm, command))
@@ -659,14 +659,13 @@ bool file_command(commands command, leadparam rept, int count, tpar_ptr tparam, 
             goto l99;
         if (!check_slot_allocation(current_frame->output_file, false, status))
             goto l99;
-        slot_range file_slot;
-        if (!get_free_slot(file_slot, status))
+        if (!get_free_slot(file_slot, file_slot, status))
             goto l99;
         slot_range file_slot_2;
-        if (!get_free_slot(file_slot_2, status))
+        if (!get_free_slot(file_slot_2, file_slot, status))
             goto l99;
 
-        if (get_file_name(tparam, fnm, command))
+        if (!get_file_name(tparam, fnm, command))
             goto l99;
         if (!file_create_open(fnm, parse_type::parse_edit, files[file_slot], files[file_slot_2]))
             goto l99;
@@ -689,7 +688,7 @@ bool file_command(commands command, leadparam rept, int count, tpar_ptr tparam, 
     case commands::cmd_file_execute: {
         if (!check_slot_allocation(current_frame->input_file, false, status))
             goto l99;
-        if (!get_free_slot(file_slot, status))
+        if (!get_free_slot(file_slot, file_slot, status))
             goto l99;
         if (!get_file_name(tparam, fnm, command))
             goto l99;
@@ -768,7 +767,7 @@ bool file_command(commands command, leadparam rept, int count, tpar_ptr tparam, 
     case commands::cmd_file_output: {
         if (!check_slot_allocation(current_frame->output_file, false, status))
             goto l99;
-        if (!get_free_slot(file_slot, status))
+        if (!get_free_slot(file_slot, file_slot, status))
             goto l99;
         if (!get_file_name(tparam, fnm, command))
             goto l99;
@@ -788,7 +787,7 @@ bool file_command(commands command, leadparam rept, int count, tpar_ptr tparam, 
     case commands::cmd_file_global_output: {
         if (!check_slot_allocation(fgo_file, false, status))
             goto l99;
-        if (!get_free_slot(file_slot, status))
+        if (!get_free_slot(file_slot, file_slot, status))
             goto l99;
         if (files[file_slot] == nullptr) {
             if (!get_file_name(tparam, fnm, command))
