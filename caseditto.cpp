@@ -180,10 +180,10 @@ bool caseditto_command(commands command, leadparam rept, int count, bool from_sp
             case commands::cmd_case_edit: {
                 char ch;
                 if ((1 < first_col) && (first_col <= other_line->used))
-                    ch = other_line->str->operator[](first_col - 1);
+                    ch = (*other_line->str)[first_col - 1];
                 else
                     ch = ' ';
-                for (int i = 0; i < count; ++i) {
+                for (int i = 1; i <= count; ++i) {
                     if (LETTERS.find(ch) != LETTERS.end())
                         ch = std::tolower(new_str[i]);
                     else
