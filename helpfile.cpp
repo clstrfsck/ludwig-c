@@ -20,6 +20,15 @@
 ! Name:         HELPFILE
 !
 ! Description: Load and support indexed help file under unix.
+!
+! $Log: helpfile.c.unix,v $
+! Revision 4.2  1990/01/18 18:06:11  ludwig
+! Entered into RCS at revision level 4.2
+!
+! Revision History:
+! 4-001 Ludwig V4.0 release.                                  7-Apr-1987
+! 4-002 Kelvin B. Nicolle                                    13-Sep-1989
+!       Modify Pascal headers for Tower version.
 !--*/
 
 #include "type.h"

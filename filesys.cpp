@@ -22,6 +22,90 @@
 !
 ! Description: The File interface to Unix
 !
+! $Log: filesys.c.unix,v $
+! Revision 4.21  90/10/31  13:02:35  ludwig
+! Change type of the second parameter of filesys_close, to conform
+! with the changes made in the IBM PC version.   KBN
+!
+! Revision 4.20  90/08/31  11:46:14  ludwig
+! Modified ISO1 symbol usage.  KBN
+!
+! Revision 4.19  90/02/28  11:39:42  ludwig
+! Implement the File Save command:
+! . Add a new routine  filesys_save
+! . Modify filesys_create_open to open output files for read and write access
+! . Modify filesys_close to allow close processing on a file without
+!   actually closing it
+! Fix bug in filesys_close. The directory stream opened during file backup
+! processing was not being closed.
+!
+! Revision 4.18  90/02/08  16:47:42  ludwig
+! make call to vdu_process_window_args conditional on the parse being of a
+! command line.
+!
+! Revision 4.17  90/01/26  09:43:04  ludwig
+! Steven Nairn.
+! Call vdu_process_window_args before using getopt to process command line
+! arguments.
+!
+! Revision 4.16  90/01/18  18:54:59  ludwig
+! Entered into RCS at revision level 4.16
+!
+! Revision History:
+! 4-001 Ludwig V4.0 release.                                  7-Apr-1987
+! 4-002 Jeff Blows                                           15-May-1987
+!       Remove #include <sys/types.h>. It is included by <sys/param.h>
+!       and the is68k C compiler objects to having the definitions
+!       twice.
+! 4-003 Kelvin B. Nicolle                                     5-Jun-1987
+!       See const.h and type.h.
+! 4-004 Mark R. Prior                                         7-Nov-1987
+!       Rearrange code to do all test before setting the mode and
+!         previous_id fields of the file data structure.
+!       Add code to check for write access to a file.
+!       Rename the file data structure field from buffer to buf.
+!       Add a nul to the end of the read buffer.
+!       Add "check_input = 1" to the parse of command line and FE using
+!         the memory file.
+! 4-005 Mark R. Prior                                        10-Nov-1987
+!       Correct the use of umask when creating new files.
+!       Change the mode of temporary files from 644 to 600.
+! 4-006 Mark R. Prior                                        11-Nov-1987
+!       Make the declaration of errno global.
+! 4-007 Mark R. Prior                                        24-Nov-1987
+!       Set the memory file name to NUL when the -M option is used.
+! 4-008 Mark R. Prior                                        12-Dec-1987
+!       If the last line of a file has no terminator, the line was being
+!       lost.
+! 4-009 Mark R. Prior                                        20-Feb-1988
+!       Use conformant arrays to pass string parameters to ch routines.
+!               string[offset],length -> string,offset,length
+!       In all calls of ch_length, ch_upcase_str, ch_locase_str, and
+!         ch_reverse_str, the offset was 1 and is now omitted.
+! 4-010 Kelvin B. Nicolle                                     2-Sep-1988
+!       Add flags to the C routine headers so that the include files
+!       generated for the Multimax Pascal compiler will contain the
+!       "nonpascal" directive. Also ensure that all routine headers are
+!       terminated with a blank line.
+! 4-011 Kelvin B. Nicolle                                     2-Sep-1988
+!       Only the Ultrix Pascal compiler does not support underscores in
+!       identifiers:  Put the underscores back in the Pascal sources and
+!       make the macro definitions of the external names conditional in
+!       the C sources.
+! 4-012 Kelvin B. Nicolle                                    28-Oct-1988
+!       Different operating systems have different implementations of
+!       getopt.  Rationalize the construction of argv to be compatible.
+! 4-013 Kelvin B. Nicolle                                     4-Nov-1988
+!       Change the "multimax" flags in the routine headers to "umax" and
+!       "mach".
+! 4-014 Kelvin B. Nicolle                                    16-Dec-1988
+!       In fileys_parse copy the usage strings before passing them to
+!       screen_unix_message which blank pads the message.
+! 4-015 Kelvin B. Nicolle                                    22-Mar-1989
+!       Add dummy parameters to the ch_routines that expect conformant
+!       arrays.
+! 4-016 Kelvin N. Nicolle                                    13-Sep-1989
+!       Modify Pascal headers for Tower version.
 !--*/
 
 #include "filesys.h"
