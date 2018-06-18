@@ -191,7 +191,6 @@ bool pattern_parser(tpar_object &pattern, nfa_table_type &nfa_table,
         return result;
     };
 
-    // FIXME: Is "number" supposed to be a reference/var here?
     auto pattern_getnumb = [&](strlen_range &parse_count, int &number, char &ch, tpar_object in_string) -> bool {
         bool aux_bool = pattern_getch(parse_count, ch, in_string);
         bool result   = aux_bool && (ch >= '0' && ch <= '9');
@@ -224,7 +223,6 @@ bool pattern_parser(tpar_object &pattern, nfa_table_type &nfa_table,
             char aux_ch_1;
             char aux_ch_2;
             char aux_pat_ch;
-            tpar_ptr deref_tpar_ptr;
             tpar_object deref_span;
             commands tpar_sort;
             nfa_state_range current_state;
@@ -383,35 +381,31 @@ bool pattern_parser(tpar_object &pattern, nfa_table_type &nfa_table,
                 }
                 switch (pat_ch) {
                 case TPD_SPAN:
-                case TPD_PROMPT:
+                case TPD_PROMPT: {
                     delimiter = pat_ch;
-                    deref_tpar_ptr = new tpar_object;
+                    tpar_object deref_tpar;
                     aux = 0;
                     if (!pattern_getch(parse_count, pat_ch, in_string)) {
                         screen_message(MSG_PAT_NO_MATCHING_DELIM);
-                        // FIXME: delete deref_tpar_ptr
                         throw local_exception();
                     }
                     while (pat_ch != delimiter) {
                         aux += 1;
-                        deref_tpar_ptr->str[aux] = pat_ch;
+                        deref_tpar.str[aux] = pat_ch;
                         if (!pattern_getch(parse_count, pat_ch, in_string)) {
                             screen_message(MSG_PAT_NO_MATCHING_DELIM);
-                            // FIXME: delete deref_tpar_ptr
                             throw local_exception();
                         }
                     }
                     pattern_definition.length = pattern_definition.length - (aux + 2);
                     tpar_sort = commands::cmd_pattern_dummy_pattern;    // back up over delims and string
-                    deref_tpar_ptr->len = aux;
-                    deref_tpar_ptr->dlm = delimiter;
-                    if (!tpar_get_1(deref_tpar_ptr, tpar_sort, deref_span)) {
-                        // FIXME: delete deref_tpar_ptr
+                    deref_tpar.len = aux;
+                    deref_tpar.dlm = delimiter;
+                    if (!tpar_get_1(&deref_tpar, tpar_sort, deref_span)) {
                         throw other_exception();
                     }
 
                     // get the dereferenced span or whatever else it is
-                    delete deref_tpar_ptr;
                     if (QUOTED.contains(deref_span.dlm)) {
                         //with deref_span do
                         // H A C K !!!!!!!!!
@@ -430,6 +424,7 @@ bool pattern_parser(tpar_object &pattern, nfa_table_type &nfa_table,
                             throw local_exception();
                         }
                     }
+                }
                     break;
 
                 // ALL PARAMETERIZED CLAUSES
@@ -469,9 +464,6 @@ bool pattern_parser(tpar_object &pattern, nfa_table_type &nfa_table,
                         }
                         begin_state = current_state;
                     }
-//                    if pat_ch in [tpd_exact, tpd_lit,
-//                          pattern_lparen, pattern_mark,
-//                          pattern_equals, pattern_modified] then
                     switch (pat_ch) {
                     case TPD_EXACT:
                     case TPD_LIT:
@@ -484,26 +476,24 @@ bool pattern_parser(tpar_object &pattern, nfa_table_type &nfa_table,
                         if (pat_ch == TPD_SPAN || pat_ch == TPD_PROMPT) {
                             no_dereference = false;
                             delimiter = pat_ch;
-                            deref_tpar_ptr = new tpar_object;
+                            tpar_object deref_tpar;
                             aux = 0;
                             do { // build potential deref tpar
                                 if (!pattern_getch(parse_count, pat_ch, in_string)) {
                                     screen_message(MSG_PAT_NO_MATCHING_DELIM);
-                                    // FIXME: delete deref_tpar_ptr
                                     throw local_exception();
                                 }
                                 aux += 1;
-                                deref_tpar_ptr->str[aux] = pat_ch;
+                                deref_tpar.str[aux] = pat_ch;
                             } while (pat_ch != aux_ch_1);
                             if (aux >= 2) { // one $ plus one "
-                                if (deref_tpar_ptr->str[aux - 1] == delimiter) {
+                                if (deref_tpar.str[aux - 1] == delimiter) {
                                     // criterion for a correct  deref
                                     pattern_definition.length -= (aux + 2); // wipe out the deref stuff and quotes
                                     tpar_sort = commands::cmd_pattern_dummy_text;  // so prompts "text  :" ##
-                                    deref_tpar_ptr->len = aux - 2; // wipe out delim and quote
-                                    deref_tpar_ptr->dlm = delimiter;
-                                    if (!tpar_get_1(deref_tpar_ptr, tpar_sort, deref_span)) {
-                                        // FIXME: delete deref_tpar_ptr
+                                    deref_tpar.len = aux - 2; // wipe out delim and quote
+                                    deref_tpar.dlm = delimiter;
+                                    if (!tpar_get_1(&deref_tpar, tpar_sort, deref_span)) {
                                         throw other_exception(); // get the dereferenced span
                                     }
                                     //with deref_span do
@@ -531,7 +521,6 @@ bool pattern_parser(tpar_object &pattern, nfa_table_type &nfa_table,
                                 parse_count = aux_count + 1;
                                 no_dereference = true;
                             }
-                            delete deref_tpar_ptr;
                         } else {
                             no_dereference = true;
                         }
@@ -632,33 +621,29 @@ bool pattern_parser(tpar_object &pattern, nfa_table_type &nfa_table,
                             // a null, so that all delimiters become the same
                             if (delimiter == TPD_SPAN || delimiter == TPD_PROMPT) {
                                 // is a $ or &, therefore build tpar
-                                deref_tpar_ptr = new tpar_object;
-                                deref_tpar_ptr->dlm = delimiter;
+                                tpar_object deref_tpar;
+                                deref_tpar.dlm = delimiter;
                                 if (!pattern_getch(parse_count, pat_ch, in_string)) {
                                     screen_message(MSG_PAT_PREMATURE_PATTERN_END);
-                                    // FIXME: delete deref_tpar_ptr
                                     throw local_exception();
                                 }
                                 // eat the delimiter
                                 aux = 0;
                                 while (pat_ch != delimiter) {
                                     aux += 1;
-                                    deref_tpar_ptr->str[aux] = pat_ch;
+                                    deref_tpar.str[aux] = pat_ch;
                                     if (!pattern_getch(parse_count, pat_ch, in_string)) {
                                         screen_message(MSG_PAT_NO_MATCHING_DELIM);
-                                        // FIXME: delete deref_tpar_ptr
                                         throw local_exception();
                                     }
                                 }
                                 pattern_definition.length -= (aux + 1); // wipe the deref but leave the NULL
-                                deref_tpar_ptr->len = aux;
-                                if (!tpar_get_1(deref_tpar_ptr, tpar_sort, deref_span)) {
-                                    // FIXME: delete deref_tpar_ptr
+                                deref_tpar.len = aux;
+                                if (!tpar_get_1(&deref_tpar, tpar_sort, deref_span)) {
                                     throw other_exception();
                                 }
                                 // get the dereferenced span or whatever else it is
                                 // set is returned in deref_span
-                                delete deref_tpar_ptr;
                             } else {
                                 // a user defined set string
                                 // build set specifier in deref_span
