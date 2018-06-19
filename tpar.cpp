@@ -534,7 +534,7 @@ void trim(tpar_object &request) {
             request.str.erase(i - 1, 1);
             request.str.apply_n(ch_toupper, request.len);
         }
-        if (request.len < str_object::index_type::size())
+        if (request.len >= 0 && size_t(request.len) < str_object::index_type::size())
             request.str.fill(' ', request.len + 1);
     }
 }
