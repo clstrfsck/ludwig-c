@@ -547,10 +547,10 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
             if (current_frame->input_file != 0) {
                 if (!files[current_frame->input_file]->eof)
                     cmd_success = false;
-                if (rept == leadparam::minus)
-                    cmd_success = !cmd_success;
             }
         }
+        if (rept == leadparam::minus)
+            cmd_success = !cmd_success;
         break;
 
     case commands::cmd_equal_mark:
