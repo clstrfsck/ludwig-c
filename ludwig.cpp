@@ -80,13 +80,13 @@
 
 #include "var.h"
 
+#include "sys.h"
 #include "vdu.h"
 #include "exec.h"
 #include "fyle.h"
 #include "quit.h"
 #include "user.h"
 #include "frame.h"
-#include "msdos.h"
 #include "value.h"
 #include "screen.h"
 #include "filesys.h"
@@ -886,17 +886,15 @@ l99:;
 
 
 int main(int argc, char **argv) {
-    init_signals();
+    sys_initsig();
     value_initializations();
     initialize();               // Stuff VALUE can't do, like creating frames etc.
     if (start_up(argc, argv)) { // Parse command line, get files attached, etc.
         execute_immed();
-        exit_handler(0);
-        msdos_exit(NORMAL_EXIT);
+        sys_exit_success();
     }
     if (ludwig_aborted) {
-        exit_handler(0);
-        msdos_exit(ABNORMAL_EXIT);
+        sys_exit_failure();
     }
-    return 0;
+    sys_exit_success();
 }

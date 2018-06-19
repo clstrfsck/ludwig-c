@@ -60,6 +60,7 @@
 
 #include "user.h"
 
+#include "sys.h"
 #include "var.h"
 #include "vdu.h"
 #include "code.h"
@@ -67,7 +68,6 @@
 #include "span.h"
 #include "text.h"
 #include "tpar.h"
-#include "msdos.h"
 #include "screen.h"
 
 namespace {
@@ -263,11 +263,11 @@ bool user_key(const tpar_object &key, const tpar_object &strng) {
 }
 
 bool user_parent() {
-    return fpc_suspend();
+    return sys_suspend();
 }
 
 bool user_subprocess() {
-    return fpc_shell();
+    return sys_shell();
 }
 
 bool user_undo() {

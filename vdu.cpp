@@ -24,12 +24,11 @@
 
 #include "vdu.h"
 
+#include "sys.h"
+
 #include <cstring>
-#include <unistd.h>
 #include <ncurses.h>
 #include <unordered_set>
-
-#include <signal.h>
 
 namespace {
     const char BS  = 8;
@@ -503,7 +502,7 @@ bool vdu_init(int outbuflen,
     g_winchange = &winchange_flag;
     terminal_info.width = 80;
     terminal_info.height = 4;
-    if (isatty(0) && isatty(1)) {
+    if (sys_istty()) {
         vdu_setup = ::initscr() != NULL;
         if (vdu_setup) {
             ::raw();

@@ -54,12 +54,12 @@
 
 #include "quit.h"
 
+#include "sys.h"
 #include "var.h"
 #include "vdu.h"
 #include "fyle.h"
 #include "mark.h"
 #include "const.h"
-#include "msdos.h"
 #include "screen.h"
 
 namespace {
@@ -109,8 +109,7 @@ l2:;
         vdu_flush(false);
     ludwig_aborted = false;
     quit_close_files();
-    exit_handler(0);
-    exit(NORMAL_EXIT);
+    sys_exit_success();
     return true; // Given the exit above, this shouldn't happen
 }
 

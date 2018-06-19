@@ -57,15 +57,13 @@
 #include "tpar.h"
 
 #include "ch.h"
+#include "sys.h"
 #include "var.h"
 #include "span.h"
-#include "msdos.h"
 #include "screen.h"
 
-#include <cstring>
-
 namespace {
-    const char SYSTEM_NAME[] = "C++/Linux";
+    const std::string SYSTEM_NAME("C++/Linux");
 
     enum class vartype {
         unknown,
@@ -354,8 +352,17 @@ bool find_enquiry(const name_str &name, str_object &result, strlen_range &reslen
             }
             break;
 
-        case vartype::opsys:
-            enquiry_result = get_environment(item, reslen, result);
+        case vartype::opsys: {
+            std::string env;
+            enquiry_result = sys_getenv(item, env);
+            if (enquiry_result) {
+                reslen = str_object::index_type::size();
+                if (env.size() < str_object::index_type::size())
+                    reslen = env.size();
+                result.fill(' ');
+                result.copy_n(env.data(), reslen);
+            }
+        }
             break;
 
         case vartype::ludwig:
@@ -364,7 +371,7 @@ bool find_enquiry(const name_str &name, str_object &result, strlen_range &reslen
                 result.fillcopy(ludwig_version.data(), ludwig_version.length(' '), 1, MAX_STRLEN, ' ');
                 reslen = result.length(' ');
             } else if (item == "OPSYS") {
-                result.fillcopy(SYSTEM_NAME, std::strlen(SYSTEM_NAME), 1, MAX_STRLEN, ' ');
+                result.fillcopy(SYSTEM_NAME.data(), SYSTEM_NAME.size(), 1, MAX_STRLEN, ' ');
                 reslen = result.length(' ');
             } else if (item == "COMMAND_INTRODUCER") {
                 if (!PRINTABLE_SET.contains(command_introducer.value())) {
@@ -523,9 +530,12 @@ void trim(tpar_object &request) {
         } while (request.str[i] == ' ' && i != request.len);
         //with request do
         request.len -= i - 1;
-        std::vector<char> temp(request.str.data(i), request.str.data(i) + request.len);
-        request.str.fillcopy(temp.data(), request.len, 1, MAX_STRLEN, ' ');
-        request.str.apply(ch_toupper);
+        if (request.len > 0) {
+            request.str.erase(i - 1, 1);
+            request.str.apply_n(ch_toupper, request.len);
+        }
+        if (request.len < str_object::index_type::size())
+            request.str.fill(' ', request.len + 1);
     }
 }
 

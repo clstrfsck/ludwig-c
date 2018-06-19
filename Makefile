@@ -18,10 +18,10 @@ OBJS =	arrow.o		caseditto.o	ch.o		charcmd.o	\
 	code.o		const.o		dfa.o		eqsgetrep.o	\
 	exec.o		execimmed.o	filesys.o	frame.o		\
 	fyle.o		help.o		helpfile.o	line.o		\
-	ludwig.o	lwgetopt.o	mark.o		msdos.o		\
-	newword.o	nextbridge.o	opsys.o		patparse.o	\
-	quit.o		recognize.o	screen.o	span.o		\
-	swap.o		text.o		tpar.o		user.o		\
+	ludwig.o	lwgetopt.o	mark.o		newword.o	\
+	nextbridge.o	opsys.o		patparse.o	quit.o		\
+	recognize.o	screen.o	span.o		swap.o		\
+	sys_linux.o	text.o		tpar.o		user.o		\
 	validate.o	value.o		var.o		vdu.o		\
 	version.o	window.o	word.o
 
@@ -31,7 +31,7 @@ CXX = g++
 CC  = gcc
 # These are debug flags. Works for both g++ and clang++.
 DEFS     = -DDEBUG -D_GLIBCXX_DEBUG
-CXXFLAGS = -g -Wall -std=c++14 $(DEFS)
+CXXFLAGS = -g -Wall -std=c++14 $(DEFS) -fdiagnostics-color=never
 CFLAGS   = -g -Wall -DMKSTEMP
 # These are release flags.
 # Works for g++, clang++ doesn't understand -Wno-maybe-uninitialized
@@ -102,13 +102,11 @@ helpfile.o: helpfile.cpp type.h const.h parray.h prange.h perange.h \
 line.o: line.cpp line.h type.h const.h parray.h prange.h perange.h \
  penumset.h prangeset.h ch.h var.h screen.h
 ludwig.o: ludwig.cpp var.h type.h const.h parray.h prange.h perange.h \
- penumset.h prangeset.h vdu.h exec.h fyle.h quit.h user.h frame.h msdos.h \
+ penumset.h prangeset.h sys.h vdu.h exec.h fyle.h quit.h user.h frame.h \
  value.h screen.h filesys.h execimmed.h
 lwgetopt.o: lwgetopt.cpp lwgetopt.h
 mark.o: mark.cpp mark.h type.h const.h parray.h prange.h perange.h \
  penumset.h prangeset.h var.h screen.h
-msdos.o: msdos.cpp msdos.h type.h const.h parray.h prange.h perange.h \
- penumset.h prangeset.h
 newword.o: newword.cpp newword.h type.h const.h parray.h prange.h \
  perange.h penumset.h prangeset.h var.h line.h mark.h text.h
 nextbridge.o: nextbridge.cpp nextbridge.h type.h const.h parray.h \
@@ -120,7 +118,7 @@ parray.o: parray.cpp type.h const.h parray.h prange.h perange.h \
 patparse.o: patparse.cpp patparse.h type.h const.h parray.h prange.h \
  perange.h penumset.h prangeset.h var.h tpar.h screen.h
 quit.o: quit.cpp quit.h type.h const.h parray.h prange.h perange.h \
- penumset.h prangeset.h var.h vdu.h fyle.h mark.h msdos.h screen.h
+ penumset.h prangeset.h sys.h var.h vdu.h fyle.h mark.h screen.h
 recognize.o: recognize.cpp recognize.h type.h const.h parray.h prange.h \
  perange.h penumset.h prangeset.h var.h
 screen.o: screen.cpp screen.h type.h const.h parray.h prange.h perange.h \
@@ -129,13 +127,14 @@ span.o: span.cpp span.h type.h const.h parray.h prange.h perange.h \
  penumset.h prangeset.h var.h code.h fyle.h line.h mark.h screen.h
 swap.o: swap.cpp swap.h type.h const.h parray.h prange.h perange.h \
  penumset.h prangeset.h var.h mark.h text.h
+sys_linux.o: sys_linux.cpp sys.h
 text.o: text.cpp text.h type.h const.h parray.h prange.h perange.h \
  penumset.h prangeset.h var.h vdu.h line.h mark.h screen.h
 tpar.o: tpar.cpp tpar.h type.h const.h parray.h prange.h perange.h \
- penumset.h prangeset.h ch.h var.h span.h msdos.h screen.h
+ penumset.h prangeset.h ch.h sys.h var.h span.h screen.h
 user.o: user.cpp user.h type.h const.h parray.h prange.h perange.h \
- penumset.h prangeset.h var.h vdu.h code.h mark.h span.h text.h tpar.h \
- msdos.h screen.h
+ penumset.h prangeset.h sys.h var.h vdu.h code.h mark.h span.h text.h \
+ tpar.h screen.h
 validate.o: validate.cpp validate.h type.h const.h parray.h prange.h \
  perange.h penumset.h prangeset.h var.h screen.h
 value.o: value.cpp value.h var.h type.h const.h parray.h prange.h \
@@ -143,7 +142,7 @@ value.o: value.cpp value.h var.h type.h const.h parray.h prange.h \
 var.o: var.cpp var.h type.h const.h parray.h prange.h perange.h \
  penumset.h prangeset.h
 vdu.o: vdu.cpp vdu.h type.h const.h parray.h prange.h perange.h \
- penumset.h prangeset.h
+ penumset.h prangeset.h sys.h
 version.o: version.cpp version.h
 window.o: window.cpp window.h type.h const.h parray.h prange.h perange.h \
  penumset.h prangeset.h var.h vdu.h line.h mark.h frame.h screen.h
