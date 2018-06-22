@@ -1,0 +1,98 @@
+ Symbol  Name                Tested parameters
+ ----------------------------------------------------------------------------
+  A      Advance             none, +, -, +n, -n, >, <, =
+  BR     Bridge              none, +, -
+  C      Character insert    none, +, -, +n, -n
+  D      Delete              none, +, -, +n, -n, >, <, =
+  ED     Edit frame          none
+  EK     Kill Edit frame     none
+  EN     Execute Norecompile none, +, +n, >
+  EOL    End Of Line         none, +, -, >, <
+  EOP    End Of Page         none, +, -
+  EOF    End Of File         none, +, -
+  EP     Edit Parameters     
+  EQC    Equal Column        none, +, -, >, <
+  EQM    Equal Mark          none, +, -, >, <
+  EQS    Equal String        none, +, -, >, <
+  ER     Edit Return         none, +, +n
+  EX     Execute             
+  FB     File Back           none
+  FE     File Edit           none, -
+  FGB    Global File Back    
+  FGI    Global Input File   
+  FGK    Global File Kill    
+  FGO    Global Output File  
+  FGR    Global File Read    
+  FGW    Global File Write   
+  FI     File Input          none, +, -
+  FK     File Kill           none
+  FO     File Output         
+  FP     File Page           none
+  FS     File Save           
+  FT     File Table          none
+  FX     File Execute        
+  G      Get                 
+  H      Help                none
+  I      Insert              none, +, +n
+  J      Jump                none, +, -, +n, -n, >, <, =
+  K      Kill                none, +, -, +n, -n, >, <, =
+  L      Insert Line         
+  M      Mark                
+  N      Next Character      
+  O      Overtype            none, +, +n
+  Q      Quit                none
+  R      Replace             
+  SA     Span Assign         
+  SC     Span Copy           
+  SD     Span Define         
+  SI     Span Index          none
+  SJ     Span Jump           
+  SL     Split Line          
+  SR     Span Recompile      
+  ST     Span Transfer       
+  SW     Swap Line           
+  UC     Command Introducer  none
+  UK     Key Mapping         
+  UP     Parent Process      none
+  US     Subprocess          
+  V      Verify              
+  WB     Window Back         none, +, +n
+  WE     Window End          none
+  WF     Window Forward      none, +, +n
+  WH     Window Height       none, +, +n
+  WL     Window Left         
+  WM     Window Middle       none
+  WN     New Window          none (Hard to tell if working as ncurses is fast)
+  WR     Window Right        
+  WS     Window Scroll       none, +, -, +n, -n, >, <
+  WT     Window Top          none
+  WU     Window Update       
+  YA     Word Advance        
+  YC     Centre Line         
+  YD     Word Delete         
+  YF     Word Fill           
+  YJ     Line Justify        
+  YL     Align Left          
+  YR     Align Right         
+  YS     Word Squeeze        
+  XA     Exit Abort          
+  XS     Exit success        
+  XF     Exit Failure        
+  ZB     Backtab             
+  ZC     Carriage Return     
+  ZD     Cursor Down         
+  ZH     Cursor Home         
+  ZL     Cursor Left         
+  ZR     Cursor Right        
+  ZT     Tab                 
+  ZU     Cursor Up           
+  ZZ     Delete              
+  \      Command             
+  ^      Execute String      
+  (      Direct Entry        
+  "      Ditto               
+  '      Ditto from below    
+  *      Case Change         
+  {      Left Margin         
+  }      Right Margin        
+  ?      Invisible Insert    none, +, +n, >
