@@ -134,7 +134,7 @@ bool line_eop_destroy(group_ptr &group) {
 #endif
     group_ptr this_group = group;
 #ifdef DEBUG
-    if (this_group->flink == nullptr || this_group->blink == nullptr) {
+    if (this_group->flink != nullptr || this_group->blink != nullptr) {
         screen_message(DBG_FLINK_OR_BLINK_NOT_NIL);
         return false;
     }
