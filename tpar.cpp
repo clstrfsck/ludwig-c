@@ -330,15 +330,15 @@ bool find_enquiry(const name_str &name, str_object &result, strlen_range &reslen
                 if (current_frame->input_file == 0) {
                     reslen = 0;
                 } else {
-                    reslen = files[current_frame->input_file]->fns;
-                    result.fillcopy(files[current_frame->input_file]->fnm.data(), reslen, 1, MAX_STRLEN, ' ');
+                    reslen = files[current_frame->input_file]->filename.size();
+                    result.fillcopy(files[current_frame->input_file]->filename.data(), reslen, 1, MAX_STRLEN, ' ');
                 }
             } else if (item == "OUTPUTFILE") {
                 if (current_frame->output_file == 0) {
                     reslen = 0;
                 } else {
-                    reslen = files[current_frame->output_file]->fns;
-                    result.fillcopy(files[current_frame->output_file]->fnm.data(), reslen, 1, MAX_STRLEN, ' ');
+                    reslen = files[current_frame->output_file]->filename.size();
+                    result.fillcopy(files[current_frame->output_file]->filename.data(), reslen, 1, MAX_STRLEN, ' ');
                 }
             } else if (item == "MODIFIED") {
                 reslen = 1;

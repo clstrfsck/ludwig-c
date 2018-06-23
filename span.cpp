@@ -279,7 +279,7 @@ bool span_index() {
             screen_writeln();
             line_count += 1;
             //with p->frame^ do
-            int fyl_nam_len;
+            size_t fyl_nam_len;
             file_name_str fyl_nam;
             if (p->frame->input_file != 0) {
                 screen_write_str(0, "  Input:  ", 10);

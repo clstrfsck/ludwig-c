@@ -21,13 +21,20 @@
 
 #include "sys.h"
 
+#include <pwd.h>
+#include <fcntl.h>
 #include <signal.h>
 #include <unistd.h>
+#include <sys/stat.h>
+#include <sys/wait.h>
+#include <sys/types.h>
 
 namespace {
+    const std::string NL("\n");
+
     void do_exit(int status) {
         // Here would be the spot to tear-down what sys_initsig did.
-        exit(status);
+        ::exit(status);
     }
 };
 
@@ -41,7 +48,7 @@ bool sys_shell() {
 }
 
 bool sys_istty() {
-    return isatty(0) && isatty(1);
+    return ::isatty(0) && ::isatty(1);
 }
 
 bool sys_getenv(const std::string &environ, std::string &result) {
@@ -62,4 +69,196 @@ void sys_exit_success() {
 
 void sys_exit_failure() {
     do_exit(EXIT_FAILURE);
+}
+
+bool sys_expand_filename(std::string &filename) {
+    if (filename.empty())
+        return true;
+    if (filename[0] == '~') {
+        std::string::size_type slash = filename.find('/');
+        // If there are no slashes, we just assume the users directory
+        if (slash == std::string::npos) {
+            slash = filename.size();
+        }
+        std::string username = filename.substr(1, slash - 1);
+        std::string filepart = filename.substr(slash);
+        std::string dir;
+        if (username.empty()) {
+            const char *s = getenv("HOME");
+            dir = (s == NULL) ? "" : s;
+        } else {
+            struct passwd *passwd = ::getpwnam(username.c_str());
+            if (passwd == NULL) {
+                return false;
+            }
+            dir = passwd->pw_dir;
+        }
+        // Append slash if none
+        if (!dir.empty() && dir.back() != '/') {
+            dir.push_back('/');
+        }
+        filename = dir + filepart;
+    }
+    char *rp = ::realpath(filename.c_str(), NULL);
+    if (rp == NULL) {
+        return !filename.empty();
+    }
+    filename = rp;
+    ::free(rp);
+    return true;
+}
+
+int sys_open_command(const std::string &cmd) {
+    int fd[2];
+    if (::pipe(fd) == -1)
+        return -1;
+    pid_t pid = ::fork();
+    if (pid == -1) {
+        return -1;
+    } else if (pid == 0) {
+        ::close(fd[0]);
+        if (::dup2(fd[1], 1) == -1 || dup2(fd[1], 2) == -1)
+            ::exit(EXIT_FAILURE);
+        ::close(0);
+        ::open("/dev/null", O_RDONLY); // Just assuming this will be fd == 0
+        int exitval = ::system(cmd.c_str());
+        ::close(fd[1]);
+        ::exit(WEXITSTATUS(exitval));
+    } else {
+        ::close(fd[1]);
+        return fd[0];
+    }
+}
+
+int sys_open_file(const std::string &filename) {
+    return ::open(filename.c_str(), O_RDONLY, 0);
+}
+
+int sys_create_file(const std::string &filename) {
+    return ::open(filename.c_str(), O_RDWR | O_CREAT, 0600);
+}
+
+bool sys_isdir(const std::string &filename) {
+    struct stat statbuf;
+    // If we can't tell, the assume not directory.
+    if (stat(filename.c_str(), &statbuf) == -1)
+        return false;
+    return S_ISDIR(statbuf.st_mode);
+}
+
+int sys_file_mask() {
+    mode_t m = umask(0);
+    umask(m);
+    return ~m;
+}
+
+bool sys_file_exists(const std::string &filename) {
+    return ::access(filename.c_str(), F_OK) == 0;
+}
+
+bool sys_file_writeable(const std::string &filename) {
+    return ::access(filename.c_str(), W_OK) == 0;
+}
+
+int sys_file_mode(int fd) {
+    struct stat statbuf;
+    if (fstat(fd, &statbuf) == -1)
+        return -1;
+    return statbuf.st_mode & 07777;
+}
+
+int sys_file_mode(const std::string &filename) {
+    struct stat statbuf;
+    if (stat(filename.c_str(), &statbuf) == -1)
+        return -1;
+    return statbuf.st_mode & 07777;
+}
+
+long sys_file_time(int fd) {
+    struct stat statbuf;
+    if (fstat(fd, &statbuf) == -1)
+        return -1;
+    return statbuf.st_mtime;
+}
+
+long sys_file_time(const std::string &filename) {
+    struct stat statbuf;
+    if (stat(filename.c_str(), &statbuf) == -1)
+        return -1;
+    return statbuf.st_mtime;
+}
+
+bool sys_write_filename(const std::string &memory, const std::string &filename) {
+    if (!memory.empty()) {
+        // File is specific to user, so use 0600 mask
+        int envfd = ::open(memory.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0600);
+        if (envfd >= 0) {
+            ssize_t filename_size = filename.size();
+            ssize_t nl_size = NL.size();
+            bool ok = ::write(envfd, filename.data(), filename.size()) == filename_size;
+            ok = ::write(envfd, NL.data(), NL.size()) == nl_size && ok;
+            ::close(envfd);
+            return ok;
+        }
+    }
+    return false;
+}
+
+bool sys_read_filename(const std::string &memory, std::string &filename) {
+    int envfd = ::open(memory.c_str(), O_RDONLY);
+    if (envfd >= 0) {
+        std::string tmpname(FILENAME_MAX, '\0');
+        ssize_t read_len = ::read(envfd, &(tmpname[0]), FILENAME_MAX - 1);
+        ::close(envfd);
+        if (read_len > 0) {
+            ssize_t nl_idx = 0;
+            while (nl_idx < read_len) {
+                if (tmpname[nl_idx] == '\n' || tmpname[nl_idx] == '\r')
+                    break;
+                nl_idx += 1;
+            }
+            filename = tmpname.substr(0, nl_idx);
+            return !filename.empty();
+        }
+    }
+    return false;
+}
+
+void sys_reap_children() {
+    int pstat;
+    while (::waitpid(0, &pstat, WNOHANG) == 0) {
+        /* Do nothing */
+    }
+}
+
+long sys_read(int fd, void *buf, size_t count) {
+    return ::read(fd, buf, count);
+}
+
+long sys_write(int fd, const void *buf, size_t count) {
+    return ::write(fd, buf, count);
+}
+
+int sys_close(int fd) {
+    return ::close(fd);
+}
+
+bool sys_unlink(const std::string &filename) {
+    return ::unlink(filename.c_str()) == 0;
+}
+
+bool sys_rename(const std::string &oldname, const std::string &newname) {
+    return ::rename(oldname.c_str(), newname.c_str()) == 0;
+}
+
+bool sys_chmod(const std::string &filename, int mask) {
+    return ::chmod(filename.c_str(), mask) == 0;
+}
+
+bool sys_seek(int fd, long where) {
+    return ::lseek(fd, where, L_SET) == 0;
+}
+
+long sys_tell(int fd) {
+    return ::lseek(fd, 0, L_INCR);
 }

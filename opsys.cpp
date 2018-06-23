@@ -71,12 +71,11 @@ bool opsys_command(const tpar_object &command, line_ptr &first, line_ptr &last, 
     mbx.line_count  = 0;
     mbx.output_flag = false;
     if (command.len <= FILE_NAME_LEN) {
-        mbx.fnm.copy(command.str, 1, FILE_NAME_LEN);
+        mbx.filename = std::string(command.str.data(), command.len);
     } else {
-        mbx.fnm.fill(0);
-        mbx.fns = 0;
+        mbx.filename.clear();
     }
-    mbx.zed         = 'Z';
+    mbx.zed = 'Z';
 
     if (!filesys_create_open(&mbx, nullptr, false))
         return false;

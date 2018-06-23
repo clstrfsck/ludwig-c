@@ -82,30 +82,30 @@ namespace {
     const std::string BLANK_NAME("                               ");
 }
 
-void file_name(file_ptr fp, int max_len, file_name_str &act_fnm, int &act_len) {
+void file_name(file_ptr fp, size_t max_len, file_name_str &act_fnm, size_t &act_len) {
     // Return a file's name, in the specified width.
 
     //with fp^ do
-    int head_len;
-    int tail_len;
-    if (fp->fns <= max_len) {
-        head_len = fp->fns;
+    size_t head_len;
+    size_t tail_len;
+    if (fp->filename.size() <= max_len) {
+        head_len = fp->filename.size();
         tail_len = 0;
     } else {
         // Cut chars out the middle of the file name, insert '---'
         tail_len = (max_len - 3) / 2;
         head_len = max_len - 3 - tail_len;
     }
-    for (int i = 1; i <= head_len; ++i)
-        act_fnm[i] = fp->fnm[i];
+    for (size_t i = 1; i <= head_len; ++i)
+        act_fnm[i] = fp->filename[i - 1];
     if (tail_len > 0) {
-        for (int i = 0; i < 3; ++i) {
+        for (size_t i = 0; i < 3; ++i) {
             head_len += 1;
             act_fnm[head_len] = '-';
         }
-        for (int i = fp->fns - tail_len + 1; i <= fp->fns; ++i) {
+        for (size_t i = fp->filename.size() - tail_len + 1; i <= fp->filename.size(); ++i) {
             head_len += 1;
-            act_fnm[head_len] = fp->fnm[i];
+            act_fnm[head_len] = fp->filename[i - 1];
         }
     }
     act_len = head_len;
@@ -174,7 +174,7 @@ void file_table() {
                 room = terminal_info.width - 18 - 1;
             else
                 room = FILE_NAME_LEN;
-            int file_len;
+            size_t file_len;
             file_name_str compressed_fnm;
             file_name(files[file_slot], room, compressed_fnm, file_len);
             screen_write_file_name_str(1, compressed_fnm, file_len);

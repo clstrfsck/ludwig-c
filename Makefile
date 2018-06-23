@@ -88,7 +88,7 @@ execimmed.o: execimmed.cpp execimmed.h type.h const.h parray.h prange.h \
  perange.h penumset.h prangeset.h var.h vdu.h code.h exec.h fyle.h line.h \
  mark.h quit.h text.h screen.h
 filesys.o: filesys.cpp filesys.h type.h const.h parray.h prange.h \
- perange.h penumset.h prangeset.h screen.h lwgetopt.h
+ perange.h penumset.h prangeset.h sys.h screen.h lwgetopt.h
 frame.o: frame.cpp frame.h type.h const.h parray.h prange.h perange.h \
  penumset.h prangeset.h ch.h dfa.h var.h vdu.h line.h mark.h span.h \
  tpar.h user.h screen.h version.h

@@ -236,8 +236,7 @@ struct file_object {
     // FIELDS SET BY "FILESYS", READ BY "FILE".
     bool          output_flag;    // Is this an output file?
     bool          eof;            // Set when inp file reaches eof.
-    int           fns;            // Length of file name.
-    file_name_str fnm;
+    std::string   filename;       // Length of file name.
     int           l_counter;
 
     // FIELDS FOR "FILESYS" ONLY.
