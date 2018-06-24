@@ -138,14 +138,6 @@ int sys_create_file(const std::string &filename) {
     return ::open(filename.c_str(), O_RDWR | O_CREAT, 0600);
 }
 
-bool sys_isdir(const std::string &filename) {
-    struct stat statbuf;
-    // If we can't tell, the assume not directory.
-    if (stat(filename.c_str(), &statbuf) == -1)
-        return false;
-    return S_ISDIR(statbuf.st_mode);
-}
-
 int sys_file_mask() {
     mode_t m = umask(0);
     umask(m);
@@ -158,34 +150,6 @@ bool sys_file_exists(const std::string &filename) {
 
 bool sys_file_writeable(const std::string &filename) {
     return ::access(filename.c_str(), W_OK) == 0;
-}
-
-int sys_file_mode(int fd) {
-    struct stat statbuf;
-    if (fstat(fd, &statbuf) == -1)
-        return -1;
-    return statbuf.st_mode & 07777;
-}
-
-int sys_file_mode(const std::string &filename) {
-    struct stat statbuf;
-    if (stat(filename.c_str(), &statbuf) == -1)
-        return -1;
-    return statbuf.st_mode & 07777;
-}
-
-long sys_file_time(int fd) {
-    struct stat statbuf;
-    if (fstat(fd, &statbuf) == -1)
-        return -1;
-    return statbuf.st_mtime;
-}
-
-long sys_file_time(const std::string &filename) {
-    struct stat statbuf;
-    if (stat(filename.c_str(), &statbuf) == -1)
-        return -1;
-    return statbuf.st_mtime;
 }
 
 bool sys_write_filename(const std::string &memory, const std::string &filename) {
@@ -261,4 +225,21 @@ bool sys_seek(int fd, long where) {
 
 long sys_tell(int fd) {
     return ::lseek(fd, 0, L_INCR);
+}
+
+file_status sys_file_status(const std::string &filename) {
+    file_status fs;
+    fs.valid = false;
+    fs.mode  = 0600;
+    fs.mtime = -1;
+    fs.isdir = false;
+
+    struct stat st;
+    if (stat(filename.c_str(), &st) != 0)
+        return fs;
+    fs.valid = true;
+    fs.mode  = st.st_mode & 07777;
+    fs.mtime = st.st_mtime;
+    fs.isdir = S_ISDIR(st.st_mode);
+    return fs;
 }

@@ -153,15 +153,16 @@ bool filesys_create_open(file_ptr fyle, file_ptr rfyle, bool ordinary_open) {
                 screen_message(s.str().c_str());
                 return false;
             }
-            if (sys_isdir(fyle->filename)) {
+            file_status fs = sys_file_status(fyle->filename);
+            if (!fs.valid || fs.isdir) {
                 return false;
             }
             fyle->fd = sys_open_file(fyle->filename);
             if (fyle->fd < 0) {
                 return false; /* fail, return false */
             }
-            fyle->mode = sys_file_mode(fyle->fd);
-            fyle->previous_file_id = sys_file_time(fyle->fd);
+            fyle->mode = fs.mode;
+            fyle->previous_file_id = fs.mtime;
         }
         fyle->idx = 0;
         fyle->len = 0;
@@ -185,8 +186,9 @@ bool filesys_create_open(file_ptr fyle, file_ptr rfyle, bool ordinary_open) {
          * if the file given is a directory create a filename using the input
          * filename in the given directory.
          */
-        bool exists = sys_file_exists(fyle->filename);
-        if (exists && sys_isdir(fyle->filename) && !related.empty()) {
+        file_status fs = sys_file_status(fyle->filename);
+        bool exists = fs.valid;
+        if (exists && fs.isdir && !related.empty()) {
             // FIXME: Note this handling is pretty unix specific
             /*
              * get the actual file name part of the related file spec
@@ -209,7 +211,8 @@ bool filesys_create_open(file_ptr fyle, file_ptr rfyle, bool ordinary_open) {
                 return false;
             }
             /* check that the file we may overwrite is not a directory */
-            if (sys_isdir(fyle->filename)) {
+            file_status fs = sys_file_status(fyle->filename);
+            if (fs.valid && fs.isdir) {
                 std::stringstream s;
                 s << "File (" << fyle->filename << ") is a directory";
                 screen_message(s.str().c_str());
@@ -222,8 +225,8 @@ bool filesys_create_open(file_ptr fyle, file_ptr rfyle, bool ordinary_open) {
                 screen_message(s.str().c_str());
                 return false;
             }
-            fyle->mode = sys_file_mode(fyle->filename);
-            fyle->previous_file_id = sys_file_time(fyle->filename);
+            fyle->mode = fs.mode;
+            fyle->previous_file_id = fs.mtime;
         } else {
             fyle->mode = 0666 & sys_file_mask();
             fyle->previous_file_id = 0;
@@ -293,7 +296,8 @@ bool filesys_close(file_ptr fyle, int action, bool msgs) {
      * check that another file hasn't been created while we were editting
      * with the name we are going to use as the output name.
      */
-    if (sys_file_time(fyle->filename) != fyle->previous_file_id) {
+    file_status fs = sys_file_status(fyle->filename);
+    if (fs.valid && fs.mtime != fyle->previous_file_id) {
         std::stringstream s;
         s << fyle->filename << " was modified by another process";
         screen_message(s.str().c_str());
