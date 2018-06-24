@@ -53,12 +53,6 @@
 #include <string>
 #include <vector>
 
-//{#if turbop}
-//  integer = longint;
-//{#endif}
-
-typedef std::set<char> char_set;
-
 
 // POINTERS TO ALL DYNAMIC OBJECTS.
 
@@ -105,19 +99,6 @@ enum class parse_type {
     ,parse_execute
 };
 
-enum class format_type {
-    same_format
-    ,variable
-    ,stream_lf
-    ,numbered
-};
-
-enum class attribute_type {
-    same_attribute
-    ,carriage_return
-    ,fortran_attribute
-};
-
 
 // SUBRANGES.
 typedef prange<0, MAX_CODE>                      code_idx;
@@ -142,20 +123,6 @@ typedef prange<0, MAX_SET_RANGE>                 accept_set_range;
 typedef prange<0, MAX_WORD_SETS_M1>              word_set_range;
 
 // SETS.
-
-// FIXME: Probably remove this, as we will rely on ncurses
-//  terminal_capabilities = set of        (trmflags_v_clsc
-//                                        ,trmflags_v_cles
-//        (************************)      ,trmflags_v_clel
-//        (*                      *)      ,trmflags_v_inln
-//        (* This set is actually *)      ,trmflags_v_inch
-//        (* defined by TRMHND and*)      ,trmflags_v_dlln
-//        (* hence the definition *)      ,trmflags_v_dlch
-//        (* is set in concrete,  *)      ,trmflags_v_scdn
-//        (* and CAN'T BE CHANGED *)      ,trmflags_v_inmd
-//        (* by Ludwig.           *)      ,trmflags_v_wrap
-//        (*                      *)      ,trmflags_v_hard
-//        (************************)      );
 
 enum class frame_options_elts {
     opt_auto_indent,
@@ -228,15 +195,15 @@ struct code_header {
 
 struct file_object {
     // FIELDS FOR "FILE.PAS" ONLY.
-    bool       valid;
-    line_ptr   first_line;  // List of lines read in so far,
-    line_ptr   last_line;   // but not yet handed on to any
-    line_range line_count;  // other place. # lines in list.
+    bool          valid;
+    line_ptr      first_line;  // List of lines read in so far,
+    line_ptr      last_line;   // but not yet handed on to any
+    line_range    line_count;  // other place. # lines in list.
 
     // FIELDS SET BY "FILESYS", READ BY "FILE".
-    bool          output_flag;    // Is this an output file?
-    bool          eof;            // Set when inp file reaches eof.
-    std::string   filename;       // Length of file name.
+    bool          output_flag; // Is this an output file?
+    bool          eof;         // Set when inp file reaches eof.
+    std::string   filename;    // Length of file name.
     int           l_counter;
 
     // FIELDS FOR "FILESYS" ONLY.
@@ -383,7 +350,7 @@ struct dfa_table_object {
 enum class commands {
     cmd_noop,
 
-    cmd_up,                     // cursor movement
+    cmd_up,                 // cursor movement
     cmd_down,
     cmd_left,
     cmd_right,
@@ -399,7 +366,7 @@ enum class commands {
     cmd_position_line,
     cmd_op_sys_command,
 
-    cmd_window_forward,         // window control
+    cmd_window_forward,     // window control
     cmd_window_backward,
     cmd_window_left,
     cmd_window_right,
@@ -411,7 +378,7 @@ enum class commands {
     cmd_window_setheight,
     cmd_window_update,
 
-    cmd_get,                    // search and comparison
+    cmd_get,                // search and comparison
     cmd_next,
     cmd_bridge,
     cmd_replace,
@@ -425,7 +392,7 @@ enum class commands {
     cmd_overtype_mode,
     cmd_insert_mode,
 
-    cmd_overtype_text,          // text insertion/deletion
+    cmd_overtype_text,      // text insertion/deletion
     cmd_insert_text,
     cmd_type_text,
     cmd_insert_line,
@@ -434,7 +401,7 @@ enum class commands {
     cmd_delete_line,
     cmd_delete_char,
 
-    cmd_swap_line,              // text manipulation
+    cmd_swap_line,          // text manipulation
     cmd_split_line,
     cmd_ditto_up,
     cmd_ditto_down,
@@ -444,7 +411,7 @@ enum class commands {
     cmd_set_margin_left,
     cmd_set_margin_right,
 
-    cmd_line_fill,              // word processing
+    cmd_line_fill,          // word processing
     cmd_line_justify,
     cmd_line_squash,
     cmd_line_centre,
@@ -455,7 +422,7 @@ enum class commands {
     cmd_advance_paragraph,
     cmd_delete_paragraph,
 
-    cmd_span_define,            // span commands
+    cmd_span_define,        // span commands
     cmd_span_transfer,
     cmd_span_copy,
     cmd_span_compile,
@@ -463,28 +430,28 @@ enum class commands {
     cmd_span_index,
     cmd_span_assign,
 
-    cmd_block_define,           // block commands
+    cmd_block_define,       // block commands
     cmd_block_transfer,
     cmd_block_copy,
 
-    cmd_frame_kill,             // frame commands
+    cmd_frame_kill,         // frame commands
     cmd_frame_edit,
     cmd_frame_return,
     cmd_span_execute,              //###
     cmd_span_execute_no_recompile, //###
     cmd_frame_parameters,
 
-    cmd_file_input,     // open and attach input file
-    cmd_file_output,    // create and attach output file
-    cmd_file_edit,      // open files for input and output
-    cmd_file_read,      // read from global input
-    cmd_file_write,     // write to global output
-    cmd_file_close,     // close a file -- only used internally
-    cmd_file_rewind,    // rewind input file
-    cmd_file_kill,      // delete output file
-    cmd_file_execute,   // execute a file of commands
-    cmd_file_save,      // save a file without clearing the frame
-    cmd_file_table,     // displays current filetable
+    cmd_file_input,         // open and attach input file
+    cmd_file_output,        // create and attach output file
+    cmd_file_edit,          // open files for input and output
+    cmd_file_read,          // read from global input
+    cmd_file_write,         // write to global output
+    cmd_file_close,         // close a file -- only used internally
+    cmd_file_rewind,        // rewind input file
+    cmd_file_kill,          // delete output file
+    cmd_file_execute,       // execute a file of commands
+    cmd_file_save,          // save a file without clearing the frame
+    cmd_file_table,         // displays current filetable
     cmd_file_global_input,  // declare a global input file
     cmd_file_global_output, // declare a global output file
     cmd_file_global_rewind, // rewind global input file
@@ -498,9 +465,9 @@ enum class commands {
     cmd_user_learn,
     cmd_user_recall,
 
-    cmd_resize_window,          // window size has changed, so handle it
+    cmd_resize_window,      // window size has changed, so handle it
 
-    cmd_help,                   // miscellaneous
+    cmd_help,               // miscellaneous
     cmd_verify,
     cmd_command,
     cmd_mark,
@@ -513,9 +480,9 @@ enum class commands {
 
     cmd_extended,
 
-    cmd_exit_abort,        // exit back to immediate mode
-    cmd_exit_fail,         // exit with failure
-    cmd_exit_success,      // exit with success
+    cmd_exit_abort,         // exit back to immediate mode
+    cmd_exit_fail,          // exit with failure
+    cmd_exit_success,       // exit with success
 
 
     // -----End of user commands-----
@@ -525,12 +492,12 @@ enum class commands {
     cmd_pattern_dummy_text,
 
     // compiler commands
-    cmd_pcjump,         // Intermediate code jump
-    cmd_exitto,         // Set exit point from loop
-    cmd_failto,         // Set fail point from loop
-    cmd_iterate,        // Repeat loop n times
+    cmd_pcjump,             // Intermediate code jump
+    cmd_exitto,             // Set exit point from loop
+    cmd_failto,             // Set fail point from loop
+    cmd_iterate,            // Repeat loop n times
 
-    cmd_prefix_ast,     // prefix commands
+    cmd_prefix_ast,         // prefix commands
     cmd_prefix_a,
     cmd_prefix_b,
     cmd_prefix_c,
@@ -539,7 +506,7 @@ enum class commands {
     cmd_prefix_eo,
     cmd_prefix_eq,
     cmd_prefix_f,
-    cmd_prefix_fg,      // global files
+    cmd_prefix_fg,          // global files
     cmd_prefix_i,
     cmd_prefix_k,
     cmd_prefix_l,
@@ -556,7 +523,7 @@ enum class commands {
     cmd_prefix_z,
     cmd_prefix_tilde,
 
-    cmd_nosuch,         // sentinel
+    cmd_nosuch,             // sentinel
 
     last_entry
 };
@@ -637,15 +604,6 @@ struct help_record {
     write_str txt;
 };
 
-enum class msg_class {
-    msg_internal,
-    msg_success,
-    msg_information,
-    msg_warning,
-    msg_error,
-    msg_fatal
-};
-
 // more Pattern Matcher stuff
 
 struct nfa_transition_type {
@@ -719,19 +677,6 @@ struct terminal_info_type {
     strlen_range  namelen;
     scr_col_range width;
     scr_row_range height;
-    int           speed;
-    bool          keypad;
-    int           f_min;
-    int           f_max;
-    bool          f_key;
-    bool          sf_key;
-    bool          cf_key;
-    bool          csf_key;
-    bool          mf_key;
-    bool          msf_key;
-    bool          mcf_key;
-    bool          mcsf_key;
 };
-
 
 #endif // !defined(TYPE_H)
