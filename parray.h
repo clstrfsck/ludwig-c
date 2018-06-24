@@ -248,12 +248,20 @@ public:
         return m_array.begin();
     }
 
+    const_iterator cbegin() const {
+        return begin();
+    }
+
     iterator end() {
         return m_array.end();
     }
 
     const_iterator end() const {
         return m_array.end();
+    }
+
+    const_iterator cend() const {
+        return end();
     }
 
     parray &operator=(parray rhs) {
