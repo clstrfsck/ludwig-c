@@ -34,88 +34,90 @@
 #include <stdio.h>
 #include <string.h>
 
-int         lwoptind = 1;     /* index into parent argv vector */
-int         lwoptopt;         /* character checked for validity */
-int         lwoptreset;       /* reset getopt */
-const char *lwoptarg;         /* argument associated with option */
+size_t      lwoptind = 1;     // index into parent argv vector
+int         lwoptopt;         // character checked for validity
+bool        lwoptreset;       // reset getopt
+std::string lwoptarg;         // argument associated with option
 
-#define  BADCH  (int)'?'
-#define  BADARG  (int)':'
-#define  EMSG  ""
+#define BADCH   (int)'?'
+#define BADARG  (int)':'
+#define EMSG    ""
 
 /*
  * lwgetopt --
- *  Parse argc/argv argument vector.
+ *  Parse argv argument vector.
  */
-int
-lwgetopt(int nargc, const char **nargv, const char *ostr) {
-    static const char *place = EMSG;    /* option letter processing */
-    const char *oli;                    /* option letter list index */
+int lwgetopt(const std::vector<std::string> &nargv, const std::string &ostr) {
+    static std::string place = EMSG;    // option letter processing
 
-    if (lwoptreset || *place == 0) {
-        /* update scanning pointer */
-        lwoptreset = 0;
-        place = nargv[lwoptind];
-        if (lwoptind >= nargc || *place++ != '-') {
-            /* Argument is absent or is not an option */
+    if (lwoptreset || place.empty()) {
+        // update scanning pointer
+        lwoptreset = false;
+
+        if (lwoptind >= nargv.size()) {
+            // Argument is absent
             place = EMSG;
             return (-1);
         }
-        lwoptopt = *place++;
-        if (lwoptopt == '-' && *place == 0) {
-            /* "--" => end of options */
+        place = nargv[lwoptind];
+        if (place[0] != '-') {
+            // Argument is not an option
+            place = EMSG;
+            return (-1);
+        }
+        place.erase(0, 1);
+        if (place.empty()) {
+            // Solitary '-', treat as a '-' option
+            // if the program (eg su) is looking for it.
+            place = EMSG;
+            if (ostr.find('-') == std::string::npos)
+                return (-1);
+            lwoptopt = '-';
+        }
+        lwoptopt = place[0];
+        place.erase(0, 1);
+        if (lwoptopt == '-' && place.empty()) {
+            // "--" => end of options
             ++lwoptind;
             place = EMSG;
             return (-1);
         }
-        if (lwoptopt == 0) {
-            /* Solitary '-', treat as a '-' option
-               if the program (eg su) is looking for it. */
-            place = EMSG;
-            if (strchr(ostr, '-') == NULL)
-                return (-1);
-            lwoptopt = '-';
-        }
     } else {
-        lwoptopt = *place++;
+        lwoptopt = place[0];
+        place.erase(0, 1);
     }
 
-    /* See if option letter is one the caller wanted... */
-    if (lwoptopt == ':' || (oli = strchr(ostr, lwoptopt)) == NULL) {
-        if (*place == 0)
+    // See if option letter is one the caller wanted...
+    std::string::size_type oli = ostr.find(lwoptopt);
+    if (lwoptopt == ':' || oli == std::string::npos) {
+        if (place.empty())
             ++lwoptind;
         return (BADCH);
     }
 
     /* Does this option need an argument? */
-    if (oli[1] != ':') {
-        /* don't need argument */
-        lwoptarg = NULL;
-        if (*place == 0) {
+    if (oli + 1 >= ostr.size() || ostr[oli + 1] != ':') {
+        // don't need argument
+        lwoptarg = "";
+        if (place.empty()) {
             ++lwoptind;
         }
     } else {
-        /* Option-argument is either the rest of this argument or the
-           entire next argument. */
-        if (*place) {
+        // Option-argument is either the rest of this
+        // argument or the entire next argument.
+        if (!place.empty()) {
             lwoptarg = place;
-        } else if (oli[2] == ':') {
-            /*
-             * GNU Extension, for optional arguments if the rest of
-             * the argument is empty, we return NULL
-             */
-            lwoptarg = NULL;
-        } else if (nargc > ++lwoptind) {
+        } else if (nargv.size() > ++lwoptind) {
             lwoptarg = nargv[lwoptind];
         } else {
-            /* option-argument absent */
+            // option-argument absent
             place = EMSG;
-            if (*ostr == ':')
+            if (ostr[0] == ':')
                 return (BADARG);
             return (BADCH);
         }
         place = EMSG;
         ++lwoptind;
     }
-    return (lwoptopt);      /* return option letter */
+    return (lwoptopt); // return option letter
 }

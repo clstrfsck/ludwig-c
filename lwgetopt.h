@@ -32,11 +32,14 @@
 #ifndef LWGETOPT_H
 #define LWGETOPT_H
 
-int lwgetopt(int, const char **, const char *);
+#include <string>
+#include <vector>
 
-extern const char *lwoptarg;
-extern int        lwoptind;
-extern int        lwoptopt;
-extern int        lwoptreset;
+int lwgetopt(const std::vector<std::string> &argv, const std::string &opts);
+
+extern std::string lwoptarg;
+extern size_t      lwoptind;
+extern int         lwoptopt;
+extern bool        lwoptreset;
  
 #endif /* !defined(LWGETOPT_H) */

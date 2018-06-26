@@ -7,6 +7,7 @@
 // operating systems.
 
 #include <string>
+#include <vector>
 
 // Initialisation and tear-down
 void sys_initsig();
@@ -49,5 +50,7 @@ bool sys_unlink(const std::string &filename);
 bool sys_rename(const std::string &oldname, const std::string &newname);
 bool sys_chmod(const std::string &filename, int mask);
 void sys_reap_children();
+
+std::vector<long> sys_list_backups(const std::string &filename);
 
 #endif // !defined(SYS_H)

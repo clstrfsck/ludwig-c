@@ -20,7 +20,7 @@
 /*++
 ! Name:        FILESYS
 !
-! Description: The File interface to Unix
+! Description: The File interface to Unix.
 !
 ! $Log: filesys.c.unix,v $
 ! Revision 4.21  90/10/31  13:02:35  ludwig
@@ -114,32 +114,53 @@
 #include "screen.h"
 #include "lwgetopt.h"
 
-#include <cstring>
 #include <sstream>
 
-#include <dirent.h>
-#include <sys/types.h>
+/*----------------------------------------------------------------------------*/
 
 namespace {
     const std::string NL("\n");
     const int NL_SIZE = NL.size();
+
+    template <typename II>
+    void remove_backup_files(const std::string &backup_file, II begin, II end) {
+        for (; begin != end; ++begin) {
+            std::string file_name = backup_file + std::to_string(*begin);
+            sys_unlink(file_name);
+        }
+    }
+
+    bool starts_with(const std::string &haystack, const std::string &needle) {
+        return haystack.size() >= needle.size() &&
+            haystack.substr(0, needle.size()) == needle;
+    }
+
+    std::vector<std::string> to_argv(const std::string &cmdline) {
+        std::istringstream iss(cmdline);
+        std::vector<std::string> v;
+        std::string token;
+        while (iss >> token) {
+            v.push_back(token);
+        }
+        return v;
+    }
 };
 
 /*----------------------------------------------------------------------------*/
 
 bool filesys_create_open(file_ptr fyle, file_ptr rfyle, bool ordinary_open) {
 #ifdef DEBUG
-    /* Check the file has a 'Z' in the right place */
+    // Check the file has a 'Z' in the right place
     if (fyle->zed != 'Z') {
         screen_message("FILE and FILESYS definition of file_object disagree.");
         return false;
     }
 #endif
     fyle->l_counter = 0;
-    if (!fyle->output_flag) { /* open file for reading */
+    if (!fyle->output_flag) { // open file for reading
         if (fyle->filename.empty())
             return false;
-        if (!ordinary_open) { /* really executing a command */
+        if (!ordinary_open) { // really executing a command
             int fd = sys_open_command(fyle->filename);
             if (fd == -1) {
                 screen_message("Cannot create pipe");
@@ -159,7 +180,7 @@ bool filesys_create_open(file_ptr fyle, file_ptr rfyle, bool ordinary_open) {
             }
             fyle->fd = sys_open_file(fyle->filename);
             if (fyle->fd < 0) {
-                return false; /* fail, return false */
+                return false; // fail, return false
             }
             fyle->mode = fs.mode;
             fyle->previous_file_id = fs.mtime;
@@ -167,11 +188,11 @@ bool filesys_create_open(file_ptr fyle, file_ptr rfyle, bool ordinary_open) {
         fyle->idx = 0;
         fyle->len = 0;
         fyle->eof = 0;
-    } else { /* otherwise open new file for output */
+    } else { // otherwise open new file for output
         std::string related;
         if (rfyle != nullptr)
             related = rfyle->filename;
-        if (fyle->filename.empty()) { /* default to related filename */
+        if (fyle->filename.empty()) { // default to related filename
             fyle->filename = related;
         }
         if (fyle->filename.empty()) {
@@ -182,43 +203,37 @@ bool filesys_create_open(file_ptr fyle, file_ptr rfyle, bool ordinary_open) {
             screen_message(s.str().c_str());
             return false;
         }
-        /*
-         * if the file given is a directory create a filename using the input
-         * filename in the given directory.
-         */
+        // if the file given is a directory create a filename using the input
+        // filename in the given directory.
         file_status fs = sys_file_status(fyle->filename);
-        bool exists = fs.valid;
-        if (exists && fs.isdir && !related.empty()) {
+        if (fs.valid && fs.isdir && !related.empty()) {
             // FIXME: Note this handling is pretty unix specific
-            /*
-             * get the actual file name part of the related file spec
-             * a '/' MUST exist in the name since the path has been fully
-             * expanded, only problem is if the original filename is '/'
-             */
+            // get the actual file name part of the related file spec
+            // a '/' MUST exist in the name since the path has been fully
+            // expanded, only problem is if the original filename is '/'
             std::string::size_type slash = related.rfind('/');
             if (fyle->filename == "/")
                 fyle->filename = related.substr(slash);
             else
                 fyle->filename += related.substr(slash);
-            exists = sys_file_exists(fyle->filename);
+            fs = sys_file_status(fyle->filename);
         }
-        if (exists) {
-            /* if we wanted to create a new file then complain */
+        if (fs.valid) {
+            // if we wanted to create a new file then complain
             if (fyle->create) {
                 std::stringstream s;
                 s << "File (" << fyle->filename << ") already exists";
                 screen_message(s.str().c_str());
                 return false;
             }
-            /* check that the file we may overwrite is not a directory */
-            file_status fs = sys_file_status(fyle->filename);
-            if (fs.valid && fs.isdir) {
+            // check that the file we may overwrite is not a directory
+            if (fs.isdir) {
                 std::stringstream s;
                 s << "File (" << fyle->filename << ") is a directory";
                 screen_message(s.str().c_str());
                 return false;
             }
-            /* check that we can write over the current version */
+            // check that we can write over the current version
             if (!sys_file_writeable(fyle->filename)) {
                 std::stringstream s;
                 s << "Write access to file (" << fyle->filename << ") is denied";
@@ -231,7 +246,7 @@ bool filesys_create_open(file_ptr fyle, file_ptr rfyle, bool ordinary_open) {
             fyle->mode = 0666 & sys_file_mask();
             fyle->previous_file_id = 0;
         }
-        /* now create the temporary name */
+        // now create the temporary name
         int uniq = 0;
 
         fyle->tnm = fyle->filename + "-lw";
@@ -243,10 +258,10 @@ bool filesys_create_open(file_ptr fyle, file_ptr rfyle, bool ordinary_open) {
             std::stringstream s;
             s << "Error opening (" << fyle->tnm << ") as output";
             screen_message(s.str().c_str());
-            return false;     /* fail,    return false */
+            return false;     // fail, return false
         }
     }
-    return true;              /* succeed, return true  */
+    return true;              // succeed, return true
 }
 
 /*----------------------------------------------------------------------------*/
@@ -264,9 +279,9 @@ bool filesys_close(file_ptr fyle, int action, bool msgs) {
     if (fyle->output_flag == 0) {
         // reap any children
         sys_reap_children();
-        /* an ordinary input file, just close */
+        // an ordinary input file, just close
         if (sys_close(fyle->fd) < 0)
-            return false;      /* fail,    return false */
+            return false;      // fail, return false
         if (msgs) {
             std::stringstream s;
             s << "File " << fyle->filename << " closed (" <<
@@ -274,119 +289,75 @@ bool filesys_close(file_ptr fyle, int action, bool msgs) {
                 (fyle->l_counter == 1 ? "" : "s") << " read).";
             screen_message(s.str().c_str());
         }
-        return true;           /* succeed, return true */
+        return true;           // succeed, return true
     }
-    /* an output file to close */
+    // an output file to close
     if ((action != 2) && (sys_close(fyle->fd) < 0))
-        return false;          /* fail,    return false */
+        return false;          // fail, return false
     if (action == 1) {
-        /* remove the file */
+        // remove the file
         if (sys_unlink(fyle->tnm)) {
             if (msgs) {
                 std::stringstream s;
                 s << "Output file " << fyle->tnm << " deleted.";
                 screen_message(s.str().c_str());
             }
-            return true;       /* succeed, return true  */
+            return true;       // succeed, return true
         } else {
             return false;
         }
     }
-    /*
-     * check that another file hasn't been created while we were editting
-     * with the name we are going to use as the output name.
-     */
+    // check that another file hasn't been created while we were editting
+    // with the name we are going to use as the output name.
     file_status fs = sys_file_status(fyle->filename);
     if (fs.valid && fs.mtime != fyle->previous_file_id) {
         std::stringstream s;
         s << fyle->filename << " was modified by another process";
         screen_message(s.str().c_str());
     }
-    std::string dir(fyle->filename);
-    /* find out what directory we are putting this file in */
-    std::string::size_type ls = dir.rfind('/');
-    // Backup name
-    std::string bname = dir.substr(ls + 1) + "~";
-    std::string tname = bname + "%ld";
-    /* if directory is "/" it is OK to make it "" since we add a '/' later */
-    dir.erase(ls);
+    std::string tname(fyle->filename);
+    tname += "~";
     long max_vnum = 0;
     if (fyle->purge) {
-        /*
-         * make sure we allocate some space, even if fyle->versions = 0
-         */
-        std::vector<long> versions;
-        long entries = 0;
-        DIR *dirp = opendir(dir.empty() ? "/" : dir.c_str());
-        for (struct dirent *dp = readdir(dirp); dp != NULL; dp = readdir(dirp)) {
-            long vnum;
-            if (sscanf(dp->d_name, tname.c_str(), &vnum) == 1) {
-                int i;
-                for (i = 0; i < entries && versions[i] > vnum; ++i)
-                    /* Nothing to do here */;
-                if (i < fyle->versions - 1) {
-                    if (entries == fyle->versions - 1) {
-                        std::string temp = dir + std::string("/") + bname + std::to_string(versions[entries - 1]);
-                        sys_unlink(temp);
-                    } else {
-                        entries += 1;
-                        versions.push_back(0);
-                    }
-                    for (int j = entries - 1; j > i; --j) {
-                        versions[j] = versions[j - 1];
-                    }
-                    versions[i] = vnum;
-                } else {
-                    std::string temp = dir + std::string("/") + dp->d_name;
-                    sys_unlink(temp);
-                }
+        const std::vector<long> versions(sys_list_backups(tname));
+        if (fyle->versions <= 0) {
+            // Just remove all of them in this case
+            remove_backup_files(tname, std::begin(versions), std::end(versions));
+        } else {
+            // Work out how many to retain, and how many to remove.
+            size_t to_retain = fyle->versions - 1;
+            if (versions.size() > to_retain) {
+                size_t to_remove = versions.size() - to_retain;
+                remove_backup_files(tname, std::begin(versions), std::next(std::begin(versions), to_remove));
             }
         }
-        closedir(dirp);
-        max_vnum = versions.empty() ? 0 : versions[0];
+        max_vnum = versions.empty() ? 0 : versions.back();
     } else {
-        long min_vnum = -1;
-        long entries = 0;
-        DIR *dirp = opendir(dir.empty() ? "/" : dir.c_str());
-        for (struct dirent *dp = readdir(dirp); dp != NULL; dp = readdir(dirp)) {
-            long vnum;
-            if (sscanf(dp->d_name, tname.c_str(), &vnum) == 1) {
-                max_vnum = std::max(max_vnum, vnum);
-                min_vnum = std::min(min_vnum, vnum);
-                entries += 1;
-                if (vnum > max_vnum)
-                    max_vnum = vnum;
-                if (min_vnum == -1 || vnum < min_vnum)
-                    min_vnum = vnum;
-                entries += 1;
-            }
+        const std::vector<long> versions(sys_list_backups(tname));
+        if (!versions.empty() && versions.size() >= fyle->versions) {
+            // Remove just one file
+            remove_backup_files(tname, std::begin(versions), std::next(std::begin(versions)));
         }
-        closedir(dirp);
-        if (entries >= fyle->versions) {
-            std::string temp = dir + "/" + bname + std::to_string(min_vnum);
-            sys_unlink(temp);
-        }
+        max_vnum = versions.empty() ? 0 : versions.back();
     }
-    /*
-     * Perform Backup on original file if -
-     *    a. fyle->versions != 0
-     * or b. doing single backup and backup already done at least once
-     */
+    // Perform Backup on original file if -
+    //    a. fyle->versions != 0
+    // or b. doing single backup and backup already done at least once
     if (fyle->versions != 0 || (!fyle->purge && max_vnum != 0)) {
-        /* does the real file already exist? */
+        // does the real file already exist?
         if (sys_file_exists(fyle->filename)) {
-            /* try to rename current file to backup */
-            std::string temp = dir + "/" + bname + std::to_string(max_vnum + 1);
+            // try to rename current file to backup
+            std::string temp = tname + std::to_string(max_vnum + 1);
             sys_rename(fyle->filename, temp);
         }
     }
-    /* now rename the temp file to the real thing */
+    // now rename the temp file to the real thing
     sys_chmod(fyle->tnm.c_str(), fyle->mode & 07777);
     if (sys_rename(fyle->tnm, fyle->filename)) {
         std::stringstream s;
         s << "Cannot rename " << fyle->tnm << " to " << fyle->filename;
         screen_message(s.str().c_str());
-        return false;      /* fail,    return false */
+        return false;      // fail, return false
     } else {
         if (msgs) {
             std::stringstream s;
@@ -394,14 +365,14 @@ bool filesys_close(file_ptr fyle, int action, bool msgs) {
                 " line" << (fyle->l_counter == 1 ? "" : "s") << " written).";
             screen_message(s.str().c_str());
         }
-        /*
-         * Time to set the memory, if it's required and we aren't writing in
-         * one of the global tmp directories
-         */
-        if (dir != "/tmp" && dir != "/usr/tmp" && dir != "/var/tmp") {
+        // Time to set the memory, if it's required and we aren't writing in
+        // one of the global tmp directories
+        if (!starts_with(fyle->filename, "/tmp/") &&
+            !starts_with(fyle->filename, "/usr/tmp/") &&
+            !starts_with(fyle->filename, "/var/tmp/")) {
             sys_write_filename(fyle->memory, fyle->filename);
         }
-        return true;       /* succeed, return true  */
+        return true;       // succeed, return true
     }
 }
 
@@ -421,18 +392,16 @@ bool filesys_read(file_ptr fyle, str_object &output_buffer, strlen_range &outlen
         }
         if (fyle->len <= 0) {
             fyle->eof = 1;
-            /*
-             * If the last line is not terminated properly,
-             * the buffer is not empty and we must return the buffer.
-             */
+            // If the last line is not terminated properly,
+            // the buffer is not empty and we must return the buffer.
             if (outlen)
                 break;
-            return false;  /* fail,    return false */
+            return false;  // fail, return false
         }
         int ch = toascii(fyle->buf[fyle->idx++]);
         if (std::isprint(ch)) {
             output_buffer[++outlen] = ch;
-        } else if (ch == '\t') { /* expand the tab */
+        } else if (ch == '\t') { // expand the tab
             int exp = 8 - (outlen % 8);
 
             if (outlen + exp > MAX_STRLEN)
@@ -440,11 +409,11 @@ bool filesys_read(file_ptr fyle, str_object &output_buffer, strlen_range &outlen
             for (; exp > 0; exp--)
                 output_buffer[++outlen] = ' ';
         } else if (ch == '\n' || ch == '\r' || ch == '\v' || ch == '\f') {
-            break;              /* finished if newline or carriage return */
-        } /* forget other control characters */
+            break;              // finished if newline or carriage return
+        } // forget other control characters
     } while (outlen < MAX_STRLEN);
     fyle->l_counter += 1;
-    return true;           /* succeed, return true  */
+    return true;           // succeed, return true
 }
 
 /*----------------------------------------------------------------------------*/
@@ -504,25 +473,25 @@ bool filesys_save(file_ptr i_fyle, file_ptr o_fyle, int copy_lines) {
     str_object line;
     strlen_range line_len;
     if (i_fyle != nullptr) {
-        /*  remember things to be restored */
+        //  remember things to be restored
         input_eof = i_fyle->eof;
         input_position = sys_tell(o_fyle->fd);
 
-        /*  copy unread portion of input file to output file */
+        // copy unread portion of input file to output file
         do {
             if (filesys_read(i_fyle, line, line_len))
                 filesys_write(o_fyle, &line, line_len);
         } while (!i_fyle->eof);
 
-        /* close input file */
+        // close input file
         filesys_close(i_fyle, 0, true);
     }
 
-    /* rename temporary file to output file */
-    /* process backup options, but do not close the file */
+    // rename temporary file to output file
+    // process backup options, but do not close the file
     filesys_close(o_fyle, 2, true);
 
-    /* make the old output file the new input file */
+    // make the old output file the new input file
     if (i_fyle == NULL) {
           i_fyle = &fyle;
           i_fyle->output_flag = false;
@@ -533,15 +502,15 @@ bool filesys_save(file_ptr i_fyle, file_ptr o_fyle, int copy_lines) {
     i_fyle->filename = o_fyle->filename;
     i_fyle->fd = o_fyle->fd;
 
-    /* rewind the input file */
+    // rewind the input file
     filesys_rewind(i_fyle);
 
-    /* open a new output file */
+    // open a new output file
     o_fyle->create = false;
     if (!filesys_create_open(o_fyle, nullptr, true))
         return false;
 
-    /* copy lines from the input file to the output file */
+    // copy lines from the input file to the output file
     for (int i = 0; i < copy_lines; i++) {
         if (!filesys_read(i_fyle, line, line_len))
             return false;
@@ -549,7 +518,7 @@ bool filesys_save(file_ptr i_fyle, file_ptr o_fyle, int copy_lines) {
             return false;
     }
 
-    /* reposition or close the input file */
+    // reposition or close the input file
     if (i_fyle == &fyle) {
         sys_close(i_fyle->fd);
     } else {
@@ -563,7 +532,7 @@ bool filesys_save(file_ptr i_fyle, file_ptr o_fyle, int copy_lines) {
 
 /*----------------------------------------------------------------------------*/
 
-bool filesys_parse(const char *command_line, parse_type parse,
+bool filesys_parse(const std::string &command_line, parse_type parse,
                    file_data_type &file_data, file_ptr &input, file_ptr &output) {
     static const char usage[] = "usage : ludwig [-c] [-r] [-i value] [-I] "
                                 "[-s value] [-m file] [-M] [-t] [-T] "
@@ -580,19 +549,17 @@ bool filesys_parse(const char *command_line, parse_type parse,
         return true;
     }
 
-    /* create an argc and argv from the "command_line" */
-    std::vector<char> cmdline(command_line, command_line + std::strlen(command_line) + 1);
-    std::vector<const char *> argv;
+    // create an argc and argv from the "command_line"
+    std::vector<std::string> argv;
     argv.push_back("Ludwig");
-    for (char *temp = strtok(cmdline.data(), " "); temp != nullptr; temp = strtok(nullptr, " "))
-        argv.push_back(temp);
-    argv.push_back(nullptr);
+    std::vector<std::string> cl(to_argv(command_line));
+    argv.insert(std::end(argv), std::begin(cl), std::end(cl));
 
-    int  argc     = argv.size() - 1; // Exclude nullptr
-    bool entab    = file_data.entab;
-    int  space    = file_data.space;
-    bool purge    = file_data.purge;
-    int  versions = file_data.versions;
+    size_t argc     = argv.size();
+    bool   entab    = file_data.entab;
+    int    space    = file_data.space;
+    bool   purge    = file_data.purge;
+    size_t versions = file_data.versions;
 
     bool create_flag    = false;
     bool read_only_flag = false;
@@ -607,8 +574,11 @@ bool filesys_parse(const char *command_line, parse_type parse,
     std::string memory;
 
     if (parse == parse_type::parse_command) {
-        initialize = std::string(getenv("HOME")) + "/.ludwigrc";
-        memory = std::string(getenv("HOME")) + "/.lud_memory";
+        std::string home;
+        if (!sys_getenv("HOME", home))
+            home = ".";
+        initialize = home + "/.ludwigrc";
+        memory = home + "/.lud_memory";
     } else {
         initialize.clear();
         memory.clear();
@@ -616,19 +586,19 @@ bool filesys_parse(const char *command_line, parse_type parse,
     lwoptreset = 1;
     lwoptind = 1;
     int c;
-    while ((c = lwgetopt(argc, argv.data(), "cri:Is:m:MtTb:B:oOu")) != -1) {
+    while ((c = lwgetopt(argv, "cri:Is:m:MtTb:B:oOu")) != -1) {
         switch (c) {
         case 'c':
             if (read_only_flag)
                 errors++;
             else
-                create_flag = 1;
+                create_flag = true;
             break;
         case 'r':
             if (create_flag)
                 errors++;
             else
-                read_only_flag = 1;
+                read_only_flag = true;
             break;
         case 'i':
             initialize = lwoptarg;
@@ -637,8 +607,12 @@ bool filesys_parse(const char *command_line, parse_type parse,
             initialize = "";
             break;
         case 's':
-            space_flag = 1;
-            sscanf(lwoptarg, "%d", &space);
+            try {
+                space = static_cast<size_t>(std::stoul(lwoptarg));
+                space_flag = true;
+            } catch (std::logic_error &ex) {
+                errors++;
+            }
             break;
         case 'm':
             memory = lwoptarg;
@@ -647,29 +621,37 @@ bool filesys_parse(const char *command_line, parse_type parse,
             memory = "";
             break;
         case 't':
-            entab = 1;
+            entab = true;
             break;
         case 'T':
-            entab = 0;
+            entab = false;
             break;
         case 'b':
-            purge = 0;
-            sscanf(lwoptarg, "%d", &versions);
+            try {
+                versions = static_cast<size_t>(std::stoul(lwoptarg));
+                purge = false;
+            } catch (std::logic_error &ex) {
+                errors++;
+            }
             break;
         case 'B':
-            purge = 1;
-            sscanf(lwoptarg, "%d", &versions);
+            try {
+                versions = static_cast<size_t>(std::stoul(lwoptarg));
+                purge = true;
+            } catch (std::logic_error &ex) {
+                errors++;
+            }
             break;
         case 'o':
-            version_flag = 1;
+            version_flag = true;
             file_data.old_cmds = true;
             break;
         case 'O':
-            version_flag = 1;
+            version_flag = true;
             file_data.old_cmds = false;
             break;
         case 'u':
-            usage_flag = 1;
+            usage_flag = true;
             break;
         }
     }

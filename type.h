@@ -220,7 +220,7 @@ struct file_object {
 
     // Fields for controlling version backup
     bool          purge;
-    int           versions;
+    size_t        versions;
 
     // THE FOLLOWING FIELD SHOULD BE SET TO 'Z' BY "FILE",
     // IT IS CHECKED BY "FILESYS" AS A CONSISTENCY CHECK.
@@ -651,10 +651,10 @@ enum class parameter_type {
 struct file_data_type {
     bool          old_cmds;
     bool          entab;
-    int           space;
+    size_t        space;
     str_object    initial;
     bool          purge;
-    int           versions;
+    size_t        versions;
 };
 
 struct code_object {
