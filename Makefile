@@ -29,14 +29,18 @@ OBJS =	arrow.o		caseditto.o	ch.o		charcmd.o	\
 # Tested with clang++ 6.0.0 and g++ 7.3.0
 CXX = g++
 CC  = gcc
-# These are debug flags. Works for both g++ and clang++.
-DEFS     = -DDEBUG -D_GLIBCXX_DEBUG
-CXXFLAGS = -g -Wall -std=c++14 $(DEFS) -fdiagnostics-color=never
-CFLAGS   = -g -Wall -DMKSTEMP
+
+ifdef NDEBUG
 # These are release flags.
 # Works for g++, clang++ doesn't understand -Wno-maybe-uninitialized
-#CXXFLAGS = -Wno-maybe-uninitialized -O3 -Wall -std=c++14
-#CFLAGS   = -O3 -Wall -DMKSTEMP
+CXXFLAGS = -Wno-maybe-uninitialized -O3 -Wall -std=c++14 -fdiagnostics-color=never
+CFLAGS   = -O3 -Wall -DMKSTEMP
+else
+# These are debug flags. Works for both g++ and clang++.
+DEFS     = -DDEBUG -D_GLIBCXX_DEBUG
+CXXFLAGS = -pg -Wall -std=c++14 $(DEFS) -fdiagnostics-color=never
+CFLAGS   = -g -Wall -DMKSTEMP
+endif
 
 .PHONY: all tests clean
 
@@ -44,7 +48,7 @@ all:	ludwig ludwighlp.idx ludwignewhlp.idx
 	echo Done.
 
 ludwig:	$(OBJS)
-	$(CXX) -o ludwig $(OBJS) -lncurses
+	$(CXX) $(CXXFLAGS) -o ludwig $(OBJS) -lncurses
 
 ludwighlpbld:	ludwighlpbld.c
 	$(CC) $(CFLAGS) -o ludwighlpbld ludwighlpbld.c
@@ -148,3 +152,4 @@ window.o: window.cpp window.h type.h const.h parray.h prange.h perange.h \
  penumset.h prangeset.h var.h vdu.h line.h mark.h frame.h screen.h
 word.o: word.cpp word.h type.h const.h parray.h prange.h perange.h \
  penumset.h prangeset.h var.h line.h mark.h text.h screen.h
+zz.o: zz.cpp
