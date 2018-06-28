@@ -29,6 +29,7 @@ struct file_status {
 
 // Filesystem access
 bool sys_expand_filename(std::string &filename);
+bool sys_copy_filename(const std::string &src_path, std::string &dst_path);
 int  sys_open_command(const std::string &cmd);
 int  sys_open_file(const std::string &filename);
 int  sys_create_file(const std::string &filename);

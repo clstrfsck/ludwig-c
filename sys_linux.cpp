@@ -112,6 +112,19 @@ bool sys_expand_filename(std::string &filename) {
     return true;
 }
 
+bool sys_copy_filename(const std::string &src_path, std::string &dst_path) {
+    // get the actual file name part of src_path.
+    std::string::size_type slash = dst_path.rfind('/');
+    if (!dst_path.empty() && dst_path != "/")
+        dst_path += "/";
+    if (slash == std::string::npos) {
+        dst_path += src_path;
+    } else {
+        dst_path += src_path.substr(slash + 1);
+    }
+    return true;
+}
+
 int sys_open_command(const std::string &cmd) {
     int fd[2];
     if (::pipe(fd) == -1)

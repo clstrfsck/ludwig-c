@@ -207,15 +207,8 @@ bool filesys_create_open(file_ptr fyle, file_ptr rfyle, bool ordinary_open) {
         // filename in the given directory.
         file_status fs = sys_file_status(fyle->filename);
         if (fs.valid && fs.isdir && !related.empty()) {
-            // FIXME: Note this handling is pretty unix specific
-            // get the actual file name part of the related file spec
-            // a '/' MUST exist in the name since the path has been fully
-            // expanded, only problem is if the original filename is '/'
-            std::string::size_type slash = related.rfind('/');
-            if (fyle->filename == "/")
-                fyle->filename = related.substr(slash);
-            else
-                fyle->filename += related.substr(slash);
+            // Get the filename from the related name.
+            sys_copy_filename(related, fyle->filename);
             fs = sys_file_status(fyle->filename);
         }
         if (fs.valid) {
@@ -248,7 +241,6 @@ bool filesys_create_open(file_ptr fyle, file_ptr rfyle, bool ordinary_open) {
         }
         // now create the temporary name
         int uniq = 0;
-
         fyle->tnm = fyle->filename + "-lw";
         while (sys_file_exists(fyle->tnm)) {
             fyle->tnm = fyle->filename + std::string("-lw") + std::to_string(++uniq);
