@@ -77,9 +77,10 @@ void process_files(std::ifstream &in, std::ofstream &out)
             if (!std::getline(in, line))
                 break;
             if (line.size() > ENTRYSIZE) {
+                line = line.substr(0, ENTRYSIZE);
                 if (flag != '!' && flag != '{') {
                     std::cerr << "Line too long--truncated" << std::endl;
-                    std::cerr << line.substr(0, ENTRYSIZE) << ">>" << std::endl;
+                    std::cerr << line << ">>" << std::endl;
                 }
             }
         }
