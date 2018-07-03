@@ -50,8 +50,8 @@ all:	ludwig ludwighlp.idx ludwignewhlp.idx
 ludwig:	$(OBJS)
 	$(CXX) $(CXXFLAGS) -o ludwig $(OBJS) -lncurses
 
-ludwighlpbld:	ludwighlpbld.c
-	$(CC) $(CFLAGS) -o ludwighlpbld ludwighlpbld.c
+ludwighlpbld:	ludwighlpbld.cpp
+	$(CXX) $(CXXFLAGS) -o ludwighlpbld ludwighlpbld.cpp
 
 ludwighlp.idx:  ludwighlpbld ludwighlp.t
 	./ludwighlpbld ludwighlp.t ludwighlp.idx
