@@ -655,16 +655,10 @@ bool filesys_parse(const std::string &command_line, parse_type parse,
         return false;
     }
     if (parse == parse_type::parse_command) {
-        if (!initialize.empty()) {
-            int len = initialize.size();
-            file_data.initial.fill(' ');
-            file_data.initial.copy_n(initialize.data(), len);
-        } else {
-            file_data.initial.fill(' ');
-        }
-        file_data.space = space;
-        file_data.entab = entab;
-        file_data.purge = purge;
+        file_data.initial  = initialize;
+        file_data.space    = space;
+        file_data.entab    = entab;
+        file_data.purge    = purge;
         file_data.versions = versions;
     } else if (create_flag || read_only_flag || !initialize.empty() || space_flag || version_flag) {
         return false;

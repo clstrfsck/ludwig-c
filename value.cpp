@@ -152,13 +152,12 @@
         dflt_prompts[prompt_type::pattern_prompt    ]  = prompt_str("Pattern:");
         dflt_prompts[prompt_type::pattern_set_prompt]  = prompt_str("Pat Set:");
 
-        file_data.old_cmds  = true;
-        file_data.entab  = false;
-        file_data.space  = 500000;
-        for (int i = 1; i <= MAX_STRLEN; ++i)
-            file_data.initial[i]  = ' ';
-        file_data.purge  = false;
-        file_data.versions  = 1;
+        file_data.old_cmds = true;
+        file_data.entab    = false;
+        file_data.space    = 500000;
+        file_data.purge    = false;
+        file_data.versions = 1;
+        file_data.initial.clear();
 
         word_elements[0]  = SPACE_SET;
         /* word_elements[1]  = ALPHA_SET + NUMERIC_SET; */

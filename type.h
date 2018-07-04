@@ -652,7 +652,7 @@ struct file_data_type {
     bool          old_cmds;
     bool          entab;
     size_t        space;
-    str_object    initial;
+    std::string   initial;
     bool          purge;
     size_t        versions;
 };
@@ -673,8 +673,7 @@ struct command_object {
 };
 
 struct terminal_info_type {
-    const char    *name;
-    strlen_range  namelen;
+    std::string   name;
     scr_col_range width;
     scr_row_range height;
 };

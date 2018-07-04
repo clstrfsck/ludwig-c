@@ -47,10 +47,7 @@ void vdu_keyboard_init(key_names_range &nr_key_names,
                        accept_set_type &key_introducers,
                        terminal_info_type &terminal_info);
 
-bool vdu_init(int outbuflen,
-              // See type.h - don't think we need this
-              //terminal_capabilities &capabilities,
-              terminal_info_type &terminal_info,
+bool vdu_init(terminal_info_type &terminal_info,
               bool &ctrl_c_flag, bool &winchange_flag);
 
 void vdu_free();

@@ -736,18 +736,11 @@ void load_command_table(bool old_version) {
 }
 
 bool start_up(int argc, char **argv) {
-#ifdef DEBUG_SCREEN
-    const int OUTBUFLEN = 1;
-#else
-    const int OUTBUFLEN = MAXINT;
-#endif
     const name_str frame_name_cmd ("COMMAND                        ");
     const name_str frame_name_oops("OOPS                           ");
     const name_str frame_name_heap("HEAP                           ");
 
-    tpar_ptr      tparam;
     file_name_str command_line;
-    int           initial_len;
 
     bool result = false;
 
@@ -776,7 +769,7 @@ bool start_up(int argc, char **argv) {
     // Try to get started on the terminal.  If this fails assume carry on
     // in BATCH mode.
     ludwig_mode  = ludwig_mode_type::ludwig_batch;
-    if (vdu_init(OUTBUFLEN, terminal_info, tt_controlc, tt_winchanged)) {
+    if (vdu_init(terminal_info, tt_controlc, tt_winchanged)) {
         initial_scr_width  = terminal_info.width;
         initial_scr_height = terminal_info.height;
         initial_margin_right = terminal_info.width;
@@ -855,18 +848,17 @@ bool start_up(int argc, char **argv) {
 
     // Execute the user's initialization string.
 
-    initial_len = file_data.initial.length(' ');
-    if (initial_len > 0) {
+    if (!file_data.initial.empty()) {
         if (ludwig_mode == ludwig_mode_type::ludwig_screen)
             vdu_flush(false);
-        tparam = new tpar_object;
+        tpar_object tparam;
         //with tparam^ do
-        tparam->len = initial_len;
-        tparam->dlm = TPD_EXACT;
-        tparam->str.copy(file_data.initial, 1, tparam->len);
-        tparam->nxt = nullptr;
-        tparam->con = nullptr;
-        if (!execute(commands::cmd_file_execute, leadparam::none, 1, tparam, true)) {
+        tparam.len = file_data.initial.size();
+        tparam.dlm = TPD_EXACT;
+        tparam.str.copy_n(file_data.initial.data(), tparam.len);
+        tparam.nxt = nullptr;
+        tparam.con = nullptr;
+        if (!execute(commands::cmd_file_execute, leadparam::none, 1, &tparam, true)) {
             if (exit_abort) {
                 // something is wrong, but let the user continue anyway!
                 if (ludwig_mode != ludwig_mode_type::ludwig_batch)
@@ -874,7 +866,6 @@ bool start_up(int argc, char **argv) {
                 exit_abort = false;
             }
         }
-        delete tparam;
     }
 
     // Set the Abort Flag now.  This will suppress spurious start-up messages

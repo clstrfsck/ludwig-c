@@ -485,19 +485,14 @@ void vdu_keyboard_init(key_names_range &nr_key_names,
 
     key_introducers.clear();
 
-    terminal_info.name    = ::termname();
-    terminal_info.namelen = std::strlen(terminal_info.name);
-    terminal_info.width   = ::COLS;
-    terminal_info.height  = ::LINES;
+    terminal_info.name   = ::termname();
+    terminal_info.width  = ::COLS;
+    terminal_info.height = ::LINES;
 }
 
 
-bool vdu_init(int outbuflen, 
-              // terminal_capabilities &capabilities,
-              terminal_info_type &terminal_info,
+bool vdu_init(terminal_info_type &terminal_info,
               bool &ctrl_c_flag, bool &winchange_flag) {
-    // capabilities.clear();
-    // capabilities.add(terminal_capabilities::trmflags_v_hard);
     g_ctrl_c = &ctrl_c_flag;
     g_winchange = &winchange_flag;
     terminal_info.width = 80;

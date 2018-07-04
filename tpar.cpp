@@ -302,8 +302,8 @@ bool find_enquiry(const name_str &name, str_object &result, strlen_range &reslen
         case vartype::terminal:
             enquiry_result = true;
             if (item == "NAME") {
-                reslen = terminal_info.namelen;
-                result.fillcopy(terminal_info.name, reslen, 1, MAX_STRLEN, ' ');
+                reslen = terminal_info.name.size();
+                result.fillcopy(terminal_info.name.data(), reslen, 1, MAX_STRLEN, ' ');
             } else if (item == "HEIGHT") {
                 std::string s = std::to_string(terminal_info.height);
                 reslen = s.size();
