@@ -101,7 +101,8 @@ void process_files(std::ifstream &in, std::ofstream &out)
                     section = line.substr(0, KEYSIZE);
                     if (section != "0") {
                         index_lines += 1;
-                        index << std::setw(KEYSIZE) << section << ' ' << std::setw(8) << body.tellp();
+                        index << std::setw(KEYSIZE) << section << ' ';
+                        index << std::setw(8) << body.tellp();
                     }
                     break;
                 }
