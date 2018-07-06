@@ -664,12 +664,12 @@ bool filesys_parse(const std::string &command_line, parse_type parse,
         return false;
     }
     std::vector<std::string> file;
-    for (int files = 0; lwoptind < argc; lwoptind++) {
+    for (int files = 0; lwoptind < argc; ++files) {
         if (files >= 2) {
             screen_message("More than two files specified");
             return false;
         }
-        file.push_back(argv[lwoptind]);
+        file.push_back(argv[lwoptind++]);
     }
     if (file.size() == 2) {
         check_input = true;
@@ -709,10 +709,7 @@ bool filesys_parse(const std::string &command_line, parse_type parse,
         } else {
             output->filename = input->filename;
         }
-        if (!memory.empty())
-            output->memory = memory;
-        else
-            output->memory.clear();
+        output->memory = memory;
         output->entab = entab;
         output->purge = purge;
         output->versions = versions;
