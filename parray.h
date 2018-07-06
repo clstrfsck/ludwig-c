@@ -46,7 +46,7 @@ public:
     typedef typename array_type::iterator        iterator;
     typedef typename array_type::const_iterator  const_iterator;
 
-    explicit parray(const_reference init_value = value_type())
+    explicit parray(value_type init_value = value_type())
         : m_array(index_type::size(), init_value) {
         // Nothing more to do here
     }
