@@ -36,6 +36,7 @@
 #include <cstdio>
 #include <fstream>
 #include <iomanip>
+#include <sstream>
 #include <iostream>
 
 namespace {
