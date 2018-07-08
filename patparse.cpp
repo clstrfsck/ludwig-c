@@ -315,7 +315,7 @@ bool pattern_parser(tpar_object &pattern, nfa_table_type &nfa_table,
                 }
             };
 
-            auto pattern_range_build = [&](int range_start, int range_end, nfa_state_range range_path, bool indefinite) {
+            auto pattern_range_build = [&](int range_start, int range_end, nfa_state_range range_patch, bool indefinite) {
                 int aux;
                 nfa_state_range end_state;
                 nfa_state_range divert_ptr;
