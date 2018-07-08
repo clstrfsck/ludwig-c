@@ -653,7 +653,7 @@ void screen_lines_extract(line_ptr first_line, line_ptr last_line) {
         // In our case, handled by ncurses.
         vdu_movecurs(1, first_line->scr_row_nr);
         scr_row_range count = last_line->scr_row_nr + 1 - first_line->scr_row_nr;
-        vdu_deletelines(count, true);
+        vdu_deletelines(count);
         if (scr_msg_row <= terminal_info.height)
             scr_msg_row -= count;
 
@@ -845,7 +845,7 @@ void screen_lines_inject(line_ptr first_line, line_range count, line_ptr before_
     }
 }
 
-void screen_load(line_ptr line, col_range col) {
+void screen_load(line_ptr line) {
     // LUDWIG_SCREEN:
     // Map the screen into the specified frame, the line and col specified must
     // be on the screen,  it is placed in the most desirable location.
@@ -959,7 +959,7 @@ void screen_position(line_ptr new_line, col_range new_col) {
     //       (4) No more than scr_height lines are written to the screen.
 
     if (new_line->group->frame != scr_frame) {
-        screen_load(new_line, new_col);
+        screen_load(new_line);
         return;
     }
 
@@ -1037,7 +1037,7 @@ void screen_position(line_ptr new_line, col_range new_col) {
         // a combined scroll and slide operation is embarked on.
 
         if ((scroll_state == scroll_type::scroll_redraw) || (slide_state == slide_type::slide_redraw))
-            screen_load(new_line, new_col);
+            screen_load(new_line);
         else {
             if (slide_state != slide_type::slide_dont) {
                 // Adjust the screen offset and the lines that are
@@ -1218,7 +1218,7 @@ void screen_resize() {
     // screen load/unload do, it can't be too much of a problem
 
     //with current_frame^, dot^ do
-    screen_load(current_frame->dot->line, current_frame->dot->col);
+    screen_load(current_frame->dot->line);
     scr_needs_fix = false;
     screen_expand(true, true);
     vdu_movecurs(current_frame->dot->col - current_frame->scr_offset, current_frame->dot->line->scr_row_nr);
@@ -1240,7 +1240,7 @@ void screen_fixup() {
         if (scr_frame != current_frame) {
             if (scr_msg_row <= terminal_info.height)
                 screen_clear_msgs(true);
-            screen_load(current_frame->dot->line, current_frame->dot->col);
+            screen_load(current_frame->dot->line);
         } else {
             if ((current_frame->dot->line->scr_row_nr == 0) ||
                 ((current_frame->dot->line->scr_row_nr - scr_top_line->scr_row_nr < current_frame->margin_top) &&
@@ -1329,7 +1329,7 @@ void screen_getlinep(const str_object &prompt, strlen_range prompt_len,
                         }
                 }
             }
-            vdu_flush(false);
+            vdu_flush();
         } else {
             write(prompt.data(), prompt_len);
             std::string input;
@@ -1355,7 +1355,7 @@ void screen_free_bottom_line() {
 #endif
     if (scr_frame == nullptr) {                   // IF SCREEN NOT MAPPED.
         vdu_displaycrlf();
-        vdu_deletelines(1, false);
+        vdu_deletelines(1);
         return;
     }
     scr_needs_fix = true;
@@ -1365,7 +1365,7 @@ void screen_free_bottom_line() {
     } else if (scr_bot_line->scr_row_nr + 2 < scr_msg_row) { // IF ROOM BELOW BOT LINE.
                                                              // +2 because of <eos> line.
         vdu_movecurs(1, scr_bot_line->scr_row_nr + 2);
-        vdu_deletelines(1, false);
+        vdu_deletelines(1);
     } else if (scr_top_line->scr_row_nr != 1) {      // IF TOP LINE FREE.
         screen_scroll(1, false);
     } else {
@@ -1375,20 +1375,20 @@ void screen_free_bottom_line() {
                 vdu_movecurs(1, scr_bot_line->scr_row_nr + 2);
             else
                 vdu_movecurs(1, scr_bot_line->scr_row_nr + 1);
-            vdu_deletelines(1,false);
+            vdu_deletelines(1);
         } else if ((scr_frame->dot->line != scr_top_line) && // IF DOT NOT ON TOP LINE,
                    !((scr_frame->dot->line != scr_bot_line) &&
                      (scr_bot_line->scr_row_nr = terminal_info.height))) { // AND WE CANT USE THE BOT.
             screen_scroll(1, false);
         } else if (scr_msg_row <= terminal_info.height / 2) { // 1/2 SCREEN ALREADY MSGS.
             vdu_movecurs(1, scr_msg_row);
-            vdu_deletelines(1, false);
+            vdu_deletelines(1);
             return;
         } else {                                     // CONTRACT SCREEN 1 LINE.
             scr_bot_line->scr_row_nr = 0;
             scr_bot_line = scr_bot_line->blink;
             vdu_movecurs(1, scr_msg_row - 1);
-            vdu_deletelines(1, false);
+            vdu_deletelines(1);
         }
     }
     scr_msg_row -= 1;
@@ -1498,7 +1498,7 @@ verify_response screen_verify(str_object prompt, strlen_range prompt_len) {
                 else
                     current_frame->scr_height = terminal_info.height;
                 if (scr_top_line == nullptr)
-                    screen_load(current_frame->dot->line, current_frame->dot->col);
+                    screen_load(current_frame->dot->line);
                 else
                     screen_expand(true, true);
                 more = true;

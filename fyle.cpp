@@ -395,7 +395,7 @@ bool file_windthru(frame_ptr current, bool from_span) {
     if (current->text_modified && !from_span) {
         screen_message(MSG_WRITING_FILE);
         if (ludwig_mode == ludwig_mode_type::ludwig_screen)
-            vdu_flush(false);
+            vdu_flush();
     }
     // Do any lines that have already been read in.
     line_ptr first_line = current->first_group->first_line;
@@ -628,7 +628,7 @@ bool file_command(commands command, leadparam rept, int count, tpar_ptr tparam, 
         if (!from_span) {
           screen_message(MSG_LOADING_FILE);
           if (ludwig_mode == ludwig_mode_type::ludwig_screen)
-              vdu_flush(false);
+              vdu_flush();
         }
         file_page(current_frame, exit_abort);
 
@@ -676,7 +676,7 @@ bool file_command(commands command, leadparam rept, int count, tpar_ptr tparam, 
         if (!from_span) {
             screen_message(MSG_LOADING_FILE);
             if (ludwig_mode == ludwig_mode_type::ludwig_screen)
-                vdu_flush(false);
+                vdu_flush();
         }
         file_page(current_frame, exit_abort);
         // Clean up the LOADING message.
@@ -832,7 +832,7 @@ bool file_command(commands command, leadparam rept, int count, tpar_ptr tparam, 
         if (!from_span) { 
             screen_message(MSG_WRITING_FILE);
             if (ludwig_mode == ludwig_mode_type::ludwig_screen)
-                vdu_flush(false);
+                vdu_flush();
         }
         line_ptr first;
         line_ptr last;
@@ -855,7 +855,7 @@ bool file_command(commands command, leadparam rept, int count, tpar_ptr tparam, 
         if (!from_span) {
             screen_message(MSG_LOADING_FILE);
             if (ludwig_mode == ludwig_mode_type::ludwig_screen)
-                vdu_flush(false);
+                vdu_flush();
         }
         file_page(current_frame, exit_abort);
         // Clean up the LOADING message.
@@ -881,7 +881,7 @@ bool file_command(commands command, leadparam rept, int count, tpar_ptr tparam, 
             if (!from_span) {
                 screen_message(MSG_NOT_MODIFIED);
                 if (ludwig_mode == ludwig_mode_type::ludwig_screen)
-                    vdu_flush(false);
+                    vdu_flush();
             }
             result = true;
             goto l99;
@@ -889,7 +889,7 @@ bool file_command(commands command, leadparam rept, int count, tpar_ptr tparam, 
         if (!from_span) {
             screen_message(MSG_SAVING_FILE);
             if (ludwig_mode == ludwig_mode_type::ludwig_screen)
-                vdu_flush(false);
+                vdu_flush();
         }
         int lines_written = files[current_frame->output_file]->l_counter;
         line_ptr first = current_frame->first_group->first_line;

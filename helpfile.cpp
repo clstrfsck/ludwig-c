@@ -135,7 +135,7 @@ bool helpfile_open(bool old_version) {
     return true;
 }
 
-int helpfile_read(const key_str &keystr, int keylen, help_record &buffer, int buflen, int &reclen) {
+int helpfile_read(const key_str &keystr, int keylen, help_record &buffer, int &reclen) {
     current_key.key.clear();
     current_key.key.append(keystr.data(), keylen);
 
@@ -162,7 +162,7 @@ int helpfile_read(const key_str &keystr, int keylen, help_record &buffer, int bu
     return 1;
 }
 
-int helpfile_next(help_record &buffer, int buflen, int &reclen) {
+int helpfile_next(help_record &buffer, int &reclen) {
     /*
      * if the current position = the end of the entry return 0, else give back
      * the next line nicely packaged.

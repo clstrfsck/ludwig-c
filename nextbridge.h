@@ -3,6 +3,6 @@
 
 #include "type.h"
 
-bool nextbridge_command(leadparam rept, int count, const tpar_object &tpar, bool bridge);
+bool nextbridge_command(int count, const tpar_object &tpar, bool bridge);
 
 #endif // !defined(NEXTBRIDGE_H)

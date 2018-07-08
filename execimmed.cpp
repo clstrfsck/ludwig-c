@@ -155,7 +155,7 @@ void execute_immed() {
                     vdu_get_text(input_len, input_buf, input_len);
                     if (edit_mode == mode_type::mode_insert) {
                         vdu_insert_mode(false);
-                        vdu_flush(false); // Make sure in mode IS off!
+                        vdu_flush(); // Make sure in mode IS off!
                     }
                     if (tt_controlc)
                         goto l9;
@@ -255,7 +255,7 @@ void execute_immed() {
                     screen_unload();
             } else if (!cmd_success) {
                 vdu_beep();         // Complain.
-                vdu_flush(false);   // Make sure he hears the complaint.
+                vdu_flush();        // Make sure he hears the complaint.
             } else {
                 jammed = false;
             }
@@ -296,7 +296,7 @@ void execute_immed() {
                 // If necessary, prompt.
                 if (ludwig_mode == ludwig_mode_type::ludwig_hardcopy) {
                     //with current_frame->dot^ do
-                    screen_load(current_frame->dot->line, current_frame->dot->col);
+                    screen_load(current_frame->dot->line);
                     writeln("COMMAND: ");
                 }
 

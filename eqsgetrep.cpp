@@ -123,7 +123,7 @@ bool eqsgetrep_pattern_build(tpar_object tpar, dfa_table_ptr &pattern_ptr) {
     return true;
 }
 
-bool eqsgetrep_eqs(leadparam rept, int count, tpar_object tpar, bool from_span) {
+bool eqsgetrep_eqs(leadparam rept, tpar_object tpar) {
     bool success = false;
     //with current_frame^,dot^,line^ do
     if (tpar.dlm == TPD_SMART) {
@@ -199,7 +199,7 @@ bool eqsgetrep_eqs(leadparam rept, int count, tpar_object tpar, bool from_span) 
     return success;
 }
 
-bool eqsgetrep_dumb_get(leadparam rept, int count, tpar_object tpar, bool from_span) {
+bool eqsgetrep_dumb_get(int count, tpar_object tpar, bool from_span) {
     bool result = (count == 0);
     //with current_frame^ do
     // Initialize the search variables.
@@ -339,7 +339,7 @@ l99:;
     return result;
 }
 
-bool eqsgetrep_pattern_get(leadparam rept, int count, tpar_object tpar, bool from_span, bool replace_flag) {
+bool eqsgetrep_pattern_get(int count, tpar_object tpar, bool from_span, bool replace_flag) {
     bool result = (count == 0);
     //with current_frame^ do
     dfa_table_ptr pattern_ptr;
@@ -455,16 +455,15 @@ l99:;
     return result;
 }
 
-bool eqsgetrep_get(leadparam rept, int count, tpar_object tpar, bool from_span) {
+bool eqsgetrep_get(int count, tpar_object tpar, bool from_span) {
     if (tpar.dlm == TPD_SMART)
-        return eqsgetrep_pattern_get(rept, count, tpar, from_span, false);
+        return eqsgetrep_pattern_get(count, tpar, from_span, false);
     else
-        return eqsgetrep_dumb_get(rept, count, tpar, from_span);
+        return eqsgetrep_dumb_get(count, tpar, from_span);
 }
 
 bool eqsgetrep_rep(leadparam rept, int count, tpar_object tpar, tpar_object tpar2, bool from_span) {
     int getcount;
-    leadparam getrept;
     int length;
     int delta;
     col_range start_col;
@@ -483,10 +482,8 @@ bool eqsgetrep_rep(leadparam rept, int count, tpar_object tpar, tpar_object tpar
         if (!eqsgetrep_pattern_build(tpar, current_frame->rep_pattern_ptr))
             goto l99;
     }
-    getrept  = leadparam::pint;
     getcount = 1;
     if (rept == leadparam::minus || rept == leadparam::nindef || rept == leadparam::nint) {
-        getrept  = leadparam::nint;
         getcount = -1;
     }
     if (rept == leadparam::pindef || rept == leadparam::nindef)
@@ -499,9 +496,9 @@ bool eqsgetrep_rep(leadparam rept, int count, tpar_object tpar, tpar_object tpar
             if (tt_controlc || exit_abort)
                 goto l1;
             if (tpar.dlm == TPD_SMART) {
-                if (!eqsgetrep_pattern_get(getrept, getcount, tpar, true, true))
+                if (!eqsgetrep_pattern_get(getcount, tpar, true, true))
                     goto l1;
-            } else if (!eqsgetrep_dumb_get(getrept, getcount, tpar, true))
+            } else if (!eqsgetrep_dumb_get(getcount, tpar, true))
                 goto l1;
             if (tt_controlc || exit_abort)
                 goto l1;

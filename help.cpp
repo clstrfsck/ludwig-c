@@ -97,7 +97,7 @@ void help_help(int selection_len, str_object &selection) {
         // Note: the topic is space padded to key_len characters.
         int len;
         help_record buf;
-        int sts = helpfile_read(topic, KEY_LEN, buf, KEY_LEN + WRITE_STR_LEN, len);
+        int sts = helpfile_read(topic, KEY_LEN, buf, len);
         if (sts == STS_RNF) {
             screen_write_str(3, "Can't find Command or Section in HELP", 37);
             screen_writeln();
@@ -122,7 +122,7 @@ void help_help(int selection_len, str_object &selection) {
                 screen_writeln();
             }
             if (continu) {
-                bool read_on = (helpfile_next(buf, KEY_LEN + WRITE_STR_LEN, len) & 1) != 0;
+                bool read_on = (helpfile_next(buf, len) & 1) != 0;
                 if (read_on) { // check key still valid
                     for (int i = 1; i <= KEY_LEN; ++i) {
                         if (buf.key[i] != topic[i])

@@ -14,7 +14,7 @@ void screen_unload();
 void screen_scroll(int count, bool expand);
 void screen_lines_extract(line_ptr first_line, line_ptr last_line);
 void screen_lines_inject(line_ptr first_line, line_range count, line_ptr before_line);
-void screen_load(line_ptr line, col_range col);
+void screen_load(line_ptr line);
 void screen_position(line_ptr new_line, col_range new_col);
 void screen_pause();
 void screen_clear_msgs(bool pause);

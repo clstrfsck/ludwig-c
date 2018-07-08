@@ -139,7 +139,7 @@ bool previous_word(mark_ptr dot) {
     return true;
 }
 
-bool newword_advance_word(leadparam rept, int count, bool from_span) {
+bool newword_advance_word(leadparam rept, int count) {
     bool result = false;
     //with current_frame^ do
     mark_ptr new_dot = nullptr;
@@ -233,7 +233,7 @@ l98:;
     return result;
 }
 
-bool newword_delete_word(leadparam rept, int count, bool from_span) {
+bool newword_delete_word(leadparam rept, int count) {
     // Delete Word deletes the same words as advance word advances over.
 
     bool result = false;
@@ -248,12 +248,12 @@ bool newword_delete_word(leadparam rept, int count, bool from_span) {
         goto l99;
     // First Step.
     //  Get to the beginning of the word if we are in the middle of it
-    if (!newword_advance_word(leadparam::pint, 0, from_span))
+    if (!newword_advance_word(leadparam::pint, 0))
         goto l99;
     // ASSERTION: We are on the beginning of a word
     if (!mark_create(current_frame->dot->line, current_frame->dot->col, here))
         goto l99;
-    if (!newword_advance_word(rept, count, from_span)) {
+    if (!newword_advance_word(rept, count)) {
         // Put Dot back and bail out
         if (!mark_create(old_pos->line, old_pos->col, current_frame->dot))
             goto l99;
@@ -364,7 +364,7 @@ bool next_paragraph(mark_ptr dot) {
     return true;
 }
 
-bool newword_advance_paragraph(leadparam rept, int count, bool from_span) {
+bool newword_advance_paragraph(leadparam rept, int count) {
     bool result = false;
     //with current_frame^ do
 
@@ -447,7 +447,7 @@ bool newword_advance_paragraph(leadparam rept, int count, bool from_span) {
     return result;
 }
 
-bool newword_delete_paragraph(leadparam rept, int count, bool from_span) {
+bool newword_delete_paragraph(leadparam rept, int count) {
     bool result = false;
     //with current_frame^ do
     mark_ptr old_pos = nullptr;
@@ -458,11 +458,11 @@ bool newword_delete_paragraph(leadparam rept, int count, bool from_span) {
     if (!mark_create(current_frame->dot->line, current_frame->dot->col, old_pos))
         goto l99;
     // Get to the beginning of the paragraph
-    if (!newword_advance_paragraph(leadparam::pint, 0, from_span))
+    if (!newword_advance_paragraph(leadparam::pint, 0))
         goto l99;
     if (!mark_create(current_frame->dot->line, 1, here))
         goto l99;
-    if (!newword_advance_paragraph(rept, count, from_span)) {
+    if (!newword_advance_paragraph(rept, count)) {
         // Something wrong so put dot back and abort
         mark_create(old_pos->line, old_pos->col, current_frame->dot);
         goto l99;

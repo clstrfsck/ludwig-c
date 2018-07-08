@@ -161,17 +161,6 @@ typedef struct key_name_record {
     key_code_range key_code;
 } *key_name_record_ptr;
 
-// FIXME: remove: typedef parray<key_name_record, key_names_range> key_name_array;
-// FIXME: remove: typedef key_name_array *key_name_array_ptr;
-typedef prange<0, MAX_PARSE_TABLE> parse_table_index;
-typedef struct {
-    char              ch;
-    key_code_range    key_code;
-    parse_table_index index;
-} parse_table_record;
-typedef parray<parse_table_record, parse_table_index> parse_table_array;
-typedef parse_table_array *parse_table_ptr;
-
 // Objects
 typedef parray<char, prange<1, MAX_STRLEN>> str_object;
 typedef str_object *str_ptr;

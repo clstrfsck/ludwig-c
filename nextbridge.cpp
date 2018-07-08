@@ -52,7 +52,7 @@ namespace {
     typedef prangeset<chset_range> chset;
 };
 
-bool nextbridge_command(leadparam rept, int count, const tpar_object &tpar, bool bridge) {
+bool nextbridge_command(int count, const tpar_object &tpar, bool bridge) {
     chset chars;
     // Form the character set.
     //with tpar do

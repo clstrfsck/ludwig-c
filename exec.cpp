@@ -368,7 +368,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
     case commands::cmd_bridge:
     case commands::cmd_next:
         if (tpar_get_1(tparam, command, request))
-            cmd_success = nextbridge_command(rept, count, request, command == commands::cmd_bridge);
+            cmd_success = nextbridge_command(count, request, command == commands::cmd_bridge);
         break;
 
     case commands::cmd_case_edit:
@@ -473,7 +473,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
     case commands::cmd_dump:
         first_line = scr_frame->first_group->first_line;
         vdu_movecurs(1, terminal_info.height);
-        vdu_flush(true);
+        vdu_flush();
         std::cout << "DUMP sr ln" << std::endl;
         while (first_line != nullptr) {
             if (first_line == scr_top_line)
@@ -604,7 +604,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
                 current_frame->eqs_tpar = request; // If did specify, save for next time.
             }
         }
-        cmd_success = eqsgetrep_eqs(rept, count, request, from_span);
+        cmd_success = eqsgetrep_eqs(rept, request);
         break;
 
     case commands::cmd_do_last_command:
@@ -757,7 +757,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
             } else {
                 current_frame->get_tpar = request; // If did specify, save for next time.
             }
-            cmd_success = eqsgetrep_get(rept, count, request, from_span);
+            cmd_success = eqsgetrep_get(count, request, from_span);
         }
         break;
 
@@ -903,50 +903,50 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
         break;
 
     case commands::cmd_line_centre:
-        cmd_success = word_centre(rept, count, from_span);
+        cmd_success = word_centre(rept, count);
         break;
 
     case commands::cmd_line_fill:
-        cmd_success = word_fill(rept, count, from_span);
+        cmd_success = word_fill(rept, count);
         break;
 
     case commands::cmd_line_justify:
-        cmd_success = word_justify(rept, count, from_span);
+        cmd_success = word_justify(rept, count);
         break;
 
     case commands::cmd_line_squash:
-          cmd_success = word_squeeze(rept, count, from_span);
+          cmd_success = word_squeeze(rept, count);
           break;
 
     case commands::cmd_line_left:
-          cmd_success = word_left(rept, count, from_span);
+          cmd_success = word_left(rept, count);
           break;
 
     case commands::cmd_line_right:
-          cmd_success = word_right(rept, count, from_span);
+          cmd_success = word_right(rept, count);
           break;
 
     case commands::cmd_word_advance:
         if (file_data.old_cmds)
-            cmd_success = word_advance_word(rept, count, from_span);
+            cmd_success = word_advance_word(rept, count);
         else
-            cmd_success = newword_advance_word(rept, count, from_span);
+            cmd_success = newword_advance_word(rept, count);
         break;
 
     case commands::cmd_word_delete:
         if (file_data.old_cmds)
-            cmd_success = word_delete_word(rept, count, from_span);
+            cmd_success = word_delete_word(rept, count);
         else
-            cmd_success = newword_delete_word(rept, count, from_span);
+            cmd_success = newword_delete_word(rept, count);
         break;
 
     case commands::cmd_advance_paragraph:
-        cmd_success = newword_advance_paragraph( rept, count,from_span);
+        cmd_success = newword_advance_paragraph(rept, count);
         break;
 
     case commands::cmd_delete_paragraph:
-          cmd_success = newword_delete_paragraph( rept, count,from_span);
-          break;
+        cmd_success = newword_delete_paragraph(rept, count);
+        break;
 
     case commands::cmd_mark:
         if (count < 0) {
@@ -1008,7 +1008,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
         if (!from_span) {
             screen_message(MSG_PAGING);
             if (ludwig_mode == ludwig_mode_type::ludwig_screen)
-                vdu_flush(false);
+                vdu_flush();
         }
         cmd_success = file_page(current_frame, exit_abort);
         // Clean up the PAGING message.
@@ -1124,6 +1124,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
                 } else {
                     cmd_success = span_create(new_name, the_mark, current_frame->dot);
                 }
+                break;
 
             case commands::cmd_span_jump:
                 if (span_find(new_name, new_span, old_span)) {
@@ -1351,7 +1352,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
     case commands::cmd_window_setheight:
     case commands::cmd_window_top:
     case commands::cmd_window_update:
-        cmd_success = window_command(command, rept, count, tparam, from_span);
+        cmd_success = window_command(command, rept, count, from_span);
         break;
 
     case commands::cmd_resize_window:

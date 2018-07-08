@@ -97,8 +97,7 @@ void vdu_movecurs(scr_col_range x, scr_row_range y) {
 }
 
 
-void vdu_flush(bool wait) {
-    // Wait is ignored here
+void vdu_flush() {
     ::refresh();
 }
 
@@ -109,7 +108,7 @@ void vdu_beep() {
 
 void vdu_cleareol() {
     ::clrtoeol();
-    vdu_flush(false);
+    vdu_flush();
 }
 
 void vdu_displaystr(scr_col_range strlen, const char *str, int opts) {
@@ -124,7 +123,7 @@ void vdu_displaystr(scr_col_range strlen, const char *str, int opts) {
     ::addnstr(str, slen);
     if (!hitmargin && (opts & OUT_M_CLEAREOL) != 0)
         vdu_cleareol();
-    vdu_flush(false);
+    vdu_flush();
 }
 
 void vdu_displaych(char ch) {
@@ -150,35 +149,28 @@ void vdu_scrollup(int n) {
     ::scrollok(stdscr, false);
 }
 
-void vdu_deletelines(int n, bool clear_eos) {
+void vdu_deletelines(int n) {
     ::insdelln(-n);
-    /* From what I can tell, clear_eos appears to be false if it is not
-     * required that the lines that have been cleared are blanked.
-     * With (n)?curses, the lines are always blanked, so we ignore this
-     * flag.
-     * if (clear_eos && we_didnt_clear)
-     *   vdu_cleareos();
-     */
-    vdu_flush(false);
+    vdu_flush();
 }
 
 void vdu_insertlines(int n) {
     ::insdelln(n);
-    vdu_flush(false);
+    vdu_flush();
 }
 
 void vdu_insertchars(scr_col_range n) {
     int limit = int(n);
     for (int i = 0; i < limit; ++i)
         ::insch(chtype(' '));
-    vdu_flush(false);
+    vdu_flush();
 }
 
 void vdu_deletechars(scr_col_range n) {
     int limit = int(n);
     for (int i = 0; i < limit; ++i)
         ::delch();
-    vdu_flush(false);
+    vdu_flush();
 }
 
 void vdu_displaycrlf() {
@@ -188,7 +180,7 @@ void vdu_displaycrlf() {
     else
         y += 1;
     ::move(y, 0);
-    vdu_flush(false);
+    vdu_flush();
 }
 
 void vdu_take_back_key(key_code_range key) {
@@ -204,7 +196,7 @@ void vdu_new_introducer(key_code_range key) {
 }
 
 key_code_range vdu_get_key() {
-    vdu_flush(true);
+    vdu_flush();
     int raw_key;
     do {
         raw_key = ::getch();
@@ -256,7 +248,7 @@ void vdu_insert_mode(bool turn_on) {
 
 void vdu_get_text(int str_len, str_object &str, strlen_range &outlen) {
     str.fill(' ');
-    vdu_flush(false);
+    vdu_flush();
 
     outlen = 0;
     int maxlen = ::COLS - getcurx(stdscr);
@@ -511,7 +503,7 @@ bool vdu_init(terminal_info_type &terminal_info,
             terminal_info.width = ::COLS;
             terminal_info.height = ::LINES;
             vdu_clearscr();
-            vdu_flush(true);
+            vdu_flush();
             ::flushinp();
         }
         return true;
@@ -523,7 +515,7 @@ void vdu_free() {
     if (vdu_setup) {
         vdu_scrollup(1);
         vdu_movecurs(1, ::LINES);
-        vdu_flush(true);
+        vdu_flush();
         ::endwin();
     }
 }

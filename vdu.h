@@ -5,7 +5,7 @@
 
 void vdu_movecurs(scr_col_range x, scr_row_range y);
 
-void vdu_flush(bool wait);
+void vdu_flush();
 
 void vdu_beep();
 
@@ -20,7 +20,7 @@ void vdu_redrawscr();
 
 void vdu_scrollup(int n);
 
-void vdu_deletelines(int n, bool clear_eos);
+void vdu_deletelines(int n);
 void vdu_insertlines(int n);
 
 void vdu_insertchars(scr_col_range n);

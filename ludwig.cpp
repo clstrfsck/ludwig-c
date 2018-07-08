@@ -837,7 +837,7 @@ bool start_up(int argc, char **argv) {
     if (ludwig_mode != ludwig_mode_type::ludwig_batch) {
         screen_message(MSG_COPYRIGHT_AND_LOADING_FILE);
         if (ludwig_mode == ludwig_mode_type::ludwig_screen)
-            vdu_flush(false);
+            vdu_flush();
     }
     if (!file_page(current_frame, exit_abort))
         goto l99;
@@ -850,7 +850,7 @@ bool start_up(int argc, char **argv) {
 
     if (!file_data.initial.empty()) {
         if (ludwig_mode == ludwig_mode_type::ludwig_screen)
-            vdu_flush(false);
+            vdu_flush();
         tpar_object tparam;
         //with tparam^ do
         tparam.len = file_data.initial.size();

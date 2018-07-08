@@ -49,7 +49,7 @@
 #include "frame.h"
 #include "screen.h"
 
-bool window_command(commands command, leadparam rept, int count, tpar_ptr tparam, bool from_span) {
+bool window_command(commands command, leadparam rept, int count, bool from_span) {
     bool cmd_success = false;
 
     //with current_frame^,dot^ do

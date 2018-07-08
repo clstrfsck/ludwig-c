@@ -106,7 +106,7 @@ l2:;
     if (ludwig_mode != ludwig_mode_type::ludwig_batch)
         screen_message(MSG_QUITTING);
     if (ludwig_mode == ludwig_mode_type::ludwig_screen)
-        vdu_flush(false);
+        vdu_flush();
     ludwig_aborted = false;
     quit_close_files();
     sys_exit_success();

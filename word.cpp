@@ -57,7 +57,7 @@
 #include "text.h"
 #include "screen.h"
 
-bool word_fill(leadparam rept, int count, bool from_span) {
+bool word_fill(leadparam rept, int count) {
     /* Description:
        This routine takes the current line and moves words within
        the line so that the line fits between Left_margin & right_margin
@@ -297,7 +297,7 @@ l99:;
     return result;
 }
 
-bool word_centre(leadparam rept, int count, bool from_span) {
+bool word_centre(leadparam rept, int count) {
     /* Description:
        This routine takes the current line and moves it so that
        there are an equal number of spaces before and after the
@@ -375,7 +375,7 @@ l2:;
     return result;
 }
 
-bool word_justify(leadparam rept, int count, bool from_span) {
+bool word_justify(leadparam rept, int count) {
     /* Description:
        This routine takes the current line space justifies it
        between the left and right margins. It preserves multiple spaces.
@@ -476,7 +476,7 @@ l2:;
     return result;
 }
 
-bool word_squeeze(leadparam rept, int count, bool from_span) {
+bool word_squeeze(leadparam rept, int count) {
     /* Description:
        This routine takes the current line and removes multiple
        spaces from it.
@@ -558,7 +558,7 @@ l2:;
     return result;
 }
 
-bool word_right(leadparam rept, int count, bool from_span) {
+bool word_right(leadparam rept, int count) {
     /*
       Description:
       This routine takes the current line and aligns it at RM
@@ -621,7 +621,7 @@ l2:;
     return result;
 }
 
-bool word_left(leadparam rept, int count, bool from_span) {
+bool word_left(leadparam rept, int count) {
     /* Description:
        This routine takes the current line and Aligns it at LM
     */
@@ -695,7 +695,7 @@ l2:;
     return result;
 }
 
-bool word_advance_word(leadparam rept, int count, bool from_span) {
+bool word_advance_word(leadparam rept, int count) {
     /*
       ! This routine advances Dot to the start of the a word.
       ! Definitions:
@@ -844,7 +844,7 @@ l99:;
     return result;
 }
 
-bool word_delete_word(leadparam rept, int count, bool from_span) {
+bool word_delete_word(leadparam rept, int count) {
     // Delete Word deletes the same words as advance word advances over.
 
     mark_ptr   old_pos;
@@ -868,12 +868,12 @@ bool word_delete_word(leadparam rept, int count, bool from_span) {
         goto l99;
     // First Step.
     //  Get to the beginning of the word if we are in the middle of it
-    if (!word_advance_word(leadparam::pint, 0, from_span))
+    if (!word_advance_word(leadparam::pint, 0))
         goto l99;
     // ASSERTION: We are on the beginning of a word
     if (!mark_create(current_frame->dot->line, current_frame->dot->col, here))
         goto l99;
-    if (!word_advance_word(rept, count, from_span)) {
+    if (!word_advance_word(rept, count)) {
         // Put Dot back and bail out
         if (!mark_create(old_pos->line, old_pos->col, current_frame->dot))
             goto l99;
