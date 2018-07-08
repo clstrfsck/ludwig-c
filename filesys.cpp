@@ -543,7 +543,7 @@ bool filesys_parse(const std::string &command_line, parse_type parse,
 
     // create an argc and argv from the "command_line"
     std::vector<std::string> argv;
-    argv.push_back("Ludwig");
+    argv.emplace_back("Ludwig");
     std::vector<std::string> cl(to_argv(command_line));
     argv.insert(std::end(argv), std::begin(cl), std::end(cl));
 
@@ -669,7 +669,7 @@ bool filesys_parse(const std::string &command_line, parse_type parse,
             screen_message("More than two files specified");
             return false;
         }
-        file.push_back(argv[lwoptind++]);
+        file.emplace_back(argv[lwoptind++]);
     }
     if (file.size() == 2) {
         check_input = true;
