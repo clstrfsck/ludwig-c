@@ -79,7 +79,7 @@ namespace {
     }
 };
 
-bool user_key_code_to_name(key_code_range key_code, key_name_str &key_name) {
+bool user_key_code_to_name(key_code_range key_code, std::string &key_name) {
     key_name_list_ptr[0].key_code = key_code;
     int i = nr_key_names;
     while (key_name_list_ptr[i].key_code != key_code)
@@ -91,7 +91,7 @@ bool user_key_code_to_name(key_code_range key_code, key_name_str &key_name) {
     return false;
 }
 
-bool user_key_name_to_code(const key_name_str &key_name, key_code_range &key_code) {
+bool user_key_name_to_code(const std::string &key_name, key_code_range &key_code) {
     key_name_list_ptr[0].key_name = key_name;
     int i = nr_key_names;
     while (key_name_list_ptr[i].key_name != key_name)
@@ -106,32 +106,30 @@ bool user_key_name_to_code(const key_name_str &key_name, key_code_range &key_cod
 
 
 void user_key_initialize() {
-    // WARNING - A value of 40 for key_name_len is assumed here
-
     // Initialize terminal-defined key map table.
     key_code_range key_code;
     vdu_keyboard_init(nr_key_names, key_name_list_ptr, key_introducers, terminal_info);
-    if (user_key_name_to_code(key_name_str("UP-ARROW                                "), key_code))
+    if (user_key_name_to_code(std::string("UP-ARROW"), key_code))
         lookup[key_code].command = commands::cmd_up;
-    if (user_key_name_to_code(key_name_str("DOWN-ARROW                              "), key_code))
+    if (user_key_name_to_code(std::string("DOWN-ARROW"), key_code))
         lookup[key_code].command = commands::cmd_down;
-    if (user_key_name_to_code(key_name_str("RIGHT-ARROW                             "), key_code))
+    if (user_key_name_to_code(std::string("RIGHT-ARROW"), key_code))
         lookup[key_code].command = commands::cmd_right;
-    if (user_key_name_to_code(key_name_str("LEFT-ARROW                              "), key_code))
+    if (user_key_name_to_code(std::string("LEFT-ARROW"), key_code))
         lookup[key_code].command = commands::cmd_left;
-    if (user_key_name_to_code(key_name_str("HOME                                    "), key_code))
+    if (user_key_name_to_code(std::string("HOME"), key_code))
         lookup[key_code].command = commands::cmd_home;
-    if (user_key_name_to_code(key_name_str("BACK-TAB                                "), key_code))
+    if (user_key_name_to_code(std::string("BACK-TAB"), key_code))
         lookup[key_code].command = commands::cmd_backtab;
-    if (user_key_name_to_code(key_name_str("INSERT-CHAR                             "), key_code))
+    if (user_key_name_to_code(std::string("INSERT-CHAR"), key_code))
         lookup[key_code].command = commands::cmd_insert_char;
-    if (user_key_name_to_code(key_name_str("DELETE-CHAR                             "), key_code))
+    if (user_key_name_to_code(std::string("DELETE-CHAR"), key_code))
         lookup[key_code].command = commands::cmd_delete_char;
-    if (user_key_name_to_code(key_name_str("INSERT-LINE                             "), key_code))
+    if (user_key_name_to_code(std::string("INSERT-LINE"), key_code))
         lookup[key_code].command = commands::cmd_insert_line;
-    if (user_key_name_to_code(key_name_str("DELETE-LINE                             "), key_code))
+    if (user_key_name_to_code(std::string("DELETE-LINE"), key_code))
         lookup[key_code].command = commands::cmd_delete_line;
-    if (user_key_name_to_code(key_name_str("HELP                                    "), key_code)) {
+    if (user_key_name_to_code(std::string("HELP"), key_code)) {
         lookup[key_code].command = commands::cmd_help;
         tpar_ptr tpar = new tpar_object;
         //with tpar^ do
@@ -142,7 +140,7 @@ void user_key_initialize() {
         tpar->nxt = nullptr;
         lookup[key_code].tpar = tpar;
     }
-    if (user_key_name_to_code(key_name_str("FIND                                    "), key_code)) {
+    if (user_key_name_to_code(std::string("FIND"), key_code)) {
         lookup[key_code].command = commands::cmd_get;
         tpar_ptr tpar = new tpar_object;
         //with tpar^ do
@@ -153,15 +151,15 @@ void user_key_initialize() {
         tpar->nxt = nullptr;
         lookup[key_code].tpar = tpar;
     }
-    if (user_key_name_to_code(key_name_str("PREV-SCREEN                             "), key_code))
+    if (user_key_name_to_code(std::string("PREV-SCREEN"), key_code))
         lookup[key_code].command = commands::cmd_window_backward;
-    if (user_key_name_to_code(key_name_str("NEXT-SCREEN                             "), key_code))
+    if (user_key_name_to_code(std::string("NEXT-SCREEN"), key_code))
         lookup[key_code].command = commands::cmd_window_forward;
-    if (user_key_name_to_code(key_name_str("PAGE-UP                                 "), key_code))
+    if (user_key_name_to_code(std::string("PAGE-UP"), key_code))
         lookup[key_code].command = commands::cmd_window_backward;
-    if (user_key_name_to_code(key_name_str("PAGE-DOWN                               "), key_code))
+    if (user_key_name_to_code(std::string("PAGE-DOWN"), key_code))
         lookup[key_code].command = commands::cmd_window_forward;
-    if (user_key_name_to_code(key_name_str("WINDOW-RESIZE-EVENT                     "), key_code))
+    if (user_key_name_to_code(std::string("WINDOW-RESIZE-EVENT"), key_code))
         lookup[key_code].command = commands::cmd_resize_window;
 }
 
@@ -206,13 +204,7 @@ bool user_key(const tpar_object &key, const tpar_object &strng) {
     if (key.len == 1) {
         key_code = key.str[1];
     } else {
-        key_name_str key_name(' ');
-        int use_len = key.len;
-        if (use_len > KEY_NAME_LEN) {
-            use_len = KEY_NAME_LEN;
-            screen_message(MSG_KEY_NAME_TRUNCATED);
-        }
-        key_name.copy(key.str, 1, use_len);
+        std::string key_name(key.str.data(), key.len);
         if (!user_key_name_to_code(key_name, key_code)) {
             screen_message(MSG_UNRECOGNIZED_KEY_NAME);
             return false;

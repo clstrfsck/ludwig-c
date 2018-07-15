@@ -486,7 +486,7 @@ bool set_options(tpar_object &request, int &pos, bool set_initial) {
 
 bool setcmdintr(tpar_object &request, int &pos) {
     if (ludwig_mode == ludwig_mode_type::ludwig_screen) {
-        key_name_str key_name(' ');
+        std::string key_name;
         int i = 0;
         bool terminate = false;
         while ((pos <= request.len) && !terminate) {
@@ -494,14 +494,14 @@ bool setcmdintr(tpar_object &request, int &pos) {
                 terminate = true;
             } else {
                 i += 1;
-                key_name[i] = request.str[pos];
+                key_name.push_back(request.str[pos]);
                 pos += 1;
             }
         }
         key_code_range key_code;
         if (i == 1) {
             if (!npunct().contains(key_name[1])) {
-                command_introducer = key_name[1];
+                command_introducer = key_name[0];
                 vdu_new_introducer(command_introducer);
                 return true;
             } else {
@@ -995,10 +995,9 @@ bool frame_parameter(tpar_ptr tpar) {
         screen_writeln_clel();
         if (ludwig_mode == ludwig_mode_type::ludwig_screen) {
             screen_write_str(3, "Command introducer                 C = ");
-            key_name_str key_name;
+            std::string key_name;
             if (user_key_code_to_name(command_introducer, key_name)) {
-                for (int i = 1; i <= KEY_NAME_LEN; ++i)
-                    screen_write_ch(0, key_name[i]);
+                screen_write_str(0, key_name.data(), key_name.size());
             } else {
                 screen_write_ch(0, command_introducer);
             }

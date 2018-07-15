@@ -153,11 +153,9 @@ typedef parray<char, prange<1, KEY_LEN>>       key_str; // Help File stuff
 
 // Keyboard interface.
 typedef prange<-MAX_SPECIAL_KEYS, ORD_MAXCHAR> key_code_range;
-typedef prange<2, KEY_NAME_LEN>                key_name_len_range;
 typedef prange<0, MAX_NR_KEY_NAMES>            key_names_range;
-typedef parray<char, prange<1, KEY_NAME_LEN>>  key_name_str;
 typedef struct key_name_record {
-    key_name_str   key_name;
+    std::string    key_name;
     key_code_range key_code;
 } *key_name_record_ptr;
 

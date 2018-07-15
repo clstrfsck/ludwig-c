@@ -129,16 +129,15 @@ const char TPD_ENVIRONMENT = '?';  // environment enquiry
 const int  EXPAND_LIM      = 130;  // at least # of multi-letter commands + 1
 
 // String lengths
-const int NAME_LEN      = 31;           // Max length of a spn/frm name
-const int FILE_NAME_LEN = FILENAME_MAX; // Default length of file name
+const int NAME_LEN      = 31;            // Max length of a spn/frm name
+const int FILE_NAME_LEN = FILENAME_MAX;  // Default length of file name
 const int TPAR_PROM_LEN = 8;
 const int WRITE_STR_LEN = 80;
 const int MSG_STR_LEN   = 70;
-const int KEY_LEN       = 4;            // Key length for HELP FILE
+const int KEY_LEN       = 4;             // Key length for HELP FILE
 
 // Keyboard interface.
 const int MAX_SPECIAL_KEYS = 1000; // Taken from original XWin def
-const int KEY_NAME_LEN     = 40; // WARNING - this value is assumed in USER.PAS
 const int MAX_NR_KEY_NAMES = 1000;
 const int MAX_PARSE_TABLE  = 300;
 
