@@ -3,6 +3,6 @@
 
 #include "type.h"
 
-void help_help(int selection_len, str_object &selection);
+void help_help(const std::string &selection);
 
 #endif

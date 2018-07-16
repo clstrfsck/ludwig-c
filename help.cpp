@@ -68,23 +68,22 @@ void ask_user(const char *prompt, key_str &reply, int &reply_len) {
     reply.apply_n(ch_toupper, reply_len);
 }
 
-void help_help(int selection_len, str_object &selection) {
+void help_help(const std::string &selection) {
     // The argument selects a particular part of the help file to read e.g. SD
-
     screen_unload();
     screen_home(true);
     key_str topic;
     int topic_len;
-    if (selection_len == 0) {
+    if (selection.empty()) {
         topic.copy_n(INDEX, KEY_LEN);
         topic_len = KEY_LEN;
     } else {
-        if (selection_len > KEY_LEN)
+        if (selection.size() > KEY_LEN)
             topic_len = KEY_LEN;
         else
-            topic_len = selection_len;
+            topic_len = selection.size();
         topic.fill(' ');
-        topic.copy(selection, 1, topic_len);
+        topic.copy_n(selection.data(), topic_len);
     }
     if (!helpfile_open(file_data.old_cmds)) {
         screen_write_str(3, "Can't open HELP file", 20);

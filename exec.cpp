@@ -768,7 +768,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
         }
         if (tpar_get_1(tparam, command, request)) {
             //with request do
-            help_help(request.len, request.str);
+            help_help(std::string(request.str.data(), request.len));
             cmd_success = true; // Never Fails.
         }
         break;
@@ -779,7 +779,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
 
     case commands::cmd_insert_line:
         if (count != 0) {
-            cmd_success = lines_create(abs(count), first_line, last_line);
+            cmd_success = lines_create(std::abs(count), first_line, last_line);
             if (cmd_success)
                 cmd_success = lines_inject(first_line, last_line, current_frame->dot->line);
             if (cmd_success) {
