@@ -55,6 +55,7 @@
 #ifndef CONST_H
 #define CONST_H
 
+#include <string>
 // For definition of FILENAME_MAX
 #include <cstdio>
 // For definition of EXIT_SUCCESS / EXIT_FAILURE
@@ -116,8 +117,8 @@ const int MAX_WORD_SETS       = 2;
 const int MAX_WORD_SETS_M1    = MAX_WORD_SETS - 1;
 
 // Frame names
-extern const char BLANK_FRAME_NAME[];   // Empty
-extern const char DEFAULT_FRAME_NAME[]; // Ludwig
+extern const std::string BLANK_FRAME_NAME;   // Empty
+extern const std::string DEFAULT_FRAME_NAME; // Ludwig
 
 // TPar interpretations
 const char TPD_LIT         = '\''; // don't do fancy processing on this one

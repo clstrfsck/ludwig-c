@@ -56,6 +56,12 @@ public:
         // Nothing more to do here
     }
 
+    explicit parray(const_pointer src, size_t size, const_reference fill)
+        : m_array(R::size()) {
+        // Not tremendously efficient
+        fillcopy(src, size, index_type::min(), index_type::size(), fill);
+    }
+
     explicit parray(size_t size, const_reference init_value = T())
         : m_array(size, init_value) {
         // Nothing more to do here.  Be careful with this!

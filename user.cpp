@@ -214,7 +214,7 @@ bool user_key(const tpar_object &key, const tpar_object &strng) {
     //with frame_heap^ do
     if (!mark_create(frame_heap->last_group->last_line, 1, frame_heap->span->mark_two))
         return false;
-    name_str blank_frame_name(BLANK_FRAME_NAME);
+    name_str blank_frame_name(BLANK_FRAME_NAME.data(), BLANK_FRAME_NAME.size(), ' ');
     if (!span_create(blank_frame_name, frame_heap->span->mark_two, frame_heap->span->mark_two))
         return false;
     span_ptr key_span;

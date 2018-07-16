@@ -807,7 +807,7 @@ bool start_up(int argc, char **argv) {
     frame_heap = current_frame; current_frame = nullptr;
     frame_heap->options.add(frame_options_elts::opt_special_frame);
     {
-        name_str def_fr_nam(DEFAULT_FRAME_NAME);
+        name_str def_fr_nam(DEFAULT_FRAME_NAME.data(), DEFAULT_FRAME_NAME.size(), ' ');
         if (!frame_edit(def_fr_nam))
             goto l99;
     }
