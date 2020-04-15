@@ -40,7 +40,7 @@
 
 #include <string>
 
-extern name_str              ludwig_version;
+extern const std::string     ludwig_version;
 extern std::string           program_directory; // Used to determine program startup directory.
 extern bool                  tt_controlc;       // User has typed CNTRL/C.
 extern bool                  tt_winchanged;     // Window size has changed

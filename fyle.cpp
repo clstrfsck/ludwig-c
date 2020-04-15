@@ -123,16 +123,11 @@ void file_table() {
     screen_writeln();
     for (file_range file_slot = 1; file_slot <= MAX_FILES; ++file_slot) {
         if (files[file_slot] != nullptr) {
-            name_str frame_name;
-            int len;
+            std::string frame_name;
             if (files_frames[file_slot] != nullptr) {
                 frame_name = files_frames[file_slot]->span->name;
-                len = NAME_LEN;
-                while ((len > 6) && (frame_name[len] == ' '))
-                    len -= 1;
             } else {
-                frame_name.copy_n(BLANK_NAME.data(), BLANK_NAME.size());
-                len = 6;
+                frame_name.assign(BLANK_NAME, 0, 6);
             }
 
             if (files_frames[file_slot] != nullptr) {
@@ -163,8 +158,8 @@ void file_table() {
                 screen_write_str(1, "   ", 3);
             }
 
-            screen_write_name_str(1, frame_name, len);
-            if (len > 6) {
+            screen_write_name_str(1, frame_name, frame_name.size());
+            if (frame_name.size() > 6) {
                 screen_writeln();
                 screen_write_str(0, "                  ", 18);
             }

@@ -5,8 +5,8 @@
 #include "const.h"
 
 // Frame names
-const std::string BLANK_FRAME_NAME   = "                               ";
-const std::string DEFAULT_FRAME_NAME = "LUDWIG                         ";
+const std::string BLANK_FRAME_NAME   = "";
+const std::string DEFAULT_FRAME_NAME = "LUDWIG";
 
 // Messages
 const char MSG_BLANK[]                      = "                                                                      ";

@@ -142,7 +142,6 @@ typedef parray<bool, col_width_range>       tab_array;
 typedef parray<bool, prange<1, MAX_VERIFY>> verify_array;
 
 // Strings
-typedef parray<char, prange<1, NAME_LEN>>      name_str;
 typedef parray<char, prange<1, FILE_NAME_LEN>> file_name_str;
 typedef parray<char, prange<1, TPAR_PROM_LEN>> prompt_str;
 typedef parray<char, prange<1, WRITE_STR_LEN>> write_str;
@@ -282,7 +281,7 @@ struct span_object {
     frame_ptr         frame;
     mark_ptr          mark_one;
     mark_ptr          mark_two;
-    name_str          name;
+    std::string       name;
     code_ptr          code;
 };
 

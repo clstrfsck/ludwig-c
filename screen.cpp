@@ -1602,23 +1602,22 @@ void screen_write_str(scr_col_range indent, const char *str) {
     screen_write_str(indent, str, std::strlen(str));
 }
 
-void screen_write_name_str(scr_col_range indent, const name_str &str, scr_col_range width) {
+void screen_write_name_str(scr_col_range indent, const std::string &str, scr_col_range width) {
     // Write a name string at the current cursor position, or to the output file.
-
     if (ludwig_mode == ludwig_mode_type::ludwig_screen) {
         for (int i = 0; i < indent; ++i)
             vdu_displaych(' ');
         for (int i = 0; i < width; ++i) {
-            if (i < NAME_LEN)
-                vdu_displaych(str[i + 1]);
+            if (i < str.size())
+                vdu_displaych(str[i]);
             else
                 vdu_displaych(' ');
         }
     } else {
         write(' ', indent);
         for (int i = 0; i < width; ++i) {
-            if (i < NAME_LEN)
-                write(str[i + 1], 1);
+            if (i < str.size())
+                write(str[i], 1);
             else
                 write(' ', 1);
         }

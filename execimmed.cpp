@@ -61,7 +61,7 @@
 #include <iostream>
 
 namespace {
-    const std::string DEFAULT_SPAN_NAME("L. Wittgenstein und Sohn.      "); // Editors Extraordinaire
+    const std::string DEFAULT_SPAN_NAME("L. Wittgenstein und Sohn."); // Editors Extraordinaire
 
     void write(const char *message, bool flush = true) {
         std::cout << message;
@@ -81,7 +81,7 @@ void execute_immed() {
     //with cmd_span^ do
     cmd_span->flink    = nullptr;
     cmd_span->blink    = nullptr;
-    cmd_span->name.copy_n(DEFAULT_SPAN_NAME.data(), DEFAULT_SPAN_NAME.size());
+    cmd_span->name     = DEFAULT_SPAN_NAME;
     cmd_span->frame    = nullptr;
     cmd_span->mark_one = nullptr;
     cmd_span->mark_two = nullptr;
@@ -119,7 +119,7 @@ void execute_immed() {
                             goto l9;
                         }
                         vdu_take_back_key(key);
-                        goto l1;
+                        break;
                     }
 
                     // DECIDE MAX CHARS THAT CAN BE READ.
@@ -160,7 +160,7 @@ void execute_immed() {
                     if (tt_controlc)
                         goto l9;
                     if (input_len == 0)
-                        goto l1; // Simulate a continue
+                        break; // Simulate a continue
 
                     if (edit_mode == mode_type::mode_overtype)
                         cmd_success = text_overtype(false, 1, input_buf, input_len, current_frame->dot);
@@ -218,7 +218,6 @@ void execute_immed() {
                     }
                 } // of overtyping loop
 
-        l1:;
                 key = vdu_get_key(); // key is a terminator
                 if (tt_controlc)
                     goto l9;
@@ -227,7 +226,7 @@ void execute_immed() {
                 if (key >= 0) {
                     if (PRINTABLE_SET.contains(key) && key != command_introducer) {
                         screen_message(DBG_NOT_IMMED_CMD);
-                        goto l99;
+                        return;
                     }
                 }
 #endif
@@ -288,7 +287,7 @@ void execute_immed() {
                 // Destroy all of cmd_span's contents.
                 if (cmd_span->mark_one->line != nullptr) {
                     if (!lines_destroy(cmd_span->mark_one->line, cmd_span->mark_two->line))
-                        goto l99;
+                        return;
                     cmd_span->mark_one->line = nullptr;
                     cmd_span->mark_two->line = nullptr;
                 }
@@ -321,5 +320,4 @@ void execute_immed() {
     }
         break;
     }
-l99:;
 }

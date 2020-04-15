@@ -736,9 +736,9 @@ void load_command_table(bool old_version) {
 }
 
 bool start_up(int argc, char **argv) {
-    const name_str frame_name_cmd ("COMMAND                        ");
-    const name_str frame_name_oops("OOPS                           ");
-    const name_str frame_name_heap("HEAP                           ");
+    const std::string frame_name_cmd ("COMMAND");
+    const std::string frame_name_oops("OOPS");
+    const std::string frame_name_heap("HEAP");
 
     file_name_str command_line;
 
@@ -807,8 +807,7 @@ bool start_up(int argc, char **argv) {
     frame_heap = current_frame; current_frame = nullptr;
     frame_heap->options.add(frame_options_elts::opt_special_frame);
     {
-        name_str def_fr_nam(DEFAULT_FRAME_NAME.data(), DEFAULT_FRAME_NAME.size(), ' ');
-        if (!frame_edit(def_fr_nam))
+        if (!frame_edit(DEFAULT_FRAME_NAME))
             goto l99;
     }
 

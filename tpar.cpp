@@ -197,10 +197,9 @@ bool tpar_substitute(tpar_object &tpar, user_commands cmd, tpcount_type this_tp)
         return false;
     }
     // Get the Span name
-    name_str name;
-    name.fillcopy(tpar.str.data(), tpar.len, 1, NAME_LEN, ' ');
+    std::string name(tpar.str.data(), tpar.len);
     // and Up Case it
-    name.apply(ch_toupper);
+    std::transform(name.begin(), name.end(), name.begin(), ch_toupper);
     span_ptr span;
     span_ptr dummy;
     if (span_find(name, span, dummy)) {
@@ -268,17 +267,17 @@ bool tpar_substitute(tpar_object &tpar, user_commands cmd, tpcount_type this_tp)
     return true;
 }
 
-bool find_enquiry(const name_str &name, str_object &result, strlen_range &reslen) {
+bool find_enquiry(const std::string &name, str_object &result, strlen_range &reslen) {
     bool enquiry_result = false;
     vartype variable_type = vartype::unknown;
     std::string item;
-    int i = 1;
-    strlen_range len = name.length(' ');
+    int i = 0;
+    strlen_range len = name.size();
     while ((i < len) && (name[i] != '-')) {
-        item.push_back(std::toupper(name[i]));
+        item.push_back(ch_toupper(name[i]));
         i += 1;
     }
-    if (name[i] == '-') {
+    if (i < len && name[i] == '-') {
         i += 1;
         if (item == "TERMINAL")
             variable_type = vartype::terminal;
@@ -324,7 +323,7 @@ bool find_enquiry(const name_str &name, str_object &result, strlen_range &reslen
         case vartype::frame:
             enquiry_result = true;
             if (item == "NAME") {
-                reslen = current_frame->span->name.length(' ');
+                reslen = current_frame->span->name.size();
                 result.fillcopy(current_frame->span->name.data(), reslen, 1, MAX_STRLEN, ' ');
             } else if (item == "INPUTFILE") {
                 if (current_frame->input_file == 0) {
@@ -368,7 +367,7 @@ bool find_enquiry(const name_str &name, str_object &result, strlen_range &reslen
         case vartype::ludwig:
             enquiry_result = true;
             if (item == "VERSION") {
-                result.fillcopy(ludwig_version.data(), ludwig_version.length(' '), 1, MAX_STRLEN, ' ');
+                result.fillcopy(ludwig_version.data(), ludwig_version.size(), 1, MAX_STRLEN, ' ');
                 reslen = result.length(' ');
             } else if (item == "OPSYS") {
                 result.fillcopy(SYSTEM_NAME.data(), SYSTEM_NAME.size(), 1, MAX_STRLEN, ' ');
@@ -411,8 +410,7 @@ bool find_enquiry(const name_str &name, str_object &result, strlen_range &reslen
 bool tpar_enquire(tpar_object &tpar) {
     //with tpar do
     tpar.dlm = '\0';
-    name_str name;
-    name.fillcopy(tpar.str.data(), tpar.len, 1, NAME_LEN, ' ');
+    std::string name(tpar.str.data(), tpar.len);
     if (find_enquiry(name, tpar.str, tpar.len)) {
         return true;
     } else {

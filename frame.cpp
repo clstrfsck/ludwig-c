@@ -79,7 +79,7 @@ namespace {
     }
 }
 
-bool frame_edit(name_str frame_name) {
+bool frame_edit(const std::string &frame_name) {
     /***************************************************************************
      *    D E S C R I P T I O N :-                                             *
      * Input   : frame_name                                                    *
@@ -104,12 +104,10 @@ bool frame_edit(name_str frame_name) {
     const int GRP  = 0x0010;
     const int DOT  = 0x0020;
     int created = 0;
-    if (frame_name.length(' ') == 0)
-        frame_name.fillcopy(DEFAULT_FRAME_NAME.data(), DEFAULT_FRAME_NAME.size(),
-                            name_str::index_type::min(), name_str::index_type::size(), ' ');
+    std::string fname = frame_name.empty() ? DEFAULT_FRAME_NAME : frame_name;
     span_ptr ptr;
     span_ptr oldp;
-    if (span_find(frame_name, ptr, oldp)) {
+    if (span_find(fname, ptr, oldp)) {
         if (ptr->frame != nullptr) {
             if (ptr->frame != current_frame){
                 ptr->frame->return_frame = current_frame;
@@ -138,7 +136,7 @@ bool frame_edit(name_str frame_name) {
                 oldp->flink = sptr;
             if (ptr != nullptr)
                 ptr->blink  = sptr;
-            sptr->name  = frame_name;
+            sptr->name  = fname;
             sptr->frame = fptr;
             sptr->mark_one = nullptr;
             sptr->mark_two = nullptr;
@@ -200,7 +198,7 @@ bool frame_edit(name_str frame_name) {
                     //with gptr->last_line^ do
                     // Guaranteed that gptr->last_line->str != nullptr here if line_change_length OK
                     gptr->last_line->str->copy_n(END_OF_FILE.data(), END_OF_FILE.size());
-                    gptr->last_line->str->copy(frame_name, 1, NAME_LEN, 1 + END_OF_FILE.size());
+                    gptr->last_line->str->copy_n(fname.data(), fname.size(), 1 + END_OF_FILE.size());
                     gptr->last_line->used = 0; // Special feature of the NULL line !
                     current_frame = fptr;
                     return true;
@@ -227,7 +225,7 @@ bool frame_edit(name_str frame_name) {
 }
 
 
-bool frame_kill(const name_str &frame_name) {
+bool frame_kill(const std::string &frame_name) {
     /***************************************************************************
      *    D E S C R I P T I O N :-                                             *
      * Input   : frame_name                                                    *
@@ -955,7 +953,7 @@ bool frame_parameter(tpar_ptr tpar) {
         for (int i = 0; i < 8; ++i)
             screen_write_ch(0, LUDWIG_VERSION[i]);
         screen_write_str(5, "Parameters      Frame: ");
-        screen_write_name_str(0, current_frame->span->name, 31);
+        screen_write_name_str(0, current_frame->span->name, NAME_LEN);
         screen_writeln_clel();
         screen_write_str(0, " ===============     ==========      =====");
         screen_writeln_clel();

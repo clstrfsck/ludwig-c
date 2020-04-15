@@ -239,7 +239,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
     int            j;
     line_range     line_nr;
     line_range     line2_nr;
-    name_str       new_name;
+    std::string    new_name;
     span_ptr       new_span;
     span_ptr       old_span;
     tpar_ptr       new_tparam;
@@ -716,7 +716,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
     case commands::cmd_frame_edit:
         if (tpar_get_1(tparam, command, request)) {
             //with request do
-            new_name.fillcopy(request.str.data(), request.len, 1, NAME_LEN, ' ');
+            new_name.assign(request.str.data(), request.len);
             cmd_success = frame_edit(new_name);
         }
         break;
@@ -724,7 +724,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
     case commands::cmd_frame_kill:
         if (tpar_get_1(tparam, command, request)) {
             //with request do
-            new_name.fillcopy(request.str.data(), request.len, 1, NAME_LEN, ' ');
+            new_name.assign(request.str.data(), request.len);
             cmd_success = frame_kill(new_name);
         }
         break;
@@ -1113,7 +1113,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
     case commands::cmd_span_transfer:
         if (tpar_get_1(tparam, command, request)) {
             //with request do
-            new_name.fillcopy(request.str.data(), request.len, 1, NAME_LEN, ' ');
+            new_name.assign(request.str.data(), request.len);
             switch (command) {
             case commands::cmd_span_define:
                 if (rept == leadparam::minus) {
@@ -1210,7 +1210,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
         if (request.len == 0)
             goto l99;
         //with request do
-        new_name.fillcopy(request.str.data(), request.len, 1, NAME_LEN, ' ');
+        new_name.assign(request.str.data(), request.len);
         if (span_find(new_name, new_span, old_span)) {
             // Grunge the old one
             if (new_span == frame_oops->span) {

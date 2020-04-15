@@ -49,7 +49,7 @@
 #include "mark.h"
 #include "screen.h"
 
-bool span_find(const name_str &span_name, span_ptr &ptr, span_ptr &oldp) {
+bool span_find(const std::string &span_name, span_ptr &ptr, span_ptr &oldp) {
     /****************************************************************************
      *    D E S C R I P T I O N :-                                              *
      * Input   : span_name                                                      *
@@ -83,7 +83,7 @@ bool span_find(const name_str &span_name, span_ptr &ptr, span_ptr &oldp) {
     return false;
 }
 
-bool span_create(const name_str &span_name, mark_ptr first_mark, mark_ptr last_mark) {
+bool span_create(const std::string &span_name, mark_ptr first_mark, mark_ptr last_mark) {
     /****************************************************************************
      *    D E S C R I P T I O N :-                                              *
      * Input   : span_name, first_mark & last_mark                              *
@@ -223,21 +223,17 @@ bool span_index() {
             screen_write_name_str(0, p->name, NAME_LEN);
             screen_write_str(0, " : ", 3);
             //with p^,mark_one^,line^ do
-            name_str span_start;
+            std::string span_start;
             bool continu = p->mark_one->line != p->mark_two->line;
             if (p->mark_one->col <= p->mark_one->line->used) {
                 if (!continu) {
                     continu = p->mark_two->col - p->mark_one->col > NAME_LEN;
-                    span_start.fillcopy(p->mark_one->line->str->data(p->mark_one->col),
-                                        p->mark_two->col - p->mark_one->col,
-                                        1, NAME_LEN, ' ');
+                    size_t to_copy = std::min(NAME_LEN, p->mark_two->col - p->mark_one->col);
+                    span_start.assign(p->mark_one->line->str->data(p->mark_one->col), to_copy);
                 } else {
-                    span_start.fillcopy(p->mark_one->line->str->data(p->mark_one->col),
-                                        p->mark_one->line->used + 1 - p->mark_one->col,
-                                        1, NAME_LEN, ' ');
+                    size_t to_copy = std::min(NAME_LEN, p->mark_one->line->used + 1 - p->mark_one->col);
+                    span_start.assign(p->mark_one->line->str->data(p->mark_one->col), to_copy);
                 }
-            } else {
-                span_start.fill(' ');
             }
             screen_write_name_str(0, span_start, NAME_LEN);
             if (continu)

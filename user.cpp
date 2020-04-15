@@ -214,12 +214,11 @@ bool user_key(const tpar_object &key, const tpar_object &strng) {
     //with frame_heap^ do
     if (!mark_create(frame_heap->last_group->last_line, 1, frame_heap->span->mark_two))
         return false;
-    name_str blank_frame_name(BLANK_FRAME_NAME.data(), BLANK_FRAME_NAME.size(), ' ');
-    if (!span_create(blank_frame_name, frame_heap->span->mark_two, frame_heap->span->mark_two))
+    if (!span_create(BLANK_FRAME_NAME, frame_heap->span->mark_two, frame_heap->span->mark_two))
         return false;
     span_ptr key_span;
     span_ptr old_span;
-    if (span_find(blank_frame_name, key_span, old_span)) {
+    if (span_find(BLANK_FRAME_NAME, key_span, old_span)) {
         if (!text_insert_tpar(strng, key_span->mark_two, key_span->mark_one))
             goto l98;
         if (!code_compile(*key_span, true))

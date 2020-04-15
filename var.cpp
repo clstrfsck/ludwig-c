@@ -4,7 +4,7 @@
 
 #include "var.h"
 
-name_str              ludwig_version;
+const std::string     ludwig_version("X5.0-006");
 std::string           program_directory; // Used to determine program startup directory.
 //FIXME: terminal_capabilities tt_capabilities;   // H/W abilities of terminal.
 bool                  tt_controlc;       // User has typed CNTRL/C.

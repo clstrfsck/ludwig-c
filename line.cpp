@@ -751,8 +751,8 @@ bool lines_extract(line_ptr first_line, line_ptr last_line) {
     }
 
     // Adjust end_group for remaining lines.
-    line_offset_range offset;
     if (nr_lines_to_remove < 0) {
+        line_offset_range offset;
         if (top_group == end_group) {
             offset = first_line_offset_nr;
             end_group->nr_lines = offset - nr_lines_to_remove;
@@ -761,7 +761,7 @@ bool lines_extract(line_ptr first_line, line_ptr last_line) {
             end_group->nr_lines = -nr_lines_to_remove;
         }
         this_line = end_line;
-        for (offset = offset; offset < end_group->nr_lines; ++offset) {
+        for (; offset < end_group->nr_lines; ++offset) {
             //with this_line^ do
             this_line->offset_nr = offset;
             this_line = this_line->flink;
