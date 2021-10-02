@@ -25,6 +25,9 @@ OBJS =	arrow.o		caseditto.o	ch.o		charcmd.o	\
 	validate.o	value.o		var.o		vdu.o		\
 	version.o	window.o	word.o
 
+# Source files in src directory
+VPATH=src
+
 # Either g++ or clang++ should work.
 # Tested with clang++ 6.0.0 and g++ 7.3.0
 CXX = g++
@@ -50,8 +53,8 @@ all:	ludwig ludwighlp.idx ludwignewhlp.idx
 ludwig:	$(OBJS)
 	$(CXX) $(CXXFLAGS) -o ludwig $(OBJS) -lncurses
 
-ludwighlpbld:	ludwighlpbld.cpp
-	$(CXX) $(CXXFLAGS) -o ludwighlpbld ludwighlpbld.cpp
+ludwighlpbld:	ludwighlpbld.o
+	$(CXX) $(CXXFLAGS) -o ludwighlpbld ludwighlpbld.o
 
 ludwighlp.idx:  ludwighlpbld ludwighlp.t
 	./ludwighlpbld ludwighlp.t ludwighlp.idx
@@ -63,7 +66,7 @@ tests:
 	$(MAKE) -C tests all
 
 clean:
-	rm -f $(OBJS) ludwighlpbld ludwighlp.idx ludwignewhlp.idx
+	rm -f $(OBJS) ludwighlpbld.o ludwig ludwighlpbld ludwighlp.idx ludwignewhlp.idx
 	$(MAKE) -C tests $@
 
 arrow.o: arrow.cpp arrow.h type.h const.h parray.h prange.h perange.h \
