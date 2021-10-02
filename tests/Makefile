@@ -44,7 +44,7 @@ tests:	$(OBJS) gtest-all.o gtest_main.o
 	$(CXX) -o tests $(CXXFLAGS) $(OBJS) gtest-all.o gtest_main.o -lpthread
 
 clean:
-	rm -f tests $(OBJS) gtest-all.o gtest_main.o
+	rm -f tests $(OBJS) gtest-all.o gtest_main.o *.gcda *.gcno
 
 gtest-all.o:	gtest-all.cc
 
