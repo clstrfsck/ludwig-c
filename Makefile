@@ -38,7 +38,7 @@ CFLAGS   = -O3 -Wall -DMKSTEMP
 else
 # These are debug flags. Works for both g++ and clang++.
 DEFS     = -DDEBUG -D_GLIBCXX_DEBUG
-CXXFLAGS = -g -Wall -std=c++14 $(DEFS) -fdiagnostics-color=never
+CXXFLAGS = -g -Wall -Wextra -std=c++14 $(DEFS) -fdiagnostics-color=never
 CFLAGS   = -g -Wall -DMKSTEMP
 endif
 
@@ -152,4 +152,3 @@ window.o: window.cpp window.h type.h const.h parray.h prange.h perange.h \
  penumset.h prangeset.h var.h vdu.h line.h mark.h frame.h screen.h
 word.o: word.cpp word.h type.h const.h parray.h prange.h perange.h \
  penumset.h prangeset.h var.h line.h mark.h text.h screen.h
-zz.o: zz.cpp

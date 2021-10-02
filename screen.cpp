@@ -1608,7 +1608,9 @@ void screen_write_name_str(scr_col_range indent, const std::string &str, scr_col
         for (int i = 0; i < indent; ++i)
             vdu_displaych(' ');
         for (int i = 0; i < width; ++i) {
-            if (i < str.size())
+            // FIXME: Cast should be removed here and prange fixed to use
+            // signed or unsigned int as appropriate for the range
+            if (std::string::size_type(i) < str.size())
                 vdu_displaych(str[i]);
             else
                 vdu_displaych(' ');
@@ -1616,7 +1618,9 @@ void screen_write_name_str(scr_col_range indent, const std::string &str, scr_col
     } else {
         write(' ', indent);
         for (int i = 0; i < width; ++i) {
-            if (i < str.size())
+            // FIXME: Cast should be removed here and prange fixed to use
+            // signed or unsigned int as appropriate for the range
+            if (std::string::size_type(i) < str.size())
                 write(str[i], 1);
             else
                 write(' ', 1);
@@ -1626,7 +1630,6 @@ void screen_write_name_str(scr_col_range indent, const std::string &str, scr_col
 
 void screen_write_file_name_str(scr_col_range indent, const file_name_str &str, scr_col_range width) {
     // Write a file name at the current cursor position, or to the output file.
-
     if (ludwig_mode == ludwig_mode_type::ludwig_screen) {
         for (int i = 0; i < indent; ++i)
             vdu_displaych(' ');
