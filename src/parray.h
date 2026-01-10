@@ -16,7 +16,7 @@
 
 template <class T, class R>
 class parray {
-    static_assert(R::min() < R::max(), "min must be strictly less than max");
+    static_assert(R::min() <= R::max(), "min must be less than or equal to max");
 
 public:
     constexpr size_t adjust_index(typename R::type index) const {
@@ -31,7 +31,7 @@ public:
         // and are out of range.
         if (adjust_index(index) >= m_array.size()) {
             throw std::out_of_range("index out of range");
-        }            
+        }
     }
 
     typedef std::vector<T> array_type;

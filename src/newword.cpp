@@ -70,7 +70,7 @@ bool current_word(mark_ptr dot) {
     if (dot->col == 0)
         return false;
     while ((dot->col > 1) && word_elements[0].contains(dot->line->str->operator[](dot->col)))
-        dot->col = 1;
+        dot->col -= 1;
     if (word_elements[0].contains(dot->line->str->operator[](dot->col))) {
         // we must have been somewhere on the line before the first word
         if (dot->line->blink == nullptr) // oops top of the frame reached
@@ -507,4 +507,3 @@ bool newword_delete_paragraph(leadparam rept, int count) {
         mark_destroy(the_other_mark);
     return result;
 }
-
