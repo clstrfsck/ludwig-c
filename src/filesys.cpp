@@ -345,7 +345,7 @@ bool filesys_close(file_ptr fyle, int action, bool msgs) {
     }
     // now rename the temp file to the real thing
     sys_chmod(fyle->tnm.c_str(), fyle->mode & 07777);
-    if (sys_rename(fyle->tnm, fyle->filename)) {
+    if (!sys_rename(fyle->tnm, fyle->filename)) {
         std::stringstream s;
         s << "Cannot rename " << fyle->tnm << " to " << fyle->filename;
         screen_message(s.str().c_str());
@@ -558,7 +558,7 @@ bool filesys_parse(const std::string &command_line, parse_type parse,
     bool space_flag     = false;
     bool usage_flag     = false;
     bool version_flag   = false;
-    
+
     int errors      = 0;
     int check_input = 0;
 
@@ -796,4 +796,3 @@ bool filesys_parse(const std::string &command_line, parse_type parse,
 }
 
 /*----------------------------------------------------------------------------*/
-

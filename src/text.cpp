@@ -1005,11 +1005,11 @@ bool text_split_line(mark_ptr before_mark, int new_col, mark_ptr &equals_mark) {
                 before_mark->col = save_col;
             }
         }
-        //with group->frame^ do
-        if (!mark_create(before_mark->line, before_mark->col, before_mark->line->group->frame->marks[MARK_MODIFIED]))
-            goto l99;
-        before_mark->line->group->frame->text_modified = true;
     }
+    //with group->frame^ do
+    if (!mark_create(before_mark->line, before_mark->col, before_mark->line->group->frame->marks[MARK_MODIFIED]))
+        goto l99;
+    before_mark->line->group->frame->text_modified = true;
     // FINISHED -- AT LAST
     if (!mark_create(equals_line, equals_col, equals_mark))
         goto l99;

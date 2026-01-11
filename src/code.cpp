@@ -87,7 +87,7 @@ namespace {
     }
 
     template <class R>
-    void assign(parray<char, R> dst, const char *src) {
+    void assign(parray<char, R>& dst, const char *src) {
         dst.fillcopy(src, std::strlen(src),
                      parray<char, R>::index_type::min(),
                      parray<char, R>::index_type::size(), ' ');
@@ -236,7 +236,7 @@ bool nextkey(parse_state &ps) {
     }
     return true;
 }
- 
+
 bool nextnonbl(parse_state &ps) {
  l1:;
     do {
