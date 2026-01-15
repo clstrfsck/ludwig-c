@@ -27,11 +27,11 @@
 !
 ! Revision 4.17  90/02/08  10:22:24  ludwig
 ! changed pcc preprocessor #if to the correct syntax
-! 
+!
 ! Revision 4.16  90/02/05  12:04:16  ludwig
 ! Steven Nairn.
 ! code to handle window resizing. (on receipt of cmd_window_resize).
-! 
+!
 ! Revision 4.15  90/01/18  18:15:52  ludwig
 ! Entered into RCS at revision level 4.15
 !
@@ -632,7 +632,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
                 if (!lines_destroy(first_line, last_line))
                     goto l99;
             }
-    
+
             // Insert the new tpar into frame COMMAND.
             if (!text_insert_tpar(request, frame_cmd->dot, frame_cmd->marks[MARK_EQUALS]))
                 goto l99;
@@ -1026,7 +1026,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
                 if (!mark_create (first_line, 1, current_frame->marks[MARK_EQUALS]))
                     goto l99;
                 current_frame->text_modified = true;
-                if (mark_create(last_line->flink, 1, current_frame->marks[MARK_MODIFIED]))
+                if (!mark_create(last_line->flink, 1, current_frame->marks[MARK_MODIFIED]))
                     goto l99;
                 if (!mark_create(last_line->flink, 1, current_frame->dot))
                     goto l99;
