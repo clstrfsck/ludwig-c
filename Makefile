@@ -36,7 +36,7 @@ CC  = gcc
 ifdef NDEBUG
 # These are release flags.
 # Works for g++, clang++ doesn't understand -Wno-maybe-uninitialized
-CXXFLAGS = -Wno-maybe-uninitialized -O3 -Wall -std=c++14 -fdiagnostics-color=never
+CXXFLAGS = -O3 -Wall -std=c++14 -fdiagnostics-color=never
 CFLAGS   = -O3 -Wall -DMKSTEMP
 else
 # These are debug flags. Works for both g++ and clang++.
