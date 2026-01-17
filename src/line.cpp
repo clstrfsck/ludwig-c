@@ -882,7 +882,7 @@ bool line_from_number(frame_ptr frame, line_range number, line_ptr &line) {
         while (this_group->first_line_nr > number)
             this_group = this_group->blink;
         line_ptr this_line = this_group->first_line;
-        for (line_range line_nr = 1; line_nr < number - this_group->first_line_nr; ++line_nr)
+        for (line_range line_nr = 1; line_nr <= number - this_group->first_line_nr; ++line_nr)
             this_line = this_line->flink;
         line = this_line;
     }

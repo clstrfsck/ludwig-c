@@ -82,7 +82,7 @@ bool current_word(mark_ptr dot) {
     }
     // ASSERT: we now have dot sitting on part of a word
     word_set_range element = 0;
-    while (word_elements[element].contains(dot->line->str->operator[](dot->col)))
+    while (!word_elements[element].contains(dot->line->str->operator[](dot->col)))
         element += 1;
     // Now find the start of this word
     while ((dot->col > 1) && word_elements[element].contains(dot->line->str->operator[](dot->col)))
@@ -125,7 +125,7 @@ bool previous_word(mark_ptr dot) {
     while (!word_elements[element].contains(dot->line->str->operator[](dot->col)))
         element += 1;
     while ((dot->col > 1) && word_elements[element].contains(dot->line->str->operator[](dot->col)))
-        dot->col = 1;
+        dot->col -= 1;
     if (word_elements[element].contains(dot->line->str->operator[](dot->col))) {
         if (dot->line->blink == nullptr) // no more lines
             return false;
@@ -152,7 +152,7 @@ bool newword_advance_word(leadparam rept, int count) {
         count = 0;
     }
     // If we are doing a 0AW we need to go to the current word, -nAW does this
-    if ((rept == leadparam::pint) && (count = 0))
+    if ((rept == leadparam::pint) && (count == 0))
         rept = leadparam::nint;
     switch (rept) {
     case leadparam::none:
@@ -163,7 +163,7 @@ bool newword_advance_word(leadparam rept, int count) {
             if (!next_word(new_dot))
                 goto l98;
         }
-        if (mark_create(new_dot->line, new_dot->col, current_frame->dot))
+        if (!mark_create(new_dot->line, new_dot->col, current_frame->dot))
             goto l98;
     }
         break;

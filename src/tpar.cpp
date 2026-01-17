@@ -62,6 +62,8 @@
 #include "span.h"
 #include "screen.h"
 
+const size_t ENQUIRY_NUM_LEN = 20;
+
 namespace {
     const std::string SYSTEM_NAME("C++/Linux");
 
@@ -288,14 +290,12 @@ bool find_enquiry(const std::string &name, str_object &result, strlen_range &res
         else if (item == "LUDWIG")
             variable_type = vartype::ludwig;
         item.clear();
-        int j = 1;
-        while (i <= len) {
+        while (i < len) {
             if (variable_type == vartype::opsys)
                 item.push_back(name[i]);
             else
                 item.push_back(std::toupper(name[i]));
             i += 1;
-            j += 1;
         }
         switch (variable_type) {
         case vartype::terminal:
@@ -305,14 +305,21 @@ bool find_enquiry(const std::string &name, str_object &result, strlen_range &res
                 result.fillcopy(terminal_info.name.data(), reslen, 1, MAX_STRLEN, ' ');
             } else if (item == "HEIGHT") {
                 std::string s = std::to_string(terminal_info.height);
+                while (s.size() < ENQUIRY_NUM_LEN)
+                    s = " " + s;
                 reslen = s.size();
                 result.fillcopy(s.data(), s.size(), 1, MAX_STRLEN, ' ');
             } else if (item == "WIDTH") {
                 std::string s = std::to_string(terminal_info.width);
+                while (s.size() < ENQUIRY_NUM_LEN)
+                    s = " " + s;
                 reslen = s.size();
                 result.fillcopy(s.data(), s.size(), 1, MAX_STRLEN, ' ');
             } else if (item == "SPEED") {
-                std::string s = std::to_string(terminal_info.width);
+                // FIXME: Maybe we could do something better here?
+                std::string s = std::to_string(0);
+                while (s.size() < ENQUIRY_NUM_LEN)
+                    s = " " + s;
                 reslen = s.size();
                 result.fillcopy(s.data(), s.size(), 1, MAX_STRLEN, ' ');
             } else {
@@ -398,7 +405,7 @@ bool find_enquiry(const std::string &name, str_object &result, strlen_range &res
               enquiry_result = false;
             }
             break;
-            
+
         case vartype::unknown:
             // Nothing to do
             break;

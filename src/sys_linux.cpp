@@ -22,6 +22,7 @@
 #include "sys.h"
 
 #include <algorithm>
+#include <filesystem>
 
 #include <pwd.h>
 #include <fcntl.h>
@@ -103,13 +104,8 @@ bool sys_expand_filename(std::string &filename) {
         }
         filename = dir + filepart;
     }
-    char *rp = ::realpath(filename.c_str(), NULL);
-    if (rp == NULL) {
-        return !filename.empty();
-    }
-    filename = rp;
-    ::free(rp);
-    return true;
+    filename = std::filesystem::absolute(filename);
+    return !filename.empty();
 }
 
 bool sys_copy_filename(const std::string &src_path, std::string &dst_path) {

@@ -36,12 +36,12 @@ CC  = gcc
 ifdef NDEBUG
 # These are release flags.
 # Works for g++, clang++ doesn't understand -Wno-maybe-uninitialized
-CXXFLAGS = -O3 -Wall -std=c++14 -fdiagnostics-color=never
+CXXFLAGS = -O3 -Wall -std=c++17 -fdiagnostics-color=never
 CFLAGS   = -O3 -Wall -DMKSTEMP
 else
 # These are debug flags. Works for both g++ and clang++.
 DEFS     = -DDEBUG -D_GLIBCXX_DEBUG
-CXXFLAGS = -g -Wall -Wextra -std=c++14 $(DEFS) -fdiagnostics-color=never
+CXXFLAGS = -g -Wall -Wextra -std=c++17 $(DEFS) -fdiagnostics-color=never
 CFLAGS   = -g -Wall -DMKSTEMP
 endif
 
