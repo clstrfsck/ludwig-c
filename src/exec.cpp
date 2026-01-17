@@ -242,7 +242,6 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
     std::string    new_name;
     span_ptr       new_span;
     span_ptr       old_span;
-    tpar_ptr       new_tparam;
     tpar_object    request;
     tpar_object    request2;
     mark_ptr       the_mark;
@@ -971,8 +970,13 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
         } else {
             if (edit_mode == mode_type::mode_command)
                 edit_mode = previous_mode;
-            else
-                goto l99;
+            else {
+                if (ludwig_mode != ludwig_mode_type::ludwig_screen) {
+                    screen_message(MSG_SCREEN_MODE_ONLY);
+                    goto l99;
+                }
+                cmd_success = user_command_introducer();
+            }
         }
         cmd_success = true;
         break;
