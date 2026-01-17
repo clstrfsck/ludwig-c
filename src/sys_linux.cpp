@@ -21,6 +21,7 @@
 
 #include "sys.h"
 
+#include <charconv>
 #include <algorithm>
 #include <filesystem>
 
@@ -33,6 +34,7 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 
+namespace fs = std::filesystem;
 
 namespace {
     const std::string NL("\n");
@@ -104,7 +106,7 @@ bool sys_expand_filename(std::string &filename) {
         }
         filename = dir + filepart;
     }
-    filename = std::filesystem::absolute(filename);
+    filename = fs::absolute(filename);
     return !filename.empty();
 }
 
@@ -258,37 +260,31 @@ file_status sys_file_status(const std::string &filename) {
 }
 
 std::vector<long> sys_list_backups(const std::string &backup_name) {
-    std::string dir(backup_name);
-    // Find out what directory we are putting this file in
-    std::string::size_type slash = dir.rfind('/');
-    // Prefix for backup name of file
-    std::string bname = slash == std::string::npos ? dir : dir.substr(slash + 1);
-    size_t bname_len = bname.size();
-    if (slash == std::string::npos) {
-        // Current directory
+    fs::path p(backup_name);
+    std::string bname = p.filename().string();
+    fs::path dir = p.parent_path();
+    if (dir.empty())
         dir = ".";
-    } else if (slash == 0) {
-        // If directory is "/", then use that
-        dir = "/";
-    } else {
-        // Just remove the file part
-        dir.erase(slash);
-    }
+
     std::vector<long> versions;
-    DIR *dirp = opendir(dir.c_str());
-    if (dirp != NULL) {
-        for (struct dirent *dp = readdir(dirp); dp != NULL; dp = readdir(dirp)) {
-            std::string name(dp->d_name);
-            if (name.size() >= bname_len && name.substr(0, bname_len) == bname) {
-                size_t chars_used;
-                long vnum = std::stol(name.substr(bname_len), &chars_used);
-                if (chars_used == name.size() - bname_len)
-                    versions.push_back(vnum);
-            }
+    std::error_code ec;
+    for (auto const &de : fs::directory_iterator(dir, ec)) {
+        if (ec) break;
+        std::string name = de.path().filename().string();
+        if (name.size() < bname.size()) continue;
+        if (name.compare(0, bname.size(), bname) != 0) continue;
+
+        std::string_view suffix{name.c_str() + bname.size(), name.size() - bname.size()};
+        if (suffix.empty()) continue;
+
+        long v = 0;
+        auto res = std::from_chars(suffix.data(), suffix.data() + suffix.size(), v);
+        if (res.ptr != suffix.data() + suffix.size()) {
+            continue;
         }
-        closedir(dirp);
+        versions.push_back(v);
     }
-    // Oldest to newest
-    std::sort(std::begin(versions), std::end(versions));
+
+    std::sort(versions.begin(), versions.end());
     return versions;
 }
