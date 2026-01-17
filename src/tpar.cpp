@@ -62,6 +62,9 @@
 #include "span.h"
 #include "screen.h"
 
+#include <iomanip>
+#include <sstream>
+
 const size_t ENQUIRY_NUM_LEN = 20;
 
 namespace {
@@ -78,6 +81,13 @@ namespace {
     template <class R>
     std::string to_string(const parray<char, R> &a) {
         return std::string(a.data(), a.length(' '));
+    }
+
+    template <typename T>
+    std::string left_padded(std::streamsize width, const T &value) {
+        std::ostringstream oss;
+        oss << std::setw(width) << std::setfill(' ') << value;
+        return oss.str();
     }
 };
 
@@ -304,24 +314,18 @@ bool find_enquiry(const std::string &name, str_object &result, strlen_range &res
                 reslen = terminal_info.name.size();
                 result.fillcopy(terminal_info.name.data(), reslen, 1, MAX_STRLEN, ' ');
             } else if (item == "HEIGHT") {
-                std::string s = std::to_string(terminal_info.height);
-                while (s.size() < ENQUIRY_NUM_LEN)
-                    s = " " + s;
+                std::string s = left_padded(ENQUIRY_NUM_LEN, terminal_info.height);
                 reslen = s.size();
-                result.fillcopy(s.data(), s.size(), 1, MAX_STRLEN, ' ');
+                result.fillcopy(s.data(), reslen, 1, MAX_STRLEN, ' ');
             } else if (item == "WIDTH") {
-                std::string s = std::to_string(terminal_info.width);
-                while (s.size() < ENQUIRY_NUM_LEN)
-                    s = " " + s;
+                std::string s = left_padded(ENQUIRY_NUM_LEN, terminal_info.width);
                 reslen = s.size();
-                result.fillcopy(s.data(), s.size(), 1, MAX_STRLEN, ' ');
+                result.fillcopy(s.data(), reslen, 1, MAX_STRLEN, ' ');
             } else if (item == "SPEED") {
                 // FIXME: Maybe we could do something better here?
-                std::string s = std::to_string(0);
-                while (s.size() < ENQUIRY_NUM_LEN)
-                    s = " " + s;
+                std::string s = left_padded(ENQUIRY_NUM_LEN, 0);
                 reslen = s.size();
-                result.fillcopy(s.data(), s.size(), 1, MAX_STRLEN, ' ');
+                result.fillcopy(s.data(), reslen, 1, MAX_STRLEN, ' ');
             } else {
                 enquiry_result = false;
             }
