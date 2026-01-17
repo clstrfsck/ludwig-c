@@ -672,8 +672,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
             goto l99;
         }
         if (tpar_get_1(tparam, command, request)) {
-            new_tparam = new tpar_object;
-            *new_tparam = request;
+            tpar_object new_tparam{request};
             //with frame_cmd^ do
             frame_cmd->return_frame = current_frame;
             current_frame = frame_cmd;
@@ -688,7 +687,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
                 if (!lines_destroy(first_line, last_line))
                     goto l99;
             }
-            if (file_command(commands::cmd_file_execute, leadparam::none, 0, new_tparam, false)) {
+            if (file_command(commands::cmd_file_execute, leadparam::none, 0, &new_tparam, false)) {
                 current_frame = current_frame->return_frame;
                 //
                 //! Recompile and execute frame COMMAND
@@ -703,8 +702,6 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
             } else {
                 current_frame = current_frame->return_frame;
             }
-            // Get rid of the tpar we have created.
-            delete new_tparam;
         }
         break;
 
