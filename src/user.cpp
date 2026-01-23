@@ -30,7 +30,7 @@
 !
 ! Revision 4.9  90/09/21  12:43:26  ludwig
 ! Change name of IBM-PC module system to msdos (system is reserved name).
-! 
+!
 ! Revision 4.8  90/02/08  10:14:30  ludwig
 ! changed pcc conditional now that I know the syntax.
 !
@@ -80,24 +80,20 @@ namespace {
 };
 
 bool user_key_code_to_name(key_code_range key_code, std::string &key_name) {
-    key_name_list_ptr[0].key_code = key_code;
-    int i = nr_key_names;
-    while (key_name_list_ptr[i].key_code != key_code)
-        i -= 1;
-    if (i != 0) {
-        key_name = key_name_list_ptr[i].key_name;
+    auto it = std::find_if(key_name_list.begin() + 1, key_name_list.end(),
+        [&](const key_name_record &knr) { return knr.key_code == key_code; });
+    if (it != key_name_list.end()) {
+        key_name = it->key_name;
         return true;
     }
     return false;
 }
 
 bool user_key_name_to_code(const std::string &key_name, key_code_range &key_code) {
-    key_name_list_ptr[0].key_name = key_name;
-    int i = nr_key_names;
-    while (key_name_list_ptr[i].key_name != key_name)
-        i -= 1;
-    if (i != 0) {
-        key_code = key_name_list_ptr[i].key_code;
+    auto it = std::find_if(key_name_list.begin() + 1, key_name_list.end(),
+        [&](const key_name_record &knr) { return knr.key_name == key_name; });
+    if (it != key_name_list.end()) {
+        key_code = it->key_code;
         return true;
     }
     return false;
@@ -108,7 +104,7 @@ bool user_key_name_to_code(const std::string &key_name, key_code_range &key_code
 void user_key_initialize() {
     // Initialize terminal-defined key map table.
     key_code_range key_code;
-    vdu_keyboard_init(nr_key_names, key_name_list_ptr, key_introducers, terminal_info);
+    vdu_keyboard_init(nr_key_names, key_name_list, key_introducers, terminal_info);
     if (user_key_name_to_code(std::string("UP-ARROW"), key_code))
         lookup[key_code].command = commands::cmd_up;
     if (user_key_name_to_code(std::string("DOWN-ARROW"), key_code))

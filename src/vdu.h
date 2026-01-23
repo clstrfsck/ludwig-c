@@ -43,7 +43,7 @@ void vdu_insert_mode (bool turn_on);
 void vdu_get_text(int str_len, str_object &str, strlen_range &outlen);
 
 void vdu_keyboard_init(key_names_range &nr_key_names,
-                       key_name_record_ptr &key_name_list_ptr,
+                       std::vector<key_name_record> &key_name_list,
                        accept_set_type &key_introducers,
                        terminal_info_type &terminal_info);
 

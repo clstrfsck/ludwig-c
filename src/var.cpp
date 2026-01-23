@@ -12,7 +12,7 @@ bool                  tt_winchanged;     // Window size has changed
 
 // Keyboard interface.
 key_names_range       nr_key_names;
-key_name_record_ptr   key_name_list_ptr;
+std::vector<key_name_record> key_name_list;
 accept_set_type       key_introducers;
 
 // SPECIAL FRAMES.
