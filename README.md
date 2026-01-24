@@ -1,4 +1,6 @@
-```
+# The Ludwig Editor
+
+```text
 {**********************************************************************}
 {                                                                      }
 {            L      U   U   DDDD   W      W  IIIII   GGGG              }
@@ -10,74 +12,78 @@
 {**********************************************************************}
 ```
 
-# ABOUT
+## About
 
-Ludwig is a text editor developed at the University of Adelaide. 
+Ludwig is a text editor developed at the University of Adelaide.
 It is an interactive, screen-oriented text editor.
-It may be used to create and modify computer programs, documents 
+It may be used to create and modify computer programs, documents
 or any other text which consists only of printable characters.
 
-Ludwig may also be used on hardcopy terminals or non-interactively, 
+Ludwig may also be used on hardcopy terminals or non-interactively,
 but it is primarily an interactive screen editor.
 
 This is a C++ port of the Ludwig code. The original Pascal code is
-available here: https://github.com/cjbarter/ludwig
+available here: [cjbarter/ludwig](https://github.com/cjbarter/ludwig).
 
-# Building
+## Building
 
 Either clang++ or g++ can build Ludwig-C.
 
-```
-make NDEBUG=1
-```
-
-This will produce `ludwig` which can be copied to your 
-preferred directory for local binaries, eg `/usr/local/bin`. 
-
-# Usage
-
-Open/create a file with name <file-name>
-
-```
-ludwig <file-name>
+```sh
+mkdir build
+cd build
+cmake ..
+make
 ```
 
-The file `.ludwigrc` in your home directory will be loaded whenever you start ludwig. 
-	
-Or with some additional initialisation parameters
+This will produce `ludwig` which can be copied to your preferred directory for
+local binaries, eg `/usr/local/bin`.
 
-    ludwig -O -i <initialisation-file-name> <file-name>
+## Usage
 
-        -O invokes Version 5 command names
+Open/create a file with name `file-name`:
 
-        -i initialisation file (optional) executed after .ludwigrc
-        
-# Help
+```sh
+ludwig file-name
+```
+
+The file `.ludwigrc` in your home directory will be loaded whenever you start
+ludwig.
+
+Or with some additional initialisation parameters:
+
+```sh
+ludwig -O -i initialisation-file-name file-name
+```
+
+- `-O` invokes Version 5 command names
+- `-i` initialisation file (optional) executed after .ludwigrc
+
+## Help
 
 There are two help files
 
-* old commands help files: "ludwighlp.idx"
-* new commands help files: "ludwignewhlp.idx"
+- old commands help files: "ludwighlp.idx"
+- new commands help files: "ludwignewhlp.idx"
 
 Copy these into /usr/local/help
 
-```
+```sh
 mkdir -p /usr/local/help
 cp *.idx /usr/local/help
 ```
 
-
 A couple of useful commands (-O version) to get you started are:
 
-```
+```ludwig
 km/home/<ac/
 km/end/>eol [<ac] >ac/
 ```
 
-This will make your home key move the cursor to the start of the line, and 
-the end key move the cursor to the end of the current line. 
+This will make your home key move the cursor to the start of the line, and
+the end key move the cursor to the end of the current line.
 
 They can be put into an initialisation file or `.ludwigrc`
 
-Quick notes, Ludwig command `\h` will give you the help pages on Ludwig commands 
-and `\q` will exit the editing session.
+Quick notes, Ludwig command `\h` will give you the help pages on Ludwig
+commands and `\q` will exit the editing session.
