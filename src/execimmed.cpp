@@ -123,12 +123,12 @@ void execute_immed() {
                     }
 
                     // DECIDE MAX CHARS THAT CAN BE READ.
-                    scr_col_range scr_col = current_frame->dot->col - current_frame->scr_offset;
+                    scr_col_range tmp_scr_col = current_frame->dot->col - current_frame->scr_offset;
                     strlen_range input_len = MAX_STRLENP - current_frame->dot->col;
                     if (current_frame->dot->col <= current_frame->margin_right)
                         input_len = current_frame->margin_right - current_frame->dot->col + 1;
-                    if (input_len > current_frame->scr_width + 1 - scr_col)
-                        input_len = current_frame->scr_width + 1 - scr_col;
+                    if (input_len > current_frame->scr_width + 1 - tmp_scr_col)
+                        input_len = current_frame->scr_width + 1 - tmp_scr_col;
 
                     // WATCH OUT FOR NULL LINE.
                     if (current_frame->dot->line->flink == nullptr) {
@@ -244,7 +244,7 @@ void execute_immed() {
                 else
                     cmd_success = execute(lookup[key].command, leadparam::none, 1, lookup[key].tpar, false);
             }
-            
+
     l9:;
             if (tt_controlc) {
                 tt_controlc = false;

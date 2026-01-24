@@ -111,7 +111,7 @@ bool pattern_dfa_table_initialize(dfa_table_ptr &pattern_ptr, const pattern_def_
 // FIXME: This is a brutal way to implement nested functions/procedures in C++
 bool pattern_dfa_convert(nfa_table_type &nfa_table,
                          dfa_table_ptr dfa_table_pointer,
-                         nfa_state_range &nfa_start,
+                         const nfa_state_range &nfa_start,
                          nfa_state_range &nfa_end,
                          nfa_state_range middle_context_start,
                          nfa_state_range right_context_start,
@@ -128,16 +128,16 @@ bool pattern_dfa_convert(nfa_table_type &nfa_table,
     transition_ptr     incoming_tran_ptr, kill_tran_ptr, aux_tran_ptr_2, aux_tran_ptr;
     bool               found;
     nfa_set_type       aux_set;
-    accept_set_type    aux_transition_set;  
-    nfa_set_type       mask;  
-    accept_set_type    kill_set;  
-    accept_set_type    intersection_set;  
-    partition_ptr_type partition_ptr;  
-    partition_ptr_type aux_partition_ptr;  
-    partition_ptr_type current_partition_ptr;  
-    partition_ptr_type follower_ptr; 
+    accept_set_type    aux_transition_set;
+    nfa_set_type       mask;
+    accept_set_type    kill_set;
+    accept_set_type    intersection_set;
+    partition_ptr_type partition_ptr;
+    partition_ptr_type aux_partition_ptr;
+    partition_ptr_type current_partition_ptr;
+    partition_ptr_type follower_ptr;
     partition_ptr_type killer_ptr;
-    partition_ptr_type insert_partition;  
+    partition_ptr_type insert_partition;
     state_elt_ptr_type aux_equiv_ptr;
     nfa_attribute_type aux_closure;
 
@@ -147,7 +147,7 @@ bool pattern_dfa_convert(nfa_table_type &nfa_table,
 
         parray<nfa_state_range, stack_range> stack;
         stack_range                          stack_top;
-        state_elt_ptr_type                   kill_ptr, state_elt_ptr;
+        state_elt_ptr_type                   state_elt_ptr;
         nfa_state_range                      aux_state;
         bool                                 fail_equivalent;
 
@@ -171,7 +171,7 @@ bool pattern_dfa_convert(nfa_table_type &nfa_table,
         while (state_elt_ptr != nullptr) {
             if (!push_stack(state_elt_ptr->state_elt))
                 return false;
-            kill_ptr = state_elt_ptr;
+            state_elt_ptr_type kill_ptr = state_elt_ptr;
             state_elt_ptr = state_elt_ptr->next_elt;
             delete kill_ptr;
         }
@@ -229,7 +229,7 @@ bool pattern_dfa_convert(nfa_table_type &nfa_table,
         return true;
     };
 
-    auto pattern_new_dfa = [&](nfa_attribute_type equivalent_set, dfa_state_range &state_count) -> bool {
+    auto pattern_new_dfa = [&](const nfa_attribute_type &equivalent_set, dfa_state_range &state_count) -> bool {
         if (states_used < MAX_DFA_STATE_RANGE) {
             states_used += 1;
             //with dfa_table_pointer->dfa_table[states_used] do
@@ -259,7 +259,7 @@ bool pattern_dfa_convert(nfa_table_type &nfa_table,
         return true;
     };
 
-    auto pattern_add_dfa = [&](nfa_attribute_type transfer_state, accept_set_type accept_set, dfa_state_range from_state) -> bool {
+    auto pattern_add_dfa = [&](nfa_attribute_type transfer_state, const accept_set_type &accept_set, dfa_state_range from_state) -> bool {
         // if a DFA state with tranfer_state as its NFA_attributes does not exist
         // then create it and add a transition from from_state on the accept_set
         // to transfer_state.
@@ -267,7 +267,7 @@ bool pattern_dfa_convert(nfa_table_type &nfa_table,
         // from_states transition list
         dfa_state_range position;
 
-        auto dfa_search = [&](nfa_set_type state_head, dfa_state_range &position) -> bool {
+        auto dfa_search = [&](const nfa_set_type &state_head, dfa_state_range &position) -> bool {
             // finds the position in DFA_table of the state that has an NFA_equivalent
             // of state_head
 
@@ -310,7 +310,7 @@ bool pattern_dfa_convert(nfa_table_type &nfa_table,
 
     auto transition_list_merge = [&](state_elt_ptr_type list_1, state_elt_ptr_type list_2) -> state_elt_ptr_type {
         // makes a copy of 2 lists and concatenates them
-        
+
         state_elt_ptr_type aux_1 = nullptr;
         while (list_1 != nullptr) {
             state_elt_ptr_type aux_2 = aux_1;
@@ -331,7 +331,7 @@ bool pattern_dfa_convert(nfa_table_type &nfa_table,
 
     auto transition_list_append = [&](state_elt_ptr_type list_1, state_elt_ptr_type list_2) ->  state_elt_ptr_type {
         // makes a copy of list_2 and concatenates it to list_1
-        // on the front 
+        // on the front
 
         state_elt_ptr_type aux_1 = list_1;
         while (list_2 != nullptr) {
@@ -390,7 +390,7 @@ bool pattern_dfa_convert(nfa_table_type &nfa_table,
         aux_equiv_ptr = dtc.nfa_attributes.equiv_list;
         while (aux_equiv_ptr != nullptr) { // for transitions in equiv NFA elts
             //with nfa_table[aux_equiv_ptr->state_elt] do
-            nfa_transition_type &nta(nfa_table[aux_equiv_ptr->state_elt]);
+            const nfa_transition_type &nta(nfa_table[aux_equiv_ptr->state_elt]);
             if (!nta.epsilon_out) { // for all SIGNIFICANT
                 aux_partition_ptr = partition_ptr;
                 partition_ptr = new accept_set_partition_type;

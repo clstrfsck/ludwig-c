@@ -282,9 +282,8 @@ void screen_slide_line(line_ptr line, int slide_dist, slide_type slide_state) {
             vdu_displaystr(overlap, line->str->data() + offset, 2 /*anycurs*/);
         }
     } else {
-        int overlap;
         if (offset - slide_dist < line->used) {
-            overlap = line->used /*+ 1*/ - (offset - slide_dist + width /*+ 1*/);
+            int overlap = line->used /*+ 1*/ - (offset - slide_dist + width /*+ 1*/);
             if (slide_dist >= width) {
                 vdu_cleareol();
                 slide_dist = width;
@@ -482,20 +481,20 @@ void screen_scroll(int count, bool expand) {
             // NONE OF THE CURRENT STUFF WILL BE LEFT ON THE SCREEN.
             // REDRAW
             frame_ptr frame;
-            line_ptr top_line;
+            line_ptr tmp_top_line;
             if (expand) {  // Remember where to reload the screen.
                 frame = scr_frame;
                 top_line_nr -= count;
-                if (!line_from_number(scr_frame, top_line_nr, top_line))
+                if (!line_from_number(scr_frame, top_line_nr, tmp_top_line))
                     return;
             }
             screen_unload();
             if (expand) {
                 scr_frame    = frame;
-                scr_top_line = top_line;
-                scr_bot_line = top_line;
-                top_line->scr_row_nr = 1 + terminal_info.height - scr_frame->scr_height;
-                screen_draw_line(top_line);
+                scr_top_line = tmp_top_line;
+                scr_bot_line = tmp_top_line;
+                tmp_top_line->scr_row_nr = 1 + terminal_info.height - scr_frame->scr_height;
+                screen_draw_line(tmp_top_line);
                 screen_expand(false, true);
             }
             return;
@@ -598,13 +597,8 @@ void screen_expand(bool init_upwards, bool init_downwards) {
     }
 
     // Reset the BOT and TOP screen pointers.
-
-    if (scr_bot_line != bot_line) {
-        scr_bot_line = bot_line;
-    }
-    if (scr_top_line != top_line) {
-        scr_top_line = top_line;
-    }
+    scr_bot_line = bot_line;
+    scr_top_line = top_line;
 
     // If just expanding wasn't enough then try scrolling to get the lines.
     if (lines_on_scr < height) {
@@ -676,26 +670,8 @@ void screen_lines_extract(line_ptr first_line, line_ptr last_line) {
     }
 
     if (first_line == scr_top_line) {
-        if (last_line == scr_bot_line) {
-            screen_unload();
-        } else {
-            line_ptr line_limit = last_line->flink;
-            do {
-                //with scr_frame^,scr_top_line^ do
-                /* THIS IS COMMENTED OUT, THUS THE LINES STAY ON THE SCREEN UNTIL */
-                /* SCREEN_FIXUP IS CALLED.  THIS ALLOWS THE TEXT TO BE USED FOR   */
-                /* OPTIMIZATION PURPOSES WHILEST THE SCREEN IS BEING FIXED UP.    */
-                scr_needs_fix = true;
-                /* if used >= scr_offset then    */
-                /*   begin                       */
-                /*   vdu_movecurs(1,scr_row_nr); */
-                /*   vdu_cleareol;               */
-                /*   end;                        */
-                scr_top_line->scr_row_nr = 0;
-                scr_top_line = scr_top_line->flink;
-            } while (scr_top_line != line_limit);
-        }
-    } else if (last_line == scr_bot_line) {
+        screen_unload();
+    } else /* if (last_line == scr_bot_line) */ {
         line_ptr line_limit = first_line->blink;
         do {
             //with scr_frame^,scr_bot_line^ do
@@ -722,10 +698,8 @@ void screen_lines_inject(line_ptr first_line, line_range count, line_ptr before_
     // The rules for this routine are (1) 'first_line' should be   on the screen
     // and (2) no more than 'scr_height' lines are to be drawn onto the screen.
 
-    int i;
     line_ptr line;
     scr_row_range row_nr;
-    int scrollup_count;
     scr_row_range lines_above_insert;
     scr_row_range lines_below_insert;
 
@@ -738,7 +712,7 @@ void screen_lines_inject(line_ptr first_line, line_range count, line_ptr before_
 
     if ((free_space_above > 0) && (before_line != scr_top_line) &&
         (terminal_info.height > before_line->scr_row_nr - free_space_above + count)) {
-        scrollup_count = count - free_space_below;
+        int scrollup_count = count - free_space_below;
         if (scrollup_count > 0) {
 
             // Scrolling the screen upwards is useful to do, because it will
@@ -806,7 +780,7 @@ void screen_lines_inject(line_ptr first_line, line_range count, line_ptr before_
         // Patch up the pointers and scr_row_nr's of lines pushed off screen.
 
         line = scr_bot_line;
-        for (i = line->scr_row_nr + count; i >= terminal_info.height + 1; --i) {
+        for (int i = line->scr_row_nr + count; i >= terminal_info.height + 1; --i) {
             //with line^ do
             if (line->scr_row_nr == 0)
                 break;
@@ -1198,9 +1172,8 @@ void screen_resize() {
     int band = terminal_info.height / 6;
     int half_screen = terminal_info.height / 2;
     span_ptr next_span = first_span;
-    frame_ptr next_frame;
     while (next_span != nullptr) {
-        next_frame = next_span->frame;
+        frame_ptr next_frame = next_span->frame;
         if (next_frame != nullptr)
             change_frame_size(next_frame, band, half_screen);
         next_span = next_span->flink;
@@ -1371,10 +1344,7 @@ void screen_free_bottom_line() {
     } else {
         //with scr_bot_line^ do
         if (scr_bot_line->scr_row_nr + 1 < scr_msg_row) {          // IF ROOM FOR MORE MSGS.
-            if (scr_bot_line->scr_row_nr + 2 < scr_msg_row)        // keep <eos> if possible.
-                vdu_movecurs(1, scr_bot_line->scr_row_nr + 2);
-            else
-                vdu_movecurs(1, scr_bot_line->scr_row_nr + 1);
+            vdu_movecurs(1, scr_bot_line->scr_row_nr + 1);
             vdu_deletelines(1);
         } else if ((scr_frame->dot->line != scr_top_line) && // IF DOT NOT ON TOP LINE,
                    !((scr_frame->dot->line != scr_bot_line) &&

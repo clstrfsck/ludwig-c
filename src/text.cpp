@@ -926,7 +926,7 @@ bool text_split_line(mark_ptr before_mark, int new_col, mark_ptr &equals_mark) {
             cost = before_mark->col + before_mark->col; // allow for move-up + erase current
         else if (shift > 0)
             cost = before_mark->col + before_mark->col + 3 * shift; // up+erase+shift
-        else if (shift < 0)
+        else /* if (shift < 0) */
             cost = before_mark->col + before_mark->col - 3 * shift; // up+erase+shift
     }
 

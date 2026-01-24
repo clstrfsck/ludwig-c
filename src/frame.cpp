@@ -318,7 +318,7 @@ bool frame_kill(const std::string &frame_name) {
     return true;
 }
 
-char nextchar(tpar_object &request, int &pos) {
+char nextchar(const tpar_object &request, int &pos) {
     //with request do
     while ((pos < request.len) && (request.str[pos] == ' '))
         pos += 1;
@@ -448,7 +448,7 @@ bool set_opt(char ch, bool seton, frame_options &options) {
     return true;
 }
 
-bool set_options(tpar_object &request, int &pos, bool set_initial) {
+bool set_options(const tpar_object &request, int &pos, bool set_initial) {
     bool ok = false;
     char ch = nextchar(request, pos);
     if (ch == '(') {
@@ -482,7 +482,7 @@ bool set_options(tpar_object &request, int &pos, bool set_initial) {
     return ok;
 }
 
-bool setcmdintr(tpar_object &request, int &pos) {
+bool setcmdintr(const tpar_object &request, int &pos) {
     if (ludwig_mode == ludwig_mode_type::ludwig_screen) {
         std::string key_name;
         int i = 0;
@@ -522,7 +522,7 @@ bool setcmdintr(tpar_object &request, int &pos) {
     return false;
 }
 
-bool set_mode(tpar_object &request, int &pos) {
+bool set_mode(const tpar_object &request, int &pos) {
     char ch = nextchar(request, pos);
     if (ch == 'I') {
         edit_mode = mode_type::mode_insert;
@@ -539,7 +539,7 @@ bool set_mode(tpar_object &request, int &pos) {
     return true;
 }
 
-bool set_tabs(tpar_object &request, int &pos, bool set_initial) {
+bool set_tabs(const tpar_object &request, int &pos, bool set_initial) {
     //with current_frame^ do
     char ch = nextchar(request,pos);
     switch (ch) {
@@ -641,10 +641,10 @@ bool set_tabs(tpar_object &request, int &pos, bool set_initial) {
             }
             i += 1;
         }
-        for (int i = current_frame->dot->line->used + 1; i <= MAX_STRLEN; ++i) {
+        for (int j = current_frame->dot->line->used + 1; j <= MAX_STRLEN; ++j) {
             if (set_initial)
-                initial_tab_stops[i] = false;
-            current_frame->tab_stops[i] = false;
+                initial_tab_stops[j] = false;
+            current_frame->tab_stops[j] = false;
         }
         line_ptr first_line = current_frame->dot->line;
         col_range dot_col = current_frame->dot->col;
@@ -707,7 +707,7 @@ bool set_tabs(tpar_object &request, int &pos, bool set_initial) {
     return true;
 }
 
-bool get_mar(char &ch, int &pos, tpar_object &request, int lo_bnd, int hi_bnd, int &margin) {
+bool get_mar(char &ch, int &pos, const tpar_object &request, int lo_bnd, int hi_bnd, int &margin) {
     if (('0' <= ch) && (ch <= '9')) {
         pos -= 1;
         if (!tpar_to_int(request, pos, margin))
@@ -721,7 +721,7 @@ bool get_mar(char &ch, int &pos, tpar_object &request, int lo_bnd, int hi_bnd, i
     return true;
 }
 
-bool get_margins(int lo_bnd, int hi_bnd, tpar_object &request, int &pos, int &lower, int &upper, bool lr) {
+bool get_margins(int lo_bnd, int hi_bnd, const tpar_object &request, int &pos, int &lower, int &upper, bool lr) {
     char ch = nextchar(request,  pos);
     if (ch != '(') {
         screen_message(MSG_MARGIN_SYNTAX_ERROR);
@@ -814,7 +814,7 @@ bool set_tbmargin(tpar_object &request, int &pos, bool set_initial) {
 bool setparam(tpar_object &request) {
     int pos = 1;
     char ch = nextchar(request, pos);
-    bool set_initial = false;
+    bool set_initial;
     while (ch != '\0') {
         if (ch == '$') { // setting an initial value for a new frame
             set_initial = true;

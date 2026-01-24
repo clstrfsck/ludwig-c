@@ -585,7 +585,6 @@ bool scan_compound_command(parse_state &ps, leadparam repsym, int repcount, int 
 }
 
 bool scan_command(parse_state &ps, bool full_scan) {
-    int pc1, pc2, pc3, pc4;
     int repcount;
     leadparam repsym;
     if (!scan_leading_param(ps, repsym, repcount))
@@ -601,7 +600,7 @@ bool scan_command(parse_state &ps, bool full_scan) {
             error(ps, "Command not valid");
             return false;
         }
-        expand_lim_range *p = lookupexp_ptr.data(command);
+        const expand_lim_range *p = lookupexp_ptr.data(command);
         int i = p[0];
         int j = p[1];
 //        int i  = lookupexp_ptr[command];
@@ -615,7 +614,9 @@ bool scan_command(parse_state &ps, bool full_scan) {
             return false;
         }
     }
+    int pc1;
     if (ps.key == '(') {
+        int pc2, pc3;
         if (!scan_compound_command(ps, repsym, repcount, pc1, pc2, pc3))
             return false;
     } else if (command != commands::cmd_noop) {
@@ -629,6 +630,7 @@ bool scan_command(parse_state &ps, bool full_scan) {
         return false;
     }
     if (full_scan) {
+        int pc4;
         if (!scan_exit_handler(ps, pc1, pc4, full_scan))
             return false;
     }
@@ -692,42 +694,6 @@ l99:
     return result;
 }
 
-#ifdef DEBUG
-#include <iomanip>
-#include <iostream>
-
-void writecode() {
-    code_ptr hp = code_list->flink;
-    while (hp != code_list) {
-        //with hp^ do
-        std::cout << " New Segment, ref count " << hp->ref << std::endl;
-        for (int j = 1; j <= hp->len; ++j) {
-            //with compiler_code[code+j-1] do
-            const auto &cc(compiler_code[hp->code + j - 1]);
-            std::cout << std::setw(2) << j << " : ";
-            std::cout << std::setw(6) << cc.lbl;
-            std::cout << std::setw(6) << static_cast<int>(cc.op);
-            std::cout << std::setw(6) << static_cast<int>(cc.rep);
-            std::cout << std::setw(6) << cc.cnt;
-            if (cc.tpar != nullptr) {
-                tpar_ptr tp = cc.tpar;
-                std::cout << '-';
-                do {
-                    std::cout << cc.tpar->dlm;
-                    //with tp^ do
-                    for (int k = 1; k <= tp->len; ++k)
-                        std::cout << tp->str[k];
-                    tp = tp->nxt;
-                } while (tp != nullptr);
-                std::cout << cc.tpar->dlm;
-            }
-            std::cout << std::endl;
-        }
-        hp = hp->flink;
-    }
-}
-#endif
-
 
 bool code_interpret(leadparam rept, int count, code_ptr code_head, bool from_span) {
     struct labels_type {
@@ -768,7 +734,7 @@ bool code_interpret(leadparam rept, int count, code_ptr code_head, bool from_spa
             interp_status = success;
             // Note! code_head->code may be changed by a span compilation/creation.
             //with compiler_code[code_head->code-1 + pc] do
-            auto &cc(compiler_code[code_head->code - 1 + pc]);
+            const auto &cc(compiler_code[code_head->code - 1 + pc]);
             code_idx  curr_lbl  = cc.lbl;                // label field
             commands  curr_op   = cc.op;                 // op-code
             leadparam curr_rep  = cc.rep;                // repeat count type

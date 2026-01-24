@@ -94,7 +94,7 @@ bool sys_expand_filename(std::string &filename) {
             const char *s = getenv("HOME");
             dir = (s == NULL) ? "" : s;
         } else {
-            struct passwd *passwd = ::getpwnam(username.c_str());
+            const struct passwd *passwd = ::getpwnam(username.c_str());
             if (passwd == NULL) {
                 return false;
             }
@@ -274,7 +274,7 @@ std::vector<long> sys_list_backups(const std::string &backup_name) {
         if (name.size() < bname.size()) continue;
         if (name.compare(0, bname.size(), bname) != 0) continue;
 
-        std::string_view suffix{name.c_str() + bname.size(), name.size() - bname.size()};
+        std::string_view suffix = std::string_view(name).substr(bname.size());
         if (suffix.empty()) continue;
 
         long v = 0;

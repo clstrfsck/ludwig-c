@@ -120,9 +120,9 @@ bool nextbridge_command(int count, const tpar_object &tpar, bool bridge) {
                         goto l2;
                     new_col = new_line->used;
                 }
-                for (int i = new_col; i >= 1; --i) {
-                    if (chars.contains(new_line->str->operator[](i))) {
-                        new_col = i;
+                for (int j = new_col; j >= 1; --j) {
+                    if (chars.contains(new_line->str->operator[](j))) {
+                        new_col = j;
                         goto l2;
                     }
                 }

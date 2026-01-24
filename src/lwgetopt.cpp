@@ -48,76 +48,78 @@ std::string lwoptarg;         // argument associated with option
  *  Parse argv argument vector.
  */
 int lwgetopt(const std::vector<std::string> &nargv, const std::string &ostr) {
-    static std::string place = EMSG;    // option letter processing
+    static const char *place = EMSG;    /* option letter processing */
+    const char *oli;                    /* option letter list index */
 
-    if (lwoptreset || place.empty()) {
-        // update scanning pointer
-        lwoptreset = false;
-
+    if (lwoptreset || *place == 0) {
+        /* update scanning pointer */
+        lwoptreset = 0;
         if (lwoptind >= nargv.size()) {
-            // Argument is absent
+            /* Argument is absent */
             place = EMSG;
             return (-1);
         }
-        place = nargv[lwoptind];
-        if (place[0] != '-') {
-            // Argument is not an option
+        place = nargv[lwoptind].c_str();
+        if (*place++ != '-') {
+            /* Argument is absent or is not an option */
             place = EMSG;
             return (-1);
         }
-        place.erase(0, 1);
-        if (place.empty()) {
-            // Solitary '-', treat as a '-' option
-            // if the program (eg su) is looking for it.
+        lwoptopt = *place++;
+        if (lwoptopt == '-' && *place == 0) {
+            /* "--" => end of options */
+            ++lwoptind;
+            place = EMSG;
+            return (-1);
+        }
+        if (lwoptopt == 0) {
+            /* Solitary '-', treat as a '-' option
+               if the program (eg su) is looking for it. */
             place = EMSG;
             if (ostr.find('-') == std::string::npos)
                 return (-1);
             lwoptopt = '-';
         }
-        lwoptopt = place[0];
-        place.erase(0, 1);
-        if (lwoptopt == '-' && place.empty()) {
-            // "--" => end of options
-            ++lwoptind;
-            place = EMSG;
-            return (-1);
-        }
     } else {
-        lwoptopt = place[0];
-        place.erase(0, 1);
+        lwoptopt = *place++;
     }
 
-    // See if option letter is one the caller wanted...
-    std::string::size_type oli = ostr.find(lwoptopt);
-    if (lwoptopt == ':' || oli == std::string::npos) {
-        if (place.empty())
+    /* See if option letter is one the caller wanted... */
+    if (lwoptopt == ':' || (oli = strchr(ostr.c_str(), lwoptopt)) == NULL) {
+        if (*place == 0)
             ++lwoptind;
         return (BADCH);
     }
 
     /* Does this option need an argument? */
-    if (oli + 1 >= ostr.size() || ostr[oli + 1] != ':') {
-        // don't need argument
+    if (oli[1] != ':') {
+        /* don't need argument */
         lwoptarg = "";
-        if (place.empty()) {
+        if (*place == 0) {
             ++lwoptind;
         }
     } else {
-        // Option-argument is either the rest of this
-        // argument or the entire next argument.
-        if (!place.empty()) {
+        /* Option-argument is either the rest of this argument or the
+           entire next argument. */
+        if (*place) {
             lwoptarg = place;
+        } else if (oli[2] == ':') {
+            /*
+             * GNU Extension, for optional arguments if the rest of
+             * the argument is empty, we return NULL
+             */
+            lwoptarg = "";
         } else if (nargv.size() > ++lwoptind) {
             lwoptarg = nargv[lwoptind];
         } else {
-            // option-argument absent
+            /* option-argument absent */
             place = EMSG;
-            if (ostr[0] == ':')
+            if (!ostr.empty() && ostr[0] == ':')
                 return (BADARG);
             return (BADCH);
         }
         place = EMSG;
         ++lwoptind;
     }
-    return (lwoptopt); // return option letter
+    return (lwoptopt);      /* return option letter */
 }

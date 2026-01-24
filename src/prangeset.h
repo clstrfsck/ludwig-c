@@ -91,15 +91,6 @@ public:
         return *this;
     }
 
-    prangeset<T> &remove_range(T begin, T endi) {
-        while (begin != endi) {
-            remove(begin);
-            ++begin;
-        }
-        remove(begin);
-        return *this;
-    }
-
     prangeset<T> &clear() {
         m_value.reset();
         return *this;
@@ -136,7 +127,7 @@ public:
 private:
     std::bitset<T::size()> m_value;
 
-    constexpr int adjust_value(T elt) const {
+    static constexpr int adjust_value(T elt) {
         return elt - T::min();
     }
 };

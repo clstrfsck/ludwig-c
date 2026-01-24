@@ -16,8 +16,6 @@ void vdu_cleareol();
 void vdu_cleareos();
 void vdu_clearscr();
 
-void vdu_redrawscr();
-
 void vdu_scrollup(int n);
 
 void vdu_deletelines(int n);
@@ -38,7 +36,7 @@ void vdu_get_input(const str_object &prompt, strlen_range prompt_len,
                    str_object &get, strlen_range get_len,
                    strlen_range &outlen);
 
-void vdu_insert_mode (bool turn_on);
+void vdu_insert_mode(bool turn_on);
 
 void vdu_get_text(int str_len, str_object &str, strlen_range &outlen);
 
@@ -55,7 +53,6 @@ void vdu_free();
 void vdu_get_new_dimensions(scr_col_range &new_x, scr_row_range &new_y);
 
 void vdu_attr_bold();
-void vdu_attr_reverse();
 void vdu_attr_normal();
 
 #endif // !define(VDU_H)

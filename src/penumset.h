@@ -100,15 +100,6 @@ public:
         return *this;
     }
 
-    penumset &remove_range(T begin, T endi) {
-        while (begin != endi) {
-            remove(begin);
-            begin = next_enum(begin);
-        }
-        remove(begin);
-        return *this;
-    }
-
     penumset &clear() {
         m_value.reset();
         return *this;

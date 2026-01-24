@@ -62,12 +62,8 @@ ludwighlp.idx:  ludwighlpbld ludwighlp.t
 ludwignewhlp.idx:  ludwighlpbld ludwignewhlp.t
 	./ludwighlpbld ludwignewhlp.t ludwignewhlp.idx
 
-tests:
-	$(MAKE) -C tests all
-
 clean:
 	rm -f $(OBJS) ludwighlpbld.o ludwig ludwighlpbld ludwighlp.idx ludwignewhlp.idx
-	$(MAKE) -C tests $@
 
 arrow.o: arrow.cpp arrow.h type.h const.h parray.h prange.h perange.h \
  penumset.h prangeset.h var.h vdu.h line.h mark.h text.h screen.h

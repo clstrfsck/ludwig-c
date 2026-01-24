@@ -19,7 +19,7 @@ class parray {
     static_assert(R::min() <= R::max(), "min must be less than or equal to max");
 
 public:
-    constexpr size_t adjust_index(typename R::type index) const {
+    static constexpr size_t adjust_index(typename R::type index) {
         return R::zero_based(index);
     }
 
@@ -109,7 +109,7 @@ public:
             check_index(dst_offset + count - 1); // Last index used
             src.check_index(src_offset);
             src.check_index(src_offset + count - 1);
-            auto srcb = std::next(src.begin(), src.adjust_index(src_offset));
+            auto srcb = std::next(src.cbegin(), src.adjust_index(src_offset));
             auto srce = std::next(srcb, count);
             auto dst = std::next(begin(), adjust_index(dst_offset));
             std::copy(srcb, srce, dst);
@@ -168,20 +168,6 @@ public:
             typename array_type::iterator b = std::next(begin(), ibeg);
             typename array_type::iterator e = std::next(b, n);
             std::fill(b, e, value);
-        }
-        return *this;
-    }
-
-    parray &apply(std::function<T(T)> f, typename index_type::type beg = index_type::min(),
-                  typename index_type::type endi = index_type::max()) {
-        check_index(beg);
-        check_index(endi);
-        size_t ibeg = adjust_index(beg);
-        size_t iend = adjust_index(endi) + 1;
-        if (ibeg < iend) {
-            typename array_type::iterator b = std::next(begin(), ibeg);
-            typename array_type::iterator e = std::next(begin(), iend);
-            std::transform(b, e, b, f);
         }
         return *this;
     }
@@ -250,24 +236,16 @@ public:
         return m_array.begin();
     }
 
-    const_iterator begin() const {
-        return m_array.begin();
-    }
-
     const_iterator cbegin() const {
-        return begin();
+        return m_array.cbegin();
     }
 
     iterator end() {
         return m_array.end();
     }
 
-    const_iterator end() const {
-        return m_array.end();
-    }
-
     const_iterator cend() const {
-        return end();
+        return m_array.cend();
     }
 
     parray &operator=(parray rhs) {

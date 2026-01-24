@@ -147,7 +147,7 @@ void tpar_duplicate(tpar_ptr from_tp, tpar_ptr &to_tp) {
     }
 }
 
-bool tpar_to_mark(tpar_object &strng, int &mark) {
+bool tpar_to_mark(const tpar_object &strng, int &mark) {
     //with strng do
     if (strng.len == 0) {
         screen_message(MSG_ILLEGAL_MARK_NUMBER);
@@ -175,7 +175,7 @@ bool tpar_to_mark(tpar_object &strng, int &mark) {
     return true;
 }
 
-bool tpar_to_int(tpar_object &strng, int &chpos, int &int_) {
+bool tpar_to_int(const tpar_object &strng, int &chpos, int &int_) {
     //with strng do
     char ch = (chpos > strng.len) ? '\0' : strng.str[chpos];
     if (ch < '0' || ch > '9') {
@@ -432,13 +432,13 @@ bool tpar_enquire(tpar_object &tpar) {
 }
 
 bool tpar_analyse(user_commands cmd, tpar_object &tran, int depth, tpcount_type this_tp) {
-    bool ended = false;
     if (depth > MAX_TPAR_RECURSION) {
         screen_message(MSG_TPAR_TOO_DEEP);
         return false;
     }
     //with tran do
     if (tran.dlm != TPD_SMART && tran.dlm != TPD_EXACT && tran.dlm != TPD_LIT) {
+        bool ended = false;
         do {
             char delim = tran.dlm; // Save copy of delimiter in case of recursive call.
             if (tran.con == nullptr) {

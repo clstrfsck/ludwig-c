@@ -139,11 +139,6 @@ void vdu_cleareos() {
     ::clrtobot();
 }
 
-void vdu_redrawscr() {
-    ::touchwin(stdscr);
-    // FIXME  clearok(stdscr, true);
-}
-
 void vdu_scrollup(int n) {
     ::scrollok(stdscr, true);
     ::scrl(n);
@@ -530,10 +525,6 @@ void vdu_get_new_dimensions(scr_col_range &new_x, scr_row_range &new_y) {
 
 void vdu_attr_bold() {
     attron(A_BOLD);
-}
-
-void vdu_attr_reverse() {
-    attron(A_REVERSE);
 }
 
 void vdu_attr_normal() {

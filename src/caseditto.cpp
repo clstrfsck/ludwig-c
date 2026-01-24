@@ -62,7 +62,7 @@ const std::unordered_set<char> LETTERS(std::begin(LETTERS_S), std::end(LETTERS_S
 char char_toupper(char ch) {
     return std::toupper(ch);
 }
-     
+
 char char_tolower(char ch) {
     return std::tolower(ch);
 }
@@ -183,12 +183,12 @@ bool caseditto_command(commands command, leadparam rept, int count, bool from_sp
                     ch = (*other_line->str)[first_col - 1];
                 else
                     ch = ' ';
-                for (int i = 1; i <= count; ++i) {
+                for (int j = 1; j <= count; ++j) {
                     if (LETTERS.find(ch) != LETTERS.end())
-                        ch = std::tolower(new_str[i]);
+                        ch = std::tolower(new_str[j]);
                     else
-                        ch = std::toupper(new_str[i]);
-                    new_str[i] = ch;
+                        ch = std::toupper(new_str[j]);
+                    new_str[j] = ch;
                 }
             }
                 break;

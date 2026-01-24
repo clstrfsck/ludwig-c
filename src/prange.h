@@ -11,7 +11,7 @@ template <int min_, int max_>
 class prange {
     static_assert(min_ < max_, "min must be strictly less than max");
 
-    constexpr int check_range(int value) const {
+    static constexpr int check_range(int value) {
         // FIXME: Need to work on making this correct.
         // if (value < min() || value > max())
         //     throw std::out_of_range("out of range");

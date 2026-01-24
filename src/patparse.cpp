@@ -97,7 +97,6 @@ bool pattern_parser(tpar_object &pattern, nfa_table_type &nfa_table,
 
     nfa_state_range first_pattern_end;
     strlen_range    parse_count;
-    char            pat_ch;
     accept_set_type aux_set;
 
     auto pattern_new_nfa = [&]() -> nfa_state_range {
@@ -524,7 +523,7 @@ bool pattern_parser(tpar_object &pattern, nfa_table_type &nfa_table,
                         } else {
                             no_dereference = true;
                         }
-                        
+
                         if (no_dereference) {
                             if (aux_ch_1 == TPD_EXACT) {
                                 while (pat_ch != TPD_EXACT) {
@@ -783,10 +782,11 @@ bool pattern_parser(tpar_object &pattern, nfa_table_type &nfa_table,
         nfa_table[PATTERN_NULL].epsilon_out = true;
         nfa_table[PATTERN_NULL].ept.first_out   = PATTERN_NULL;
         nfa_table[PATTERN_NULL].ept.second_out  = PATTERN_NULL;
-        
+
         states_used         = PATTERN_NFA_START;
         first_pattern_start = pattern_new_nfa();
         parse_count = 0;
+        char            pat_ch;
         if (pattern_getch(parse_count, pat_ch, pattern)) {
             pattern_compound(first_pattern_start, first_pattern_end, parse_count, pattern, pat_ch, 1); // 1st
             if (pat_ch == PATTERN_COMMA) {

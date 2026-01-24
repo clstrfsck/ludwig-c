@@ -245,7 +245,7 @@ bool file_create_open(file_name_str &fn, parse_type parse, file_ptr &inputfp, fi
     }
 
     std::string fname(fn.data(), fn.length(' '));
-    bool result = filesys_parse(fname.c_str(), parse, file_data, inputfp, outputfp);
+    bool result = filesys_parse(fname, parse, file_data, inputfp, outputfp);
     if (inputfp != nullptr && !inputfp->valid) {
         delete inputfp;
         inputfp = nullptr;
@@ -539,7 +539,7 @@ bool check_slot_usage(slot_range slot, bool must_be_in_use, msg_str &status) {
 bool check_slot_direction(slot_range slot, bool must_be_output, msg_str &status) {
     if (check_slot_usage(slot, true, status)) {
         if (files[slot]->output_flag != must_be_output) {
-            if (must_be_output) 
+            if (must_be_output)
                 status.copy_n(MSG_NOT_OUTPUT_FILE, std::strlen(MSG_NOT_OUTPUT_FILE));
             else
                 status.copy_n(MSG_NOT_INPUT_FILE, std::strlen(MSG_NOT_INPUT_FILE));
@@ -581,15 +581,15 @@ bool get_free_slot(slot_range &new_slot, slot_range file_slot, msg_str &status) 
 }
 
 bool get_file_name(tpar_ptr tparam, file_name_str &fnm, commands command) {
-    tpar_object file_name;
-    //with file_name do
-    file_name.con = nullptr;
-    file_name.nxt = nullptr;
-    if (!tpar_get_1(tparam, command, file_name))
+    tpar_object tp_file_name;
+    //with tp_file_name do
+    tp_file_name.con = nullptr;
+    tp_file_name.nxt = nullptr;
+    if (!tpar_get_1(tparam, command, tp_file_name))
         return false;
-    //with file_name do
-    fnm.fillcopy(file_name.str.data(), file_name.len, 1, FILE_NAME_LEN, ' ');
-    tpar_clean_object(file_name);
+    //with tp_file_name do
+    fnm.fillcopy(tp_file_name.str.data(), tp_file_name.len, 1, FILE_NAME_LEN, ' ');
+    tpar_clean_object(tp_file_name);
     return true;
 }
 
@@ -824,7 +824,7 @@ bool file_command(commands command, leadparam rept, int count, tpar_ptr tparam, 
         if (!check_slot_allocation(fgo_file, true, status))
             goto l99;
         // Establish which lines to write.
-        if (!from_span) { 
+        if (!from_span) {
             screen_message(MSG_WRITING_FILE);
             if (ludwig_mode == ludwig_mode_type::ludwig_screen)
                 vdu_flush();
@@ -919,7 +919,7 @@ bool file_command(commands command, leadparam rept, int count, tpar_ptr tparam, 
     }
 
     result = true;
-    
+
 l99:;
     if (status.length(' '))
         screen_message(status);

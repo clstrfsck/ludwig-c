@@ -13,18 +13,18 @@
 !
 ! Revision 4.8  91/02/22  12:50:59  ludwig
 ! Added prefix command for X mouse handling commands. SN
-! 
+!
 ! Revision 4.7  91/02/21  13:36:33  ludwig
 ! Added commands to handle mouse events and accessing the cut/paste buffer
 ! for the X version.  SN
-! 
+!
 ! Revision 4.6  90/02/08  10:38:25  ludwig
 ! fixed pcc #if syntax
-! 
+!
 ! Revision 4.5  90/02/05  13:32:45  ludwig
 ! Steven Nairn.
 ! Added cmd_resize_window to type commands.
-! 
+!
 ! Revision 4.4  90/01/18  17:20:13  ludwig
 ! Entered into RCS at revision level 4.3.
 !
@@ -153,10 +153,10 @@ typedef parray<char, prange<1, KEY_LEN>>       key_str; // Help File stuff
 // Keyboard interface.
 typedef prange<-MAX_SPECIAL_KEYS, ORD_MAXCHAR> key_code_range;
 typedef prange<0, MAX_NR_KEY_NAMES>            key_names_range;
-typedef struct key_name_record {
+struct key_name_record {
     std::string    key_name;
     key_code_range key_code;
-} *key_name_record_ptr;
+};
 
 // Objects
 typedef parray<char, prange<1, MAX_STRLEN>> str_object;
