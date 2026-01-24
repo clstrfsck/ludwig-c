@@ -360,7 +360,7 @@ bool text_intra_remove(mark_ptr mark_one, strlen_range size) {
     if (col_two <= old_used)
         ln->str->fillcopy(ln->str->data(col_two), old_used + 1 - col_two, col_one, dst_len, ' ');
     else
-        ln->str->fill(' ', col_one, dst_len);
+        ln->str->fill_n(' ', dst_len, col_one);
     ln->used = ln->str->length(' ', old_used);
 
     // Now update screen if necessary.
