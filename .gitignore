@@ -1,6 +1,6 @@
-*.o
 ludwig
 ludwighlp.idx
 ludwighlpbld
 ludwignewhlp.idx
-system-test
+build/
+system-test/
