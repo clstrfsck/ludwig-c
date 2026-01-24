@@ -10,7 +10,7 @@ set(CMAKE_CXX_EXTENSIONS OFF) # Prefer standard-compliant C++
 set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 # Add global compile options.
-add_compile_options(-Wall -Wextra)
+add_compile_options(-Wall -Wextra -Wno-tautological-pointer-compare)
 
 # --- Debug/Release Specific Flags ---
 # CMake automatically sets -g for Debug and -O3 for Release by default.
