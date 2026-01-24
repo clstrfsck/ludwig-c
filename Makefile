@@ -59,6 +59,9 @@ LUDWIG_SRCS := $(filter-out $(HLPBLD_SRCS), $(wildcard $(SRC_DIR)/*.cpp))
 LUDWIG_OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(LUDWIG_SRCS))
 LUDWIG_DEPS := $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.d,$(LUDWIG_SRCS))
 
+HELP_SRCS   := ludwighlp.t ludwignewhlp.t
+HELP_IDXS   := $(patsubst %.t,%.idx,$(HELP_SRCS))
+
 
 #
 # Targets
@@ -66,12 +69,15 @@ LUDWIG_DEPS := $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.d,$(LUDWIG_SRCS))
 
 .PHONY: all clean
 
-all: $(BUILD_DIR) $(LUDWIG) $(HLPBLD)
+all: $(BUILD_DIR) $(LUDWIG) $(HELP_IDXS)
 
-$(HLPBLD): $(HLPBLD_OBJS)
-	$(CXX) $(LDFLAGS) $^ -o $@
+$(HELP_IDXS): %.idx : %.t $(HLPBLD)
+	./$(HLPBLD) $< $@
 
 $(LUDWIG): $(LUDWIG_OBJS)
+	$(CXX) $(LDFLAGS) $^ -o $@
+
+$(HLPBLD): $(HLPBLD_OBJS)
 	$(CXX) $(LDFLAGS) $^ -o $@
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
@@ -81,7 +87,7 @@ $(BUILD_DIR):
 	mkdir -p $@
 
 clean:
-	$(RM) -r $(BUILD_DIR) $(LUDWIG) $(HLPBLD)
+	$(RM) -r $(BUILD_DIR) $(LUDWIG) $(HELP_IDXS) $(HLPBLD)
 
 -include $(LUDWIG_DEPS) $(HLPBLD_DEPS)
 

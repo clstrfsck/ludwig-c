@@ -43,15 +43,8 @@ namespace {
     const size_t ENTRYSIZE = 78; // 77 + 1 for NUL
     const size_t KEYSIZE   = 4;
 
-    // I don't think this is really required, as no-one is really
-    // limited to DOS 8.3 filenames any more, but here we are...
-#ifdef turboc
-    const std::string INPUT_HELP_FILE("ludwighl.txt");
-    const std::string OUTPUT_HELP_FILE("ludwighl.idx");
-#else
     const std::string INPUT_HELP_FILE("ludwighlp.t");
     const std::string OUTPUT_HELP_FILE("ludwighlp.idx");
-#endif
 };
 
 void process_files(std::ifstream &in, std::ofstream &out)
@@ -132,18 +125,10 @@ void process_files(std::ifstream &in, std::ofstream &out)
         }
     } while (flag != '\\' || line.empty() || line[0] != '#');
 
-    // Rewind everything
-    index.seekg(0);
-    contents.seekg(0);
-    body.seekg(0);
-
     out << index_lines << ' ' << contents_lines << '\n';
-    while (std::getline(index, line))
-        out << line << '\n';
-    while (std::getline(contents, line))
-        out << line << '\n';
-    while (std::getline(body, line))
-        out << line << '\n';
+    out << index.str();
+    out << contents.str();
+    out << body.str();
 }
 
 int main(int argc, char **argv)
