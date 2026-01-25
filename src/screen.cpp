@@ -638,7 +638,7 @@ void screen_lines_extract(line_ptr first_line, line_ptr last_line) {
     if (first_line == scr_top_line) {
         screen_unload();
     } else /* if (last_line == scr_bot_line) */ {
-        line_ptr line_limit = first_line->blink;
+        const_line_ptr line_limit = first_line->blink;
         do {
             //with scr_frame^,scr_bot_line^ do
             scr_bot_line->scr_row_nr = 0;
@@ -805,7 +805,7 @@ void screen_load(line_ptr line) {
             line = line->blink;
             new_row -= 1;
         }
-        line_ptr dot_line = frame->dot->line;
+        const_line_ptr dot_line = frame->dot->line;
         col_range dot_col = frame->dot->col;
         new_row = 1;
         while ((new_row <= frame->scr_height) && (line != nullptr)) {

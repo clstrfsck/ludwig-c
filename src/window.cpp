@@ -68,7 +68,7 @@ bool window_command(commands command, leadparam rept, int count, bool from_span)
                 new_line = new_line->blink;
             if (count == 1) {
                 //with line^ do
-                line_ptr line = current_frame->dot->line;
+                const_line_ptr line = current_frame->dot->line;
                 if (line->scr_row_nr != 0) {
                     if (line->scr_row_nr > current_frame->scr_height - current_frame->margin_bottom) {
                         screen_scroll(-2 * current_frame->scr_height + line->scr_row_nr +
@@ -105,7 +105,7 @@ bool window_command(commands command, leadparam rept, int count, bool from_span)
                 new_line = new_line->flink;
             if (count == 1) {
                 //with line^ do
-                line_ptr line = dot->line;
+                const_line_ptr line = dot->line;
                 if (line->scr_row_nr != 0) {
                     if (line->scr_row_nr <= current_frame->margin_top) {
                         screen_scroll(current_frame->scr_height + line->scr_row_nr -

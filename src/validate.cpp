@@ -72,8 +72,8 @@ bool validate_command() {
     // Validate the data structure.
     int frame_list = 0; // Bit mask OOPS, CMD, HEAP
     scr_row_range scr_row = 0;
-    span_ptr this_span = first_span;
-    span_ptr prev_span = nullptr;
+    const_span_ptr this_span = first_span;
+    const_span_ptr prev_span = nullptr;
     while (this_span != nullptr) {
         //with this_span^ do
         if (this_span->blink != prev_span) {
@@ -107,16 +107,16 @@ bool validate_command() {
                 screen_message(DBG_FIRST_NOT_AT_TOP);
                 return false;
             }
-            group_ptr end_group = this_frame->last_group->flink;
+            const_group_ptr end_group = this_frame->last_group->flink;
             if (end_group != nullptr) {
                 screen_message(DBG_LAST_NOT_AT_END);
                 return false;
             }
-            group_ptr  this_group = this_frame->first_group;
-            group_ptr  prev_group = nullptr;
-            line_ptr   this_line  = this_frame->first_group->first_line;
-            line_ptr   prev_line  = nullptr;
-            line_ptr   end_line   = nullptr;
+            const_group_ptr  this_group = this_frame->first_group;
+            const_group_ptr  prev_group = nullptr;
+            const_line_ptr   this_line  = this_frame->first_group->first_line;
+            const_line_ptr   prev_line  = nullptr;
+            const_line_ptr   end_line   = nullptr;
             line_range line_nr    = 1;
             while (this_group != end_group) {
                 //with this_group^ do
@@ -152,7 +152,7 @@ bool validate_command() {
                         screen_message(DBG_INVALID_OFFSET_NR);
                         return false;
                     }
-                    mark_ptr this_mark = this_line->mark;
+                    const_mark_ptr this_mark = this_line->mark;
                     while (this_mark != nullptr) {
                         //with this_mark^ do
                         if (this_mark->line != this_line) {

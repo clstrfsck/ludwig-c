@@ -148,7 +148,7 @@ namespace {
 
 /*----------------------------------------------------------------------------*/
 
-bool filesys_create_open(file_ptr fyle, file_ptr rfyle, bool ordinary_open) {
+bool filesys_create_open(file_ptr fyle, const_file_ptr rfyle, bool ordinary_open) {
 #ifdef DEBUG
     // Check the file has a 'Z' in the right place
     if (fyle->zed != 'Z') {
@@ -171,7 +171,7 @@ bool filesys_create_open(file_ptr fyle, file_ptr rfyle, bool ordinary_open) {
             if (!sys_expand_filename(fyle->filename)) {
                 std::stringstream s;
                 s << "Error in filename (" << fyle->filename << ")";
-                screen_message(s.str().c_str());
+                screen_message(s.str());
                 return false;
             }
             file_status fs = sys_file_status(fyle->filename);
@@ -200,7 +200,7 @@ bool filesys_create_open(file_ptr fyle, file_ptr rfyle, bool ordinary_open) {
         } else if (!sys_expand_filename(fyle->filename)) {
             std::stringstream s;
             s << "Error in filename (" << fyle->filename << ")";
-            screen_message(s.str().c_str());
+            screen_message(s.str());
             return false;
         }
         // if the file given is a directory create a filename using the input
@@ -216,21 +216,21 @@ bool filesys_create_open(file_ptr fyle, file_ptr rfyle, bool ordinary_open) {
             if (fyle->create) {
                 std::stringstream s;
                 s << "File (" << fyle->filename << ") already exists";
-                screen_message(s.str().c_str());
+                screen_message(s.str());
                 return false;
             }
             // check that the file we may overwrite is not a directory
             if (fs.isdir) {
                 std::stringstream s;
                 s << "File (" << fyle->filename << ") is a directory";
-                screen_message(s.str().c_str());
+                screen_message(s.str());
                 return false;
             }
             // check that we can write over the current version
             if (!sys_file_writeable(fyle->filename)) {
                 std::stringstream s;
                 s << "Write access to file (" << fyle->filename << ") is denied";
-                screen_message(s.str().c_str());
+                screen_message(s.str());
                 return false;
             }
             fyle->mode = fs.mode;
@@ -249,7 +249,7 @@ bool filesys_create_open(file_ptr fyle, file_ptr rfyle, bool ordinary_open) {
         if (fyle->fd < 0) {
             std::stringstream s;
             s << "Error opening (" << fyle->tnm << ") as output";
-            screen_message(s.str().c_str());
+            screen_message(s.str());
             return false;     // fail, return false
         }
     }
@@ -258,7 +258,7 @@ bool filesys_create_open(file_ptr fyle, file_ptr rfyle, bool ordinary_open) {
 
 /*----------------------------------------------------------------------------*/
 
-bool filesys_close(file_ptr fyle, int action, bool msgs) {
+bool filesys_close(const_file_ptr fyle, int action, bool msgs) {
 /* Closes a file, described by fileptr fyle.
  * Action is an integer interpreted as follows:
  *   0 : close
@@ -279,7 +279,7 @@ bool filesys_close(file_ptr fyle, int action, bool msgs) {
             s << "File " << fyle->filename << " closed (" <<
                 fyle->l_counter << " line" <<
                 (fyle->l_counter == 1 ? "" : "s") << " read).";
-            screen_message(s.str().c_str());
+            screen_message(s.str());
         }
         return true;           // succeed, return true
     }
@@ -292,7 +292,7 @@ bool filesys_close(file_ptr fyle, int action, bool msgs) {
             if (msgs) {
                 std::stringstream s;
                 s << "Output file " << fyle->tnm << " deleted.";
-                screen_message(s.str().c_str());
+                screen_message(s.str());
             }
             return true;       // succeed, return true
         } else {
@@ -305,7 +305,7 @@ bool filesys_close(file_ptr fyle, int action, bool msgs) {
     if (fs.valid && fs.mtime != fyle->previous_file_id) {
         std::stringstream s;
         s << fyle->filename << " was modified by another process";
-        screen_message(s.str().c_str());
+        screen_message(s.str());
     }
     std::string tname(fyle->filename);
     tname += "~";
@@ -348,14 +348,14 @@ bool filesys_close(file_ptr fyle, int action, bool msgs) {
     if (!sys_rename(fyle->tnm, fyle->filename)) {
         std::stringstream s;
         s << "Cannot rename " << fyle->tnm << " to " << fyle->filename;
-        screen_message(s.str().c_str());
+        screen_message(s.str());
         return false;      // fail, return false
     } else {
         if (msgs) {
             std::stringstream s;
             s << "File " << fyle->filename << " created (" << fyle->l_counter <<
                 " line" << (fyle->l_counter == 1 ? "" : "s") << " written).";
-            screen_message(s.str().c_str());
+            screen_message(s.str());
         }
         // Time to set the memory, if it's required and we aren't writing in
         // one of the global tmp directories
@@ -694,7 +694,7 @@ bool filesys_parse(const std::string &command_line, parse_type parse,
                 }
                 std::stringstream s;
                 s << "Error opening memory file (" << memory << ")";
-                screen_message(s.str().c_str());
+                screen_message(s.str());
                 return false;
             }
         } else if (parse == parse_type::parse_command) {
@@ -718,7 +718,7 @@ bool filesys_parse(const std::string &command_line, parse_type parse,
             if (!filesys_create_open(input, nullptr, true)) {
                 std::stringstream s;
                 s << "Error opening (" << input->filename << ") as input";
-                screen_message(s.str().c_str());
+                screen_message(s.str());
                 return false;
             }
             input->valid = true;
@@ -735,7 +735,7 @@ bool filesys_parse(const std::string &command_line, parse_type parse,
             else if (check_input || parse == parse_type::parse_edit || errno == EWOULDBLOCK || errno == EISDIR) {
                 std::stringstream s;
                 s << "Error opening (" << input->filename << ") as input";
-                screen_message(s.str().c_str());
+                screen_message(s.str());
                 return false;
             }
             if (filesys_create_open(output, input, true) != 0)
@@ -755,7 +755,7 @@ bool filesys_parse(const std::string &command_line, parse_type parse,
         if (input->filename.empty() || !filesys_create_open(input, nullptr, true)) {
             std::stringstream s;
             s << "Error opening (" << input->filename << ") as input";
-            screen_message(s.str().c_str());
+            screen_message(s.str());
             return false;
         }
         input->valid = true;

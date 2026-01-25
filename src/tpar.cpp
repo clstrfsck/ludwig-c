@@ -110,7 +110,7 @@ void tpar_clean_object(tpar_object &tp_o) {
     tp_o.nxt = nullptr;
 }
 
-void tpar_duplicate_con(tpar_ptr tpar, tpar_object &tp_o) {
+void tpar_duplicate_con(const_tpar_ptr tpar, tpar_object &tp_o) {
     tp_o = *tpar;
     tp_o.nxt = nullptr;
     tpar_ptr tp2 = nullptr;
@@ -130,7 +130,7 @@ void tpar_duplicate_con(tpar_ptr tpar, tpar_object &tp_o) {
     }
 }
 
-void tpar_duplicate(tpar_ptr from_tp, tpar_ptr &to_tp) {
+void tpar_duplicate(const_tpar_ptr from_tp, tpar_ptr &to_tp) {
     if (from_tp != nullptr) {
         to_tp = new tpar_object;
         tpar_duplicate_con(from_tp, *to_tp);
@@ -552,7 +552,7 @@ void trim(tpar_object &request) {
     }
 }
 
-bool tpar_get_1(tpar_ptr tpar, user_commands cmd, tpar_object &tran) {
+bool tpar_get_1(const_tpar_ptr tpar, user_commands cmd, tpar_object &tran) {
 #ifdef DEBUG
     if (tpar == nullptr) {
         screen_message(DBG_TPAR_NIL);
@@ -569,7 +569,7 @@ bool tpar_get_1(tpar_ptr tpar, user_commands cmd, tpar_object &tran) {
     return false;
 }
 
-bool tpar_get_2(tpar_ptr tpar, user_commands cmd, tpar_object &trn1, tpar_object &trn2) {
+bool tpar_get_2(const_tpar_ptr tpar, user_commands cmd, tpar_object &trn1, tpar_object &trn2) {
 #ifdef DEBUG
     if (tpar == nullptr) {
         screen_message(DBG_TPAR_NIL);

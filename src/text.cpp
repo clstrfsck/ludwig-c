@@ -65,9 +65,9 @@ col_range text_return_col(line_ptr cur_line, col_range cur_col, bool splitting) 
     if (cur_line->group->frame->options.contains(frame_options_elts::opt_auto_indent) &&
         (new_line->flink != nullptr)) {
         //with new_line^ do
-        str_ptr str_1 = new_line->str;        // Aim at this line.
+        const_str_ptr str_1 = new_line->str;  // Aim at this line.
         strlen_range used_1 = new_line->used; // Length of this line.
-        str_ptr str_2 = new_line->str;        // Aim at next iff next is not null line.
+        const_str_ptr str_2 = new_line->str;  // Aim at next iff next is not null line.
         strlen_range used_2 = new_line->used; // Len of next iff next is not null line.
         //with flink^ do
         if ((new_line->flink->flink != nullptr) && !splitting) {
@@ -109,7 +109,7 @@ bool text_realize_null(line_ptr old_null) {
     return false;
 }
 
-bool text_insert(bool update_screen, int count, str_object buf, strlen_range buf_len, mark_ptr dst) {
+bool text_insert(bool update_screen, int count, const str_object &buf, strlen_range buf_len, mark_ptr dst) {
 #ifdef DEBUG
     if (count < 0) {
         screen_message(DBG_REPEAT_NEGATIVE);
@@ -190,7 +190,7 @@ bool text_insert(bool update_screen, int count, str_object buf, strlen_range buf
     return true;
 }
 
-bool text_overtype(bool update_screen, int count, str_object buf, strlen_range buf_len, mark_ptr &dst) {
+bool text_overtype(bool update_screen, int count, const str_object &buf, strlen_range buf_len, mark_ptr &dst) {
     /*
       ! Inputs:
       !   update_screen     Do/Do not update screen. (The screen may already
@@ -499,7 +499,7 @@ bool text_remove(mark_ptr mark_one, mark_ptr mark_two) {
         return text_inter_remove(mark_one, mark_two);
 }
 
-bool text_intra_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two, mark_ptr dst, mark_ptr &new_start, mark_ptr &new_end) {
+bool text_intra_move(bool copy, int count, mark_ptr mark_one, const_mark_ptr mark_two, mark_ptr dst, mark_ptr &new_start, mark_ptr &new_end) {
     // ASSUMES COUNT >= 1, MARKS ON SAME LINE,  MARK_ONE AT OR BEFORE _TWO.
     col_range col_one = mark_one->col;
     col_range col_two = mark_two->col;

@@ -758,7 +758,7 @@ bool get_margins(int lo_bnd, int hi_bnd, const tpar_object &request, int &pos, i
     return true;
 }
 
-bool set_lrmargin(tpar_object &request, int &pos, bool set_initial) {
+bool set_lrmargin(const tpar_object &request, int &pos, bool set_initial) {
     //with current_frame^ do
     int tl;
     int tr;

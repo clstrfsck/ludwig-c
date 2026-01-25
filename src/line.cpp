@@ -242,7 +242,7 @@ bool lines_destroy(line_ptr &first_line, line_ptr &last_line) {
         screen_message(DBG_FLINK_OR_BLINK_NOT_NIL);
         return false;
     }
-    line_ptr prev_line = nullptr;
+    const_line_ptr prev_line = nullptr;
 #endif
     line_ptr this_line = first_line;
     while (this_line != nullptr) {
@@ -317,8 +317,8 @@ bool groups_destroy(group_ptr &first_group, group_ptr &last_group) {
         screen_message(DBG_FLINK_OR_BLINK_NOT_NIL);
         return false;
     }
-    group_ptr prev_group = nullptr;
-    group_ptr this_group = first_group;
+    const_group_ptr prev_group = nullptr;
+    const_group_ptr this_group = first_group;
     while (this_group != nullptr) {
         if (this_group->blink != prev_group) {
             screen_message(DBG_INVALID_BLINK);
@@ -333,7 +333,7 @@ bool groups_destroy(group_ptr &first_group, group_ptr &last_group) {
             return false;
         }
         prev_group = this_group;
-        group_ptr next_group = this_group->flink;
+        const_group_ptr next_group = this_group->flink;
         this_group = next_group;
     }
     if (prev_group != last_group) {
@@ -379,9 +379,9 @@ bool lines_inject(line_ptr first_line, line_ptr last_line, line_ptr before_line)
     line_range nr_new_lines = 0;
     space_range space = 0;
 #ifdef DEBUG
-    line_ptr prev_line = nullptr;
+    const_line_ptr prev_line = nullptr;
 #endif
-    line_ptr this_line = first_line;
+    const_line_ptr this_line = first_line;
     while (this_line != nullptr) {
 #ifdef DEBUG
         if (this_line->blink != prev_line) {
@@ -540,7 +540,7 @@ bool lines_inject(line_ptr first_line, line_ptr last_line, line_ptr before_line)
         return false;
     }
 #endif
-    line_ptr next_group_first_line = end_group_last_line->flink;
+    const_line_ptr next_group_first_line = end_group_last_line->flink;
     group_line_range offset = end_group->nr_lines;
     do {
         // with adjust_line^ do
@@ -644,7 +644,7 @@ bool lines_extract(line_ptr first_line, line_ptr last_line) {
 #ifdef DEBUG
     {
         // Check that there are no marks on the lines to be removed.
-        line_ptr this_line = first_line;
+        const_line_ptr this_line = first_line;
         for (line_range line_nr = 1; line_nr <= nr_lines_to_remove; ++line_nr) {
             //with this_line^ do
             //begin

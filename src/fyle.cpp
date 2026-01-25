@@ -359,7 +359,7 @@ bool file_read(file_ptr fp, line_range count, bool best_try, line_ptr &first, li
     return true;
 }
 
-bool file_write(line_ptr first_line, line_ptr last_line, file_ptr fp) {
+bool file_write(line_ptr first_line, const_line_ptr last_line, file_ptr fp) {
     // Write a series of lines to an output file.
     // Stop when the last line output or when the next line is NIL.
 
@@ -580,7 +580,7 @@ bool get_free_slot(slot_range &new_slot, slot_range file_slot, std::string &stat
     return true;
 }
 
-bool get_file_name(tpar_ptr tparam, file_name_str &fnm, commands command) {
+bool get_file_name(const_tpar_ptr tparam, file_name_str &fnm, commands command) {
     tpar_object tp_file_name;
     //with tp_file_name do
     tp_file_name.con = nullptr;
@@ -593,7 +593,7 @@ bool get_file_name(tpar_ptr tparam, file_name_str &fnm, commands command) {
     return true;
 }
 
-bool file_command(commands command, leadparam rept, int count, tpar_ptr tparam, bool from_span) {
+bool file_command(commands command, leadparam rept, int count, const_tpar_ptr tparam, bool from_span) {
     //with current_frame^ do
     // Fudge some of the commands that accept rept = minus.
     commands saved_cmd = command;

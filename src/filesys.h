@@ -3,8 +3,8 @@
 
 #include "type.h"
 
-bool filesys_create_open(file_ptr fyle, file_ptr related_file, bool ordinary_open);
-bool filesys_close(file_ptr fyle, int action, bool msgs);
+bool filesys_create_open(file_ptr fyle, const_file_ptr related_file, bool ordinary_open);
+bool filesys_close(const_file_ptr fyle, int action, bool msgs);
 
 bool filesys_read(file_ptr fyle, str_object &buffer, strlen_range &outlen);
 bool filesys_rewind(file_ptr fyle);

@@ -58,16 +58,23 @@
 
 using code_ptr = struct code_header *;
 using file_ptr = struct file_object *;
+using const_file_ptr = const struct file_object *;
 using frame_ptr = struct frame_object *;
 using group_ptr = struct group_object *;
+using const_group_ptr = const struct group_object *;
 using line_ptr = struct line_hdr_object *;
+using const_line_ptr = const struct line_hdr_object *;
 using mark_ptr = struct mark_object *;
+using const_mark_ptr = const struct mark_object *;
 using span_ptr = struct span_object *;
+using const_span_ptr = const struct span_object *;
 using tpar_ptr = struct tpar_object *;
+using const_tpar_ptr = const struct tpar_object *;
 using dfa_table_ptr = struct dfa_table_object *;
 using transition_ptr = struct transition_object *;
+using const_transition_ptr = const struct transition_object *;
 using state_elt_ptr_type = struct state_elt_object *;
-
+using const_state_elt_ptr_type = const struct state_elt_object *;
 
 // MISCELLANEOUS ENTITIES.
 
@@ -149,6 +156,7 @@ struct key_name_record {
 // Objects
 using str_object = parray<char, prange<1, MAX_STRLEN>>;
 using str_ptr = str_object *;
+using const_str_ptr = const str_object *;
 
 // Trailing parameter for command
 struct tpar_object {

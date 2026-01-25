@@ -307,7 +307,7 @@ bool word_centre(leadparam rept, int count) {
     strlen_range start_char;
     int          line_count;
     int          space_to_add;
-    line_ptr     this_line;
+    const_line_ptr     this_line;
     mark_ptr     here;
     mark_ptr     there;
 
@@ -387,7 +387,7 @@ bool word_justify(leadparam rept, int count) {
     int       i;
     int       line_count;
     int       space_to_add;
-    line_ptr  this_line;
+    const_line_ptr  this_line;
     mark_ptr  here;
     double    fill_ratio;
     double    debit;
@@ -485,7 +485,7 @@ bool word_squeeze(leadparam rept, int count) {
     col_range start_char;
     col_range end_char;
     int       line_count;
-    line_ptr  this_line;
+    const_line_ptr  this_line;
     mark_ptr  here;
     mark_ptr  there;
 
@@ -567,7 +567,7 @@ bool word_right(leadparam rept, int count) {
     int      line_count;
     int      space_to_add;
     mark_ptr here;
-    line_ptr this_line;
+    const_line_ptr this_line;
 
     bool result = false;
     here = nullptr;
@@ -630,7 +630,7 @@ bool word_left(leadparam rept, int count) {
     int      line_start;
     mark_ptr here;
     mark_ptr there;
-    line_ptr this_line;
+    const_line_ptr this_line;
 
     bool result = false;
     here = nullptr;

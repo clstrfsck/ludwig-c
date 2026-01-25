@@ -51,6 +51,7 @@ namespace {
         accept_set_partition_type *blink;
     };
     using partition_ptr_type = accept_set_partition_type *;
+    using const_partition_ptr_type = const accept_set_partition_type *;
 };
 
 void closure_kill(nfa_attribute_type &closure) {
@@ -125,7 +126,8 @@ bool pattern_dfa_convert(nfa_table_type &nfa_table,
     state_elt_ptr_type aux_state_ptr;
     dfa_state_range    states_used;
     dfa_state_range    aux_count, aux_count_2;
-    transition_ptr     incoming_tran_ptr, kill_tran_ptr, aux_tran_ptr_2, aux_tran_ptr;
+    transition_ptr     incoming_tran_ptr, kill_tran_ptr, aux_tran_ptr;
+    const_transition_ptr aux_tran_ptr_2;
     bool               found;
     nfa_set_type       aux_set;
     accept_set_type    aux_transition_set;
@@ -136,9 +138,9 @@ bool pattern_dfa_convert(nfa_table_type &nfa_table,
     partition_ptr_type aux_partition_ptr;
     partition_ptr_type current_partition_ptr;
     partition_ptr_type follower_ptr;
-    partition_ptr_type killer_ptr;
+    const_partition_ptr_type killer_ptr;
     partition_ptr_type insert_partition;
-    state_elt_ptr_type aux_equiv_ptr;
+    const_state_elt_ptr_type aux_equiv_ptr;
     nfa_attribute_type aux_closure;
 
     auto epsilon_closures = [&](const nfa_attribute_type &state_set, nfa_attribute_type &closure) -> bool {
@@ -308,7 +310,7 @@ bool pattern_dfa_convert(nfa_table_type &nfa_table,
         return false;
     };
 
-    auto transition_list_merge = [&](state_elt_ptr_type list_1, state_elt_ptr_type list_2) -> state_elt_ptr_type {
+    auto transition_list_merge = [&](const_state_elt_ptr_type list_1, const_state_elt_ptr_type list_2) -> state_elt_ptr_type {
         // makes a copy of 2 lists and concatenates them
 
         state_elt_ptr_type aux_1 = nullptr;
@@ -329,7 +331,7 @@ bool pattern_dfa_convert(nfa_table_type &nfa_table,
         return aux_1;
     };
 
-    auto transition_list_append = [&](state_elt_ptr_type list_1, state_elt_ptr_type list_2) ->  state_elt_ptr_type {
+    auto transition_list_append = [&](state_elt_ptr_type list_1, const_state_elt_ptr_type list_2) ->  state_elt_ptr_type {
         // makes a copy of list_2 and concatenates it to list_1
         // on the front
 
