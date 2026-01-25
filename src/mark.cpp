@@ -37,18 +37,18 @@ namespace {
 
     constexpr size_t MARK_POOL_EXTEND_SIZE = 20;
 
-    void mark_mark_pool_extend() {
+    void mark_pool_extend() {
         for (size_t i = 0; i < MARK_POOL_EXTEND_SIZE; ++i) {
             mark_ptr new_mark = new mark_object;
+            pool_statistics.pool_available += 1;
             new_mark->next = free_mark_pool;
             free_mark_pool = new_mark;
         }
-        pool_statistics.pool_available += MARK_POOL_EXTEND_SIZE;
     }
 
     mark_ptr allocate_from_pool() {
         if (free_mark_pool == nullptr) {
-            mark_mark_pool_extend();
+            mark_pool_extend();
         }
         mark_ptr mark = free_mark_pool;
         free_mark_pool = mark->next;
@@ -64,6 +64,13 @@ namespace {
         pool_statistics.freed += 1;
         mark = nullptr;
     }
+
+    void remove_from_marks(std::list<mark_ptr> &mark_list, mark_ptr mark) {
+        auto it = std::find(mark_list.begin(), mark_list.end(), mark);
+        if (it != mark_list.end()) {
+            mark_list.erase(it);
+        }
+    }
 }
 
 void mark_pool_clear() {
@@ -72,7 +79,12 @@ void mark_pool_clear() {
         free_mark_pool = head_mark->next;
         delete head_mark;
     }
-    pool_statistics.pool_available = 0;
+    // Reset all statistics when clearing the pool
+    pool_statistics = {
+        .pool_available = 0,
+        .allocated = 0,
+        .freed = 0
+    };
 }
 
 mark_statistics mark_pool_statistics() {
@@ -100,29 +112,18 @@ bool mark_create(line_ptr in_line, col_range column, mark_ptr &mark) {
 #endif
     if (mark == nullptr) {
         mark = allocate_from_pool();
-        mark->next = in_line->mark;
+        in_line->marks.push_front(mark);
         mark->line = in_line;
         mark->col  = column;
-        in_line->mark = mark;
     } else {
         line_ptr this_line = mark->line;
         if (this_line == in_line) {
             mark->col = column;
         } else {
-            mark_ptr this_mark = this_line->mark;
-            mark_ptr prev_mark = nullptr;
-            while (this_mark != mark) {
-                prev_mark = this_mark;
-                this_mark = this_mark->next;
-            }
-            if (prev_mark == nullptr)
-                this_line->mark = this_mark->next;
-            else
-                prev_mark->next = this_mark->next;
-            mark->next = in_line->mark;
+            remove_from_marks(this_line->marks, mark);
+            in_line->marks.push_front(mark);
             mark->line = in_line;
             mark->col  = column;
-            in_line->mark = mark;
         }
     }
     return true;
@@ -142,22 +143,13 @@ bool mark_destroy(mark_ptr &mark) {
         return false;
     }
 #endif
-    line_ptr this_line = mark->line;
-    mark_ptr this_mark = this_line->mark;
-    mark_ptr prev_mark = nullptr;
-    while (this_mark != mark) {
-        prev_mark = this_mark;
-        this_mark = this_mark->next;
-    }
-    if (prev_mark == nullptr)
-        this_line->mark = this_mark->next;
-    else
-        prev_mark->next = this_mark->next;
+    remove_from_marks(mark->line->marks, mark);
     deallocate_to_pool(mark);
     return true;
 }
 
-bool marks_squeeze(line_ptr first_line, col_range first_column, line_ptr last_line, col_range last_column) {
+bool marks_squeeze(const line_ptr first_line, col_range first_column,
+                   const line_ptr last_line, col_range last_column) {
     /*
       Purpose  : Move all marks between <first_line,first_column> and
                  <last_line,last_column> to the latter position.
@@ -183,12 +175,10 @@ bool marks_squeeze(line_ptr first_line, col_range first_column, line_ptr last_li
             return false;
         }
 #endif
-        mark_ptr this_mark = last_line->mark;
-        while (this_mark != nullptr) {
-            //with this_mark^ do
-            if ((this_mark->col >= first_column) && (this_mark->col < last_column))
+        for (auto &this_mark : last_line->marks) {
+            if ((this_mark->col >= first_column) && (this_mark->col < last_column)) {
                 this_mark->col = last_column;
-            this_mark = this_mark->next;
+            }
         }
     } else {
 #ifdef DEBUG
@@ -203,33 +193,25 @@ bool marks_squeeze(line_ptr first_line, col_range first_column, line_ptr last_li
         }
 #endif
         // Move marks in last_line.
-        mark_ptr this_mark = last_line->mark;
-        while (this_mark != nullptr) {
-            if (this_mark->col < last_column)
+        for (auto &this_mark : last_line->marks) {
+            if (this_mark->col < last_column) {
                 this_mark->col = last_column;
-            this_mark = this_mark->next;
+            }
         }
         // Move marks in lines first_line..last_line-1.
         line_ptr this_line = first_line;
         while (this_line != last_line) {
-            this_mark = this_line->mark;
-            mark_ptr prev_mark = nullptr;
-            while (this_mark != nullptr) {
-                // with this_mark^ do
-                mark_ptr next_mark = this_mark->next;
-                if (this_mark->col >= first_column) {
-                    if (prev_mark == nullptr)
-                        this_line->mark = this_mark->next;
-                    else
-                        prev_mark->next = this_mark->next;
-                    this_mark->next = last_line->mark;
-                    this_mark->line = last_line;
-                    this_mark->col = last_column;
-                    last_line->mark = this_mark;
+            auto &marks { this_line->marks };
+            for (auto it = marks.begin(); it != marks.end(); ) {
+                auto mark { *it };
+                if (mark->col >= first_column) {
+                    mark->col = last_column;
+                    mark->line = last_line;
+                    last_line->marks.push_front(mark);
+                    it = marks.erase(it);
                 } else {
-                    prev_mark = this_mark;
+                    ++it;
                 }
-                this_mark = next_mark;
             }
             this_line = this_line->flink;
             first_column = 1;
@@ -238,15 +220,15 @@ bool marks_squeeze(line_ptr first_line, col_range first_column, line_ptr last_li
     return true;
 }
 
-bool marks_shift(line_ptr source_line, col_range source_column, col_width_range width,
-                 line_ptr dest_line, col_range dest_column) {
+bool marks_shift(const line_ptr source_line, col_range source_column, col_width_range width,
+                 const line_ptr dest_line, col_range dest_column) {
     /*
       Purpose  : Move all marks from the <width> columns starting at
                  <source_line,source_column> to corresponding positions
                  starting from <dest_line,dest_column>.
       Inputs   : source_line, source_column: location of the source range.
                  width: the size of the range.
-                 last_line, last_column: location of the destination range.
+                 dest_line, dest_column: location of the destination range.
       Outputs  : none.
       Bugchecks: .source or dest line pointer is nil
                  .source and dest lines in different frames
@@ -270,17 +252,10 @@ bool marks_shift(line_ptr source_line, col_range source_column, col_width_range 
     col_range source_end = source_column + width - 1;
     int offset = dest_column - source_column;
     if (source_line == dest_line) {
-        mark_ptr this_mark = source_line->mark;
-        while (this_mark != nullptr) {
-            //with this_mark^ do
-            if ((this_mark->col >= source_column) && (this_mark->col <= source_end)) {
-                int new_col = this_mark->col + offset;
-                if (new_col >= MAX_STRLENP)
-                    this_mark->col = MAX_STRLENP;
-                else
-                    this_mark->col = new_col;
+        for (auto &mark : source_line->marks) {
+            if ((mark->col >= source_column) && (mark->col <= source_end)) {
+                mark->col = std::min(MAX_STRLENP, mark->col + offset);
             }
-            this_mark = this_mark->next;
         }
     } else {
 #ifdef DEBUG
@@ -289,28 +264,17 @@ bool marks_shift(line_ptr source_line, col_range source_column, col_width_range 
             return false;
         }
 #endif
-        mark_ptr this_mark = source_line->mark;
-        mark_ptr prev_mark = nullptr;
-        while (this_mark != nullptr) {
-            //with this_mark^ do
-            mark_ptr next_mark = this_mark->next;
-            if ((this_mark->col >= source_column) && (this_mark->col <= source_end)) {
-                if (prev_mark == nullptr)
-                    source_line->mark = this_mark->next;
-                else
-                    prev_mark->next = this_mark->next;
-                this_mark->next = dest_line->mark;
-                this_mark->line = dest_line;
-                int new_col = this_mark->col + offset;
-                if (new_col >= MAX_STRLENP)
-                    this_mark->col = MAX_STRLENP;
-                else
-                    this_mark->col = new_col;
-                dest_line->mark = this_mark;
+        auto &marks { source_line->marks };
+        for (auto it = marks.begin(); it != marks.end(); ) {
+            auto mark { *it };
+            if ((mark->col >= source_column) && (mark->col <= source_end)) {
+                mark->line = dest_line;
+                mark->col = std::min(MAX_STRLENP, mark->col + offset);
+                dest_line->marks.push_front(mark);
+                it = marks.erase(it);
             } else {
-                prev_mark = this_mark;
+                ++it;
             }
-            this_mark = next_mark;
         }
     }
     return true;

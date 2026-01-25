@@ -13,6 +13,7 @@
 #include "prangeset.h"
 
 #include <set>
+#include <list>
 #include <string>
 #include <vector>
 
@@ -225,7 +226,7 @@ struct line_hdr_object {
     line_ptr          blink;
     group_ptr         group;
     line_offset_range offset_nr;
-    mark_ptr          mark;
+    std::list<mark_ptr> marks;
     str_ptr           str;
     strlen_range      len;
     strlen_range      used;

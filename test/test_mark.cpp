@@ -14,7 +14,7 @@ line_ptr create_test_line() {
     line->blink = nullptr;
     line->group = nullptr;
     line->offset_nr = 0;
-    line->mark = nullptr;
+    line->marks.clear();
     line->str = nullptr;
     line->len = 0;
     line->used = 0;
@@ -55,10 +55,8 @@ void link_lines(line_ptr first, line_ptr second) {
 // Cleanup helper
 void delete_test_line(line_ptr line) {
     // Delete all marks on the line first
-    while (line->mark != nullptr) {
-        mark_ptr temp = line->mark;
-        line->mark = line->mark->next;
-        delete temp;
+    for (auto &mark : line->marks) {
+        mark_destroy(mark);
     }
     delete line;
 }
@@ -123,7 +121,8 @@ TEST_CASE("mark_create creates new marks", "[mark]") {
         REQUIRE(mark != nullptr);
         REQUIRE(mark->line == line);
         REQUIRE(mark->col == 5);
-        REQUIRE(line->mark == mark);
+        REQUIRE(line->marks.size() == 1);
+        REQUIRE(line->marks.front() == mark);
 
         mark_destroy(mark);
     }
@@ -142,7 +141,7 @@ TEST_CASE("mark_create creates new marks", "[mark]") {
         REQUIRE(mark2->col == 10);
 
         // Both marks should be in the line's mark list
-        REQUIRE(line->mark != nullptr);
+        REQUIRE(line->marks.size() == 2);
 
         mark_destroy(mark1);
         mark_destroy(mark2);
@@ -188,13 +187,15 @@ TEST_CASE("mark_create moves existing marks", "[mark]") {
         mark_create(line1, 5, mark);
 
         REQUIRE(mark->line == line1);
-        REQUIRE(line1->mark == mark);
+        REQUIRE(line1->marks.size() == 1);
+        REQUIRE(line1->marks.front() == mark);
 
         REQUIRE(mark_create(line2, 15, mark));
         REQUIRE(mark->line == line2);
         REQUIRE(mark->col == 15);
-        REQUIRE(line2->mark == mark);
-        REQUIRE(line1->mark == nullptr); // Mark should be removed from line1
+        REQUIRE(line2->marks.size() == 1);
+        REQUIRE(line2->marks.front() == mark);
+        REQUIRE(line1->marks.empty()); // Mark should be removed from line1
 
         mark_destroy(mark);
     }
@@ -212,7 +213,8 @@ TEST_CASE("mark_create moves existing marks", "[mark]") {
         REQUIRE(mark2->line == line1);
 
         // line1 should still have mark2
-        REQUIRE(line1->mark != nullptr);
+        REQUIRE(line1->marks.size() == 1);
+        REQUIRE(line1->marks.front() == mark2);
 
         mark_destroy(mark1);
         mark_destroy(mark2);
@@ -229,10 +231,11 @@ TEST_CASE("mark_destroy removes marks", "[mark]") {
         mark_ptr mark = nullptr;
         mark_create(line, 5, mark);
 
-        REQUIRE(line->mark == mark);
+        REQUIRE(line->marks.size() == 1);
+        REQUIRE(line->marks.front() == mark);
         REQUIRE(mark_destroy(mark));
         REQUIRE(mark == nullptr);
-        REQUIRE(line->mark == nullptr);
+        REQUIRE(line->marks.empty());
     }
 
     SECTION("destroying one of multiple marks") {
@@ -657,13 +660,13 @@ TEST_CASE("mark_destroy with different positions in mark list", "[mark]") {
         mark_create(line, 15, mark3);
 
         // mark3 should be at the head (marks are added to the front)
-        REQUIRE(line->mark == mark3);
+        REQUIRE(line->marks.front() == mark3);
 
         // Destroy the head mark
         mark_destroy(mark3);
 
         // Now line->mark should point to the next mark
-        REQUIRE(line->mark != nullptr);
+        REQUIRE(!line->marks.empty());
         REQUIRE(mark3 == nullptr);
 
         mark_destroy(mark1);
@@ -694,11 +697,11 @@ TEST_CASE("mark_destroy with different positions in mark list", "[mark]") {
         mark_ptr mark = nullptr;
         mark_create(line, 5, mark);
 
-        REQUIRE(line->mark == mark);
+        REQUIRE(line->marks.front() == mark);
         mark_destroy(mark);
 
         REQUIRE(mark == nullptr);
-        REQUIRE(line->mark == nullptr);
+        REQUIRE(line->marks.empty());
     }
 
     delete_test_line(line);
@@ -716,15 +719,15 @@ TEST_CASE("mark_create moving mark from head and middle of list", "[mark]") {
         mark_create(line1, 10, mark2);
 
         // mark2 is at the head
-        REQUIRE(line1->mark == mark2);
+        REQUIRE(line1->marks.front() == mark2);
 
         // Move mark2 to line2
         mark_create(line2, 20, mark2);
 
         REQUIRE(mark2->line == line2);
         REQUIRE(mark2->col == 20);
-        REQUIRE(line1->mark == mark1); // mark1 should now be at head of line1
-        REQUIRE(line2->mark == mark2);
+        REQUIRE(line1->marks.front() == mark1); // mark1 should now be at head of line1
+        REQUIRE(line2->marks.front() == mark2);
 
         mark_destroy(mark1);
         mark_destroy(mark2);
@@ -780,8 +783,8 @@ TEST_CASE("marks_squeeze with no marks on lines", "[mark]") {
         // Should succeed but do nothing
         REQUIRE(marks_squeeze(line1, 5, line2, 20));
 
-        REQUIRE(line1->mark == nullptr);
-        REQUIRE(line2->mark == nullptr);
+        REQUIRE(line1->marks.empty());
+        REQUIRE(line2->marks.empty());
     }
 
     delete_test_line(line1);

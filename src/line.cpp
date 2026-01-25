@@ -70,7 +70,7 @@ bool line_eop_create(frame_ptr inframe, group_ptr &group) {
     new_line->blink = nullptr;
     new_line->group = new_group;
     new_line->offset_nr = 0;
-    new_line->mark = nullptr;
+    new_line->marks.clear();
     new_line->str = nullptr;
     new_line->len = 0;
     new_line->used = 0;
@@ -179,7 +179,7 @@ bool lines_create(line_range line_count, line_ptr &first_line, line_ptr &last_li
         this_line->blink      = prev_line;
         this_line->group      = nullptr;
         this_line->offset_nr  = 0;
-        this_line->mark       = nullptr;
+        this_line->marks.clear();
         this_line->str        = nullptr;
         this_line->len        = 0;
         this_line->used       = 0;

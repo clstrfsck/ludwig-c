@@ -36,8 +36,64 @@ cmake ..
 make
 ```
 
+Despite using CMake, I think it is highly unlikely that this will work on
+Microsoft Windows, although you may have some luck using WSL.
+
 This will produce `ludwig` which can be copied to your preferred directory for
 local binaries, eg `/usr/local/bin`.
+
+Note that two help files are also built, `ludwighlp.idx` and `ludwignewhlp.idx`
+for the old and new command sets respectively.  Ludwig is hardcoded to find
+these files in `/usr/local/help`, or alternatively in a location pointed to by
+the environment variables `LUD_HELPFILE` and `LUD_NEWHELPFILE`.
+
+## Coverage
+
+Unit test coverage is very low right now.  This is being worked on as
+refactoring and modernisation continues.
+
+```sh
+mkdir build-coverage
+cd build-coverage
+cmake -DENABLE_COVERAGE=ON ..
+make
+make coverage
+open coverage/index.html
+```
+
+## System Tests
+
+There is reasonable system test coverage.  The system tests leverage 
+Ludwig's batch mode, where a command string is provided on stdin.  The
+general approach is:
+
+- The test provides a selection of initial filenames and contents, together with expected output files and contents and a command string
+- The test framework creates a temporary directory and populates it with the supplied files
+- The command string is piped into a Ludwig process running in the temporary directory
+- Once the process completes, the files in the temporary directory are collected and compared against expectations
+
+You can clone the system tests [here](https://github.com/clstrfsck/ludwig-system-test)
+using:
+
+```sh
+git clone https://github.com/clstrfsck/ludwig-system-test system-test
+# Assuming you have python and pytest installed
+./system-test/run-system-tests.sh
+```
+
+You should see a bunch of dots, followed by something like:
+
+```text
+326 passed, 3 skipped in 1.90s
+```
+
+Two of the three skipped tests are cases where regular expression patterns
+don't match candidate strings in the way I think they should.  The third is
+a window related command that is not implemented nor appropriate for batch
+mode.
+
+I have checked that the system tests run as expected on both the original
+implementation as well as this port.
 
 ## Usage
 
@@ -63,17 +119,17 @@ ludwig -O -i initialisation-file-name file-name
 
 There are two help files
 
-- old commands help files: "ludwighlp.idx"
-- new commands help files: "ludwignewhlp.idx"
+- old commands help files: `ludwighlp.idx`
+- new commands help files: `ludwignewhlp.idx`
 
-Copy these into /usr/local/help
+Copy these into `/usr/local/help`
 
 ```sh
 mkdir -p /usr/local/help
 cp *.idx /usr/local/help
 ```
 
-A couple of useful commands (-O version) to get you started are:
+A couple of useful commands (`-O` version) to get you started are:
 
 ```ludwig
 km/home/<ac/
@@ -83,7 +139,7 @@ km/end/>eol [<ac] >ac/
 This will make your home key move the cursor to the start of the line, and
 the end key move the cursor to the end of the current line.
 
-They can be put into an initialisation file or `.ludwigrc`
+They can be put into an initialisation file or `.ludwigrc`.
 
-Quick notes, Ludwig command `\h` will give you the help pages on Ludwig
+Ludwig command `\h` will give you the help pages on Ludwig
 commands and `\q` will exit the editing session.

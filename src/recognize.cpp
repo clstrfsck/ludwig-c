@@ -63,7 +63,7 @@ void pattern_get_input_elt(line_ptr line, char &ch, accept_set_type &input_set, 
                 input_set.add(PATTERN_DOT_COLUMN);
                 mark_found = true;
             }
-            if (line->mark != nullptr) { // if any marks on this line
+            if (!line->marks.empty()) { // if any marks on this line
                 for (mark_range mark_no = MIN_MARK_NUMBER; mark_no <= MAX_MARK_NUMBER; ++mark_no) {
                     // run through user accessible ones
                     if (current_frame->marks[mark_no] != nullptr) {
