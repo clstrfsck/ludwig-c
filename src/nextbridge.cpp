@@ -48,8 +48,8 @@
 #include <unordered_set>
 
 namespace {
-    typedef prange<0, ORD_MAXCHAR> chset_range;
-    typedef prangeset<chset_range> chset;
+    using chset_range = prange<0, ORD_MAXCHAR>;
+    using chset = prangeset<chset_range>;
 };
 
 bool nextbridge_command(int count, const tpar_object &tpar, bool bridge) {

@@ -11,7 +11,7 @@ template <typename T>
 class prangeset {
     static_assert(T::min() < T::max(), "min must be strictly less than max");
 public:
-    typedef T element_type;
+    using element_type = T;
 
     prangeset() {
         // Nothing to do

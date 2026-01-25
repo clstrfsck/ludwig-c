@@ -34,17 +34,17 @@ public:
         }
     }
 
-    typedef std::vector<T> array_type;
+    using array_type = std::vector<T>;
 
 public:
-    typedef R                                    index_type;
-    typedef typename array_type::value_type      value_type;
-    typedef typename array_type::reference       reference;
-    typedef typename array_type::const_reference const_reference;
-    typedef typename array_type::pointer         pointer;
-    typedef typename array_type::const_pointer   const_pointer;
-    typedef typename array_type::iterator        iterator;
-    typedef typename array_type::const_iterator  const_iterator;
+    using index_type = R;
+    using value_type = typename array_type::value_type;
+    using reference = typename array_type::reference;
+    using const_reference = typename array_type::const_reference;
+    using pointer = typename array_type::pointer;
+    using const_pointer = typename array_type::const_pointer;
+    using iterator = typename array_type::iterator;
+    using const_iterator = typename array_type::const_iterator;
 
     explicit parray(value_type init_value = value_type())
         : m_array(index_type::size(), init_value) {

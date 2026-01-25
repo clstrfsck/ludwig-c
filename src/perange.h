@@ -18,7 +18,7 @@ class perange {
     }
 
 public:
-    typedef E type;
+    using type = E;
 
     static constexpr type min() {
         return min_;

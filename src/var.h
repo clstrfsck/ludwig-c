@@ -109,7 +109,7 @@ struct lookupexp_type {
     char     extn;
     commands command;
 };
-typedef prange<1, EXPAND_LIM> expand_lim_range;
+using expand_lim_range = prange<1, EXPAND_LIM>;
 
 extern parray<lookupexp_type, expand_lim_range> lookupexp;
 extern parray<expand_lim_range, prefix_plus>    lookupexp_ptr;

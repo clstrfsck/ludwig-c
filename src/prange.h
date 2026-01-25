@@ -19,7 +19,7 @@ class prange {
     }
 
 public:
-    typedef int type;
+    using type = int;
 
     static constexpr type min() {
         return min_;

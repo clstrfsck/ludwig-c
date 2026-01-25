@@ -50,7 +50,7 @@ namespace {
         accept_set_partition_type *flink;
         accept_set_partition_type *blink;
     };
-    typedef accept_set_partition_type *partition_ptr_type;
+    using partition_ptr_type = accept_set_partition_type *;
 };
 
 void closure_kill(nfa_attribute_type &closure) {
@@ -143,7 +143,7 @@ bool pattern_dfa_convert(nfa_table_type &nfa_table,
 
     auto epsilon_closures = [&](const nfa_attribute_type &state_set, nfa_attribute_type &closure) -> bool {
         const int MAX_STACK_SIZE = 50;
-        typedef prange<0, MAX_STACK_SIZE> stack_range;
+        using stack_range = prange<0, MAX_STACK_SIZE>;
 
         parray<nfa_state_range, stack_range> stack;
         stack_range                          stack_top;

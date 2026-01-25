@@ -56,29 +56,17 @@
 
 // POINTERS TO ALL DYNAMIC OBJECTS.
 
-typedef struct code_header code_header;
-typedef struct file_object file_object;
-typedef struct frame_object frame_object;
-typedef struct group_object group_object;
-typedef struct line_hdr_object line_hdr_object;
-typedef struct mark_object mark_object;
-typedef struct span_object span_object;
-typedef struct tpar_object tpar_object;
-typedef struct dfa_table_object dfa_table_object;
-typedef struct transition_object transition_object;
-typedef struct state_elt_object state_elt_object;
-
-typedef code_header       *code_ptr;
-typedef file_object       *file_ptr;
-typedef frame_object      *frame_ptr;
-typedef group_object      *group_ptr;
-typedef line_hdr_object   *line_ptr;
-typedef mark_object       *mark_ptr;
-typedef span_object       *span_ptr;
-typedef tpar_object       *tpar_ptr;
-typedef dfa_table_object  *dfa_table_ptr;
-typedef transition_object *transition_ptr;
-typedef state_elt_object  *state_elt_ptr_type;
+using code_ptr = struct code_header *;
+using file_ptr = struct file_object *;
+using frame_ptr = struct frame_object *;
+using group_ptr = struct group_object *;
+using line_ptr = struct line_hdr_object *;
+using mark_ptr = struct mark_object *;
+using span_ptr = struct span_object *;
+using tpar_ptr = struct tpar_object *;
+using dfa_table_ptr = struct dfa_table_object *;
+using transition_ptr = struct transition_object *;
+using state_elt_ptr_type = struct state_elt_object *;
 
 
 // MISCELLANEOUS ENTITIES.
@@ -101,26 +89,27 @@ enum class parse_type {
 
 
 // SUBRANGES.
-typedef prange<0, MAX_CODE>                      code_idx;
-typedef prange<0, MAX_STRLEN>                    col_offset_range;
-typedef prange<0, MAX_CODE>                      code_idx;
-typedef prange<0, MAX_STRLEN>                    col_offset_range;
-typedef prange<1, MAX_STRLENP>                   col_range;
-typedef prange<0, MAX_STRLENP>                   col_width_range;
-typedef prange<1, MAX_FILES>                     file_range;
-typedef prange<0, MAX_FILES>                     slot_range;
-typedef prange<0, MAX_GROUPLINES>                group_line_range;
-typedef prange<0, MAX_GROUPLINEOFFSET>           line_offset_range;
-typedef prange<0, MAX_LINES>                     line_range;
-typedef prange<MIN_MARK_NUMBER, MAX_MARK_NUMBER> mark_range;
-typedef prange<0, MAXINT>                        space_range;
-typedef prange<0, MAX_SCR_COLS>                  scr_col_range;
-typedef prange<0, MAX_SCR_ROWS>                  scr_row_range;
-typedef prange<0, MAX_STRLEN>                    strlen_range;
-typedef prange<0, MAX_NFA_STATE_RANGE>           nfa_state_range;
-typedef prange<0, MAX_DFA_STATE_RANGE>           dfa_state_range;
-typedef prange<0, MAX_SET_RANGE>                 accept_set_range;
-typedef prange<0, MAX_WORD_SETS_M1>              word_set_range;
+
+using code_idx = prange<0, MAX_CODE>;
+using col_offset_range = prange<0, MAX_STRLEN>;
+using code_idx = prange<0, MAX_CODE>;
+using col_offset_range = prange<0, MAX_STRLEN>;
+using col_range = prange<1, MAX_STRLENP>;
+using col_width_range = prange<0, MAX_STRLENP>;
+using file_range = prange<1, MAX_FILES>;
+using slot_range = prange<0, MAX_FILES>;
+using group_line_range = prange<0, MAX_GROUPLINES>;
+using line_offset_range = prange<0, MAX_GROUPLINEOFFSET>;
+using line_range = prange<0, MAX_LINES>;
+using mark_range = prange<MIN_MARK_NUMBER, MAX_MARK_NUMBER>;
+using space_range = prange<0, MAXINT>;
+using scr_col_range = prange<0, MAX_SCR_COLS>;
+using scr_row_range = prange<0, MAX_SCR_ROWS>;
+using strlen_range = prange<0, MAX_STRLEN>;
+using nfa_state_range = prange<0, MAX_NFA_STATE_RANGE>;
+using dfa_state_range = prange<0, MAX_DFA_STATE_RANGE>;
+using accept_set_range = prange<0, MAX_SET_RANGE>;
+using word_set_range = prange<0, MAX_WORD_SETS_M1>;
 
 // SETS.
 
@@ -131,36 +120,36 @@ enum class frame_options_elts {
     opt_special_frame, // OOPS,COMMAND,HEAP
     last_entry
 };
-typedef penumset<frame_options_elts> frame_options;
+using frame_options = penumset<frame_options_elts>;
 
-typedef prangeset<nfa_state_range>  nfa_set_type;
-typedef prangeset<dfa_state_range>  dfa_set_type;
-typedef prangeset<accept_set_range> accept_set_type;
+using nfa_set_type = prangeset<nfa_state_range>;
+using dfa_set_type = prangeset<dfa_state_range>;
+using accept_set_type = prangeset<accept_set_range>;
 
 // Arrays
-typedef parray<bool, col_width_range>       tab_array;
-typedef parray<bool, prange<1, MAX_VERIFY>> verify_array;
+using tab_array = parray<bool, col_width_range>;
+using verify_array = parray<bool, prange<1, MAX_VERIFY>>;
 
 // Strings
-typedef parray<char, prange<1, FILE_NAME_LEN>> file_name_str;
-typedef parray<char, prange<1, TPAR_PROM_LEN>> prompt_str;
-typedef parray<char, prange<1, WRITE_STR_LEN>> write_str;
-typedef parray<char, prange<1, MSG_STR_LEN>>   msg_str;
-typedef parray<char, prange<1, 20>>            number_str;
-typedef parray<char, prange<1, KEY_LEN>>       key_str; // Help File stuff
+using file_name_str = parray<char, prange<1, FILE_NAME_LEN>>;
+using prompt_str = parray<char, prange<1, TPAR_PROM_LEN>>;
+using write_str = parray<char, prange<1, WRITE_STR_LEN>>;
+using msg_str = parray<char, prange<1, MSG_STR_LEN>>;
+using number_str = parray<char, prange<1, 20>>;
+using key_str = parray<char, prange<1, KEY_LEN>>; // Help File stuff
 
 
 // Keyboard interface.
-typedef prange<-MAX_SPECIAL_KEYS, ORD_MAXCHAR> key_code_range;
-typedef prange<0, MAX_NR_KEY_NAMES>            key_names_range;
+using key_code_range = prange<-MAX_SPECIAL_KEYS, ORD_MAXCHAR>;
+using key_names_range = prange<0, MAX_NR_KEY_NAMES>;
 struct key_name_record {
     std::string    key_name;
     key_code_range key_code;
 };
 
 // Objects
-typedef parray<char, prange<1, MAX_STRLEN>> str_object;
-typedef str_object *str_ptr;
+using str_object = parray<char, prange<1, MAX_STRLEN>>;
+using str_ptr = str_object *;
 
 // Trailing parameter for command
 struct tpar_object {
@@ -218,7 +207,7 @@ struct mark_object {
     line_ptr          line;
     int               col;
 };
-typedef parray<mark_ptr, mark_range> mark_array;
+using mark_array = parray<mark_ptr, mark_range>;
 
 struct frame_object {
     group_ptr         first_group;
@@ -290,6 +279,7 @@ struct prompt_region_attrib {
     line_ptr          redraw;
 };
 
+using transition_ptr = struct transition_object *;
 struct transition_object {
     accept_set_type   transition_accept_set; // on this input set
     dfa_state_range   accept_next_state;     // goto this dfa state
@@ -303,6 +293,7 @@ struct nfa_attribute_type {
     nfa_set_type       equiv_set;
 };
 
+using state_elt_ptr_type = struct state_elt_object *;
 struct state_elt_object {
     nfa_state_range    state_elt;
     state_elt_ptr_type next_elt;
@@ -514,10 +505,10 @@ enum class commands {
     last_entry
 };
 
-typedef perange<commands, commands::cmd_noop,       commands::cmd_pattern_dummy_text> user_commands;
-typedef perange<commands, commands::cmd_pcjump,     commands::cmd_iterate>            comp_commands;
-typedef perange<commands, commands::cmd_prefix_ast, commands::cmd_prefix_tilde>       prefix_commands;
-typedef perange<commands, commands::cmd_prefix_ast, commands::cmd_nosuch>             prefix_plus;
+using user_commands   = perange<commands, commands::cmd_noop,       commands::cmd_pattern_dummy_text>;
+using comp_commands   = perange<commands, commands::cmd_pcjump,     commands::cmd_iterate>;
+using prefix_commands = perange<commands, commands::cmd_prefix_ast, commands::cmd_prefix_tilde>;
+using prefix_plus     = perange<commands, commands::cmd_prefix_ast, commands::cmd_nosuch>;
 
 enum class leadparam {
     none,           // no leading parameter
@@ -545,7 +536,7 @@ enum class equalaction {
 // for the command.
 // if -ve, means the command requires no tp's iff leading parameter
 // is -ve (used for -FI)
-typedef prange<-MAX_TPCOUNT, MAX_TPCOUNT> tpcount_type;
+using tpcount_type = prange<-MAX_TPCOUNT, MAX_TPCOUNT>;
 
 enum class prompt_type {
     no_prompt,
@@ -624,7 +615,7 @@ struct nfa_transition_type {
     };
 };
 
-typedef parray<nfa_transition_type, nfa_state_range> nfa_table_type;
+using nfa_table_type = parray<nfa_transition_type, nfa_state_range>;
 
 enum class parameter_type {
     pattern_fail,
