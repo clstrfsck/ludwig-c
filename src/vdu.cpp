@@ -18,9 +18,8 @@
 ! Name:         VDU
 !
 ! Description:  This module does all the complex control of the VDU type
-!               screens that Ludwig demands.
-!               This is the ncurses version.
-*/
+!               screens that Ludwig demands. This is the ncurses version.
+!**/
 
 #include "vdu.h"
 

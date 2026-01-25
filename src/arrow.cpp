@@ -20,22 +20,6 @@
 ! Name:         ARROW
 !
 ! Description:  The arrow key, TAB, and BACKTAB commands.
-!
-! $Log: arrow.pas,v $
-! Revision 4.5  1990/01/18 18:30:47  ludwig
-! Entered into RCS at revision level 4.5
-!
-! Revision History:
-! 4-001 Ludwig V4.0 release.                                  7-Apr-1987
-! 4-002 Jeff Blows                                              Jul-1989
-!       IBM PC developments incorporated into main source code.
-! 4-003 Kelvin B. Nicolle                                    12-Jul-1989
-!       VMS include files renamed from ".ext" to ".h", and from ".inc"
-!       to ".i".  Remove the "/nolist" qualifiers.
-! 4-004 Kelvin B. Nicolle                                    13-Sep-1989
-!       Add includes etc. for Tower version.
-! 4-005 Kelvin B. Nicolle                                    25-Oct-1989
-!       Correct the includes for the Tower version.
 !**/
 
 #include "arrow.h"
@@ -49,9 +33,10 @@
 
 const penumset<commands> ARROW_COMMANDS{
     commands::cmd_return, commands::cmd_home,
-        commands::cmd_tab, commands::cmd_backtab,
-        commands::cmd_left, commands::cmd_right,
-        commands::cmd_down, commands::cmd_up};
+    commands::cmd_tab, commands::cmd_backtab,
+    commands::cmd_left, commands::cmd_right,
+    commands::cmd_down, commands::cmd_up
+};
 
 bool arrow_command(commands command, leadparam rept, int count, bool from_span) {
     bool cmd_status = false;

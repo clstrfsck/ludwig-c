@@ -17,21 +17,11 @@
 /**********************************************************************/
 
 /*
- * Name:        LUDWIGHLP
- *
- * Description: This program converts a sequential Ludwig help file into
- *              an indexed file for fast access.
- *
- * Revision History:
- * 4-001 Ludwig V4.0 release.                                 7-Apr-1987
- * 4-002 Kelvin B. Nicolle                                    5-May-1987
- *       The input text has been reformatted so that column one contains
- *       only flag characters.
- * 4-003 Jeff Blows                                          23-Jun-1989
- *       Merge changes needed to compile on MS-DOS
- * 4-004 Ludwig                                              28-Feb-1990
- *       Stop complaining about line too long when it's a comment.
- */
+ ! Name:        LUDWIGHLP
+ !
+ ! Description: This program converts a sequential Ludwig help file into
+ !              an indexed file for fast access.
+ !**/
 
 #include <cstdio>
 #include <fstream>
@@ -40,7 +30,7 @@
 #include <iostream>
 
 namespace {
-    const size_t ENTRYSIZE = 78; // 77 + 1 for NUL
+    const size_t ENTRYSIZE = 77;
     const size_t KEYSIZE   = 4;
 
     const std::string INPUT_HELP_FILE("ludwighlp.t");

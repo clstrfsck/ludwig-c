@@ -2,37 +2,6 @@
  * Declarations of variables used throughout the Ludwig code base.
  */
 
-/**
-! $Log: var.i,v $
-! Revision 4.8  1990/01/22 18:55:12  ludwig
-! Steven Nairn.
-! removed the declarations of tt_height and tt_width.
-!
-! Revision 4.7  90/01/19  10:46:42  ludwig
-! Declaration of global variable "tt_winchanged" to indicate that the window
-! size has been modified. Gets set to true by signal handler for SIGWINCH,
-! or resize event from X.
-!
-! Revision 4.6  90/01/18  17:09:25  ludwig
-! Entered into RCS at revision level 4.6
-!
-! Revision History:
-! 4-001 Ludwig V4.0 release.                                  7-Apr-1987
-! 4-002 Kelvin B. Nicolle                                     5-May-1987
-!       Add ludwig_version.
-! 4-003 Mark R. Prior                                        22-Jun-1987
-!   Version 4.1 developments incorporated into main source code:
-!   . Replace the global variables tt_width and tt_height by
-!     terminal_info.
-! 4-004 Kelvin B. Nicolle                                    11-Nov-1988
-!       Add hangup.
-! 4-005 Jeff Blows                                              Jul-1989
-!       IBM PC developments incorporated into main source code.
-! 4-006 Kelvin B. Nicolle                                    12-Jul-1989
-!       VMS include files renamed from ".ext" to ".h", and from ".inc"
-!       to ".i".  Remove the "/nolist" qualifiers.
-!**/
-
 #ifndef VAR_H
 #define VAR_H
 

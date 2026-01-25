@@ -20,28 +20,6 @@
 ! Name:         LINE
 !
 ! Description:  Line manipulation commands.
-!
-! $Log: line.pas,v $
-! Revision 4.7  2002/07/15 13:56:45  martin
-! Fixed some memory handling issues with turbo pascal
-!
-! Revision 4.6  1990/09/21 12:36:14  ludwig
-! Change name of IBM-PC module system to msdos (system is reserved name).
-!
-! Revision 4.5  90/01/18  18:01:44  ludwig
-! Entered into RCS at revision level 4.5
-!
-! Revision History:
-! 4-001 Ludwig V4.0 release.                                  7-Apr-1987
-! 4-002 Jeff Blows                                              Jul-1989
-!       IBM PC developments incorporated into main source code.
-! 4-003 Kelvin B. Nicolle                                    12-Jul-1989
-!       VMS include files renamed from ".ext" to ".h", and from ".inc"
-!       to ".i".  Remove the "/nolist" qualifiers.
-! 4-004 Kelvin B. Nicolle                                    13-Sep-1989
-!       Add includes etc. for Tower version.
-! 4-005 Kelvin B. Nicolle                                    25-Oct-1989
-!       Correct the includes for the Tower version.
 !**/
 
 #include "line.h"
@@ -55,7 +33,6 @@
 // The Two Following routines maintain a Pool of free Lines/Groups.
 // This should enhance the Page Fault performance by keeping all
 // the Lines/Groups together in clusters.
-
 
 void line_line_pool_extend () {
     for (int i = 0; i < 20; ++i) {

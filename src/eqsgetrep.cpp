@@ -20,34 +20,6 @@
 ! Name:         EQSGETREP
 !
 ! Description:  The EQS, GET and REPLACE commands.
-!
-! $Log: eqsgetrep.pas,v $
-! Revision 4.8  2002/07/15 13:15:14  martin
-! Fixed 8 char name issues for fpc
-!
-! Revision 4.7  1990/01/18 18:17:06  ludwig
-! Entered into RCS at revision level 4.7
-!
-! Revision History:
-! 4-001 Ludwig V4.0 release.                                  7-Apr-1987
-! 4-002 Mark R. Prior                                        26-Jan-1988
-!       Add code to eqsretrep_rep to ensure that the temporary copies
-!       of marks Dot and Equals are disposed of.
-! 4-003 Mark R. Prior                                        20-Feb-1988
-!       Strings passed to ch routines are now passed using conformant
-!         arrays, or as type str_object.
-!               string[offset],length -> string,offset,length
-!       In all calls of ch_length, ch_upcase_str, ch_locase_str, and
-!         ch_reverse_str, the offset was 1 and is now omitted.
-! 4-004 Jeff Blows                                              Jul-1989
-!       IBM PC developments incorporated into main source code.
-! 4-005 Kelvin B. Nicolle                                    12-Jul-1989
-!       VMS include files renamed from ".ext" to ".h", and from ".inc"
-!       to ".i".  Remove the "/nolist" qualifiers.
-! 4-006 Kelvin B. Nicolle                                    13-Sep-1989
-!       Add includes etc. for Tower version.
-! 4-007 Kelvin B. Nicolle                                    25-Oct-1989
-!       Correct the includes for the Tower version.
 !**/
 
 #include "eqsgetrep.h"

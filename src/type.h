@@ -2,43 +2,6 @@
  * Declarations of types used throughout the Ludwig code base.
  */
 
-/**
-! $Log: type.i,v $
-! Revision 4.10  2002/07/20 08:55:07  martin
-! Minor tweaks for fpc port
-!
-! Revision 4.9  1991/02/26 18:07:08  ludwig
-! modified the type definition of a frame object to include information on
-! the extent of the mouse specified selection (in the form of a new mark) SN.
-!
-! Revision 4.8  91/02/22  12:50:59  ludwig
-! Added prefix command for X mouse handling commands. SN
-!
-! Revision 4.7  91/02/21  13:36:33  ludwig
-! Added commands to handle mouse events and accessing the cut/paste buffer
-! for the X version.  SN
-!
-! Revision 4.6  90/02/08  10:38:25  ludwig
-! fixed pcc #if syntax
-!
-! Revision 4.5  90/02/05  13:32:45  ludwig
-! Steven Nairn.
-! Added cmd_resize_window to type commands.
-!
-! Revision 4.4  90/01/18  17:20:13  ludwig
-! Entered into RCS at revision level 4.3.
-!
-! Revision History:
-! 4-001 Ludwig V4.0 release.                                  7-Apr-1987
-! 4-002 Jeff Blows                                              Jul-1989
-!       IBM PC developments incorporated into main source code.
-! 4-003 Kelvin B. Nicolle                                    12-Jul-1989
-!       VMS include files renamed from ".ext" to ".h", and from ".inc"
-!       to ".i".  Remove the "/nolist" qualifiers.
-! 4-004 Kelvin B. Nicolle                                    17-Jan-1990
-!       Add cmd_file_save to type commands.
-!**/
-
 #ifndef TYPE_H
 #define TYPE_H
 

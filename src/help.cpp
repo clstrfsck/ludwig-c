@@ -20,24 +20,6 @@
 ! Name:         HELP
 !
 ! Description:  Ludwig HELP facility.
-!
-! $Log: help.pas,v $
-! Revision 4.6  1990/01/18 18:07:12  ludwig
-! Entered into RCS at revision level 4.6
-!
-! Revision History:
-! 4-001 Ludwig V4.0 release.                                  7-Apr-1987
-! 4-002 Kelvin B. Nicolle                                     4-May-1987
-!       Change the indent of the displayed help text from 3 to 2.
-! 4-003 Jeff Blows                                              Jul-1989
-!       IBM PC developments incorporated into main source code.
-! 4-004 Kelvin B. Nicolle                                    12-Jul-1989
-!       VMS include files renamed from ".ext" to ".h", and from ".inc"
-!       to ".i".  Remove the "/nolist" qualifiers.
-! 4-005 Kelvin B. Nicolle                                    13-Sep-1989
-!       Add includes etc. for Tower version.
-! 4-006 Kelvin B. Nicolle                                    25-Oct-1989
-!       Correct the includes for the Tower version.
 !**/
 
 #include "help.h"

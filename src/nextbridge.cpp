@@ -20,24 +20,6 @@
 ! Name:         NEXTBRIDGE
 !
 ! Description:  The NEXT and BRIDGE commands.
-!
-! $Log: nextbridge.pas,v $
-! Revision 4.6  1990/01/18 17:44:20  ludwig
-! Entered into RCS at revision level 4.6
-!
-! Revision History:
-! 4-001 Ludwig V4.0 release.                                  7-Apr-1987
-! 4-002 Jeff Blows                                           15-May-1987
-!       Add conditional code to bypass a compiler problem on the Unity.
-! 4-003 Jeff Blows                                              Jul-1989
-!       IBM PC developments incorporated into main source code.
-! 4-004 Kelvin B. Nicolle                                    12-Jul-1989
-!       VMS include files renamed from ".ext" to ".h", and from ".inc"
-!       to ".i".  Remove the "/nolist" qualifiers.
-! 4-005 Kelvin B. Nicolle                                    13-Sep-1989
-!       Add includes etc. for Tower version.
-! 4-006 Kelvin B. Nicolle                                    25-Oct-1989
-!       Correct the includes for the Tower version.
 !**/
 
 #include "nextbridge.h"

@@ -20,33 +20,6 @@
 ! Name:         WORD
 !
 ! Description:  Word Processing Commands in Ludwig.
-!
-! $Log: word.pas,v $
-! Revision 4.8  1990/05/23 14:47:52  ludwig
-! Missed the initialization of "the_other_mark" in previous edit.
-!
-! Revision 4.7  90/05/16  11:59:01  ludwig
-! Fix bug in YD command, a mark pointer was being copied
-! instead of the mark structure being duplicated.
-! Same problem as fixed in the newword module, edit 4-002.
-!
-! Revision 4.6  90/01/18  16:48:15  ludwig
-! Entered into RCS archive
-!
-! Revision History:
-! 4-001 Ludwig V4.0 release.                                  7-Apr-1987
-! 4-002 Kelvin B. Nicolle                                    22-May-1987
-!       In word_advance, move Dot to used at beginning of code for -ve
-!       and 0 YA.
-! 4-003 Jeff Blows                                              Jul-1989
-!       IBM PC developments incorporated into main source code.
-! 4-004 Kelvin B. Nicolle                                    12-Jul-1989
-!       VMS include files renamed from ".ext" to ".h", and from ".inc"
-!       to ".i".  Remove the "/nolist" qualifiers.
-! 4-005 Kelvin B. Nicolle                                    13-Sep-1989
-!       Add includes etc. for Tower version.
-! 4-006 Kelvin B. Nicolle                                    25-Oct-1989
-!       Correct the includes for the Tower version.
 !**/
 
 #include "word.h"

@@ -20,42 +20,6 @@
 ! Name:         USER
 !
 ! Description:  The user commands (UC, UK, UP, US, and UU).
-!
-! $Log: user.pas,v $
-! Revision 4.11  2002/07/21 02:28:03  martin
-! Added suspend and shell callouts for fpc port. MPS
-!
-! Revision 4.10  1991/02/22 15:13:36  ludwig
-! added default bindings for the X mouse functions
-!
-! Revision 4.9  90/09/21  12:43:26  ludwig
-! Change name of IBM-PC module system to msdos (system is reserved name).
-!
-! Revision 4.8  90/02/08  10:14:30  ludwig
-! changed pcc conditional now that I know the syntax.
-!
-! Revision 4.7  90/02/05  13:45:21  ludwig
-! Steven Nairn.
-! Added WINDOW-RESIZE-EVENT to list of predefined keys for xwindows and
-! windowchange.
-!
-! Revision 4.6  90/01/18  17:17:35  ludwig
-! Entered into RCS at revision level 4.6.
-!
-! Revision History:
-! 4-001 Ludwig V4.0 release.                                  7-Apr-1987
-! 4-002 Jeff Blows                                           28-Jun-1989
-!       Added "page-up" and "page-down" to the predefined list of key
-!       names.
-! 4-003 Jeff Blows                                              Jul-1989
-!       IBM PC developments incorporated into main source code.
-! 4-004 Kelvin B. Nicolle                                    12-Jul-1989
-!       VMS include files renamed from ".ext" to ".h", and from ".inc"
-!       to ".i".  Remove the "/nolist" qualifiers.
-! 4-005 Kelvin B. Nicolle                                    13-Sep-1989
-!       Add includes etc. for Tower version.
-! 4-006 Kelvin B. Nicolle                                    25-Oct-1989
-!       Correct the includes for the Tower version.
 !**/
 
 #include "user.h"

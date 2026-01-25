@@ -20,69 +20,6 @@
 ! Name:         EXEC
 !
 ! Description:  The primitive LUDWIG commands.
-!
-! $Log: exec.pas,v $
-! Revision 4.18  1991/02/22 14:56:45  ludwig
-! Added cases for the handling of X mouse handling and span manipulation
-!
-! Revision 4.17  90/02/08  10:22:24  ludwig
-! changed pcc preprocessor #if to the correct syntax
-!
-! Revision 4.16  90/02/05  12:04:16  ludwig
-! Steven Nairn.
-! code to handle window resizing. (on receipt of cmd_window_resize).
-!
-! Revision 4.15  90/01/18  18:15:52  ludwig
-! Entered into RCS at revision level 4.15
-!
-! Revision History:
-! 4-001 Ludwig V4.0 release.                                  7-Apr-1987
-! 4-002 Kelvin B. Nicolle                                     5-May-1987
-!       Modified replace code to correctly store multiple line
-!       replacement tpars.
-! 4-003 Mark R. Prior                                        11-Nov-1987
-!       Change the code for SA and KM to fail if their first parameter
-!       is empty, regardless of the length of the second parameter.
-! 4-004 Mark R. Prior                                        19-Dec-1987
-!       Add the NEWWORD module with modified AW and DW commands, and new
-!       AP and DP commands.
-! 4-005 Mark R. Prior                                        19-Dec-1987
-!       Modify the AC command semantics for the new command set.
-! 4-006 Mark R. Prior                                        20-Feb-1988
-!       Strings passed to ch routines are now passed using conformant
-!         arrays, or as type str_object.
-!               string[offset],length -> string,offset,length
-!       In all calls of ch_length, ch_upcase_str, ch_locase_str, and
-!         ch_reverse_str, the offset was 1 and is now omitted.
-!       Where conformant arrays are not implemented and the array is not
-!         of type str_object, separate routines are provided for each
-!         type.
-! 4-007 Kelvin B. Nicolle                                    26-Aug-1988
-!       The EXEC module is too big for the Multimax pc compiler.  Move
-!       the code for the quit command to the QUIT module.
-! 4-008 Kelvin B. Nicolle                                     2-Sep-1988
-!       Only the Ultrix Pascal compiler does not support underscores in
-!       identifiers:  Put the underscores back in the Pascal sources and
-!       make the macro definitions of the external names conditional in
-!       the C sources.
-! 4-009 Kelvin B. Nicolle                                    30-Sep-1988
-!       The EXEC module is too big for the Multimax pc compiler.  Move
-!       the code for the window commands to a new module.
-! 4-010 Kelvin B. Nicolle                                     1-Mar-1989
-!       Restore the old semantics of the AC command.
-! 4-011 Jeff Blows                                              Jul-1989
-!       IBM PC developments incorporated into main source code.
-! 4-012 Kelvin B. Nicolle                                    12-Jul-1989
-!       VMS include files renamed from ".ext" to ".h", and from ".inc"
-!       to ".i".  Remove the "/nolist" qualifiers.
-! 4-013 Kelvin B. Nicolle                                    13-Sep-1989
-!       Add includes etc. for Tower version.
-! 4-014 Kelvin B. Nicolle                                    25-Oct-1989
-!       Correct the includes for the Tower version.
-!       Change files.h to fyle.h.
-!       Remove the superfluous include of system.h.
-! 4-015 Kelvin B. Nicolle                                    17-Jan-1990
-!       Add cmd_file_save to the main case statement.
 !**/
 
 #include "exec.h"

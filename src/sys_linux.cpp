@@ -17,7 +17,7 @@
 !
 ! Implementation O/S support routines for Linux, likely to work OK on
 ! other Unix-like systems also.
-*/
+!**/
 
 #include "sys.h"
 

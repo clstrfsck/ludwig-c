@@ -20,36 +20,6 @@
 ! Name:         QUIT
 !
 ! Description:  Quit Ludwig
-!
-! $Log: quit.pas,v $
-! Revision 4.9  2002/07/15 14:09:28  martin
-! Replaced halt() for msdos with turbop
-!
-! Revision 4.8  1990/09/21 12:41:01  ludwig
-! Change name of IBM-PC module system to msdos (system is reserved name).
-!
-! Revision 4.7  90/04/26  17:21:34  ludwig
-! Fix VMS version of call to screen_verify. Strings are no longer
-! padded automatically.
-!
-! Revision 4.6  90/01/18  18:33:25  ludwig
-! Entered into RCS at revision level 4.6
-!
-! Revision History:
-! 4-001 Ludwig V4.0 release.                                  7-Apr-1987
-! 4-002 Kelvin B. Nicolle                                    26-Aug-1988
-!       The EXEC module is too big for the Multimax pc compiler.  Move
-!       the code for the quit command to the QUIT module.
-! 4-003 Jeff Blows                                              Jul-1989
-!       IBM PC developments incorporated into main source code.
-! 4-004 Kelvin B. Nicolle                                    12-Jul-1989
-!       VMS include files renamed from ".ext" to ".h", and from ".inc"
-!       to ".i".  Remove the "/nolist" qualifiers.
-! 4-005 Kelvin B. Nicolle                                    13-Sep-1989
-!       Add includes etc. for Tower version.
-! 4-006 Kelvin B. Nicolle                                    25-Oct-1989
-!       Correct the includes for the Tower version.
-!       Change files.h to fyle.h.
 !**/
 
 #include "quit.h"
