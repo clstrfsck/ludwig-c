@@ -33,13 +33,6 @@ namespace {
 
 };
 
-// FIXME: Wrapper for parray::copy that handles copies of length 0 to nullptrs
-//void ch_copy(str_ptr src, strlen_range srcofs, str_ptr dst, strlen_range dstofs, size_t len) {
-//    if (len > 0) {
-//        dst->copy(src->data(srcofs), len, dstofs);
-//    }
-//}
-
 // FIXME: Wrapper for parray::fillcopy that handles copies of length 0 to/from nullptrs
 void ch_fillcopy(str_ptr src, strlen_range srcofs, size_t srclen, str_ptr dst, strlen_range dstofs, size_t dstlen, char fill) {
     if (dstlen > 0) {

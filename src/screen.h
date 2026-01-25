@@ -33,7 +33,7 @@ void screen_write_name_str(scr_col_range indent, const std::string &str, scr_col
 void screen_write_file_name_str(scr_col_range indent, const file_name_str &str, scr_col_range width);
 void screen_writeln();
 void screen_writeln_clel();
-void screen_help_prompt(const std::string_view &prompt, key_str &reply, int &reply_len);
+key_str screen_help_prompt(const std::string_view &prompt);
 void screen_resize();
 
 #endif // !defined(SCREEN_H)

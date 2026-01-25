@@ -103,7 +103,7 @@ using verify_array = parray<bool, prange<1, MAX_VERIFY>>;
 // Strings
 using file_name_str = std::string;
 using write_str = std::string;
-using key_str = parray<char, prange<1, KEY_LEN>>; // Help File stuff
+using key_str = std::string;
 
 
 // Keyboard interface.
@@ -188,7 +188,7 @@ struct frame_object {
     scr_row_range     scr_dot_line;
     span_ptr          span;
     frame_ptr         return_frame;
-    prange<0, MAXINT> input_count;
+    uint32_t          input_count;
     space_range       space_limit;
     space_range       space_left;
     bool              text_modified;

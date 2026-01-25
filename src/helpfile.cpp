@@ -24,182 +24,147 @@
 
 #include "type.h"
 
-#include <cstdlib>
 #include <fstream>
 #include <unordered_map>
 
+// Realistically, we could just bake the helpfile into the binary.
+// It's <100k, which may have been a lot of memory once, but now is not a
+// significant amount.  For now we are keeping it as a separate file.
+
 namespace {
-    const char NEW_HELPFILE_ENV[]    = "LUD_NEWHELPFILE";
-    const char NEW_DEFAULT_HLPFILE[] = "/usr/local/help/ludwignewhlp.idx";
-    const char OLD_HELPFILE_ENV[]    = "LUD_HELPFILE";
-    const char OLD_DEFAULT_HLPFILE[] = "/usr/local/help/ludwighlp.idx";
+    const char * const NEW_HELPFILE_ENV = "LUD_NEWHELPFILE";
+    const char * const OLD_HELPFILE_ENV = "LUD_HELPFILE";
+    inline constexpr std::string_view NEW_DEFAULT_HLPFILE { "/usr/local/help/ludwignewhlp.idx" };
+    inline constexpr std::string_view OLD_DEFAULT_HLPFILE { "/usr/local/help/ludwighlp.idx" };
 
-    const size_t SKIP_MAX = 81; // No good reason for this value
-
-    // Special magic, the origin of which seems to be lost.
-    // I guess the mnemonic is "STatuS: Record Not Found" or similar.
-    const int STSRNF = 98994;
+    const size_t SKIP_MAX = 81; // No good reason for this value, but it's a lot of blank lines.
 
     struct key_type {
-        long        start_pos;
-        long        end_pos;
+        long start_pos;
+        long end_pos;
         std::string key;
     };
 
-    std::ifstream                             helpfile;
+    std::ifstream helpfile;
     std::unordered_map<std::string, key_type> table;
-    key_type                                  current_key;
+    key_type current_key;
+
+    bool help_openfile(const std::string_view &filename) {
+        helpfile.open(filename, std::ifstream::in);
+        return helpfile.is_open();
+    }
+
+    bool help_try_openfile(const char *env_name, const std::string_view &default_filename) {
+        const char *help;
+        if ((help = std::getenv(env_name)) == NULL || !help_openfile(help))
+            return help_openfile(default_filename);
+        return true;
+    }
+
+    bool read_index() {
+        // Read in the size of the index, and the size in lines of the contents.
+        long index_size;
+        helpfile >> index_size;
+        long contents_lines;
+        helpfile >> contents_lines;
+
+        // Read in index_size keys.
+        for (long i = 0; i < index_size; ++i) {
+            key_type k;
+            helpfile >> k.key;
+            helpfile >> k.start_pos;
+            helpfile >> k.end_pos;
+            table[k.key] = k;
+        }
+        // Skip final newline in index.
+        helpfile.ignore(SKIP_MAX, '\n');
+
+        // The key "0" is special, it's the contents page, it does NOT appear
+        // in the index as it must be created on the fly while creating the
+        // index file.  Hence it's entry appears after the index but before the
+        // bulk of the entries.
+        key_type contents;
+        contents.key = "0";
+        contents.start_pos = helpfile.tellg();
+        for (long i = 0; i < contents_lines; ++i) {
+            helpfile.ignore(SKIP_MAX, '\n');
+        }
+        contents.end_pos = helpfile.tellg();
+
+        // Correct the positions in the index to point at the real offset in
+        // the file.
+        for (auto &p : table) {
+            p.second.start_pos += contents.end_pos;
+            p.second.end_pos   += contents.end_pos;
+        }
+
+        // Add the contents to the table.
+        table[contents.key] = contents;
+
+        return true;
+    }
 };
 
-bool openfile(const char *filename) {
-    helpfile.open(filename, std::ifstream::in);
-    return helpfile.is_open();
-}
-
-bool try_openfile(const char *env_name, const char *default_filename) {
-    const char *help;
-    if ((help = std::getenv(env_name)) == NULL || !openfile(help))
-        return openfile(default_filename);
-    return true;
-}
-
-std::string pad(std::string s, size_t len) {
-    while (s.size() < len) {
-        s += ' ';
+void helpfile_close() {
+    if (helpfile.is_open()) {
+        helpfile.close();
     }
-    return s;
+    current_key.key.clear();
+    table.clear();
 }
 
 bool helpfile_open(bool old_version) {
-    if (helpfile.is_open()) /* we have done this before, dont do it again! */
+    if (helpfile.is_open()) { // we have done this before, dont do it again!
         return true;
+    }
     if (old_version) {
-        if (!try_openfile(OLD_HELPFILE_ENV, OLD_DEFAULT_HLPFILE))
+        if (!help_try_openfile(OLD_HELPFILE_ENV, OLD_DEFAULT_HLPFILE)) {
             return false;
+        }
     } else {
-        if (!try_openfile(NEW_HELPFILE_ENV, NEW_DEFAULT_HLPFILE))
+        if (!help_try_openfile(NEW_HELPFILE_ENV, NEW_DEFAULT_HLPFILE)) {
             return false;
+        }
     }
-
-    // Read in the size of the index, and the size in lines of the contents.
-    long index_size;
-    helpfile >> index_size;
-    long contents_lines;
-    helpfile >> contents_lines;
-
-    // Read in index_size keys.
-    for (long i = 0; i < index_size; ++i) {
-        key_type k;
-        helpfile >> k.key;
-        helpfile >> k.start_pos;
-        helpfile >> k.end_pos;
-        k.key = pad(k.key, KEY_LEN);
-        table[k.key] = k;
-    }
-    // Skip final newline in index.
-    helpfile.ignore(SKIP_MAX, '\n');
-
-    /*
-     * The key "0" is special, it's the contents page, it does NOT appear in the
-     * index as it must be created on the fly while creating the index file.
-     * Hence it's entry appears after the index but before the bulk of the
-     * entries.
-     */
-    key_type contents;
-    contents.key = pad("0", KEY_LEN);
-    contents.start_pos = helpfile.tellg();
-    for (long i = 0; i < contents_lines; ++i) {
-        helpfile.ignore(SKIP_MAX, '\n');
-    }
-    contents.end_pos = helpfile.tellg();
-
-    /*
-     * Correct the positions in the index to point at the real offset in the
-     * file.
-     */
-    for (auto &p : table) {
-        p.second.start_pos += contents.end_pos;
-        p.second.end_pos   += contents.end_pos;
-    }
-
-    // Add the contents to the table.
-    table[contents.key] = contents;
-
-    return true;
+    return read_index();
 }
 
-int helpfile_read(const key_str &keystr, int keylen, help_record &buffer, int &reclen) {
-    current_key.key.clear();
-    current_key.key.append(keystr.data(), keylen);
+bool helpfile_open(const std::string_view &filename) {
+    if (helpfile.is_open()) { // we have done this before, dont do it again!
+        return true;
+    }
+    if (!help_openfile(filename)) {
+        return false;
+    }
+    return read_index();
+}
 
-    /*
-     * lookup the key in the table, if it fails return the mysterious
-     * status STSRNF
-     */
+bool helpfile_read(const key_str &keystr, help_record &buffer) {
+    current_key.key = keystr;
+
     auto result = table.find(current_key.key);
-    if (result == table.end())
-        return STSRNF;
+    if (result == table.end()) {
+        return false;
+    }
 
-    /* Find the offset in the helpfile for the entry and go there */
+    // Find the offset in the helpfile for the entry and go there now.
     current_key = result->second;
     helpfile.seekg(current_key.start_pos);
 
-    /* Get the first line in the entry and package it up in a help_record */
+    // Get the first line in the entry and package it up in a help_record.
     std::getline(helpfile, buffer.txt);
-    reclen = KEY_LEN + buffer.txt.size();
-    buffer.key.fill(' ');
-    buffer.key.copy_n(current_key.key.data(), std::min(current_key.key.size(), key_str::index_type::size()));
-    return 1;
+    buffer.key = current_key.key;
+    return true;
 }
 
-int helpfile_next(help_record &buffer, int &reclen) {
-    /*
-     * if the current position = the end of the entry return 0, else give back
-     * the next line nicely packaged.
-     */
-    if (helpfile.tellg() == current_key.end_pos) {
-        return 0;
+bool helpfile_next(help_record &buffer) {
+    // if the current position >= the end of the entry return false,
+    // else give back the next line nicely packaged.
+    if (helpfile.tellg() >= current_key.end_pos) {
+        return false;
     } else {
         std::getline(helpfile, buffer.txt);
-        reclen = KEY_LEN + buffer.txt.size();
-        buffer.key.fill(' ');
-        buffer.key.copy_n(current_key.key.data(), std::min(current_key.key.size(), key_str::index_type::size()));
+        buffer.key= current_key.key;
     }
-    return 1;
+    return true;
 }
-
-#ifdef TEST
-
-#include <iostream>
-
-int main() {
-    if (helpfile_open(true) == 0) {
-        std::cerr << "Cannot open helpfile!" << std::endl;
-        return 1;
-    }
-    while (true) {
-        std::cout << "Topic: ";
-        std::string string;
-        if (!(std::cin >> string) || (string == "exit")) {
-            return 0;
-        }
-        key_str key(' ');
-        size_t sz = std::min(string.size(), key_str::size());
-        key.copy(string.data(), sz);
-        help_record record;
-        int buflen;
-        if (helpfile_read(key, sz, record, KEY_LEN + WRITE_STR_LEN, buflen)) {
-            size_t key_len = record.key.length(' ');
-            size_t txt_len = record.txt.length(' ');
-            std::cout << std::string(record.key.data(), key_len) << std::endl;
-            std::cout << std::string(record.txt.data(), txt_len) << std::endl;
-            while (helpfile_next(record, KEY_LEN + WRITE_STR_LEN, buflen)) {
-                txt_len = record.txt.length(' ');
-                std::cout << std::string(record.txt.data(), txt_len) << std::endl;
-            }
-        } else {
-            std::cerr << "Nothing found on '" << string << "'." << std::endl;
-        }
-    }
-}
-#endif

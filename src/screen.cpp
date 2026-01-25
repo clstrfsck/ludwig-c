@@ -1564,7 +1564,8 @@ void screen_writeln_clel() {
         writeln("");
 }
 
-void screen_help_prompt(const std::string_view &prompt, key_str &reply, int &reply_len) {
+key_str screen_help_prompt(const std::string_view &prompt) {
+    key_str reply;
     switch (ludwig_mode) {
     case ludwig_mode_type::ludwig_screen:
     case ludwig_mode_type::ludwig_hardcopy: {
@@ -1573,24 +1574,22 @@ void screen_help_prompt(const std::string_view &prompt, key_str &reply, int &rep
         screen_write_str(0, prompt.data(), prompt.size());
         if (ludwig_mode == ludwig_mode_type::ludwig_screen)
             vdu_attr_normal();
-        reply_len = 0;
         bool terminated = false;
         do {
             key_code_range key = vdu_get_key();
             if (key == 13)
                 terminated = true;
             else if (key == 127) {
-                if (reply_len > 0) {
-                    reply_len -= 1;
+                if (!reply.empty()) {
+                    reply.pop_back();
                     vdu_displaych(char(8));
                     vdu_displaych(' ');
                     vdu_displaych(char(8));
                 }
             } else if (PRINTABLE_SET.contains(int(key))) {
                 vdu_displaych(char(key));
-                reply_len += 1;
-                reply[reply_len] = char(key);
-                terminated = (key == ' ') || (reply_len == KEY_LEN);
+                reply.push_back(char(key));
+                terminated = (key == ' ') || (reply.size() == KEY_LEN);
             }
         } while (!terminated);
         screen_writeln();
@@ -1598,7 +1597,8 @@ void screen_help_prompt(const std::string_view &prompt, key_str &reply, int &rep
         break;
 
     case ludwig_mode_type::ludwig_batch:
-        reply_len = 0;
+        reply.clear();
         break;
     }
+    return reply;
 }

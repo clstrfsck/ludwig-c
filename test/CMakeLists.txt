@@ -30,13 +30,17 @@ target_include_directories(ludwig_lib PUBLIC ${CURSES_INCLUDE_DIRS})
 
 # Test executables
 set(TEST_SOURCES
-    test_main.cpp
-    test_prange.cpp
-    test_parray.cpp
     test_const.cpp
+    test_helpfile.cpp
+    test_main.cpp
+    test_parray.cpp
+    test_prange.cpp
 )
 
 add_executable(ludwig_tests ${TEST_SOURCES})
+target_compile_definitions(ludwig_tests PRIVATE
+    TEST_DATA_PATH="${CMAKE_CURRENT_BINARY_DIR}/../"
+)
 target_link_libraries(ludwig_tests PRIVATE
     ludwig_lib
     Catch2::Catch2WithMain
