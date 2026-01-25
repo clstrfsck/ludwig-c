@@ -27,11 +27,15 @@
 #include "var.h"
 #include "screen.h"
 
-void mark_mark_pool_extend() {
-    for (int i = 0; i < 20; ++i) {
-        mark_ptr new_mark = new mark_object;
-        new_mark->next = free_mark_pool;
-        free_mark_pool = new_mark;
+namespace {
+    mark_ptr free_mark_pool = nullptr;
+
+    void mark_mark_pool_extend() {
+        for (int i = 0; i < 20; ++i) {
+            mark_ptr new_mark = new mark_object;
+            new_mark->next = free_mark_pool;
+            free_mark_pool = new_mark;
+        }
     }
 }
 

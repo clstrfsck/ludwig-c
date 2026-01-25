@@ -106,7 +106,6 @@ extern const tab_array    DEFAULT_TAB_STOPS;
 // STRUCTURE POOLS
 extern group_ptr          free_group_pool;
 extern line_ptr           free_line_pool;
-extern mark_ptr           free_mark_pool;
 
 // Sets of characters
 // Pattern matcher parser stuff

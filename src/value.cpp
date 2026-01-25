@@ -52,7 +52,6 @@
         // Set up the Free Group/Line/Mark Pools
         free_group_pool      = nullptr;
         free_line_pool       = nullptr;
-        free_mark_pool       = nullptr;
 
         // Set up all the Default Default characteristics for a frame.
 
