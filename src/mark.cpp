@@ -28,15 +28,58 @@
 #include "screen.h"
 
 namespace {
+    mark_statistics pool_statistics = {
+        .pool_available = 0,
+        .allocated = 0,
+        .freed = 0
+    };
     mark_ptr free_mark_pool = nullptr;
 
+    constexpr size_t MARK_POOL_EXTEND_SIZE = 20;
+
     void mark_mark_pool_extend() {
-        for (int i = 0; i < 20; ++i) {
+        for (size_t i = 0; i < MARK_POOL_EXTEND_SIZE; ++i) {
             mark_ptr new_mark = new mark_object;
             new_mark->next = free_mark_pool;
             free_mark_pool = new_mark;
         }
+        pool_statistics.pool_available += MARK_POOL_EXTEND_SIZE;
     }
+
+    mark_ptr allocate_from_pool() {
+        if (free_mark_pool == nullptr) {
+            mark_mark_pool_extend();
+        }
+        mark_ptr mark = free_mark_pool;
+        free_mark_pool = mark->next;
+        pool_statistics.pool_available -= 1;
+        pool_statistics.allocated += 1;
+        return mark;
+    }
+
+    void deallocate_to_pool(mark_ptr &mark) {
+        mark->next     = free_mark_pool;
+        free_mark_pool = mark;
+        pool_statistics.pool_available += 1;
+        pool_statistics.freed += 1;
+        mark = nullptr;
+    }
+}
+
+void mark_pool_clear() {
+    while (free_mark_pool != nullptr) {
+        mark_ptr head_mark = free_mark_pool;
+        free_mark_pool = head_mark->next;
+        delete head_mark;
+    }
+    pool_statistics.pool_available = 0;
+}
+
+mark_statistics mark_pool_statistics() {
+    auto stats { pool_statistics };
+    pool_statistics.allocated = 0;
+    pool_statistics.freed = 0;
+    return stats;
 }
 
 bool mark_create(line_ptr in_line, col_range column, mark_ptr &mark) {
@@ -56,11 +99,7 @@ bool mark_create(line_ptr in_line, col_range column, mark_ptr &mark) {
     }
 #endif
     if (mark == nullptr) {
-        if (free_mark_pool == nullptr)
-            mark_mark_pool_extend();
-        mark           = free_mark_pool;
-        free_mark_pool = mark->next;
-
+        mark = allocate_from_pool();
         mark->next = in_line->mark;
         mark->line = in_line;
         mark->col  = column;
@@ -114,9 +153,7 @@ bool mark_destroy(mark_ptr &mark) {
         this_line->mark = this_mark->next;
     else
         prev_mark->next = this_mark->next;
-    mark->next     = free_mark_pool;
-    free_mark_pool = mark;
-    mark           = nullptr;
+    deallocate_to_pool(mark);
     return true;
 }
 

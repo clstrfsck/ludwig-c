@@ -83,7 +83,6 @@ const tab_array    DEFAULT_TAB_STOPS({false, true, false, false, false, false, f
 // STRUCTURE POOLS
 group_ptr          free_group_pool;
 line_ptr           free_line_pool;
-mark_ptr           free_mark_pool;
 
 // Output file actions
 file_data_type     file_data;
