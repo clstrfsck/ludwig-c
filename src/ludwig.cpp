@@ -736,11 +736,9 @@ void load_command_table(bool old_version) {
 }
 
 bool start_up(int argc, char **argv) {
-    const std::string frame_name_cmd ("COMMAND");
-    const std::string frame_name_oops("OOPS");
-    const std::string frame_name_heap("HEAP");
-
-    file_name_str command_line;
+    const std::string_view frame_name_cmd  { "COMMAND" };
+    const std::string_view frame_name_oops { "OOPS" };
+    const std::string_view frame_name_heap { "HEAP" };
 
     bool result = false;
 
@@ -752,15 +750,13 @@ bool start_up(int argc, char **argv) {
             ss << " " << argv[i];
     }
 
-    std::string cmd_line = ss.str();
-    if (cmd_line.size() > FILE_NAME_LEN) {
+    std::string command_line = ss.str();
+    if (command_line.size() > FILE_NAME_LEN) {
         screen_message(MSG_PARAMETER_TOO_LONG);
         goto l99;
     }
-    command_line.fillcopy(cmd_line.data(), cmd_line.size(), 1, FILE_NAME_LEN, ' ');
 
     // Open the files.
-
     if (!file_create_open(command_line, parse_type::parse_command, files[1], files[2]))
         goto l99;
 

@@ -27,7 +27,6 @@
 
 #include <pwd.h>
 #include <fcntl.h>
-#include <dirent.h>
 #include <signal.h>
 #include <unistd.h>
 #include <sys/stat.h>

@@ -244,8 +244,7 @@ bool file_create_open(file_name_str &fn, parse_type parse, file_ptr &inputfp, fi
         break;
     }
 
-    std::string fname(fn.data(), fn.length(' '));
-    bool result = filesys_parse(fname, parse, file_data, inputfp, outputfp);
+    bool result = filesys_parse(fn, parse, file_data, inputfp, outputfp);
     if (inputfp != nullptr && !inputfp->valid) {
         delete inputfp;
         inputfp = nullptr;
@@ -588,7 +587,7 @@ bool get_file_name(const_tpar_ptr tparam, file_name_str &fnm, commands command) 
     if (!tpar_get_1(tparam, command, tp_file_name))
         return false;
     //with tp_file_name do
-    fnm.fillcopy(tp_file_name.str.data(), tp_file_name.len, 1, FILE_NAME_LEN, ' ');
+    fnm = std::string(tp_file_name.str.data(), tp_file_name.len);
     tpar_clean_object(tp_file_name);
     return true;
 }

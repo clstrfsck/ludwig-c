@@ -138,7 +138,7 @@ using tab_array = parray<bool, col_width_range>;
 using verify_array = parray<bool, prange<1, MAX_VERIFY>>;
 
 // Strings
-using file_name_str = parray<char, prange<1, FILE_NAME_LEN>>;
+using file_name_str = std::string;
 using prompt_str = parray<char, prange<1, TPAR_PROM_LEN>>;
 using write_str = parray<char, prange<1, WRITE_STR_LEN>>;
 using number_str = parray<char, prange<1, 20>>;

@@ -278,7 +278,7 @@ void execute_immed() {
             cmd_count = MAXINT;
 
         // Open standard input as Ludwig command input file.
-        file_name_str cmd_fnm(' ');
+        file_name_str cmd_fnm;
         file_ptr cmd_file = nullptr;
         file_ptr dummy_fptr = nullptr;
         if (file_create_open(cmd_fnm, parse_type::parse_stdin, cmd_file, dummy_fptr)) {
