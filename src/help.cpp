@@ -56,13 +56,10 @@ namespace {
 
 };
 
-void ask_user(const char *prompt, key_str &reply, int &reply_len) {
+void ask_user(const std::string_view &prompt, key_str &reply, int &reply_len) {
     screen_writeln();
     reply.fill(' ');
-    write_str pstr;
-    scr_col_range plen = std::strlen(prompt);
-    pstr.copy_n(prompt, plen);
-    screen_help_prompt(pstr, plen, reply, reply_len);
+    screen_help_prompt(prompt, reply, reply_len);
     // Note that all characters not overwritten by the user will be spaces!
     screen_writeln();
     reply.apply_n(ch_toupper, reply_len);
@@ -105,7 +102,7 @@ void help_help(const std::string &selection) {
         if (!continu)
             topic.fill(' ');
         while (continu) {
-            if ((buf.txt[1] == '\\') && (buf.txt[2] == '%')) {
+            if ((buf.txt[0] == '\\') && (buf.txt[1] == '%')) {
                 key_str reply;
                 int reply_len;
                 ask_user("<space> for more, <return> to exit : ", reply, reply_len);
@@ -117,7 +114,7 @@ void help_help(const std::string &selection) {
                     topic_len = reply_len;
                 }
             } else {
-                screen_write_str(2, buf.txt.data(), len); // len was len-key_len for c version
+                screen_write_str(2, buf.txt.data(), buf.txt.size()); // len was len-key_len for c version
                 screen_writeln();
             }
             if (continu) {

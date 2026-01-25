@@ -133,7 +133,6 @@ const int  EXPAND_LIM      = 130;  // at least # of multi-letter commands + 1
 const int NAME_LEN      = 31;            // Max length of a spn/frm name
 const int FILE_NAME_LEN = FILENAME_MAX;  // Default length of file name
 const int TPAR_PROM_LEN = 8;
-const int WRITE_STR_LEN = 80;
 const int KEY_LEN       = 4;             // Key length for HELP FILE
 
 // Keyboard interface.

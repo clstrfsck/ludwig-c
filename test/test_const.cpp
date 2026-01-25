@@ -64,7 +64,6 @@ TEST_CASE("String length constants", "[const]") {
         REQUIRE(NAME_LEN == 31);
         REQUIRE(FILE_NAME_LEN > 0);
         REQUIRE(TPAR_PROM_LEN == 8);
-        REQUIRE(WRITE_STR_LEN == 80);
         REQUIRE(KEY_LEN == 4);
     }
 }

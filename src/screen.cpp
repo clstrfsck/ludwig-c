@@ -1599,13 +1599,13 @@ void screen_writeln_clel() {
         writeln("");
 }
 
-void screen_help_prompt(const write_str &prompt, scr_col_range prompt_len, key_str &reply, int &reply_len) {
+void screen_help_prompt(const std::string_view &prompt, key_str &reply, int &reply_len) {
     switch (ludwig_mode) {
     case ludwig_mode_type::ludwig_screen:
     case ludwig_mode_type::ludwig_hardcopy: {
         if (ludwig_mode == ludwig_mode_type::ludwig_screen)
             vdu_attr_bold();
-        screen_write_str(0, prompt.data(), prompt_len);
+        screen_write_str(0, prompt.data(), prompt.size());
         if (ludwig_mode == ludwig_mode_type::ludwig_screen)
             vdu_attr_normal();
         reply_len = 0;

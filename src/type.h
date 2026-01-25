@@ -140,7 +140,7 @@ using verify_array = parray<bool, prange<1, MAX_VERIFY>>;
 // Strings
 using file_name_str = std::string;
 using prompt_str = parray<char, prange<1, TPAR_PROM_LEN>>;
-using write_str = parray<char, prange<1, WRITE_STR_LEN>>;
+using write_str = std::string;
 using number_str = parray<char, prange<1, 20>>;
 using key_str = parray<char, prange<1, KEY_LEN>>; // Help File stuff
 

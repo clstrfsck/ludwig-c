@@ -43,6 +43,8 @@ namespace {
     const char OLD_HELPFILE_ENV[]    = "LUD_HELPFILE";
     const char OLD_DEFAULT_HLPFILE[] = "/usr/local/help/ludwighlp.idx";
 
+    const size_t SKIP_MAX = 81; // No good reason for this value
+
     // Special magic, the origin of which seems to be lost.
     // I guess the mnemonic is "STatuS: Record Not Found" or similar.
     const int STSRNF = 98994;
@@ -104,7 +106,7 @@ bool helpfile_open(bool old_version) {
         table[k.key] = k;
     }
     // Skip final newline in index.
-    helpfile.ignore(WRITE_STR_LEN + 1, '\n');
+    helpfile.ignore(SKIP_MAX, '\n');
 
     /*
      * The key "0" is special, it's the contents page, it does NOT appear in the
@@ -116,7 +118,7 @@ bool helpfile_open(bool old_version) {
     contents.key = pad("0", KEY_LEN);
     contents.start_pos = helpfile.tellg();
     for (long i = 0; i < contents_lines; ++i) {
-        helpfile.ignore(WRITE_STR_LEN + 1, '\n');
+        helpfile.ignore(SKIP_MAX, '\n');
     }
     contents.end_pos = helpfile.tellg();
 
@@ -145,20 +147,17 @@ int helpfile_read(const key_str &keystr, int keylen, help_record &buffer, int &r
      */
     auto result = table.find(current_key.key);
     if (result == table.end())
-	return STSRNF;
+        return STSRNF;
 
     /* Find the offset in the helpfile for the entry and go there */
     current_key = result->second;
     helpfile.seekg(current_key.start_pos);
 
     /* Get the first line in the entry and package it up in a help_record */
-    std::string buf;
-    std::getline(helpfile, buf);
-    reclen = KEY_LEN + buf.size();
+    std::getline(helpfile, buffer.txt);
+    reclen = KEY_LEN + buffer.txt.size();
     buffer.key.fill(' ');
-    buffer.txt.fill(' ');
     buffer.key.copy_n(current_key.key.data(), std::min(current_key.key.size(), key_str::index_type::size()));
-    buffer.txt.copy_n(buf.data(), std::min(buf.size(), write_str::index_type::size()));
     return 1;
 }
 
@@ -168,15 +167,12 @@ int helpfile_next(help_record &buffer, int &reclen) {
      * the next line nicely packaged.
      */
     if (helpfile.tellg() == current_key.end_pos) {
-	return 0;
+        return 0;
     } else {
-        std::string buf;
-        std::getline(helpfile, buf);
-	reclen = KEY_LEN + buf.size();
+        std::getline(helpfile, buffer.txt);
+        reclen = KEY_LEN + buffer.txt.size();
         buffer.key.fill(' ');
-        buffer.txt.fill(' ');
         buffer.key.copy_n(current_key.key.data(), std::min(current_key.key.size(), key_str::index_type::size()));
-        buffer.txt.copy_n(buf.data(), std::min(buf.size(), write_str::index_type::size()));
     }
     return 1;
 }
@@ -201,16 +197,16 @@ int main() {
         key.copy(string.data(), sz);
         help_record record;
         int buflen;
-	if (helpfile_read(key, sz, record, KEY_LEN + WRITE_STR_LEN, buflen)) {
+        if (helpfile_read(key, sz, record, KEY_LEN + WRITE_STR_LEN, buflen)) {
             size_t key_len = record.key.length(' ');
             size_t txt_len = record.txt.length(' ');
             std::cout << std::string(record.key.data(), key_len) << std::endl;
             std::cout << std::string(record.txt.data(), txt_len) << std::endl;
-	    while (helpfile_next(record, KEY_LEN + WRITE_STR_LEN, buflen)) {
+            while (helpfile_next(record, KEY_LEN + WRITE_STR_LEN, buflen)) {
                 txt_len = record.txt.length(' ');
                 std::cout << std::string(record.txt.data(), txt_len) << std::endl;
             }
-	} else {
+        } else {
             std::cerr << "Nothing found on '" << string << "'." << std::endl;
         }
     }
