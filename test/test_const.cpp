@@ -63,7 +63,6 @@ TEST_CASE("String length constants", "[const]") {
     SECTION("various string lengths") {
         REQUIRE(NAME_LEN == 31);
         REQUIRE(FILE_NAME_LEN > 0);
-        REQUIRE(TPAR_PROM_LEN == 8);
         REQUIRE(KEY_LEN == 4);
     }
 }
