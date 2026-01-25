@@ -79,7 +79,7 @@ namespace {
     }
 }
 
-bool frame_edit(const std::string &frame_name) {
+bool frame_edit(const std::string_view &frame_name) {
     /***************************************************************************
      *    D E S C R I P T I O N :-                                             *
      * Input   : frame_name                                                    *
@@ -104,7 +104,7 @@ bool frame_edit(const std::string &frame_name) {
     const int GRP  = 0x0010;
     const int DOT  = 0x0020;
     int created = 0;
-    std::string fname = frame_name.empty() ? DEFAULT_FRAME_NAME : frame_name;
+    std::string_view fname = frame_name.empty() ? DEFAULT_FRAME_NAME : frame_name;
     span_ptr ptr;
     span_ptr oldp;
     if (span_find(fname, ptr, oldp)) {
@@ -225,7 +225,7 @@ bool frame_edit(const std::string &frame_name) {
 }
 
 
-bool frame_kill(const std::string &frame_name) {
+bool frame_kill(const std::string_view &frame_name) {
     /***************************************************************************
      *    D E S C R I P T I O N :-                                             *
      * Input   : frame_name                                                    *
@@ -1045,9 +1045,7 @@ bool frame_parameter(tpar_ptr tpar) {
         }
         screen_writeln();
         screen_writeln_clel();
-        str_object buffer;
-        buffer.copy_n(NEW_VALUES.data(), NEW_VALUES.size());
-        screen_getlinep(buffer, NEW_VALUES.size(), request.str, request.len, 1, 1);
+        screen_getlinep(NEW_VALUES, request.str, request.len, 1, 1);
         if (request.len > 0) {
             request.str.apply_n(ch_toupper, request.len);
             if (!setparam(request))

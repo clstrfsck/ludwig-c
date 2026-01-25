@@ -492,10 +492,12 @@ bool tpar_analyse(user_commands cmd, tpar_object &tran, int depth, tpcount_type 
                         verify_response verify_reply;
                         if (tran.len == 0) {
                             //with cmd_attrib[cmd].tpar_info[this_tp] do
-                            buffer.copy(dflt_prompts[cmd_attrib[cmd.value()].tpar_info[this_tp].prompt_name], 1, TPAR_PROM_LEN);
-                            verify_reply = screen_verify(buffer, TPAR_PROM_LEN);
+                            const auto &prompt { dflt_prompts[cmd_attrib[cmd.value()].tpar_info[this_tp].prompt_name] };
+                            verify_reply = screen_verify(prompt);
                         } else {
-                            verify_reply = screen_verify(tran.str, tran.len);
+                            // FIXME: messy cast
+                            const std::string_view prompt { tran.str.data(), static_cast<size_t>(tran.len) };
+                            verify_reply = screen_verify(prompt);
                         }
                         switch (verify_reply) {
                         case verify_response::verify_reply_yes   : tran.str[1] = 'Y'; break;
@@ -507,14 +509,16 @@ bool tpar_analyse(user_commands cmd, tpar_object &tran, int depth, tpcount_type 
                     } else if (tran.len == 0) {
                         // change first str and len with cmd values
                         //with cmd_attrib[cmd].tpar_info[this_tp] do
-                        buffer.copy(dflt_prompts[cmd_attrib[cmd.value()].tpar_info[this_tp].prompt_name], 1, TPAR_PROM_LEN);
-                        screen_getlinep(buffer, TPAR_PROM_LEN, tran.str, tran.len, cmd_attrib[cmd.value()].tpcount, this_tp);
+                        const auto &prompt { dflt_prompts[cmd_attrib[cmd.value()].tpar_info[this_tp].prompt_name] };
+                        screen_getlinep(prompt, tran.str, tran.len, cmd_attrib[cmd.value()].tpcount, this_tp);
                     } else {
                         if (tran.con != nullptr) {
                             screen_message(MSG_PROMPTS_ARE_ONE_LINE);
                             return false;
                         } else {
-                            screen_getlinep(tran.str, tran.len, tran.str, tran.len, cmd_attrib[cmd.value()].tpcount, this_tp);
+                            // FIXME: messy cast
+                            const std::string_view prompt { tran.str.data(), static_cast<size_t>(tran.len) };
+                            screen_getlinep(prompt, tran.str, tran.len, cmd_attrib[cmd.value()].tpcount, this_tp);
                         }
                     }
                     tran.dlm = '\0';

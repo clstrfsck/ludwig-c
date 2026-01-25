@@ -98,7 +98,7 @@ namespace {
         parse_state() = default;
         parse_state(const parse_state&) = delete;
         parse_state &operator=(const parse_state&) = delete;
-        msg_str        status;
+        std::string    status;
         key_code_range key;
         bool           eoln;          // Used to signal end of line
         int            pc;            // This is always an offset from code_top
@@ -151,7 +151,7 @@ void code_discard(code_ptr &code_head) {
 void error(parse_state &ps, const char *err_text) {
     // Inserts an error message into the span where it was detected.
 
-    assign(ps.status, MSG_SYNTAX_ERROR);
+    ps.status = MSG_SYNTAX_ERROR;
     if (ps.from_span) {
         // If possible, backup the current point one character.
         //with currentpoint do
@@ -256,7 +256,7 @@ bool nextnonbl(parse_state &ps) {
             ps.currentpoint.col = ps.currentpoint.line->used + 1;
             goto l1;
         } else {
-            assign(ps.status, MSG_COMMENTS_ILLEGAL);
+            ps.status = MSG_COMMENTS_ILLEGAL;
             return false;
         }
     }
@@ -266,7 +266,7 @@ bool nextnonbl(parse_state &ps) {
 bool generate(parse_state &ps, leadparam irep, int icnt, commands iop, tpar_ptr itpar, int ilbl, code_ptr icode) {
     ps.pc += 1;
     if (ps.code_base + ps.pc > MAX_CODE) {
-        assign(ps.status, MSG_COMPILER_CODE_OVERFLOW);
+        ps.status = MSG_COMPILER_CODE_OVERFLOW;
         return false;
     }
     //with compiler_code[code_base + pc]
@@ -640,7 +640,7 @@ bool scan_command(parse_state &ps, bool full_scan) {
 bool code_compile(span_object &span, bool from_span) {
     bool result = false;
     parse_state ps;
-    ps.status.fill(' ');
+    ps.status.clear();
     ps.eoln = false;
     ps.from_span = from_span;
 
@@ -687,7 +687,7 @@ bool code_compile(span_object &span, bool from_span) {
     code_top = ps.code_base + ps.pc;
     result = true;
 l99:
-    if (ps.status.length(' ') > 0) {
+    if (!ps.status.empty()) {
         exit_abort = true;
         screen_message(ps.status);
     }

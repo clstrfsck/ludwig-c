@@ -32,7 +32,7 @@ void vdu_new_introducer(key_code_range key);
 
 key_code_range vdu_get_key();
 
-void vdu_get_input(const str_object &prompt, strlen_range prompt_len,
+void vdu_get_input(const std::string_view &prompt,
                    str_object &get, strlen_range get_len,
                    strlen_range &outlen);
 

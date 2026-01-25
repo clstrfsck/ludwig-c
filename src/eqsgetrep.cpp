@@ -66,8 +66,8 @@
 
 namespace {
 
-    const std::string THIS_ONE("This one?");
-    const std::string REPLACE_THIS_ONE("Replace this one?");
+    inline constexpr std::string_view THIS_ONE { "This one?" };
+    inline constexpr std::string_view REPLACE_THIS_ONE { "Replace this one?" };
 
 };
 
@@ -282,9 +282,7 @@ bool eqsgetrep_dumb_get(int count, tpar_object tpar, bool from_span) {
                 if (!mark_create(line, start_col, current_frame->dot))
                     goto l99;
                 if (!from_span) {
-                    str_object buffer(' ');
-                    buffer.copy_n(THIS_ONE.data(), THIS_ONE.size());
-                    switch (screen_verify(buffer, THIS_ONE.size())) {
+                    switch (screen_verify(THIS_ONE)) {
                     case verify_response::verify_reply_always:
                     case verify_response::verify_reply_yes:
                         break;
@@ -384,9 +382,7 @@ bool eqsgetrep_pattern_get(int count, tpar_object tpar, bool from_span, bool rep
                             goto l99;
                     }
                     if (!from_span) {
-                        str_object buffer;
-                        buffer.copy_n(THIS_ONE.data(), THIS_ONE.size());
-                        switch (screen_verify(buffer, THIS_ONE.size())) {
+                        switch (screen_verify(THIS_ONE)) {
                         case verify_response::verify_reply_always:
                         case verify_response::verify_reply_yes:
                             break;
@@ -450,7 +446,7 @@ bool eqsgetrep_pattern_get(int count, tpar_object tpar, bool from_span, bool rep
             start_col = 1;
         }
     } // of while not count > 0
-    
+
 l99:;
     return result;
 }
@@ -503,9 +499,7 @@ bool eqsgetrep_rep(leadparam rept, int count, tpar_object tpar, tpar_object tpar
             if (tt_controlc || exit_abort)
                 goto l1;
             if (!from_span) {
-                str_object buffer;
-                buffer.copy_n(REPLACE_THIS_ONE.data(), REPLACE_THIS_ONE.size());
-                switch (screen_verify(buffer, REPLACE_THIS_ONE.size())) {
+                switch (screen_verify(REPLACE_THIS_ONE)) {
                 case verify_response::verify_reply_always:
                     from_span = true;
                     break;

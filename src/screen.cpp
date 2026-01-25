@@ -115,15 +115,22 @@ enum class scroll_type {
 
 const char PAUSE_MSG[] = "Pausing until RETURN pressed: ";
 const char YNAQM_MSG[] = "Reply Y(es),N(o),A(lways),Q(uit),M(ore)";
- const std::string YNAQM_CHARS(" YNAQM123456789");
+const std::string YNAQM_CHARS(" YNAQM123456789");
+
+void writeln(const std::string_view &message) {
+    std::cout << message << std::endl;
+}
 
 void writeln(const char *message, size_t length) {
-    std::cout.write(message, length);
-    std::cout << std::endl;
+    writeln(std::string_view(message, length));
 }
 
 void writeln(const char *message) {
     writeln(message, std::strlen(message));
+}
+
+void write(const std::string_view &message) {
+    std::cout.write(message.data(), message.size());
 }
 
 void write(const char *message, size_t length) {
@@ -140,7 +147,7 @@ void write(char ch, size_t count) {
     }
 }
 
-void screen_message(const char *message, int length) {
+void screen_message(const std::string_view &message) {
     /*
       Purpose  : Put a message out to the user.
       Inputs   : message: null-terminated message.
@@ -150,66 +157,25 @@ void screen_message(const char *message, int length) {
         return;
 
     if (ludwig_mode == ludwig_mode_type::ludwig_screen) {
-        int i = 0;
+        size_t i = 0;
         do {
             screen_free_bottom_line();             // Make room for msg.
             vdu_movecurs(1, terminal_info.height);
-            int j = length - i;
+            int j = message.size() - i;
             if (j > terminal_info.width - 1)
                 j = terminal_info.width - 1;
             vdu_attr_bold();
-            vdu_displaystr(j, message + i, 3);     // due to wrap avoidance.
+            vdu_displaystr(j, message.data() + i, 3);     // due to wrap avoidance.
             vdu_attr_normal();
             i += j;
-        } while (i < length);
+        } while (i < message.size());
     } else {
         /* if (ludwig_mode = ludwig_mode_type::ludwig_hardcopy) */
         /*     putchar(7); */
-        writeln(message, length);
+        writeln(message);
     }
 }
 
-void screen_message(const msg_str &message) {
-    /*
-      Purpose  : Put a message out to the user.
-      Inputs   : message: blank-filled message.
-    */
-
-    if (hangup)
-        return;
-
-    int length = MSG_STR_LEN;
-    while (length > 0 && message[length] == ' ')
-        length -= 1;
-
-    screen_message(message.data(), length);
-}
-
-void screen_str_message(const str_object &message) {
-    /*
-      Purpose  : Put a message out to the user.
-      Inputs   : message: blank-filled message in a Ludwig string object.
-    */
-
-    if (hangup)
-        return;
-
-    int length = message.length(' ');
-
-    screen_message(message.data(), length);
-}
-
-void screen_message(const char *message) {
-    /*
-      Purpose  : Put a message out to the user.
-      Inputs   : message: null-terminated message.
-    */
-
-    if (hangup)
-        return;
-
-    screen_message(message, std::strlen(message));
-}
 
 void screen_draw_line(line_ptr line) {
     // Draw a line if it is on the screen.
@@ -1109,9 +1075,8 @@ void screen_pause() {
         else
             vdu_displaycrlf();
         str_object buffer;
-        strlen_range outlen = std::strlen(PAUSE_MSG);
-        buffer.copy_n(PAUSE_MSG, outlen);
-        vdu_get_input(buffer, outlen, buffer, MAX_STRLEN, outlen);
+        strlen_range outlen;
+        vdu_get_input(PAUSE_MSG, buffer, MAX_STRLEN, outlen);
         if (scr_top_line != nullptr) {
             if (scr_top_line->scr_row_nr == 1) {
                 screen_draw_line(scr_top_line);
@@ -1241,7 +1206,7 @@ void screen_fixup() {
     }
 }
 
-void screen_getlinep(const str_object &prompt, strlen_range prompt_len,
+void screen_getlinep(const std::string_view &prompt,
                      str_object &outbuf, strlen_range &outlen,
                      tpcount_type max_tp, tpcount_type this_tp) {
 
@@ -1282,7 +1247,7 @@ void screen_getlinep(const str_object &prompt, strlen_range prompt_len,
     l1:
             if (prompt_region[this_tp].line_nr != 0)
                 vdu_movecurs(1, prompt_region[this_tp].line_nr);
-            vdu_get_input(prompt, prompt_len, outbuf, MAX_STRLEN, outlen);
+            vdu_get_input(prompt, outbuf, MAX_STRLEN, outlen);
             if (tt_controlc)
                 goto l2;
             if (outlen == 0) {
@@ -1304,7 +1269,7 @@ void screen_getlinep(const str_object &prompt, strlen_range prompt_len,
             }
             vdu_flush();
         } else {
-            write(prompt.data(), prompt_len);
+            write(prompt);
             std::string input;
             std::getline(std::cin, input);
             outbuf.copy_n(input.data(), input.size());
@@ -1364,13 +1329,11 @@ void screen_free_bottom_line() {
     scr_msg_row -= 1;
 }
 
-verify_response screen_verify(str_object prompt, strlen_range prompt_len) {
+verify_response screen_verify(const std::string_view &prompt) {
     // Issue a verify request to the user ... the user is to be shown the
     // current dot position.
 
     const int ver_height = 4;
-
-    prompt.fill(' ', prompt_len + 1);
 
     //with current_frame^,dot^ do
     verify_response verify = verify_response::verify_reply_quit;
@@ -1393,7 +1356,7 @@ verify_response screen_verify(str_object prompt, strlen_range prompt_len) {
             screen_fixup();
             vdu_attr_bold();
             if (use_prompt) {
-                screen_str_message(prompt);
+                screen_message(prompt);
             } else {
                 screen_message(YNAQM_MSG);
             }
@@ -1415,12 +1378,9 @@ verify_response screen_verify(str_object prompt, strlen_range prompt_len) {
             str_object response;
             strlen_range resp_len;
             if (use_prompt) {
-                screen_getlinep(prompt, prompt_len, response, resp_len, 1, 1);
+                screen_getlinep(prompt, response, resp_len, 1, 1);
             } else {
-                str_object buffer;
-                size_t buf_len = std::strlen(YNAQM_MSG);
-                buffer.copy_n(YNAQM_MSG, buf_len);
-                screen_getlinep(buffer, buf_len, response, resp_len, 1, 1);
+                screen_getlinep(YNAQM_MSG, response, resp_len, 1, 1);
             }
             if (resp_len == 0)
                 key = 'N';

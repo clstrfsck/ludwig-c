@@ -65,7 +65,6 @@ TEST_CASE("String length constants", "[const]") {
         REQUIRE(FILE_NAME_LEN > 0);
         REQUIRE(TPAR_PROM_LEN == 8);
         REQUIRE(WRITE_STR_LEN == 80);
-        REQUIRE(MSG_STR_LEN == 70);
         REQUIRE(KEY_LEN == 4);
     }
 }
@@ -106,41 +105,7 @@ TEST_CASE("Pattern matcher constants", "[const]") {
 
 TEST_CASE("Message strings exist", "[const]") {
     SECTION("blank message") {
-        REQUIRE(MSG_BLANK != nullptr);
-        REQUIRE(std::strlen(MSG_BLANK) == MSG_STR_LEN);
-    }
-
-    SECTION("common error messages") {
-        REQUIRE(MSG_ABORT != nullptr);
-        REQUIRE(MSG_COMMAND_NOT_VALID != nullptr);
-        REQUIRE(MSG_SYNTAX_ERROR != nullptr);
-        REQUIRE(MSG_NO_SUCH_FRAME != nullptr);
-        REQUIRE(MSG_FILE_ALREADY_OPEN != nullptr);
-    }
-
-    SECTION("file operation messages") {
-        REQUIRE(MSG_WRITING_FILE != nullptr);
-        REQUIRE(MSG_LOADING_FILE != nullptr);
-        REQUIRE(MSG_SAVING_FILE != nullptr);
-        REQUIRE(MSG_PAGING != nullptr);
-        REQUIRE(MSG_SEARCHING != nullptr);
-        REQUIRE(MSG_QUITTING != nullptr);
-    }
-
-    SECTION("pattern error messages") {
-        REQUIRE(MSG_PAT_NO_MATCHING_DELIM != nullptr);
-        REQUIRE(MSG_PAT_SYNTAX_ERROR != nullptr);
-        REQUIRE(MSG_PAT_NULL_PATTERN != nullptr);
-        REQUIRE(MSG_PAT_PATTERN_TOO_COMPLEX != nullptr);
-    }
-}
-
-TEST_CASE("Debug message strings", "[const]") {
-    SECTION("debug messages exist") {
-        REQUIRE(DBG_INTERNAL_LOGIC_ERROR != nullptr);
-        REQUIRE(DBG_FRAME_PTR_IS_NIL != nullptr);
-        REQUIRE(DBG_LINE_PTR_IS_NIL != nullptr);
-        REQUIRE(DBG_MARK_PTR_IS_NIL != nullptr);
+        REQUIRE(MSG_BLANK.empty());
     }
 }
 

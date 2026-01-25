@@ -27,6 +27,7 @@
 #include "sys.h"
 
 #include <cstring>
+#include <algorithm>
 #include <ncurses.h>
 #include <unordered_set>
 
@@ -202,10 +203,10 @@ key_code_range vdu_get_key() {
     return massage_key(raw_key);
 }
 
-void vdu_get_input(const str_object &prompt, strlen_range prompt_len,
+void vdu_get_input(const std::string_view &prompt,
                    str_object &get, strlen_range get_len,
                    strlen_range &outlen) {
-    scr_col_range plen{int(prompt_len)};
+    auto plen = std::min(static_cast<size_t>(MAX_SCR_COLS), prompt.size());
     vdu_attr_bold();
     vdu_displaystr(plen, prompt.data(), OUT_M_CLEAREOL);
     vdu_attr_normal();

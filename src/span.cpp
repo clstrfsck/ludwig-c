@@ -49,7 +49,7 @@
 #include "mark.h"
 #include "screen.h"
 
-bool span_find(const std::string &span_name, span_ptr &ptr, span_ptr &oldp) {
+bool span_find(const std::string_view &span_name, span_ptr &ptr, span_ptr &oldp) {
     /****************************************************************************
      *    D E S C R I P T I O N :-                                              *
      * Input   : span_name                                                      *
@@ -83,7 +83,7 @@ bool span_find(const std::string &span_name, span_ptr &ptr, span_ptr &oldp) {
     return false;
 }
 
-bool span_create(const std::string &span_name, mark_ptr first_mark, mark_ptr last_mark) {
+bool span_create(const std::string_view &span_name, mark_ptr first_mark, mark_ptr last_mark) {
     /****************************************************************************
      *    D E S C R I P T I O N :-                                              *
      * Input   : span_name, first_mark & last_mark                              *

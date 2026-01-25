@@ -512,44 +512,44 @@ l98:;
     return true;
 }
 
-bool check_slot_allocation(slot_range slot, bool must_be_allocated, msg_str &status) {
+bool check_slot_allocation(slot_range slot, bool must_be_allocated, std::string &status) {
     if ((slot == 0) == must_be_allocated) {
         if (must_be_allocated)
-            status.copy_n(MSG_NO_FILE_OPEN, std::strlen(MSG_NO_FILE_OPEN));
+            status = MSG_NO_FILE_OPEN;
         else
-            status.copy_n(MSG_FILE_ALREADY_OPEN, std::strlen(MSG_FILE_ALREADY_OPEN));
+            status = MSG_FILE_ALREADY_OPEN;
         return false;
     }
     return true;
 }
 
-bool check_slot_usage(slot_range slot, bool must_be_in_use, msg_str &status) {
+bool check_slot_usage(slot_range slot, bool must_be_in_use, std::string &status) {
     if (check_slot_allocation(slot, true, status)) {
         if ((files[slot] == nullptr) == must_be_in_use) {
             if (must_be_in_use)
-                status.copy_n(MSG_NO_FILE_OPEN, std::strlen(MSG_NO_FILE_OPEN));
+                status = MSG_NO_FILE_OPEN;
             else
-                status.copy_n(MSG_FILE_ALREADY_OPEN, std::strlen(MSG_FILE_ALREADY_OPEN));
+                status = MSG_FILE_ALREADY_OPEN;
         } else
             return true;
     }
     return false;
 }
 
-bool check_slot_direction(slot_range slot, bool must_be_output, msg_str &status) {
+bool check_slot_direction(slot_range slot, bool must_be_output, std::string &status) {
     if (check_slot_usage(slot, true, status)) {
         if (files[slot]->output_flag != must_be_output) {
             if (must_be_output)
-                status.copy_n(MSG_NOT_OUTPUT_FILE, std::strlen(MSG_NOT_OUTPUT_FILE));
+                status = MSG_NOT_OUTPUT_FILE;
             else
-                status.copy_n(MSG_NOT_INPUT_FILE, std::strlen(MSG_NOT_INPUT_FILE));
+                status = MSG_NOT_INPUT_FILE;
         } else
             return true;
     }
     return false;
 }
 
-bool free_file(slot_range slot, msg_str &status) {
+bool free_file(slot_range slot, std::string &status) {
     if (!check_slot_allocation(slot, true, status))
         return false;
     if (files_frames[slot] != nullptr) {
@@ -568,12 +568,12 @@ bool free_file(slot_range slot, msg_str &status) {
     return true;
 }
 
-bool get_free_slot(slot_range &new_slot, slot_range file_slot, msg_str &status) {
+bool get_free_slot(slot_range &new_slot, slot_range file_slot, std::string &status) {
     slot_range slot = 1;
     while ((slot < MAX_FILES) && ((files[slot] != nullptr) || (slot == file_slot)))
         slot += 1;
     if (files[slot] != nullptr) {
-        status.copy_n(MSG_NO_MORE_FILES_ALLOWED, std::strlen(MSG_NO_MORE_FILES_ALLOWED));
+        status = MSG_NO_MORE_FILES_ALLOWED;
         return false;
     }
     new_slot = slot;
@@ -603,7 +603,7 @@ bool file_command(commands command, leadparam rept, int count, tpar_ptr tparam, 
     }
 
     // Perform the operation.
-    msg_str status(' ');
+    std::string status;
     slot_range file_slot = 0;
     file_name_str fnm;
     bool result = false;
@@ -869,7 +869,7 @@ bool file_command(commands command, leadparam rept, int count, tpar_ptr tparam, 
 
     case commands::cmd_file_save: {
         if (current_frame->output_file == 0) {
-            status.copy_n(MSG_NO_OUTPUT, std::strlen(MSG_NO_OUTPUT));
+            status = MSG_NO_OUTPUT;
             goto l99;
         }
         if (!current_frame->text_modified) {
@@ -921,7 +921,7 @@ bool file_command(commands command, leadparam rept, int count, tpar_ptr tparam, 
     result = true;
 
 l99:;
-    if (status.length(' '))
+    if (!status.empty())
         screen_message(status);
     return result;
 }

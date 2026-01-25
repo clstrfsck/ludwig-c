@@ -55,13 +55,13 @@ code_ptr                                 code_list;
 prange<0, MAX_CODE>                      code_top;
 
 // VARIABLES USED IN INTERPRETING A COMMAND
-penumset<commands>                       prefixes;
-parray<command_object, key_code_range>   lookup;
-parray<lookupexp_type, expand_lim_range> lookupexp;
-parray<expand_lim_range, prefix_plus>    lookupexp_ptr;
-parray<cmd_attrib_rec, user_commands>    cmd_attrib;
-parray<prompt_str, perange<prompt_type>> dflt_prompts;
-prange<0, MAX_EXEC_RECURSION>            exec_level;
+penumset<commands>                             prefixes;
+parray<command_object, key_code_range>         lookup;
+parray<lookupexp_type, expand_lim_range>       lookupexp;
+parray<expand_lim_range, prefix_plus>          lookupexp_ptr;
+parray<cmd_attrib_rec, user_commands>          cmd_attrib;
+parray<std::string_view, perange<prompt_type>> dflt_prompts;
+prange<0, MAX_EXEC_RECURSION>                  exec_level;
 
 // INITIAL FRAME SETTINGS.
 mark_array         initial_marks;

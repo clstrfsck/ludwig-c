@@ -111,11 +111,11 @@ struct lookupexp_type {
 };
 using expand_lim_range = prange<1, EXPAND_LIM>;
 
-extern parray<lookupexp_type, expand_lim_range> lookupexp;
-extern parray<expand_lim_range, prefix_plus>    lookupexp_ptr;
-extern parray<cmd_attrib_rec, user_commands>    cmd_attrib;
-extern parray<prompt_str, perange<prompt_type>> dflt_prompts;
-extern prange<0, MAX_EXEC_RECURSION>            exec_level;
+extern parray<lookupexp_type, expand_lim_range>       lookupexp;
+extern parray<expand_lim_range, prefix_plus>          lookupexp_ptr;
+extern parray<cmd_attrib_rec, user_commands>          cmd_attrib;
+extern parray<std::string_view, perange<prompt_type>> dflt_prompts;
+extern prange<0, MAX_EXEC_RECURSION>                  exec_level;
 
 // INITIAL FRAME SETTINGS.
 extern mark_array         initial_marks;

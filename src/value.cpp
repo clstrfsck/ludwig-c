@@ -33,7 +33,7 @@
 !
 ! Revision 4.16  90/10/31  14:58:58  ludwig
 ! Change initialization of ludwig_aborted to false.   KBN
-! 
+!
 ! Revision 4.15  90/10/24  17:31:31  ludwig
 ! Initialize some global variables that were not initialized.
 ! Clean up the method of setting the Ludwig version string.   KBN
@@ -132,25 +132,25 @@
         prefixes.clear();
         prefixes.add_range(commands::cmd_prefix_ast, commands::cmd_prefix_tilde);
 
-        dflt_prompts[prompt_type::no_prompt         ]  = prompt_str("        ");
-        dflt_prompts[prompt_type::char_prompt       ]  = prompt_str("Charset:");
-        dflt_prompts[prompt_type::get_prompt        ]  = prompt_str("Get    :");
-        dflt_prompts[prompt_type::equal_prompt      ]  = prompt_str("Equal  :");
-        dflt_prompts[prompt_type::key_prompt        ]  = prompt_str("Key    :");
-        dflt_prompts[prompt_type::cmd_prompt        ]  = prompt_str("Command:");
-        dflt_prompts[prompt_type::span_prompt       ]  = prompt_str("Span   :");
-        dflt_prompts[prompt_type::text_prompt       ]  = prompt_str("Text   :");
-        dflt_prompts[prompt_type::frame_prompt      ]  = prompt_str("Frame  :");
-        dflt_prompts[prompt_type::file_prompt       ]  = prompt_str("File   :");
-        dflt_prompts[prompt_type::column_prompt     ]  = prompt_str("Column :");
-        dflt_prompts[prompt_type::mark_prompt       ]  = prompt_str("Mark   :");
-        dflt_prompts[prompt_type::param_prompt      ]  = prompt_str("Param  :");
-        dflt_prompts[prompt_type::topic_prompt      ]  = prompt_str("Topic  :");
-        dflt_prompts[prompt_type::replace_prompt    ]  = prompt_str("Replace:");
-        dflt_prompts[prompt_type::by_prompt         ]  = prompt_str("By     :");
-        dflt_prompts[prompt_type::verify_prompt     ]  = prompt_str("Verify ?");
-        dflt_prompts[prompt_type::pattern_prompt    ]  = prompt_str("Pattern:");
-        dflt_prompts[prompt_type::pattern_set_prompt]  = prompt_str("Pat Set:");
+        dflt_prompts[prompt_type::no_prompt         ]  = "        ";
+        dflt_prompts[prompt_type::char_prompt       ]  = "Charset:";
+        dflt_prompts[prompt_type::get_prompt        ]  = "Get    :";
+        dflt_prompts[prompt_type::equal_prompt      ]  = "Equal  :";
+        dflt_prompts[prompt_type::key_prompt        ]  = "Key    :";
+        dflt_prompts[prompt_type::cmd_prompt        ]  = "Command:";
+        dflt_prompts[prompt_type::span_prompt       ]  = "Span   :";
+        dflt_prompts[prompt_type::text_prompt       ]  = "Text   :";
+        dflt_prompts[prompt_type::frame_prompt      ]  = "Frame  :";
+        dflt_prompts[prompt_type::file_prompt       ]  = "File   :";
+        dflt_prompts[prompt_type::column_prompt     ]  = "Column :";
+        dflt_prompts[prompt_type::mark_prompt       ]  = "Mark   :";
+        dflt_prompts[prompt_type::param_prompt      ]  = "Param  :";
+        dflt_prompts[prompt_type::topic_prompt      ]  = "Topic  :";
+        dflt_prompts[prompt_type::replace_prompt    ]  = "Replace:";
+        dflt_prompts[prompt_type::by_prompt         ]  = "By     :";
+        dflt_prompts[prompt_type::verify_prompt     ]  = "Verify ?";
+        dflt_prompts[prompt_type::pattern_prompt    ]  = "Pattern:";
+        dflt_prompts[prompt_type::pattern_set_prompt]  = "Pat Set:";
 
         file_data.old_cmds = true;
         file_data.entab    = false;

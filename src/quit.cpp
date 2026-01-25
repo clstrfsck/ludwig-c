@@ -63,7 +63,7 @@
 #include "screen.h"
 
 namespace {
-    const std::string NO_OUTPUT_FILE_MSG("This frame has no output file--are you sure you want to QUIT? ");
+    inline constexpr std::string_view NO_OUTPUT_FILE_MSG { "This frame has no output file--are you sure you want to QUIT? " };
 };
 
 bool quit_command() {
@@ -83,9 +83,7 @@ bool quit_command() {
                     if (ludwig_mode == ludwig_mode_type::ludwig_screen)
                         screen_fixup();
                     screen_beep();
-                    str_object tmp_buffer(' ');
-                    tmp_buffer.copy_n(NO_OUTPUT_FILE_MSG.data(), NO_OUTPUT_FILE_MSG.size());
-                    switch (screen_verify(tmp_buffer, NO_OUTPUT_FILE_MSG.size())) {
+                    switch (screen_verify(NO_OUTPUT_FILE_MSG)) {
                     case verify_response::verify_reply_yes:
                         // Nothing to do here.
                         break;
