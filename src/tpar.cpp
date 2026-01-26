@@ -25,10 +25,10 @@
 #include "tpar.h"
 
 #include "ch.h"
+#include "screen.h"
+#include "span.h"
 #include "sys.h"
 #include "var.h"
-#include "span.h"
-#include "screen.h"
 
 #include <iomanip>
 #include <sstream>
@@ -38,29 +38,21 @@ const size_t ENQUIRY_NUM_LEN = 20;
 namespace {
     const std::string SYSTEM_NAME("C++/Linux");
 
-    enum class vartype {
-        unknown,
-        terminal,
-        frame,
-        opsys,
-        ludwig
-    };
+    enum class vartype { unknown, terminal, frame, opsys, ludwig };
 
-    template <class R>
-    std::string to_string(const parray<char, R> &a) {
+    template <class R> std::string to_string(const parray<char, R> &a) {
         return std::string(a.data(), a.length(' '));
     }
 
-    template <typename T>
-    std::string left_padded(std::streamsize width, const T &value) {
+    template <typename T> std::string left_padded(std::streamsize width, const T &value) {
         std::ostringstream oss;
         oss << std::setw(width) << std::setfill(' ') << value;
         return oss.str();
     }
-};
+}; // namespace
 
 void discard_tp(tpar_ptr tp) {
-    //with tp^ do
+    // with tp^ do
     if (tp->nxt != nullptr)
         discard_tp(tp->nxt);
     else if (tp->con != nullptr)
@@ -69,7 +61,7 @@ void discard_tp(tpar_ptr tp) {
 }
 
 void tpar_clean_object(tpar_object &tp_o) {
-    //with tp_o do
+    // with tp_o do
     if (tp_o.con != nullptr)
         discard_tp(tp_o.con);
     if (tp_o.nxt != nullptr)
@@ -116,7 +108,7 @@ void tpar_duplicate(const_tpar_ptr from_tp, tpar_ptr &to_tp) {
 }
 
 bool tpar_to_mark(const tpar_object &strng, int &mark) {
-    //with strng do
+    // with strng do
     if (strng.len == 0) {
         screen_message(MSG_ILLEGAL_MARK_NUMBER);
         return false;
@@ -144,7 +136,7 @@ bool tpar_to_mark(const tpar_object &strng, int &mark) {
 }
 
 bool tpar_to_int(const tpar_object &strng, int &chpos, int &int_) {
-    //with strng do
+    // with strng do
     char ch = (chpos > strng.len) ? '\0' : strng.str[chpos];
     if (ch < '0' || ch > '9') {
         screen_message(MSG_INVALID_INTEGER);
@@ -171,7 +163,7 @@ bool tpar_to_int(const tpar_object &strng, int &chpos, int &int_) {
 }
 
 bool tpar_substitute(tpar_object &tpar, user_commands cmd, tpcount_type this_tp) {
-    //with tpar do
+    // with tpar do
     if (tpar.con != nullptr) {
         screen_message(MSG_SPAN_NAMES_ARE_ONE_LINE);
         return false;
@@ -185,7 +177,7 @@ bool tpar_substitute(tpar_object &tpar, user_commands cmd, tpcount_type this_tp)
     if (span_find(name, span, dummy)) {
         tpar.dlm = '\0';
         mark_object start_mark = *(span->mark_one);
-        mark_object end_mark   = *(span->mark_two);
+        mark_object end_mark = *(span->mark_two);
         if (start_mark.line == end_mark.line) {
             tpar.len = end_mark.col - start_mark.col;
             int srclen;
@@ -195,14 +187,14 @@ bool tpar_substitute(tpar_object &tpar, user_commands cmd, tpcount_type this_tp)
                 srclen = end_mark.line->used - start_mark.col + 1;
             else
                 srclen = tpar.len;
-            //with start_mark do
+            // with start_mark do
             tpar.str.fillcopy(start_mark.line->str->data(start_mark.col), srclen, 1, tpar.len, ' ');
         } else if (!cmd_attrib[cmd.value()].tpar_info[this_tp].ml_allowed) {
             screen_message(MSG_SPAN_MUST_BE_ONE_LINE);
             return false;
         } else {
-            //copy entire span into a tpar
-            //with start_mark do
+            // copy entire span into a tpar
+            // with start_mark do
             if (start_mark.col > start_mark.line->used) // Thin air span
                 tpar.len = 0;
             else
@@ -218,7 +210,7 @@ bool tpar_substitute(tpar_object &tpar, user_commands cmd, tpcount_type this_tp)
                 else
                     tmp_tp->con = tmp_tp_2;
                 tmp_tp = tmp_tp_2;
-                //with tmp_tp^ do
+                // with tmp_tp^ do
                 tmp_tp->dlm = '\0';
                 tmp_tp->nxt = nullptr;
                 tmp_tp->con = nullptr;
@@ -226,8 +218,8 @@ bool tpar_substitute(tpar_object &tpar, user_commands cmd, tpcount_type this_tp)
                 tmp_tp->str.copy(*start_mark.line->str, 1, tmp_tp->len);
                 start_mark.line = start_mark.line->flink;
             }
-            //with end_mark do
-            // create new tpar
+            // with end_mark do
+            //  create new tpar
             tpar_ptr tmp_tp_2 = new tpar_object;
             if (tmp_tp == nullptr)
                 tpar.con = tmp_tp_2;
@@ -309,14 +301,26 @@ bool find_enquiry(const std::string &name, str_object &result, strlen_range &res
                     reslen = 0;
                 } else {
                     reslen = files[current_frame->input_file]->filename.size();
-                    result.fillcopy(files[current_frame->input_file]->filename.data(), reslen, 1, MAX_STRLEN, ' ');
+                    result.fillcopy(
+                        files[current_frame->input_file]->filename.data(),
+                        reslen,
+                        1,
+                        MAX_STRLEN,
+                        ' '
+                    );
                 }
             } else if (item == "OUTPUTFILE") {
                 if (current_frame->output_file == 0) {
                     reslen = 0;
                 } else {
                     reslen = files[current_frame->output_file]->filename.size();
-                    result.fillcopy(files[current_frame->output_file]->filename.data(), reslen, 1, MAX_STRLEN, ' ');
+                    result.fillcopy(
+                        files[current_frame->output_file]->filename.data(),
+                        reslen,
+                        1,
+                        MAX_STRLEN,
+                        ' '
+                    );
                 }
             } else if (item == "MODIFIED") {
                 reslen = 1;
@@ -326,21 +330,22 @@ bool find_enquiry(const std::string &name, str_object &result, strlen_range &res
                 else
                     result[1] = 'N';
             } else {
-              enquiry_result = false;
+                enquiry_result = false;
             }
             break;
 
-        case vartype::opsys: {
-            std::string env;
-            enquiry_result = sys_getenv(item, env);
-            if (enquiry_result) {
-                reslen = str_object::index_type::size();
-                if (env.size() < str_object::index_type::size())
-                    reslen = env.size();
-                result.fill(' ');
-                result.copy_n(env.data(), reslen);
+        case vartype::opsys:
+            {
+                std::string env;
+                enquiry_result = sys_getenv(item, env);
+                if (enquiry_result) {
+                    reslen = str_object::index_type::size();
+                    if (env.size() < str_object::index_type::size())
+                        reslen = env.size();
+                    result.fill(' ');
+                    result.copy_n(env.data(), reslen);
+                }
             }
-        }
             break;
 
         case vartype::ludwig:
@@ -362,19 +367,21 @@ bool find_enquiry(const std::string &name, str_object &result, strlen_range &res
             } else if (item == "INSERT_MODE") {
                 reslen = 1;
                 if ((edit_mode == mode_type::mode_insert) ||
-                    ((edit_mode == mode_type::mode_command) && (previous_mode == mode_type::mode_insert)))
+                    ((edit_mode == mode_type::mode_command) &&
+                     (previous_mode == mode_type::mode_insert)))
                     result[1] = 'Y';
                 else
                     result[1] = 'N';
             } else if (item == "OVERTYPE_MODE") {
                 reslen = 1;
                 if ((edit_mode == mode_type::mode_overtype) ||
-                    ((edit_mode == mode_type::mode_command) && (previous_mode == mode_type::mode_overtype)))
+                    ((edit_mode == mode_type::mode_command) &&
+                     (previous_mode == mode_type::mode_overtype)))
                     result[1] = 'Y';
                 else
                     result[1] = 'N';
             } else {
-              enquiry_result = false;
+                enquiry_result = false;
             }
             break;
 
@@ -387,7 +394,7 @@ bool find_enquiry(const std::string &name, str_object &result, strlen_range &res
 }
 
 bool tpar_enquire(tpar_object &tpar) {
-    //with tpar do
+    // with tpar do
     tpar.dlm = '\0';
     std::string name(tpar.str.data(), tpar.len);
     if (find_enquiry(name, tpar.str, tpar.len)) {
@@ -404,7 +411,7 @@ bool tpar_analyse(user_commands cmd, tpar_object &tran, int depth, tpcount_type 
         screen_message(MSG_TPAR_TOO_DEEP);
         return false;
     }
-    //with tran do
+    // with tran do
     if (tran.dlm != TPD_SMART && tran.dlm != TPD_EXACT && tran.dlm != TPD_LIT) {
         bool ended = false;
         do {
@@ -426,7 +433,7 @@ bool tpar_analyse(user_commands cmd, tpar_object &tran, int depth, tpcount_type 
             } else {
                 tpar_ptr tmp_tp = tran.con;
                 while (tmp_tp->con != nullptr)
-                  tmp_tp = tmp_tp->con;
+                    tmp_tp = tmp_tp->con;
                 if ((tran.len != 0) && (tmp_tp->len != 0)) {
                     char ts1 = tran.str[1];
                     if ((ts1 == tmp_tp->str[tmp_tp->len]) &&
@@ -459,34 +466,54 @@ bool tpar_analyse(user_commands cmd, tpar_object &tran, int depth, tpcount_type 
                     if (cmd.value() == commands::cmd_verify) {
                         verify_response verify_reply;
                         if (tran.len == 0) {
-                            //with cmd_attrib[cmd].tpar_info[this_tp] do
-                            const auto &prompt { dflt_prompts[cmd_attrib[cmd.value()].tpar_info[this_tp].prompt_name] };
+                            // with cmd_attrib[cmd].tpar_info[this_tp] do
+                            const auto &prompt{
+                                dflt_prompts[cmd_attrib[cmd.value()].tpar_info[this_tp].prompt_name]
+                            };
                             verify_reply = screen_verify(prompt);
                         } else {
                             // FIXME: messy cast
-                            const std::string_view prompt { tran.str.data(), static_cast<size_t>(tran.len) };
+                            const std::string_view prompt{
+                                tran.str.data(), static_cast<size_t>(tran.len)
+                            };
                             verify_reply = screen_verify(prompt);
                         }
                         switch (verify_reply) {
-                        case verify_response::verify_reply_yes   : tran.str[1] = 'Y'; break;
-                        case verify_response::verify_reply_no    : tran.str[1] = 'N'; break;
-                        case verify_response::verify_reply_always: tran.str[1] = 'A'; break;
-                        case verify_response::verify_reply_quit  : tran.str[1] = 'Q'; break;
+                        case verify_response::verify_reply_yes:
+                            tran.str[1] = 'Y';
+                            break;
+                        case verify_response::verify_reply_no:
+                            tran.str[1] = 'N';
+                            break;
+                        case verify_response::verify_reply_always:
+                            tran.str[1] = 'A';
+                            break;
+                        case verify_response::verify_reply_quit:
+                            tran.str[1] = 'Q';
+                            break;
                         }
                         tran.len = 1;
                     } else if (tran.len == 0) {
                         // change first str and len with cmd values
-                        //with cmd_attrib[cmd].tpar_info[this_tp] do
-                        const auto &prompt { dflt_prompts[cmd_attrib[cmd.value()].tpar_info[this_tp].prompt_name] };
-                        screen_getlinep(prompt, tran.str, tran.len, cmd_attrib[cmd.value()].tpcount, this_tp);
+                        // with cmd_attrib[cmd].tpar_info[this_tp] do
+                        const auto &prompt{
+                            dflt_prompts[cmd_attrib[cmd.value()].tpar_info[this_tp].prompt_name]
+                        };
+                        screen_getlinep(
+                            prompt, tran.str, tran.len, cmd_attrib[cmd.value()].tpcount, this_tp
+                        );
                     } else {
                         if (tran.con != nullptr) {
                             screen_message(MSG_PROMPTS_ARE_ONE_LINE);
                             return false;
                         } else {
                             // FIXME: messy cast
-                            const std::string_view prompt { tran.str.data(), static_cast<size_t>(tran.len) };
-                            screen_getlinep(prompt, tran.str, tran.len, cmd_attrib[cmd.value()].tpcount, this_tp);
+                            const std::string_view prompt{
+                                tran.str.data(), static_cast<size_t>(tran.len)
+                            };
+                            screen_getlinep(
+                                prompt, tran.str, tran.len, cmd_attrib[cmd.value()].tpcount, this_tp
+                            );
                         }
                     }
                     tran.dlm = '\0';
@@ -509,7 +536,7 @@ void trim(tpar_object &request) {
         do {
             i += 1;
         } while (request.str[i] == ' ' && i != request.len);
-        //with request do
+        // with request do
         request.len -= i - 1;
         if (request.len > 0) {
             request.str.erase(i - 1, 1);
@@ -549,18 +576,18 @@ bool tpar_get_2(const_tpar_ptr tpar, user_commands cmd, tpar_object &trn1, tpar_
     }
 #endif
 
-  tpar_duplicate_con(tpar, trn1);
-  tpar_duplicate_con(tpar->nxt, trn2);
+    tpar_duplicate_con(tpar, trn1);
+    tpar_duplicate_con(tpar->nxt, trn2);
 
-  if (!tpar_analyse(cmd, trn1, 1, 1))
-      return false;
-  if (trn1.len != 0) {
-      if (!tpar_analyse(cmd, trn2, 1, 2))
-          return false;
-  }
-  if (cmd_attrib[cmd.value()].tpar_info[1].trim_reply)
-      trim(trn1);
-  if (cmd_attrib[cmd.value()].tpar_info[2].trim_reply)
-      trim(trn2);
-  return true;
+    if (!tpar_analyse(cmd, trn1, 1, 1))
+        return false;
+    if (trn1.len != 0) {
+        if (!tpar_analyse(cmd, trn2, 1, 2))
+            return false;
+    }
+    if (cmd_attrib[cmd.value()].tpar_info[1].trim_reply)
+        trim(trn1);
+    if (cmd_attrib[cmd.value()].tpar_info[2].trim_reply)
+        trim(trn2);
+    return true;
 }

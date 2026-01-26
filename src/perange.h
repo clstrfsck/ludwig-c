@@ -7,7 +7,10 @@
 
 // FIXME: Could use some range checking, possibly optional.
 
-template <typename E, E min_ = static_cast<E>(0), E max_ = static_cast<E>(static_cast<int>(E::last_entry) - 1)>
+template <
+    typename E,
+    E min_ = static_cast<E>(0),
+    E max_ = static_cast<E>(static_cast<int>(E::last_entry) - 1)>
 class perange {
     static_assert(min_ < max_, "min must be strictly less than max");
 
@@ -36,15 +39,15 @@ public:
         return static_cast<int>(n) - static_cast<int>(min_);
     }
 
-    perange() : m_value{ min_ } {
+    perange() : m_value{min_} {
         // Nothing
     }
 
-    perange(E value) : m_value{ check_range(value) } {
+    perange(E value) : m_value{check_range(value)} {
         // Nothing
     }
 
-    perange(const perange &other) : m_value{ other.m_value } {
+    perange(const perange &other) : m_value{other.m_value} {
         // Nothing
     }
 

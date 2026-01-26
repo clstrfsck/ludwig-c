@@ -12,6 +12,12 @@ AccessModifierOffset: -4
 # Wrapping & Alignment Settings
 ColumnLimit: 100
 
+# Indent case statements
+IndentCaseBlocks: true
+
+# Format to put break statements on a new line
+AllowShortCaseLabelsOnASingleLine: false
+
 # BlockIndent puts the closing ')' on a new line and aligns args.
 AlignAfterOpenBracket: BlockIndent
 

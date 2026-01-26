@@ -25,11 +25,11 @@
 #include "caseditto.h"
 
 #include "ch.h"
+#include "mark.h"
+#include "screen.h"
+#include "text.h"
 #include "var.h"
 #include "vdu.h"
-#include "mark.h"
-#include "text.h"
-#include "screen.h"
 
 #include <unordered_set>
 
@@ -52,33 +52,47 @@ bool key_is_lower(key_code_range key) {
 
 bool caseditto_command(commands command, leadparam rept, int count, bool from_span) {
     bool cmd_status = false;
-    bool insert = (command == commands::cmd_ditto_up || command == commands::cmd_ditto_down) &&
+    bool insert =
+        (command == commands::cmd_ditto_up || command == commands::cmd_ditto_down) &&
         ((edit_mode == mode_type::mode_insert) ||
          ((edit_mode == mode_type::mode_command) && (previous_mode == mode_type::mode_insert)));
-    //with current_frame^,dot^ do
-    // Remember current line.
+    // with current_frame^,dot^ do
+    //  Remember current line.
     col_range old_dot_col = current_frame->dot->col;
 
     str_object old_str;
-    ch_fillcopy(current_frame->dot->line->str, 1, current_frame->dot->line->used, &old_str, 1, MAX_STRLEN, ' ');
+    ch_fillcopy(
+        current_frame->dot->line->str,
+        1,
+        current_frame->dot->line->used,
+        &old_str,
+        1,
+        MAX_STRLEN,
+        ' '
+    );
     penumset<commands> command_set;
     line_ptr other_line;
     switch (command) {
     case commands::cmd_case_up:
     case commands::cmd_case_low:
-    case commands::cmd_case_edit: {
-        command_set.add({commands::cmd_case_up, commands::cmd_case_low, commands::cmd_case_edit});
-        other_line = current_frame->dot->line;
-    }
+    case commands::cmd_case_edit:
+        {
+            command_set.add(
+                {commands::cmd_case_up, commands::cmd_case_low, commands::cmd_case_edit}
+            );
+            other_line = current_frame->dot->line;
+        }
         break;
     case commands::cmd_ditto_up:
-    case commands::cmd_ditto_down: {
-        if (insert && (rept == leadparam::minus || rept == leadparam::nint || rept == leadparam::nindef)) {
-            screen_message(MSG_NOT_ALLOWED_IN_INSERT_MODE);
-            return false;
+    case commands::cmd_ditto_down:
+        {
+            if (insert && (rept == leadparam::minus || rept == leadparam::nint ||
+                           rept == leadparam::nindef)) {
+                screen_message(MSG_NOT_ALLOWED_IN_INSERT_MODE);
+                return false;
+            }
+            command_set.add({commands::cmd_ditto_up, commands::cmd_ditto_down});
         }
-        command_set.add({commands::cmd_ditto_up, commands::cmd_ditto_down});
-    }
         break;
     default:
         // Ignored - probably should be an error
@@ -90,45 +104,49 @@ bool caseditto_command(commands command, leadparam rept, int count, bool from_sp
     key_code_range key;
     do {
         if (command == commands::cmd_ditto_up)
-            other_line  = current_frame->dot->line->blink;
+            other_line = current_frame->dot->line->blink;
         else if (command == commands::cmd_ditto_down)
-            other_line  = current_frame->dot->line->flink;
+            other_line = current_frame->dot->line->flink;
         bool cmd_valid = true;
         if (other_line != nullptr) {
-            //with other_line^ do
+            // with other_line^ do
             switch (rept) {
             case leadparam::none:
             case leadparam::plus:
-            case leadparam::pint: {
-                if ((count != 0) && (current_frame->dot->col + count > other_line->used + 1))
-                    cmd_valid = false;
-                first_col = current_frame->dot->col;
-                new_col   = current_frame->dot->col + count;
-            }
+            case leadparam::pint:
+                {
+                    if ((count != 0) && (current_frame->dot->col + count > other_line->used + 1))
+                        cmd_valid = false;
+                    first_col = current_frame->dot->col;
+                    new_col = current_frame->dot->col + count;
+                }
                 break;
-            case leadparam::pindef: {
-                count     = other_line->used + 1 - current_frame->dot->col;
-                if (count < 0)
-                    cmd_valid = false;
-                first_col = current_frame->dot->col;
-                new_col   = other_line->used + 1;
-            }
+            case leadparam::pindef:
+                {
+                    count = other_line->used + 1 - current_frame->dot->col;
+                    if (count < 0)
+                        cmd_valid = false;
+                    first_col = current_frame->dot->col;
+                    new_col = other_line->used + 1;
+                }
                 break;
             case leadparam::minus:
-            case leadparam::nint: {
-                count     = -count;
-                if (count >= current_frame->dot->col)
-                    cmd_valid = false;
-                else
-                    first_col = current_frame->dot->col - count;
-                new_col   = first_col;
-            }
+            case leadparam::nint:
+                {
+                    count = -count;
+                    if (count >= current_frame->dot->col)
+                        cmd_valid = false;
+                    else
+                        first_col = current_frame->dot->col - count;
+                    new_col = first_col;
+                }
                 break;
-            case leadparam::nindef: {
-                count     = current_frame->dot->col - 1;
-                first_col = 1;
-                new_col   = 1;
-            }
+            case leadparam::nindef:
+                {
+                    count = current_frame->dot->col - 1;
+                    first_col = 1;
+                    new_col = 1;
+                }
                 break;
             default:
                 // Ignore others
@@ -140,7 +158,7 @@ bool caseditto_command(commands command, leadparam rept, int count, bool from_sp
 
         // Carry out the command.
         if (cmd_valid) {
-            //with other_line^ do
+            // with other_line^ do
             int i = other_line->used + 1 - first_col;
             str_object new_str;
             if (i <= 0)
@@ -154,20 +172,21 @@ bool caseditto_command(commands command, leadparam rept, int count, bool from_sp
             case commands::cmd_case_low:
                 new_str.apply_n(char_tolower, count);
                 break;
-            case commands::cmd_case_edit: {
-                char ch;
-                if ((1 < first_col) && (first_col <= other_line->used))
-                    ch = (*other_line->str)[first_col - 1];
-                else
-                    ch = ' ';
-                for (int j = 1; j <= count; ++j) {
-                    if (LETTERS.find(ch) != LETTERS.end())
-                        ch = std::tolower(new_str[j]);
+            case commands::cmd_case_edit:
+                {
+                    char ch;
+                    if ((1 < first_col) && (first_col <= other_line->used))
+                        ch = (*other_line->str)[first_col - 1];
                     else
-                        ch = std::toupper(new_str[j]);
-                    new_str[j] = ch;
+                        ch = ' ';
+                    for (int j = 1; j <= count; ++j) {
+                        if (LETTERS.find(ch) != LETTERS.end())
+                            ch = std::tolower(new_str[j]);
+                        else
+                            ch = std::toupper(new_str[j]);
+                        new_str[j] = ch;
+                    }
                 }
-            }
                 break;
             case commands::cmd_ditto_up:
             case commands::cmd_ditto_down:
@@ -234,7 +253,7 @@ bool caseditto_command(commands command, leadparam rept, int count, bool from_sp
     } while (command_set.contains(command));
     vdu_take_back_key(key);
 
- l9:;
+l9:;
     if (tt_controlc) {
         cmd_status = false;
         current_frame->dot->col = 1;
@@ -242,7 +261,9 @@ bool caseditto_command(commands command, leadparam rept, int count, bool from_sp
         current_frame->dot->col = old_dot_col;
     } else if (cmd_status) {
         current_frame->text_modified = true;
-        mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_MODIFIED]);
+        mark_create(
+            current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_MODIFIED]
+        );
         mark_create(current_frame->dot->line, old_dot_col, current_frame->marks[MARK_EQUALS]);
     }
     return cmd_status || !from_span;

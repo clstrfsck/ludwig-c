@@ -24,12 +24,12 @@
 
 #include "span.h"
 
-#include "var.h"
 #include "code.h"
 #include "fyle.h"
 #include "line.h"
 #include "mark.h"
 #include "screen.h"
+#include "var.h"
 
 bool span_find(const std::string_view &span_name, span_ptr &ptr, span_ptr &oldp) {
     /****************************************************************************
@@ -43,21 +43,21 @@ bool span_find(const std::string_view &span_name, span_ptr &ptr, span_ptr &oldp)
      ****************************************************************************/
 
     oldp = nullptr;
-    ptr  = first_span;
+    ptr = first_span;
     if (ptr == nullptr)
         return false;
     while (ptr->name < span_name) {
         oldp = ptr;
-        ptr  = ptr->flink;
+        ptr = ptr->flink;
         if (ptr == nullptr)
             return false;
     }
-    //with ptr^ do
+    // with ptr^ do
     if (ptr->name == span_name) {
         if (ptr->frame != nullptr) {
-            //with frame^ do
+            // with frame^ do
             if (!mark_create(ptr->frame->first_group->first_line, 1, ptr->mark_one) ||
-                !mark_create(ptr->frame->last_group ->last_line,  1, ptr->mark_two))
+                !mark_create(ptr->frame->last_group->last_line, 1, ptr->mark_two))
                 return false;
         }
         return true;
@@ -86,7 +86,7 @@ bool span_create(const std::string_view &span_name, mark_ptr first_mark, mark_pt
             return false;
         }
         ptr = p;
-        //with ptr^ do
+        // with ptr^ do
         if (ptr->code != nullptr)
             code_discard(ptr->code);
         mrk1 = ptr->mark_one;
@@ -95,7 +95,7 @@ bool span_create(const std::string_view &span_name, mark_ptr first_mark, mark_pt
         mrk1 = nullptr;
         mrk2 = nullptr;
         ptr = new span_object;
-        //with ptr^ do
+        // with ptr^ do
         ptr->name = span_name;
         ptr->code = nullptr;
         // Now hook the span into the span structure
@@ -113,17 +113,17 @@ bool span_create(const std::string_view &span_name, mark_ptr first_mark, mark_pt
             oldp->flink = ptr;
         }
     }
-    //with first_mark^ do
+    // with first_mark^ do
     if (!mark_create(first_mark->line, first_mark->col, mrk1))
         return false;
-    //with last_mark^
+    // with last_mark^
     if (!mark_create(last_mark->line, last_mark->col, mrk2))
         return false;
     line_range line_nr_first;
     line_range line_nr_last;
     if (line_to_number(mrk1->line, line_nr_first) && line_to_number(mrk2->line, line_nr_last)) {
-        //with ptr^ do
-        ptr->frame    = nullptr;
+        // with ptr^ do
+        ptr->frame = nullptr;
         if ((line_nr_first < line_nr_last) ||
             ((line_nr_first == line_nr_last) && (mrk1->col < mrk2->col))) {
             // Marks are in the right order
@@ -147,7 +147,7 @@ bool span_destroy(span_ptr &span) {
      * Purpose : Destroys the specified span.                                   *
      * Errors  : Fails if span is not destroyed.                                *
      ****************************************************************************/
-    //with span^ do
+    // with span^ do
     if (span->frame != nullptr) {
         screen_message(MSG_CANT_KILL_FRAME);
         return false;
@@ -204,7 +204,7 @@ bool span_index() {
             }
             screen_write_name_str(0, p->name, NAME_LEN);
             screen_write_str(0, " : ", 3);
-            //with p^,mark_one^,line^ do
+            // with p^,mark_one^,line^ do
             std::string span_start;
             bool continu = p->mark_one->line != p->mark_two->line;
             if (p->mark_one->col <= p->mark_one->line->used) {
@@ -213,7 +213,8 @@ bool span_index() {
                     size_t to_copy = std::min(NAME_LEN, p->mark_two->col - p->mark_one->col);
                     span_start.assign(p->mark_one->line->str->data(p->mark_one->col), to_copy);
                 } else {
-                    size_t to_copy = std::min(NAME_LEN, p->mark_one->line->used + 1 - p->mark_one->col);
+                    size_t to_copy =
+                        std::min(NAME_LEN, p->mark_one->line->used + 1 - p->mark_one->col);
                     span_start.assign(p->mark_one->line->str->data(p->mark_one->col), to_copy);
                 }
             }
@@ -231,8 +232,8 @@ bool span_index() {
         line_count += 1;
     }
     bool first_time = true;
-    int  old_count  = line_count;
-    p          = first_span;
+    int old_count = line_count;
+    p = first_span;
     line_count = terminal_info.height;
     while (p != nullptr) {
         if (p->frame != nullptr) {
@@ -256,7 +257,7 @@ bool span_index() {
             screen_write_name_str(0, p->name, NAME_LEN);
             screen_writeln();
             line_count += 1;
-            //with p->frame^ do
+            // with p->frame^ do
             file_name_str fyl_nam;
             if (p->frame->input_file != 0) {
                 screen_write_str(0, "  Input:  ", 10);

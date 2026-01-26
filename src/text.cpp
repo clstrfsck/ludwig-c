@@ -24,15 +24,15 @@
 
 #include "text.h"
 
-#include "var.h"
-#include "vdu.h"
 #include "line.h"
 #include "mark.h"
 #include "screen.h"
+#include "var.h"
+#include "vdu.h"
 
 col_range text_return_col(line_ptr cur_line, col_range cur_col, bool splitting) {
     // Calculate which col to place dot on.
-    //with cur_line->group->frame^ do
+    // with cur_line->group->frame^ do
     line_ptr new_line = cur_line;
     col_range new_col;
     if (cur_col >= cur_line->group->frame->margin_left)
@@ -41,14 +41,14 @@ col_range text_return_col(line_ptr cur_line, col_range cur_col, bool splitting) 
         new_col = 1;
     if (cur_line->group->frame->options.contains(frame_options_elts::opt_auto_indent) &&
         (new_line->flink != nullptr)) {
-        //with new_line^ do
+        // with new_line^ do
         const_str_ptr str_1 = new_line->str;  // Aim at this line.
         strlen_range used_1 = new_line->used; // Length of this line.
         const_str_ptr str_2 = new_line->str;  // Aim at next iff next is not null line.
         strlen_range used_2 = new_line->used; // Len of next iff next is not null line.
-        //with flink^ do
+        // with flink^ do
         if ((new_line->flink->flink != nullptr) && !splitting) {
-            str_2  = new_line->flink->str;
+            str_2 = new_line->flink->str;
             used_2 = new_line->flink->used;
         }
         while (true) {
@@ -74,11 +74,13 @@ bool text_realize_null(line_ptr old_null) {
     if (lines_create(1, new_null, new_null)) {
         if (lines_inject(new_null, new_null, old_null)) {
             if (marks_shift(old_null, 1, MAX_STRLENP, new_null, 1)) {
-                //with new_null->group->frame^ do
+                // with new_null->group->frame^ do
                 new_null->group->frame->text_modified = true;
-                if (mark_create(new_null->group->frame->dot->line,
-                                new_null->group->frame->dot->col,
-                                new_null->group->frame->marks[MARK_MODIFIED]))
+                if (mark_create(
+                        new_null->group->frame->dot->line,
+                        new_null->group->frame->dot->col,
+                        new_null->group->frame->marks[MARK_MODIFIED]
+                    ))
                     return true;
             }
         }
@@ -86,7 +88,9 @@ bool text_realize_null(line_ptr old_null) {
     return false;
 }
 
-bool text_insert(bool update_screen, int count, const str_object &buf, strlen_range buf_len, mark_ptr dst) {
+bool text_insert(
+    bool update_screen, int count, const str_object &buf, strlen_range buf_len, mark_ptr dst
+) {
 #ifdef DEBUG
     if (count < 0) {
         screen_message(DBG_REPEAT_NEGATIVE);
@@ -95,12 +99,12 @@ bool text_insert(bool update_screen, int count, const str_object &buf, strlen_ra
 #endif
     int insert_len = count * buf_len;
     if (insert_len > 0) {
-        //with dst^ do
+        // with dst^ do
         line_ptr dst_line = dst->line;
         col_range dst_col = dst->col;
-        //with dst_line^ do
+        // with dst_line^ do
         int final_len = dst_col - 1 + insert_len;
-        int tail_len  = dst_line->used + 1 - dst_col;
+        int tail_len = dst_line->used + 1 - dst_col;
         if (tail_len <= 0)
             tail_len = 0;
         else
@@ -112,14 +116,13 @@ bool text_insert(bool update_screen, int count, const str_object &buf, strlen_ra
                 return false;
             dst_line = dst_line->blink;
         }
-        //with dst_line^ do
+        // with dst_line^ do
         if (final_len > dst_line->len) {
             if (!line_change_length(dst_line, final_len)) {
                 return false;
             }
         }
-        if (!marks_shift(dst_line, dst_col, MAX_STRLENP - dst_col,
-                         dst_line, dst_col + insert_len))
+        if (!marks_shift(dst_line, dst_col, MAX_STRLENP - dst_col, dst_line, dst_col + insert_len))
             return false;
         if (tail_len > 0) { // to avoid subscript error when dst_col=400
             dst_line->str->insert(insert_len, dst_col);
@@ -138,8 +141,8 @@ bool text_insert(bool update_screen, int count, const str_object &buf, strlen_ra
 
         // Update screen if necessary, and it is affected. }
         if (update_screen && dst_line->scr_row_nr != 0) {
-            //with (dst_line->)group->frame^ do
-            // Update the VDU.
+            // with (dst_line->)group->frame^ do
+            //  Update the VDU.
             int scr_col = dst_col - dst_line->group->frame->scr_offset;
             if (scr_col <= dst_line->group->frame->scr_width) {
                 if (scr_col <= 0)
@@ -149,15 +152,17 @@ bool text_insert(bool update_screen, int count, const str_object &buf, strlen_ra
                 int last_col_redraw;
                 if (first_col_redraw <= dst_line->group->frame->scr_offset)
                     first_col_redraw = dst_line->group->frame->scr_offset + 1;
-                if  ((scr_col + insert_len <= dst_line->group->frame->scr_width) &&
-                     (scr_col + dst_line->group->frame->scr_offset <= dst_line->used)) {
+                if ((scr_col + insert_len <= dst_line->group->frame->scr_width) &&
+                    (scr_col + dst_line->group->frame->scr_offset <= dst_line->used)) {
                     vdu_insertchars(insert_len);
-                    last_col_redraw  = first_col_redraw + insert_len - 1;
+                    last_col_redraw = first_col_redraw + insert_len - 1;
                 } else {
                     last_col_redraw = dst_line->used;
                 }
-                if (last_col_redraw > dst_line->group->frame->scr_width + dst_line->group->frame->scr_offset)
-                    last_col_redraw = dst_line->group->frame->scr_width + dst_line->group->frame->scr_offset;
+                if (last_col_redraw >
+                    dst_line->group->frame->scr_width + dst_line->group->frame->scr_offset)
+                    last_col_redraw =
+                        dst_line->group->frame->scr_width + dst_line->group->frame->scr_offset;
                 int len_redraw = last_col_redraw - first_col_redraw + 1;
                 if (len_redraw > 0)
                     vdu_displaystr(len_redraw, dst_line->str->data(first_col_redraw), 0);
@@ -167,7 +172,9 @@ bool text_insert(bool update_screen, int count, const str_object &buf, strlen_ra
     return true;
 }
 
-bool text_overtype(bool update_screen, int count, const str_object &buf, strlen_range buf_len, mark_ptr &dst) {
+bool text_overtype(
+    bool update_screen, int count, const str_object &buf, strlen_range buf_len, mark_ptr &dst
+) {
     /*
       ! Inputs:
       !   update_screen     Do/Do not update screen. (The screen may already
@@ -190,9 +197,9 @@ bool text_overtype(bool update_screen, int count, const str_object &buf, strlen_
 #endif
     int overtype_len = count * buf_len;
     if (overtype_len > 0) {
-        //with dst^ do
+        // with dst^ do
         line_ptr dst_line = dst->line;
-        //with dst_line^ do
+        // with dst_line^ do
         int final_len = dst->col + overtype_len - 1;
         if (final_len > MAX_STRLEN)
             return false;
@@ -201,7 +208,7 @@ bool text_overtype(bool update_screen, int count, const str_object &buf, strlen_
                 return false;
             dst_line = dst_line->blink;
         }
-        //with dst_line^ do
+        // with dst_line^ do
         if (final_len > dst_line->len) {
             if (!line_change_length(dst_line, final_len))
                 return false;
@@ -218,21 +225,27 @@ bool text_overtype(bool update_screen, int count, const str_object &buf, strlen_
 
         // Update screen if necessary, and it is affected.
         if (update_screen && dst_line->scr_row_nr != 0) {
-            //with (dst_line->)group->frame^ do
-            // Aim first... at the first screen character changed.
-            // Aim last... at PAST the last screen character changed.
+            // with (dst_line->)group->frame^ do
+            //  Aim first... at the first screen character changed.
+            //  Aim last... at PAST the last screen character changed.
             int first_col_on_scr = dst->col;
             if (first_col_on_scr <= dst_line->group->frame->scr_offset)
                 first_col_on_scr = dst_line->group->frame->scr_offset + 1;
-            int last_col_on_scr  = new_col;
-            if (last_col_on_scr > dst_line->group->frame->scr_width + dst_line->group->frame->scr_offset)
-                last_col_on_scr = dst_line->group->frame->scr_width + dst_line->group->frame->scr_offset + 1;
+            int last_col_on_scr = new_col;
+            if (last_col_on_scr >
+                dst_line->group->frame->scr_width + dst_line->group->frame->scr_offset)
+                last_col_on_scr =
+                    dst_line->group->frame->scr_width + dst_line->group->frame->scr_offset + 1;
 
             // Update the VDU.
             int len_on_scr = last_col_on_scr - first_col_on_scr;
             if (len_on_scr > 0) {
-                vdu_movecurs(first_col_on_scr - dst_line->group->frame->scr_offset, dst_line->scr_row_nr);
-                vdu_displaystr(len_on_scr, dst_line->str->data(first_col_on_scr), 0 /*no-cleareol,no-anycurs*/);
+                vdu_movecurs(
+                    first_col_on_scr - dst_line->group->frame->scr_offset, dst_line->scr_row_nr
+                );
+                vdu_displaystr(
+                    len_on_scr, dst_line->str->data(first_col_on_scr), 0 /*no-cleareol,no-anycurs*/
+                );
             }
         }
 
@@ -257,7 +270,7 @@ bool text_insert_tpar(tpar_object tp, mark_ptr before_mark, mark_ptr &equals_mar
     line_ptr last_line;
     bool discard = false;
     // check for the simple case
-    //with before_mark^ do
+    // with before_mark^ do
     if (tp.con == nullptr) {
         if (!text_insert(true, 1, tp.str, tp.len, before_mark)) {
             screen_message(MSG_NO_ROOM_ON_LINE);
@@ -290,7 +303,7 @@ bool text_insert_tpar(tpar_object tp, mark_ptr before_mark, mark_ptr &equals_mar
             goto l99;
         if (!text_insert(true, 1, tp.str, tp.len, equals_mark))
             goto l99;
-        //with equals_mark^ do
+        // with equals_mark^ do
         equals_mark->col -= tp.len;
         tmp_tp = tp.con;
         line_ptr tmp_line = first_line;
@@ -307,19 +320,19 @@ bool text_insert_tpar(tpar_object tp, mark_ptr before_mark, mark_ptr &equals_mar
                 goto l99;
         }
         discard = false;
-        //with tmp_tp^ do
+        // with tmp_tp^ do
         if (!text_insert(true, 1, tmp_tp->str, tmp_tp->len, before_mark))
             return false; // Safe again now
     }
     result = true;
- l99:;
+l99:;
     if (discard)
         lines_destroy(first_line, last_line);
     return result;
 }
 
 bool text_intra_remove(mark_ptr mark_one, strlen_range size) {
-    //with mark_one^ do
+    // with mark_one^ do
     line_ptr ln = mark_one->line;
     col_range col_one = mark_one->col;
     col_range col_two = col_one + size;
@@ -329,7 +342,7 @@ bool text_intra_remove(mark_ptr mark_one, strlen_range size) {
         return false;
     if (size == 0)
         return true;
-    //with ln^ do
+    // with ln^ do
     strlen_range old_used = ln->used;
     if (col_one > old_used)
         return true;
@@ -343,7 +356,7 @@ bool text_intra_remove(mark_ptr mark_one, strlen_range size) {
     // Now update screen if necessary.
     if (ln->scr_row_nr == 0)
         return true;
-    //with group->frame^ do
+    // with group->frame^ do
     int offset_p_width = ln->group->frame->scr_offset + ln->group->frame->scr_width;
     if (col_one > offset_p_width)
         return true;
@@ -353,7 +366,8 @@ bool text_intra_remove(mark_ptr mark_one, strlen_range size) {
         first_col_on_scr = ln->group->frame->scr_offset + 1;
 
     // If possible, drag any characters on screen to final place.
-    if ((first_col_on_scr + distance <= offset_p_width) && (first_col_on_scr + distance <= old_used)) {
+    if ((first_col_on_scr + distance <= offset_p_width) &&
+        (first_col_on_scr + distance <= old_used)) {
         vdu_movecurs(first_col_on_scr - ln->group->frame->scr_offset, ln->scr_row_nr);
         vdu_deletechars(distance);
         first_col_on_scr = offset_p_width + 1 - distance;
@@ -371,7 +385,9 @@ bool text_intra_remove(mark_ptr mark_one, strlen_range size) {
     if (buf_len <= 0)
         vdu_cleareol();
     else
-        vdu_displaystr(buf_len, ln->str->data(first_col_on_scr), 3 /*cleareol,leave cursor anywhere*/);
+        vdu_displaystr(
+            buf_len, ln->str->data(first_col_on_scr), 3 /*cleareol,leave cursor anywhere*/
+        );
     return true;
 }
 
@@ -389,7 +405,7 @@ bool text_inter_remove(mark_ptr mark_one, mark_ptr mark_two) {
     col_range col_one;
 
     if ((mark_two->line->flink == nullptr) && (mark_one->col != 1)) {
-        //with mark_one^ do
+        // with mark_one^ do
         line_one = mark_one->line;
         col_one = mark_one->col;
         extr_one = line_one->flink;
@@ -398,7 +414,9 @@ bool text_inter_remove(mark_ptr mark_one, mark_ptr mark_two) {
             goto l99;
         if (!marks_squeeze(line_one, col_one, mark_two->line, mark_two->col))
             goto l99;
-        if (!marks_shift(mark_two->line, mark_two->col, MAX_STRLENP + 1 - mark_two->col, line_one, col_one))
+        if (!marks_shift(
+                mark_two->line, mark_two->col, MAX_STRLENP + 1 - mark_two->col, line_one, col_one
+            ))
             goto l99;
         if (extr_one == extr_two)
             goto l88;               // Okay but No lines to extract.
@@ -407,7 +425,7 @@ bool text_inter_remove(mark_ptr mark_one, mark_ptr mark_two) {
     }
 
     // Bring the start of line_one down to replace the start of line_two.
-    //with mark_one^,line^ do
+    // with mark_one^,line^ do
     text_len = mark_one->line->used;
     if (mark_one->col <= text_len)
         text_len = mark_one->col - 1;
@@ -432,10 +450,10 @@ bool text_inter_remove(mark_ptr mark_one, mark_ptr mark_two) {
         if (!text_overtype(true, 1, strng, text_len, mark_start))
             goto l99;
     }
-    //with mark_one^ do
+    // with mark_one^ do
     col_one = mark_one->col;
     extr_one = mark_one->line;
-    //with mark_two^ do
+    // with mark_two^ do
     extr_two = mark_two->line->blink;
     if (!marks_squeeze(extr_one, col_one, mark_two->line, mark_two->col))
         goto l99;
@@ -456,7 +474,6 @@ l99:;
     return result;
 }
 
-
 bool text_remove(mark_ptr mark_one, mark_ptr mark_two) {
 #ifdef DEBUG
     line_range line_one_nr;
@@ -465,7 +482,8 @@ bool text_remove(mark_ptr mark_one, mark_ptr mark_two) {
     line_range line_two_nr;
     if (!line_to_number(mark_two->line, line_two_nr))
         return false;
-    if ((mark_one->line->group->frame != mark_two->line->group->frame) || (line_one_nr > line_two_nr)) {
+    if ((mark_one->line->group->frame != mark_two->line->group->frame) ||
+        (line_one_nr > line_two_nr)) {
         screen_message(DBG_INTERNAL_LOGIC_ERROR);
         return false;
     }
@@ -476,7 +494,15 @@ bool text_remove(mark_ptr mark_one, mark_ptr mark_two) {
         return text_inter_remove(mark_one, mark_two);
 }
 
-bool text_intra_move(bool copy, int count, mark_ptr mark_one, const_mark_ptr mark_two, mark_ptr dst, mark_ptr &new_start, mark_ptr &new_end) {
+bool text_intra_move(
+    bool copy,
+    int count,
+    mark_ptr mark_one,
+    const_mark_ptr mark_two,
+    mark_ptr dst,
+    mark_ptr &new_start,
+    mark_ptr &new_end
+) {
     // ASSUMES COUNT >= 1, MARKS ON SAME LINE,  MARK_ONE AT OR BEFORE _TWO.
     col_range col_one = mark_one->col;
     col_range col_two = mark_two->col;
@@ -487,7 +513,7 @@ bool text_intra_move(bool copy, int count, mark_ptr mark_one, const_mark_ptr mar
     if (full_len != 0) {
         if (full_len * count > MAX_STRLEN)
             return false;
-        //with mark_one->line^ do
+        // with mark_one->line^ do
         strlen_range text_len = full_len;
         if (col_one > mark_one->line->used)
             text_len = 0;
@@ -505,11 +531,11 @@ bool text_intra_move(bool copy, int count, mark_ptr mark_one, const_mark_ptr mar
         }
     }
     if (!copy) {
-        //with dst^ do
-        // Predict dst->col & dst->line->used after the
-        // removal of the span.
-        //with line^ do
-        col_range dst_col  = dst->col;  // They will be the current values, unless ...
+        // with dst^ do
+        //  Predict dst->col & dst->line->used after the
+        //  removal of the span.
+        // with line^ do
+        col_range dst_col = dst->col; // They will be the current values, unless ...
         strlen_range dst_used = dst->line->used;
         if (mark_one->line == dst->line) {
             if (dst_col > col_two)
@@ -519,7 +545,7 @@ bool text_intra_move(bool copy, int count, mark_ptr mark_one, const_mark_ptr mar
             if (dst_used > col_two)
                 dst_used -= col_two - col_one;
             else
-                dst_used = col_one - 1;    // This is a good enough guess.
+                dst_used = col_one - 1; // This is a good enough guess.
         }
         strlen_range tail_len = 0;
         if (dst_col <= dst_used)
@@ -535,16 +561,24 @@ bool text_intra_move(bool copy, int count, mark_ptr mark_one, const_mark_ptr mar
         if (!text_insert(true, 1, text_str, full_len, dst))
             return false;
     }
-    //with dst^ do
+    // with dst^ do
     col_range dst_col = dst->col;
     if (!mark_create(dst->line, dst_col - full_len, new_start))
         return false;
-    if (!mark_create(dst->line, dst_col,            new_end  ))
+    if (!mark_create(dst->line, dst_col, new_end))
         return false;
     return true;
 }
 
-bool text_inter_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two, mark_ptr dst, mark_ptr &new_start, mark_ptr &new_end) {
+bool text_inter_move(
+    bool copy,
+    int count,
+    mark_ptr mark_one,
+    mark_ptr mark_two,
+    mark_ptr dst,
+    mark_ptr &new_start,
+    mark_ptr &new_end
+) {
     // ASSUMES COUNT >= 1, MARK_ONE->LINE BEFORE MARK_TWO->LINE
     line_ptr last_line;
     line_ptr next_src_line;
@@ -566,10 +600,10 @@ bool text_inter_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two,
 
     bool result = false;
     line_ptr first_line = nullptr;
-    //with mark_one^ do
+    // with mark_one^ do
     line_ptr line_one = mark_one->line;
     col_range col_one = mark_one->col;
-    //with mark_two^ do
+    // with mark_two^ do
     line_ptr line_two = mark_two->line;
     col_range col_two = mark_two->col;
     if (!line_to_number(line_one, line_one_nr))
@@ -581,8 +615,8 @@ bool text_inter_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two,
 
     // Predict dst->col & dst->line->used just before
     // the insertion of the span.
-    //with dst^ do
-    dst_col  = dst->col;
+    // with dst^ do
+    dst_col = dst->col;
     dst_used = dst->line->used;
     if (!copy && dst->line->group->frame == line_one->group->frame) {
         if (!line_to_number(dst->line, line_dst_nr))
@@ -596,15 +630,17 @@ bool text_inter_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two,
                 dst_col = col_one;
             }
             temp_len = 0;
-            //with line_two^ do
+            // with line_two^ do
             if (col_two <= line_two->used)
                 temp_len = line_two->used + 1 - col_two;
             dst_used = col_one - 1 + temp_len;
         }
     }
-    if ((col_two <= line_two->used) && (col_one /*-1*/ + line_two->used /*+1*/ - col_two > MAX_STRLENP))
+    if ((col_two <= line_two->used) &&
+        (col_one /*-1*/ + line_two->used /*+1*/ - col_two > MAX_STRLENP))
         goto l99;
-    if ((col_one <= line_one->used) && (dst_col /*-1*/ + line_one->used /*+1*/ - col_one > MAX_STRLENP))
+    if ((col_one <= line_one->used) &&
+        (dst_col /*-1*/ + line_one->used /*+1*/ - col_one > MAX_STRLENP))
         goto l99;
     if ((dst_col <= dst_used) && (col_two /*-1*/ + dst_used /*+1*/ - dst_col > MAX_STRLEN))
         goto l99;
@@ -622,7 +658,7 @@ bool text_inter_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two,
         goto l99;
 
     // Copy end of first line of area, TEXT_LEN and TEXT_STR keep result.
-    //with line_one^ do
+    // with line_one^ do
     text_len = 0;
     if (col_one <= line_one->used) {
         text_len = line_one->used + 1 - col_one;
@@ -636,11 +672,11 @@ bool text_inter_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two,
         if (tt_controlc) // ABORT
             goto l99;    // Note: Can't harm ST as count = 1 in that case
         next_src_line = line_one->flink;
-        if (i == 0) {                 // Last time round the loop, nick
-                                      // the original INTERIOR lines.
+        if (i == 0) { // Last time round the loop, nick
+                      // the original INTERIOR lines.
             if (!copy && (line_two_nr - line_one_nr > 1)) {
                 first_nicked = line_one->flink;
-                last_nicked  = line_two->blink;
+                last_nicked = line_two->blink;
                 if (!marks_squeeze(first_nicked, 1, last_nicked->flink, 1))
                     goto l99;
                 if (!lines_extract(first_nicked, last_nicked))
@@ -651,8 +687,8 @@ bool text_inter_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two,
                     goto l99;
                 }
 #endif
-                last_nicked->flink   = next_dst_line;
-                first_nicked->blink  = next_dst_line->blink;
+                last_nicked->flink = next_dst_line;
+                first_nicked->blink = next_dst_line->blink;
                 if (first_nicked->blink != nullptr)
                     first_nicked->blink->flink = first_nicked;
                 next_dst_line->blink = last_nicked;
@@ -664,7 +700,7 @@ bool text_inter_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two,
 
         // Copy remaining INTERIOR lines.
         while (next_src_line != line_two) {
-            //with next_src_line^ do
+            // with next_src_line^ do
             if (!line_change_length(next_dst_line, next_src_line->used))
                 goto l99;
             next_dst_line->str->copy(*next_src_line->str, 1, next_src_line->used);
@@ -675,7 +711,7 @@ bool text_inter_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two,
 
         // Copy the last_line, and for all but the last copy append the
         // start of the next copy to it.
-        //with next_dst_line^ do
+        // with next_dst_line^ do
         if (i != 0) {
             // PLACE START OF NEXT COPY AT END OF LINE
             if (!line_change_length(next_dst_line, col_two - 1 + text_len))
@@ -691,13 +727,16 @@ bool text_inter_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two,
             if (col_two <= next_src_line->used) {
                 next_dst_line->str->copy(*next_src_line->str, 1, col_two - 1);
             } else {
-                next_dst_line->str->fillcopy(next_src_line->str->data(), next_src_line->used, 1, col_two - 1, ' ');
+                next_dst_line->str->fillcopy(
+                    next_src_line->str->data(), next_src_line->used, 1, col_two - 1, ' '
+                );
             }
         }
         if (i != 0)
             next_dst_line->used = next_dst_line->str->length(' ', col_two - 1 + text_len);
         else
-            next_dst_line->used = col_two - 1; // THIS PRESERVES KNOWLEGE OF THE LENGTH OF THE LAST_LINE
+            next_dst_line->used =
+                col_two - 1; // THIS PRESERVES KNOWLEGE OF THE LENGTH OF THE LAST_LINE
         next_dst_line = next_dst_line->flink;
     }
 
@@ -713,12 +752,12 @@ bool text_inter_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two,
         goto l99;
 
     // Insert the source text into the destination text.
-    //with dst^ do
+    // with dst^ do
     dst_line = dst->line;
-    dst_col  = dst->col;
+    dst_col = dst->col;
 
     // COMPLETE THE LAST LINE WITH THE REST OF THE DESTINATION LINE.
-    //with last_line^ do
+    // with last_line^ do
     last_line_length = last_line->used;
     i = dst_line->used + 1 - dst_col;
     if (i > 0) {
@@ -740,13 +779,13 @@ bool text_inter_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two,
         } else {
             // Shift last line to first line to give somewhere to place text_str.
             if (first_line != last_line) {
-                first_nicked        = last_line;
-                last_line           = last_line->blink;
-                last_line->flink    = nullptr;
+                first_nicked = last_line;
+                last_line = last_line->blink;
+                last_line->flink = nullptr;
                 first_nicked->blink = nullptr;
                 first_nicked->flink = first_line;
-                first_line->blink   = first_nicked;
-                first_line          = first_nicked;
+                first_line->blink = first_nicked;
+                first_line = first_nicked;
             }
 
             // Place the text in the first line, and inject them all.
@@ -761,9 +800,9 @@ bool text_inter_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two,
 
             // Set up variables so that the creation of the New_Start and
             // New_End marks will be correct.
-            last_line  = dst_line;
-            dst_line   = first_line;
-            first_line = nullptr;    // To prevent their destruction.
+            last_line = dst_line;
+            dst_line = first_line;
+            first_line = nullptr; // To prevent their destruction.
             goto l88;
         }
     }
@@ -772,12 +811,14 @@ bool text_inter_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two,
         goto l99;
     if (!marks_shift(dst_line, dst_col, MAX_STRLENP + 1 - dst_col, last_line, col_two))
         goto l99;
-    first_line = nullptr;        // To prevent their destruction.
-    //with dst_line^ do
+    first_line = nullptr; // To prevent their destruction.
+    // with dst_line^ do
     if (text_len > 0) {
         if (!line_change_length(dst_line, dst_col + text_len - 1))
             goto l99;
-        dst_line->str->fillcopy(text_str.data(), text_len, dst_col, dst_line->len + 1 - dst_col, ' ');
+        dst_line->str->fillcopy(
+            text_str.data(), text_len, dst_col, dst_line->len + 1 - dst_col, ' '
+        );
         dst_line->used = dst_col + text_len - 1;
         // The following method of re-drawing the line is adequate given the
         // relative low usage of this area of code.  The screen is optimally
@@ -795,20 +836,28 @@ bool text_inter_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two,
     }
 
     // FINISHED -- AT LAST!
- l88:
+l88:
     if (!mark_create(dst_line, dst_col, new_start))
         goto l99;
     if (!mark_create(last_line, col_two, new_end))
         goto l99;
     result = true;
- l99:
-    if (first_line != nullptr) { // If anything wrong, Destroy any created lines.
+l99:
+    if (first_line != nullptr) {              // If anything wrong, Destroy any created lines.
         lines_destroy(first_line, last_line); // Ignore failures.
     }
     return result;
 }
 
-bool text_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two, mark_ptr dst, mark_ptr &new_start, mark_ptr &new_end) {
+bool text_move(
+    bool copy,
+    int count,
+    mark_ptr mark_one,
+    mark_ptr mark_two,
+    mark_ptr dst,
+    mark_ptr &new_start,
+    mark_ptr &new_end
+) {
 #ifdef DEBUG
     line_range line_one_nr;
     if (!line_to_number(mark_one->line, line_one_nr))
@@ -816,7 +865,8 @@ bool text_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two, mark_
     line_range line_two_nr;
     if (!line_to_number(mark_two->line, line_two_nr))
         return false;
-    if ((mark_one->line->group->frame != mark_two->line->group->frame) || (line_one_nr > line_two_nr)) {
+    if ((mark_one->line->group->frame != mark_two->line->group->frame) ||
+        (line_one_nr > line_two_nr)) {
         screen_message(DBG_INTERNAL_LOGIC_ERROR);
         return false;
     }
@@ -840,12 +890,18 @@ bool text_move(bool copy, int count, mark_ptr mark_one, mark_ptr mark_two, mark_
         if (!copy) {
             // with mark_two^, line->group->frame^ do
             mark_two->line->group->frame->text_modified = true;
-            if (!mark_create(mark_two->line, mark_two->col, mark_two->line->group->frame->marks[MARK_MODIFIED]))
+            if (!mark_create(
+                    mark_two->line,
+                    mark_two->col,
+                    mark_two->line->group->frame->marks[MARK_MODIFIED]
+                ))
                 return false;
         }
-        //with new_end^, line->group->frame^ do
+        // with new_end^, line->group->frame^ do
         new_end->line->group->frame->text_modified = true;
-        if (!mark_create(new_end->line, new_end->col, new_end->line->group->frame->marks[MARK_MODIFIED]))
+        if (!mark_create(
+                new_end->line, new_end->col, new_end->line->group->frame->marks[MARK_MODIFIED]
+            ))
             return false;
     }
     return true;
@@ -871,7 +927,7 @@ bool text_split_line(mark_ptr before_mark, int new_col, mark_ptr &equals_mark) {
 
     bool result = false;
     bool discard = false;
-    //with before_mark^,line^ do
+    // with before_mark^,line^ do
     if (before_mark->line->flink == nullptr) {
         screen_message(MSG_CANT_SPLIT_NULL_LINE);
         goto l99;
@@ -882,7 +938,7 @@ bool text_split_line(mark_ptr before_mark, int new_col, mark_ptr &equals_mark) {
     if (length <= 0)
         length = 0;
     else {
-        if ((new_col + length)  > MAX_STRLENP) {
+        if ((new_col + length) > MAX_STRLENP) {
             screen_message(MSG_NO_ROOM_ON_LINE);
             goto l99;
         }
@@ -903,14 +959,14 @@ bool text_split_line(mark_ptr before_mark, int new_col, mark_ptr &equals_mark) {
             cost = before_mark->col + before_mark->col; // allow for move-up + erase current
         else if (shift > 0)
             cost = before_mark->col + before_mark->col + 3 * shift; // up+erase+shift
-        else /* if (shift < 0) */
+        else                                                        /* if (shift < 0) */
             cost = before_mark->col + before_mark->col - 3 * shift; // up+erase+shift
     }
 
     // Do the split.
     if (2 * length < cost) {
         // move end to next (new) line
-        equals_col  = before_mark->col;
+        equals_col = before_mark->col;
         equals_line = before_mark->line;
         if (length > 0) {
             if (!line_change_length(new_line, new_col + length - 1))
@@ -921,24 +977,35 @@ bool text_split_line(mark_ptr before_mark, int new_col, mark_ptr &equals_mark) {
             before_mark->line->used = before_mark->line->str->length(' ', before_mark->line->used);
             new_line->used = new_col + length - 1;
             if (before_mark->line->scr_row_nr != 0) {
-                //with group->frame^ do
+                // with group->frame^ do
                 if (before_mark->line->used <= before_mark->line->group->frame->scr_offset) {
                     vdu_movecurs(1, before_mark->line->scr_row_nr);
                     vdu_cleareol();
-                } else if (before_mark->line->used + 1 <= before_mark->line->group->frame->scr_offset + before_mark->line->group->frame->scr_width) {
-                    vdu_movecurs(before_mark->line->used + 1 - before_mark->line->group->frame->scr_offset, before_mark->line->scr_row_nr);
+                } else if (before_mark->line->used + 1 <=
+                           before_mark->line->group->frame->scr_offset +
+                               before_mark->line->group->frame->scr_width) {
+                    vdu_movecurs(
+                        before_mark->line->used + 1 - before_mark->line->group->frame->scr_offset,
+                        before_mark->line->scr_row_nr
+                    );
                     vdu_cleareol();
                 }
             }
         }
         if (!lines_inject(new_line, new_line, before_mark->line->flink))
             goto l99;
-      discard = false;
-      if (!marks_shift(before_mark->line, before_mark->col, MAX_STRLENP + 1 - before_mark->col, new_line, new_col))
-          goto l99;
+        discard = false;
+        if (!marks_shift(
+                before_mark->line,
+                before_mark->col,
+                MAX_STRLENP + 1 - before_mark->col,
+                new_line,
+                new_col
+            ))
+            goto l99;
     } else {
         // move front up and adjust rest
-        equals_col  = before_mark->col;
+        equals_col = before_mark->col;
         equals_line = new_line;
         if (before_mark->col <= before_mark->line->used)
             shift = before_mark->col - 1;
@@ -973,7 +1040,7 @@ bool text_split_line(mark_ptr before_mark, int new_col, mark_ptr &equals_mark) {
             }
         } else {
             if (!text_insert(true, 1, BLANK_STRING, shift, before_mark))
-                 goto l99;
+                goto l99;
             if (new_col > 1) {
                 save_col = before_mark->col;
                 before_mark->col = 1;
@@ -983,15 +1050,19 @@ bool text_split_line(mark_ptr before_mark, int new_col, mark_ptr &equals_mark) {
             }
         }
     }
-    //with group->frame^ do
-    if (!mark_create(before_mark->line, before_mark->col, before_mark->line->group->frame->marks[MARK_MODIFIED]))
+    // with group->frame^ do
+    if (!mark_create(
+            before_mark->line,
+            before_mark->col,
+            before_mark->line->group->frame->marks[MARK_MODIFIED]
+        ))
         goto l99;
     before_mark->line->group->frame->text_modified = true;
     // FINISHED -- AT LAST
     if (!mark_create(equals_line, equals_col, equals_mark))
         goto l99;
     result = true;
- l99:
+l99:
     if (discard)
         lines_destroy(new_line, new_line);
     return result;

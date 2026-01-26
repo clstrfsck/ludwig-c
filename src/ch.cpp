@@ -26,15 +26,22 @@
 
 namespace {
 
-    template <typename T>
-    int sgn(T val) {
+    template <typename T> int sgn(T val) {
         return (T(0) < val) - (val < T(0));
     }
 
-};
+}; // namespace
 
 // FIXME: Wrapper for parray::fillcopy that handles copies of length 0 to/from nullptrs
-void ch_fillcopy(str_ptr src, strlen_range srcofs, size_t srclen, str_ptr dst, strlen_range dstofs, size_t dstlen, char fill) {
+void ch_fillcopy(
+    str_ptr src,
+    strlen_range srcofs,
+    size_t srclen,
+    str_ptr dst,
+    strlen_range dstofs,
+    size_t dstlen,
+    char fill
+) {
     if (dstlen > 0) {
         if (srclen == 0) {
             dst->fill_n(fill, dstlen, dstofs);
@@ -45,9 +52,16 @@ void ch_fillcopy(str_ptr src, strlen_range srcofs, size_t srclen, str_ptr dst, s
 }
 
 // FIXME: This could probably be improved.
-int ch_compare_str(const str_object &target, strlen_range st1, strlen_range len1,
-                   const str_object &text,   strlen_range st2, strlen_range len2,
-                   bool exactcase, strlen_range &nch_ident) {
+int ch_compare_str(
+    const str_object &target,
+    strlen_range st1,
+    strlen_range len1,
+    const str_object &text,
+    strlen_range st2,
+    strlen_range len2,
+    bool exactcase,
+    strlen_range &nch_ident
+) {
     int i;
     if (exactcase) {
         for (i = 0; i < len1 && i < len2; ++i) {
@@ -81,10 +95,17 @@ char ch_toupper(char ch) {
 }
 
 // FIXME: This could probably be improved.
-bool ch_search_str(const str_object &target, strlen_range st1, strlen_range len1,
-                   const str_object &text,   strlen_range st2, strlen_range len2,
-                   bool exactcase, bool backwards,
-                   strlen_range &found_loc) {
+bool ch_search_str(
+    const str_object &target,
+    strlen_range st1,
+    strlen_range len1,
+    const str_object &text,
+    strlen_range st2,
+    strlen_range len2,
+    bool exactcase,
+    bool backwards,
+    strlen_range &found_loc
+) {
     str_object s;
     s.copy(text, st2, len2);
     if (backwards) {

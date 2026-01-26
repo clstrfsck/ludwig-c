@@ -24,28 +24,29 @@
 
 #include "user.h"
 
-#include "sys.h"
-#include "var.h"
-#include "vdu.h"
 #include "code.h"
 #include "mark.h"
+#include "screen.h"
 #include "span.h"
+#include "sys.h"
 #include "text.h"
 #include "tpar.h"
-#include "screen.h"
+#include "var.h"
+#include "vdu.h"
 
 namespace {
     bool special_command(commands cmd) {
-        return cmd == commands::cmd_verify ||
-            cmd == commands::cmd_exit_abort ||
-            cmd == commands::cmd_exit_fail ||
-            cmd == commands::cmd_exit_success;
+        return cmd == commands::cmd_verify || cmd == commands::cmd_exit_abort ||
+               cmd == commands::cmd_exit_fail || cmd == commands::cmd_exit_success;
     }
-};
+}; // namespace
 
 bool user_key_code_to_name(key_code_range key_code, std::string &key_name) {
-    auto it = std::find_if(key_name_list.begin() + 1, key_name_list.end(),
-        [&](const key_name_record &knr) { return knr.key_code == key_code; });
+    auto it = std::find_if(
+        key_name_list.begin() + 1, key_name_list.end(), [&](const key_name_record &knr) {
+            return knr.key_code == key_code;
+        }
+    );
     if (it != key_name_list.end()) {
         key_name = it->key_name;
         return true;
@@ -54,16 +55,17 @@ bool user_key_code_to_name(key_code_range key_code, std::string &key_name) {
 }
 
 bool user_key_name_to_code(const std::string &key_name, key_code_range &key_code) {
-    auto it = std::find_if(key_name_list.begin() + 1, key_name_list.end(),
-        [&](const key_name_record &knr) { return knr.key_name == key_name; });
+    auto it = std::find_if(
+        key_name_list.begin() + 1, key_name_list.end(), [&](const key_name_record &knr) {
+            return knr.key_name == key_name;
+        }
+    );
     if (it != key_name_list.end()) {
         key_code = it->key_code;
         return true;
     }
     return false;
 }
-
-
 
 void user_key_initialize() {
     // Initialize terminal-defined key map table.
@@ -92,7 +94,7 @@ void user_key_initialize() {
     if (user_key_name_to_code(std::string("HELP"), key_code)) {
         lookup[key_code].command = commands::cmd_help;
         tpar_ptr tpar = new tpar_object;
-        //with tpar^ do
+        // with tpar^ do
         tpar->dlm = TPD_PROMPT;
         tpar->len = 0;
         tpar->str.fill(' ');
@@ -103,7 +105,7 @@ void user_key_initialize() {
     if (user_key_name_to_code(std::string("FIND"), key_code)) {
         lookup[key_code].command = commands::cmd_get;
         tpar_ptr tpar = new tpar_object;
-        //with tpar^ do
+        // with tpar^ do
         tpar->dlm = TPD_PROMPT;
         tpar->len = 0;
         tpar->str.fill(' ');
@@ -131,7 +133,7 @@ bool user_command_introducer() {
         // enter command introducer into text in correct keyboard mode
         str_object temp;
         temp[1] = command_introducer;
-        //with current_frame^ do
+        // with current_frame^ do
         bool cmd_success = true;
         switch (edit_mode) {
         case mode_type::mode_insert:
@@ -149,8 +151,11 @@ bool user_command_introducer() {
         }
         if (cmd_success) {
             current_frame->text_modified = true;
-            if (!mark_create(current_frame->dot->line, current_frame->dot->col,
-                             current_frame->marks[MARK_MODIFIED])) {
+            if (!mark_create(
+                    current_frame->dot->line,
+                    current_frame->dot->col,
+                    current_frame->marks[MARK_MODIFIED]
+                )) {
                 cmd_success = false;
             }
         }
@@ -171,7 +176,7 @@ bool user_key(const tpar_object &key, const tpar_object &strng) {
         }
     }
     // Create a span in frame "HEAP"
-    //with frame_heap^ do
+    // with frame_heap^ do
     if (!mark_create(frame_heap->last_group->last_line, 1, frame_heap->span->mark_two))
         return false;
     if (!span_create(BLANK_FRAME_NAME, frame_heap->span->mark_two, frame_heap->span->mark_two))
@@ -191,10 +196,10 @@ bool user_key(const tpar_object &key, const tpar_object &strng) {
             delete lookup[key_code].tpar;
             lookup[key_code].tpar = nullptr;
         }
-        //with key_span^ do
+        // with key_span^ do
         {
             code_ptr &code(key_span->code);
-            if ((code->len == 2)&& (compiler_code[code->code].rep == leadparam::none) &&
+            if ((code->len == 2) && (compiler_code[code->code].rep == leadparam::none) &&
                 !special_command(compiler_code[code->code].op)) {
                 // simple command, put directly into lookup table.
                 lookup[key_code].command = compiler_code[code->code].op;

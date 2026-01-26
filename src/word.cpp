@@ -24,11 +24,11 @@
 
 #include "word.h"
 
-#include "var.h"
 #include "line.h"
 #include "mark.h"
-#include "text.h"
 #include "screen.h"
+#include "text.h"
+#include "var.h"
 
 bool word_fill(leadparam rept, int count) {
     /* Description:
@@ -42,14 +42,14 @@ bool word_fill(leadparam rept, int count) {
     col_range start_char;
     col_range end_char;
     col_range old_end;
-    int       line_count;
-    int       space_to_add;
-    line_ptr  this_line;
-    mark_ptr  here;
-    mark_ptr  there;
-    mark_ptr  old_here;
-    mark_ptr  old_there;
-    bool      leave_dot_alone;
+    int line_count;
+    int space_to_add;
+    line_ptr this_line;
+    mark_ptr here;
+    mark_ptr there;
+    mark_ptr old_here;
+    mark_ptr old_there;
+    bool leave_dot_alone;
 
     bool result = false;
     leave_dot_alone = false;
@@ -63,7 +63,7 @@ bool word_fill(leadparam rept, int count) {
     }
     if (rept == leadparam::pint) {
         line_count = count;
-        this_line  = current_frame->dot->line;
+        this_line = current_frame->dot->line;
         while ((line_count > 0) && (this_line->used > 0)) {
             this_line = this_line->flink;
             line_count -= 1;
@@ -74,7 +74,7 @@ bool word_fill(leadparam rept, int count) {
             goto l99;
     }
     while ((count > 0) && (current_frame->dot->line->used > 0)) {
-        //with current_frame^,dot^,line^ do
+        // with current_frame^,dot^,line^ do
         if (current_frame->dot->line->flink == nullptr) // on EOP line so abort
             goto l99;
         // adjust the current line to the margins
@@ -85,11 +85,13 @@ bool word_fill(leadparam rept, int count) {
                 while (((*current_frame->dot->line->str)[start_char] == ' ') &&
                        (start_char < current_frame->dot->line->used))
                     start_char += 1;
-                if ((start_char < current_frame->margin_left) && (start_char < current_frame->dot->line->used)) {
+                if ((start_char < current_frame->margin_left) &&
+                    (start_char < current_frame->dot->line->used)) {
                     if (!mark_create(current_frame->dot->line, start_char, here))
                         goto l99;
-                    if (!text_insert(true, 1, BLANK_STRING,
-                                     current_frame->margin_left - start_char, here))
+                    if (!text_insert(
+                            true, 1, BLANK_STRING, current_frame->margin_left - start_char, here
+                        ))
                         goto l99;
                     mark_destroy(here);
                 } else {
@@ -137,7 +139,7 @@ bool word_fill(leadparam rept, int count) {
             // 3. Split the line at end_char and make sure the new line
             //    starts with start_char at margin_left
             //    Make sure the DOT stays on THIS LINE
-            if (! mark_create(current_frame->dot->line, start_char, here))
+            if (!mark_create(current_frame->dot->line, start_char, here))
                 goto l99;
             if (current_frame->dot->col > end_char)
                 if (!mark_create(current_frame->dot->line, end_char, current_frame->dot))
@@ -152,16 +154,17 @@ bool word_fill(leadparam rept, int count) {
                 count += 1;
         } else {
             // need to get stuff from the next line
-    l3:;
+        l3:;
             // 1. Figure out how many chars we can fit in
-            space_to_add = current_frame->margin_right - current_frame->dot->line->used - 1; // Allow for 1 space
+            space_to_add = current_frame->margin_right - current_frame->dot->line->used -
+                           1; // Allow for 1 space
             // 2. See if we can find a word to fit
             start_char = 1;
             if ((space_to_add > 0) && (current_frame->dot->line->flink->used != 0)) {
                 while ((*current_frame->dot->line->flink->str)[start_char] == ' ')
                     start_char += 1;
                 end_char = start_char;
-                old_end  = end_char;
+                old_end = end_char;
                 while (end_char <= current_frame->dot->line->flink->used) {
                     while ((*current_frame->dot->line->flink->str)[end_char] == ' ')
                         end_char += 1;
@@ -177,7 +180,7 @@ bool word_fill(leadparam rept, int count) {
                 }
                 if (((old_end - start_char) <= space_to_add) && (old_end != start_char)) {
                     // Hooray !! It will fit
-                    old_here  = nullptr;
+                    old_here = nullptr;
                     old_there = nullptr;
                     if (!mark_create(current_frame->dot->line->flink, start_char, here))
                         goto l99;
@@ -187,14 +190,19 @@ bool word_fill(leadparam rept, int count) {
                         goto l99;
                     if (!mark_create(current_frame->dot->line->flink, old_end, old_there))
                         goto l99;
-                    current_frame->dot->col = current_frame->dot->line->used + 2; // Allow for a space !
+                    current_frame->dot->col =
+                        current_frame->dot->line->used + 2; // Allow for a space !
                     // Copy the text
                     if (!text_move(true, 1, here, there, current_frame->dot, here, there))
                         goto l99;
                     // Copy the marks
-                    if (!marks_shift(current_frame->dot->line->flink, old_here->col,
-                                     old_there->col - old_here->col,
-                                     here->line, here->col))
+                    if (!marks_shift(
+                            current_frame->dot->line->flink,
+                            old_here->col,
+                            old_there->col - old_here->col,
+                            here->line,
+                            here->col
+                        ))
                         goto l99;
                     // Now wipe out the old Grungy text
                     // First though, put the old_here and there marks back!
@@ -208,10 +216,15 @@ bool word_fill(leadparam rept, int count) {
                     mark_destroy(old_there);
                     // Now clean up the next line
                     // If it is now empty, delete it
-                    //with dot->line^ do
+                    // with dot->line^ do
                     if (current_frame->dot->line->flink->used == 0) {
                         this_line = current_frame->dot->line->flink;
-                        if (!marks_squeeze(current_frame->dot->line->flink, 1, current_frame->dot->line->flink->flink, 1))
+                        if (!marks_squeeze(
+                                current_frame->dot->line->flink,
+                                1,
+                                current_frame->dot->line->flink->flink,
+                                1
+                            ))
                             goto l99;
                         if (!lines_extract(this_line, this_line))
                             goto l99;
@@ -225,7 +238,7 @@ bool word_fill(leadparam rept, int count) {
                     }
                 }
                 // Now make sure the first char in this line is at LM
-                //with dot->line^ do
+                // with dot->line^ do
                 if ((count > 0) && (current_frame->dot->line->flink->used != 0)) {
                     start_char = 1;
                     while ((*current_frame->dot->line->flink->str)[start_char] == ' ')
@@ -234,10 +247,18 @@ bool word_fill(leadparam rept, int count) {
                         goto l99;
                     if (start_char < current_frame->margin_left) {
                         // Must insert some chars here
-                        if (!text_insert(true, 1, BLANK_STRING, current_frame->margin_left - start_char, there))
+                        if (!text_insert(
+                                true,
+                                1,
+                                BLANK_STRING,
+                                current_frame->margin_left - start_char,
+                                there
+                            ))
                             goto l99;
                     } else {
-                        if (!mark_create(current_frame->dot->line->flink, current_frame->margin_left, here))
+                        if (!mark_create(
+                                current_frame->dot->line->flink, current_frame->margin_left, here
+                            ))
                             goto l99;
                         if (!text_remove(here, there))
                             goto l99;
@@ -253,11 +274,17 @@ bool word_fill(leadparam rept, int count) {
         }
         count -= 1;
         if (!leave_dot_alone) {
-            if (!mark_create(current_frame->dot->line->flink, current_frame->margin_left, current_frame->dot))
+            if (!mark_create(
+                    current_frame->dot->line->flink, current_frame->margin_left, current_frame->dot
+                ))
                 goto l99;
         }
         current_frame->text_modified = true;
-        if (!mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_MODIFIED]))
+        if (!mark_create(
+                current_frame->dot->line,
+                current_frame->dot->col,
+                current_frame->marks[MARK_MODIFIED]
+            ))
             goto l99;
     }
     result = (count <= 0) || (rept == leadparam::pindef);
@@ -278,11 +305,11 @@ bool word_centre(leadparam rept, int count) {
        It assumes that the text already lies between Lm&Rm.
     */
     strlen_range start_char;
-    int          line_count;
-    int          space_to_add;
-    const_line_ptr     this_line;
-    mark_ptr     here;
-    mark_ptr     there;
+    int line_count;
+    int space_to_add;
+    const_line_ptr this_line;
+    mark_ptr here;
+    mark_ptr there;
 
     bool result = false;
     here = nullptr;
@@ -295,7 +322,7 @@ bool word_centre(leadparam rept, int count) {
     }
     if (rept == leadparam::pint) {
         line_count = count;
-        this_line  = current_frame->dot->line;
+        this_line = current_frame->dot->line;
         while ((line_count > 0) && (this_line->used > 0)) {
             this_line = this_line->flink;
             line_count -= 1;
@@ -306,7 +333,7 @@ bool word_centre(leadparam rept, int count) {
             goto l2;
     }
     while ((count > 0) && (current_frame->dot->line->used > 0)) {
-        //with current_frame^,dot^ do
+        // with current_frame^,dot^ do
         if (current_frame->dot->line->flink == nullptr) // on EOP line so abort
             goto l2;
         if ((current_frame->dot->line->used < current_frame->margin_left) ||
@@ -318,7 +345,9 @@ bool word_centre(leadparam rept, int count) {
         if (start_char < current_frame->margin_left)
             goto l2;
         space_to_add = (current_frame->margin_right - current_frame->margin_left -
-                        (current_frame->dot->line->used - start_char)) / 2 - (start_char - current_frame->margin_left);
+                        (current_frame->dot->line->used - start_char)) /
+                           2 -
+                       (start_char - current_frame->margin_left);
         if (space_to_add != 0) {
             here = nullptr;
             result = mark_create(current_frame->dot->line, current_frame->margin_left, here);
@@ -326,16 +355,24 @@ bool word_centre(leadparam rept, int count) {
                 result = text_insert(true, 1, BLANK_STRING, space_to_add, here);
             } else {
                 there = nullptr;
-                result = mark_create(current_frame->dot->line, current_frame->margin_left - space_to_add, there);
+                result = mark_create(
+                    current_frame->dot->line, current_frame->margin_left - space_to_add, there
+                );
                 result = text_remove(here, there);
                 result = mark_destroy(there);
             }
             result = mark_destroy(here);
         }
         count -= 1;
-        result = mark_create(current_frame->dot->line->flink, current_frame->margin_left, current_frame->dot);
+        result = mark_create(
+            current_frame->dot->line->flink, current_frame->margin_left, current_frame->dot
+        );
         current_frame->text_modified = true;
-        if (!mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_MODIFIED]))
+        if (!mark_create(
+                current_frame->dot->line,
+                current_frame->dot->col,
+                current_frame->marks[MARK_MODIFIED]
+            ))
             goto l2;
     }
     result = (count == 0) || (rept == leadparam::pindef);
@@ -356,14 +393,14 @@ bool word_justify(leadparam rept, int count) {
 
     col_range start_char;
     col_range end_char;
-    int       holes;
-    int       i;
-    int       line_count;
-    int       space_to_add;
-    const_line_ptr  this_line;
-    mark_ptr  here;
-    double    fill_ratio;
-    double    debit;
+    int holes;
+    int i;
+    int line_count;
+    int space_to_add;
+    const_line_ptr this_line;
+    mark_ptr here;
+    double fill_ratio;
+    double debit;
 
     bool result = false;
     here = nullptr;
@@ -375,7 +412,7 @@ bool word_justify(leadparam rept, int count) {
     }
     if (rept == leadparam::pint) {
         line_count = count;
-        this_line  = current_frame->dot->line;
+        this_line = current_frame->dot->line;
         while ((line_count > 0) && (this_line->used > 0)) {
             this_line = this_line->flink;
             line_count -= 1;
@@ -386,7 +423,7 @@ bool word_justify(leadparam rept, int count) {
             goto l2;
     }
     while ((count > 0) && (current_frame->dot->line->used > 0)) {
-        //with current_frame^,dot^,line^ do
+        // with current_frame^,dot^,line^ do
         if (current_frame->dot->line->flink == nullptr) // on EOP line so abort
             goto l2;
         if (current_frame->dot->line->flink->used == 0)
@@ -398,14 +435,17 @@ bool word_justify(leadparam rept, int count) {
         space_to_add = current_frame->margin_right - current_frame->dot->line->used;
         // 2. Find number of holes into which spaces are to be distributed
         start_char = current_frame->margin_left;
-        while (((*current_frame->dot->line->str)[start_char] == ' ') && (start_char < current_frame->dot->line->used))
+        while (((*current_frame->dot->line->str)[start_char] == ' ') &&
+               (start_char < current_frame->dot->line->used))
             start_char += 1;
-        end_char   = start_char;  // Remember starting position
+        end_char = start_char; // Remember starting position
         holes = 0;
         do {
-            while (((*current_frame->dot->line->str)[start_char] != ' ') && (start_char < current_frame->dot->line->used))
+            while (((*current_frame->dot->line->str)[start_char] != ' ') &&
+                   (start_char < current_frame->dot->line->used))
                 start_char += 1;
-            while (((*current_frame->dot->line->str)[start_char] == ' ') && (start_char < current_frame->dot->line->used))
+            while (((*current_frame->dot->line->str)[start_char] == ' ') &&
+                   (start_char < current_frame->dot->line->used))
                 start_char += 1;
             holes += 1;
         } while (start_char < current_frame->dot->line->used);
@@ -433,12 +473,18 @@ bool word_justify(leadparam rept, int count) {
             while ((*current_frame->dot->line->str)[start_char] == ' ')
                 start_char += 1;
         }
-l1:;
+    l1:;
         count -= 1;
-        if (!mark_create(current_frame->dot->line->flink, current_frame->margin_left, current_frame->dot))
+        if (!mark_create(
+                current_frame->dot->line->flink, current_frame->margin_left, current_frame->dot
+            ))
             goto l2;
         current_frame->text_modified = true;
-        if (!mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_MODIFIED]))
+        if (!mark_create(
+                current_frame->dot->line,
+                current_frame->dot->col,
+                current_frame->marks[MARK_MODIFIED]
+            ))
             goto l2;
     }
     result = (count <= 0) || (rept == leadparam::pindef);
@@ -457,10 +503,10 @@ bool word_squeeze(leadparam rept, int count) {
 
     col_range start_char;
     col_range end_char;
-    int       line_count;
-    const_line_ptr  this_line;
-    mark_ptr  here;
-    mark_ptr  there;
+    int line_count;
+    const_line_ptr this_line;
+    mark_ptr here;
+    mark_ptr there;
 
     bool result = false;
     here = nullptr;
@@ -473,7 +519,7 @@ bool word_squeeze(leadparam rept, int count) {
     }
     if (rept == leadparam::pint) {
         line_count = count;
-        this_line  = current_frame->dot->line;
+        this_line = current_frame->dot->line;
         while ((line_count > 0) && (this_line->used > 0)) {
             this_line = this_line->flink;
             line_count -= 1;
@@ -484,15 +530,16 @@ bool word_squeeze(leadparam rept, int count) {
             goto l2;
     }
     while ((count > 0) && (current_frame->dot->line->used > 0)) {
-        //with current_frame^,dot^ do
+        // with current_frame^,dot^ do
         if (current_frame->dot->line->flink == nullptr) // on EOP line so abort
             goto l2;
         start_char = 1;
         while ((*current_frame->dot->line->str)[start_char] == ' ')
             start_char += 1;
-        //with line^ do
+        // with line^ do
         do {
-            while (((*current_frame->dot->line->str)[start_char] != ' ') && (start_char < current_frame->dot->line->used))
+            while (((*current_frame->dot->line->str)[start_char] != ' ') &&
+                   (start_char < current_frame->dot->line->used))
                 start_char += 1;
             if ((*current_frame->dot->line->str)[start_char] != ' ')
                 goto l1; // Nothing more to do
@@ -500,25 +547,31 @@ bool word_squeeze(leadparam rept, int count) {
             while ((*current_frame->dot->line->str)[end_char] == ' ')
                 end_char += 1;
             if ((end_char - start_char) > 1) {
-                here         = nullptr;
+                here = nullptr;
                 if (!mark_create(current_frame->dot->line, start_char, here))
                     goto l2;
-                there        = nullptr;
+                there = nullptr;
                 if (!mark_create(current_frame->dot->line, end_char - 1, there))
                     goto l2;
                 if (!text_remove(here, there))
                     goto l2;
-                start_char   = here->col;
+                start_char = here->col;
             } else {
                 start_char = end_char;
             }
         } while (true);
-l1:;
+    l1:;
         count -= 1;
-        if (!mark_create(current_frame->dot->line->flink, current_frame->margin_left, current_frame->dot))
+        if (!mark_create(
+                current_frame->dot->line->flink, current_frame->margin_left, current_frame->dot
+            ))
             goto l2;
         current_frame->text_modified = true;
-        if (!mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_MODIFIED]))
+        if (!mark_create(
+                current_frame->dot->line,
+                current_frame->dot->col,
+                current_frame->marks[MARK_MODIFIED]
+            ))
             goto l2;
     }
     result = (count == 0) || (rept == leadparam::pindef);
@@ -537,8 +590,8 @@ bool word_right(leadparam rept, int count) {
       This routine takes the current line and aligns it at RM
     */
 
-    int      line_count;
-    int      space_to_add;
+    int line_count;
+    int space_to_add;
     mark_ptr here;
     const_line_ptr this_line;
 
@@ -552,7 +605,7 @@ bool word_right(leadparam rept, int count) {
     }
     if (rept == leadparam::pint) {
         line_count = count;
-        this_line  = current_frame->dot->line;
+        this_line = current_frame->dot->line;
         while ((line_count > 0) && (this_line->used > 0)) {
             this_line = this_line->flink;
             line_count = line_count - 1;
@@ -563,7 +616,7 @@ bool word_right(leadparam rept, int count) {
             goto l2;
     }
     while ((count > 0) && (current_frame->dot->line->used > 0)) {
-        //with current_frame^,dot^ do
+        // with current_frame^,dot^ do
         if (current_frame->dot->line->flink == nullptr) // on EOP line so abort
             goto l2;
         if (current_frame->dot->line->used < current_frame->margin_right) {
@@ -580,10 +633,16 @@ bool word_right(leadparam rept, int count) {
                 goto l2;
         }
         count -= 1;
-        if (!mark_create(current_frame->dot->line->flink, current_frame->margin_left, current_frame->dot))
+        if (!mark_create(
+                current_frame->dot->line->flink, current_frame->margin_left, current_frame->dot
+            ))
             goto l2;
         current_frame->text_modified = true;
-        if (!mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_MODIFIED]))
+        if (!mark_create(
+                current_frame->dot->line,
+                current_frame->dot->col,
+                current_frame->marks[MARK_MODIFIED]
+            ))
             goto l2;
     }
     result = (count == 0) || (rept == leadparam::pindef);
@@ -599,8 +658,8 @@ bool word_left(leadparam rept, int count) {
        This routine takes the current line and Aligns it at LM
     */
 
-    int      line_count;
-    int      line_start;
+    int line_count;
+    int line_start;
     mark_ptr here;
     mark_ptr there;
     const_line_ptr this_line;
@@ -616,7 +675,7 @@ bool word_left(leadparam rept, int count) {
     }
     if (rept == leadparam::pint) {
         line_count = count;
-        this_line  = current_frame->dot->line;
+        this_line = current_frame->dot->line;
         while ((line_count > 0) && (this_line->used > 0)) {
             this_line = this_line->flink;
             line_count -= 1;
@@ -627,7 +686,7 @@ bool word_left(leadparam rept, int count) {
             goto l2;
     }
     while ((count > 0) && (current_frame->dot->line->used > 0)) {
-        //with current_frame^,dot^ do
+        // with current_frame^,dot^ do
         if (current_frame->dot->line->flink == nullptr) // on EOP line so abort
             goto l2;
         if (current_frame->dot->line->used > current_frame->margin_left) {
@@ -652,10 +711,16 @@ bool word_left(leadparam rept, int count) {
             goto l2;
         }
         count -= 1;
-        if (!mark_create(current_frame->dot->line->flink, current_frame->margin_left, current_frame->dot))
+        if (!mark_create(
+                current_frame->dot->line->flink, current_frame->margin_left, current_frame->dot
+            ))
             goto l2;
         current_frame->text_modified = true;
-        if (!mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_MODIFIED]))
+        if (!mark_create(
+                current_frame->dot->line,
+                current_frame->dot->col,
+                current_frame->marks[MARK_MODIFIED]
+            ))
             goto l2;
     }
     result = (count == 0) || (rept == leadparam::pindef);
@@ -684,7 +749,7 @@ bool word_advance_word(leadparam rept, int count) {
       !      ie. the start of the next word after the current paragraph.
       !   <  the start of the first word in the current paragraph.
     */
-    line_ptr  this_line;
+    line_ptr this_line;
     col_range pos;
 
     bool result = false;
@@ -692,7 +757,7 @@ bool word_advance_word(leadparam rept, int count) {
         screen_message(MSG_SYNTAX_ERROR);
         goto l99;
     }
-    //with current_frame^ do
+    // with current_frame^ do
     pos = current_frame->dot->col;
     this_line = current_frame->dot->line;
     if (rept == leadparam::none || rept == leadparam::plus || rept == leadparam::pindef ||
@@ -716,7 +781,7 @@ bool word_advance_word(leadparam rept, int count) {
                     goto l1;
                 }
             } while ((*this_line->str)[pos] != ' ');
-    l1:;
+        l1:;
             // Now Skip the Whitespace till we get to a Non-Space Char
             if (pos >= this_line->used) {
                 // Must move onto next line
@@ -738,7 +803,7 @@ bool word_advance_word(leadparam rept, int count) {
             count -= 1;
         }
         // Fine, now move dot
-l2:;
+    l2:;
         if (!mark_create(this_line, pos, current_frame->dot))
             goto l99;
         result = true;
@@ -749,7 +814,7 @@ l2:;
         // Find the blank line separating this para. from the one before
         while ((this_line->used != 0) && (this_line->blink != nullptr))
             this_line = this_line->blink;
-        //Now it's time to find the first non blank}
+        // Now it's time to find the first non blank}
         pos = 1;
         while (this_line->used == 0) {
             if (this_line->flink == nullptr)
@@ -767,7 +832,7 @@ l2:;
           ! OK lets now move to the start of the word to the left of where we
           ! are currently positioned, and then count off from there.
         */
-        count = - count;
+        count = -count;
         if (pos > this_line->used)
             pos = this_line->used;
         do {
@@ -820,10 +885,10 @@ l99:;
 bool word_delete_word(leadparam rept, int count) {
     // Delete Word deletes the same words as advance word advances over.
 
-    mark_ptr   old_pos;
-    mark_ptr   here;
-    mark_ptr   another_mark;
-    mark_ptr   the_other_mark;
+    mark_ptr old_pos;
+    mark_ptr here;
+    mark_ptr another_mark;
+    mark_ptr the_other_mark;
     line_range old_dot_col;
     line_range line_nr;
     line_range new_line_nr;
@@ -860,29 +925,39 @@ bool word_delete_word(leadparam rept, int count) {
         goto l99;
     if (!line_to_number(here->line, new_line_nr))
         goto l99;
-    if ((line_nr > new_line_nr) || ((line_nr == new_line_nr) && (current_frame->dot->col > here->col))) {
+    if ((line_nr > new_line_nr) ||
+        ((line_nr == new_line_nr) && (current_frame->dot->col > here->col))) {
         // Reverse mark pointers to get The_Other_Mark first.
-        another_mark   = here;
-        here       = the_other_mark;
+        another_mark = here;
+        here = the_other_mark;
         the_other_mark = another_mark;
     }
     if (current_frame != frame_oops) {
-        //with frame_oops^ do
-        // Make sure oops_span is okay.
+        // with frame_oops^ do
+        //  Make sure oops_span is okay.
         if (!mark_create(frame_oops->last_group->last_line, 1, frame_oops->span->mark_two))
             goto l99;
-        result = text_move(false            // Dont copy,transfer
-                           ,1               // One instance of
-                           ,the_other_mark  // starting pos.
-                           ,here            // ending pos.
-                           ,frame_oops->span->mark_two // destination.
-                           ,frame_oops->marks[0] // leave at start.
-                           ,frame_oops->dot // leave at end.
-            );
+        result = text_move(
+            false // Dont copy,transfer
+            ,
+            1 // One instance of
+            ,
+            the_other_mark // starting pos.
+            ,
+            here // ending pos.
+            ,
+            frame_oops->span->mark_two // destination.
+            ,
+            frame_oops->marks[0] // leave at start.
+            ,
+            frame_oops->dot // leave at end.
+        );
     } else {
-        result = text_remove(the_other_mark   // starting pos.
-                             ,here            // ending pos.
-            );
+        result = text_remove(
+            the_other_mark // starting pos.
+            ,
+            here // ending pos.
+        );
     }
     if (line_nr != new_line_nr)
         result = text_split_line(current_frame->dot, old_dot_col, here);

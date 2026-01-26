@@ -24,21 +24,21 @@
 
 #include "swap.h"
 
-#include "var.h"
 #include "mark.h"
 #include "text.h"
+#include "var.h"
 
 bool swap_line(leadparam rept, int count) {
     // SW is implemented as a ST of the dot line to before the other line.
     bool result = false;
-    mark_ptr  top_mark  = nullptr;
-    mark_ptr  end_mark  = nullptr;
-    mark_ptr  dest_mark = nullptr;
-    //with current_frame^ do
-    line_ptr  this_line = current_frame->dot->line;
-    col_range dot_col   = current_frame->dot->col;
-    line_ptr  next_line = this_line->flink;
-    line_ptr  dest_line;
+    mark_ptr top_mark = nullptr;
+    mark_ptr end_mark = nullptr;
+    mark_ptr dest_mark = nullptr;
+    // with current_frame^ do
+    line_ptr this_line = current_frame->dot->line;
+    col_range dot_col = current_frame->dot->col;
+    line_ptr next_line = this_line->flink;
+    line_ptr dest_line;
     if (next_line == nullptr)
         goto l99;
     switch (rept) {
@@ -84,10 +84,12 @@ bool swap_line(leadparam rept, int count) {
         goto l99;
     current_frame->text_modified = true;
     current_frame->dot->col = dot_col;
-    if (!mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_MODIFIED]))
+    if (!mark_create(
+            current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_MODIFIED]
+        ))
         goto l99;
     result = true;
- l99:;
+l99:;
     if (top_mark != nullptr)
         mark_destroy(top_mark);
     if (end_mark != nullptr)

@@ -12,7 +12,12 @@ bool filesys_write(file_ptr fyle, str_ptr buffer, strlen_range bufsiz);
 
 bool filesys_save(file_ptr i_fyle, file_ptr o_file, int copy_lines);
 
-bool filesys_parse(const std::string &command_line, parse_type parse,
-                   file_data_type &file_data, file_ptr &input_file, file_ptr &output_file);
+bool filesys_parse(
+    const std::string &command_line,
+    parse_type parse,
+    file_data_type &file_data,
+    file_ptr &input_file,
+    file_ptr &output_file
+);
 
 #endif

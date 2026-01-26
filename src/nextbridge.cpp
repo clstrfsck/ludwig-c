@@ -24,20 +24,20 @@
 
 #include "nextbridge.h"
 
-#include "var.h"
 #include "mark.h"
+#include "var.h"
 
 #include <unordered_set>
 
 namespace {
     using chset_range = prange<0, ORD_MAXCHAR>;
     using chset = prangeset<chset_range>;
-};
+}; // namespace
 
 bool nextbridge_command(int count, const tpar_object &tpar, bool bridge) {
     chset chars;
     // Form the character set.
-    //with tpar do
+    // with tpar do
     int i = 1;
     while (i <= tpar.len) {
         unsigned char ch1 = tpar.str[i];
@@ -57,7 +57,7 @@ bool nextbridge_command(int count, const tpar_object &tpar, bool bridge) {
         chars.remove(old);
     }
     // Search for a character in the set.
-    //with current_frame^ do
+    // with current_frame^ do
     line_ptr new_line = current_frame->dot->line;
     int new_col;
     if (count > 0) {
@@ -66,7 +66,7 @@ bool nextbridge_command(int count, const tpar_object &tpar, bool bridge) {
             new_col += 1;
         do {
             while (new_line != nullptr) {
-                //with new_line^ do
+                // with new_line^ do
                 i = new_col;
                 while (i <= new_line->used) {
                     if (chars.contains(new_line->str->operator[](i))) {
@@ -83,12 +83,14 @@ bool nextbridge_command(int count, const tpar_object &tpar, bool bridge) {
                 new_col = 1;
             }
             return false;
-    l1:;
+        l1:;
             new_col += 1;
             count -= 1;
         } while (count != 0);
         new_col -= 1;
-        if (!mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_EQUALS]))
+        if (!mark_create(
+                current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_EQUALS]
+            ))
             return false;
     } else if (count < 0) {
         new_col = current_frame->dot->col - 1;
@@ -96,7 +98,7 @@ bool nextbridge_command(int count, const tpar_object &tpar, bool bridge) {
             new_col -= 1;
         do {
             while (new_line != nullptr) {
-                //with new_line^ do
+                // with new_line^ do
                 if (new_line->used < new_col) {
                     if (chars.contains(' '))
                         goto l2;
@@ -116,15 +118,19 @@ bool nextbridge_command(int count, const tpar_object &tpar, bool bridge) {
                 else
                     return false;
             }
-    l2:;
+        l2:;
             new_col -= 1;
             count += 1;
         } while (count != 0);
         new_col += 2;
-        if (!mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_EQUALS]))
+        if (!mark_create(
+                current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_EQUALS]
+            ))
             return false;
     } else {
-        return mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_EQUALS]);
+        return mark_create(
+            current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_EQUALS]
+        );
     }
 
     // Found it, move dot to new point.

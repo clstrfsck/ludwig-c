@@ -24,69 +24,78 @@
 
 #include "code.h"
 
-#include "var.h"
-#include "vdu.h"
 #include "exec.h"
+#include "frame.h"
 #include "line.h"
 #include "mark.h"
-#include "tpar.h"
-#include "frame.h"
 #include "screen.h"
+#include "tpar.h"
+#include "var.h"
+#include "vdu.h"
 
 #include <cstring>
 
 namespace {
-    const penumset<commands> INTERP_CMDS({commands::cmd_pcjump, commands::cmd_exitto,
-                commands::cmd_failto, commands::cmd_iterate, commands::cmd_exit_success,
-                commands::cmd_exit_fail, commands::cmd_exit_abort, commands::cmd_extended,
-                commands::cmd_verify, commands::cmd_noop});
+    const penumset<commands> INTERP_CMDS(
+        {commands::cmd_pcjump,
+         commands::cmd_exitto,
+         commands::cmd_failto,
+         commands::cmd_iterate,
+         commands::cmd_exit_success,
+         commands::cmd_exit_fail,
+         commands::cmd_exit_abort,
+         commands::cmd_extended,
+         commands::cmd_verify,
+         commands::cmd_noop}
+    );
 
     const accept_set_type &punct() {
         // Here to ensure initialised after PRINTABLE_SET et al
-        static const accept_set_type PUNCT = accept_set_type(PRINTABLE_SET)
-                                             .remove(ALPHA_SET)
-                                             .remove(NUMERIC_SET)
-                                             .remove(SPACE_SET);
+        static const accept_set_type PUNCT =
+            accept_set_type(PRINTABLE_SET).remove(ALPHA_SET).remove(NUMERIC_SET).remove(SPACE_SET);
         return PUNCT;
     }
 
-    template <class R>
-    void assign(parray<char, R>& dst, const char *src) {
-        dst.fillcopy(src, std::strlen(src),
-                     parray<char, R>::index_type::min(),
-                     parray<char, R>::index_type::size(), ' ');
+    template <class R> void assign(parray<char, R> &dst, const char *src) {
+        dst.fillcopy(
+            src,
+            std::strlen(src),
+            parray<char, R>::index_type::min(),
+            parray<char, R>::index_type::size(),
+            ' '
+        );
     }
 
     struct parse_state {
         // No copying
         parse_state() = default;
-        parse_state(const parse_state&) = delete;
-        parse_state &operator=(const parse_state&) = delete;
-        std::string    status;
+        parse_state(const parse_state &) = delete;
+        parse_state &operator=(const parse_state &) = delete;
+        std::string status;
         key_code_range key;
-        bool           eoln;          // Used to signal end of line
-        int            pc;            // This is always an offset from code_top
-        code_idx       code_base;     // Base in code array for new code
-        mark_object    currentpoint;
-        mark_object    startpoint;
-        mark_object    endpoint;
-        int            verify_count;
-        bool           from_span;
+        bool eoln;          // Used to signal end of line
+        int pc;             // This is always an offset from code_top
+        code_idx code_base; // Base in code array for new code
+        mark_object currentpoint;
+        mark_object startpoint;
+        mark_object endpoint;
+        int verify_count;
+        bool from_span;
     };
-}
+} // namespace
 
 void code_discard(code_ptr &code_head) {
     // This routine releases the specified code and compacts the code array.
     // The code_head is set to NIL.
 
-    //with code_head^ do
+    // with code_head^ do
     code_head->ref -= 1;
     if (code_head->ref == 0) {
         code_idx start = code_head->code.value();
-        code_idx size  = code_head->len;
+        code_idx size = code_head->len;
 
         for (code_idx source = start; source < start + size; ++source) {
-            //with compiler_code[source] do
+            // with compiler_code[source] do
             if (compiler_code[source].code != nullptr)
                 code_discard(compiler_code[source].code);
             if (compiler_code[source].tpar != nullptr)
@@ -99,7 +108,7 @@ void code_discard(code_ptr &code_head) {
 
         code_ptr link = code_head->blink;
         while (link != code_list) {
-            //with link^ do
+            // with link^ do
             link->code -= size;
             link = link->blink;
         }
@@ -118,13 +127,13 @@ void error(parse_state &ps, const char *err_text) {
     ps.status = MSG_SYNTAX_ERROR;
     if (ps.from_span) {
         // If possible, backup the current point one character.
-        //with currentpoint do
+        // with currentpoint do
         if (ps.currentpoint.line != ps.startpoint.line) {
             if (ps.currentpoint.col > 1) {
                 ps.currentpoint.col -= 1;
             } else {
                 ps.currentpoint.line = ps.currentpoint.line->blink;
-                ps.currentpoint.col  = ps.currentpoint.line->used + 1;
+                ps.currentpoint.col = ps.currentpoint.line->used + 1;
                 if (ps.currentpoint.col > 1)
                     ps.currentpoint.col -= 1;
                 if (ps.currentpoint.line == ps.startpoint.line) {
@@ -140,7 +149,7 @@ void error(parse_state &ps, const char *err_text) {
         if (ludwig_mode == ludwig_mode_type::ludwig_screen) {
             if (!frame_edit(ps.currentpoint.line->group->frame->span->name))
                 return;
-            //with current_frame^ do
+            // with current_frame^ do
             if (current_frame->marks[0] != nullptr) {
                 if (!mark_destroy(current_frame->marks[0]))
                     return;
@@ -148,7 +157,7 @@ void error(parse_state &ps, const char *err_text) {
             line_ptr e_line;
             if (!lines_create(1, e_line, e_line))
                 return;
-            //with currentpoint do
+            // with currentpoint do
             str_object str(' ');
             int i = ps.currentpoint.col;
             str[i] = '!';
@@ -180,21 +189,22 @@ bool nextkey(parse_state &ps) {
         if (tt_controlc)
             return false;
     } else {
-        //with currentpoint do
-        if ((ps.currentpoint.line == ps.endpoint.line) && (ps.currentpoint.col == ps.endpoint.col)) {
+        // with currentpoint do
+        if ((ps.currentpoint.line == ps.endpoint.line) &&
+            (ps.currentpoint.col == ps.endpoint.col)) {
             ps.key = 0; // finished span
         } else {
-            //with line^ do
+            // with line^ do
             if (ps.currentpoint.col <= ps.currentpoint.line->used) {
                 ps.key = ps.currentpoint.line->str->operator[](ps.currentpoint.col);
                 ps.currentpoint.col += 1;
             } else if (ps.currentpoint.line != ps.endpoint.line) {
-                ps.key  = ' ';
+                ps.key = ' ';
                 ps.eoln = true;
                 ps.currentpoint.line = ps.currentpoint.line->flink;
-                ps.currentpoint.col  = 1;
+                ps.currentpoint.col = 1;
             } else {
-                ps.key = 0;   // finished the span
+                ps.key = 0; // finished the span
             }
         }
     }
@@ -202,12 +212,12 @@ bool nextkey(parse_state &ps) {
 }
 
 bool nextnonbl(parse_state &ps) {
- l1:;
+l1:;
     do {
         if (!nextkey(ps))
             return false;
         if (ps.from_span) {
-            //with currentpoint,line^ do
+            // with currentpoint,line^ do
             if ((ps.key == '<') && (ps.currentpoint.col <= ps.currentpoint.line->used)) {
                 if (ps.currentpoint.line->str->operator[](ps.currentpoint.col) == '>')
                     ps.key = 0;
@@ -216,7 +226,7 @@ bool nextnonbl(parse_state &ps) {
     } while (ps.key == ' ');
     if (ps.key == '!') { // Comment - throw away rest of line.
         if (ps.from_span) {
-            //with currentpoint do
+            // with currentpoint do
             ps.currentpoint.col = ps.currentpoint.line->used + 1;
             goto l1;
         } else {
@@ -227,19 +237,27 @@ bool nextnonbl(parse_state &ps) {
     return true;
 }
 
-bool generate(parse_state &ps, leadparam irep, int icnt, commands iop, tpar_ptr itpar, int ilbl, code_ptr icode) {
+bool generate(
+    parse_state &ps,
+    leadparam irep,
+    int icnt,
+    commands iop,
+    tpar_ptr itpar,
+    int ilbl,
+    code_ptr icode
+) {
     ps.pc += 1;
     if (ps.code_base + ps.pc > MAX_CODE) {
         ps.status = MSG_COMPILER_CODE_OVERFLOW;
         return false;
     }
-    //with compiler_code[code_base + pc]
+    // with compiler_code[code_base + pc]
     code_object &cc(compiler_code[ps.code_base + ps.pc]);
-    cc.rep  = irep;
-    cc.cnt  = icnt;
-    cc.op   = iop;
+    cc.rep = irep;
+    cc.cnt = icnt;
+    cc.op = iop;
     cc.tpar = itpar;
-    cc.lbl  = ilbl;
+    cc.lbl = ilbl;
     cc.code = icode;
     return true;
 }
@@ -377,8 +395,7 @@ bool scan_trailing_param(parse_state &ps, commands command, leadparam repsym, tp
             return false;
         key_code_range pardelim = ps.key;
         if (ps.key < accept_set_type::element_type::min() ||
-            ps.key > accept_set_type::element_type::max() ||
-            !punct().contains(pardelim.value())) {
+            ps.key > accept_set_type::element_type::max() || !punct().contains(pardelim.value())) {
             error(ps, "Illegal parameter delimiter");
             return false;
         }
@@ -403,7 +420,7 @@ bool scan_trailing_param(parse_state &ps, commands command, leadparam repsym, tp
                     return false;
                 }
                 tpar_ptr tp = new tpar_object;
-                //with tp^ do
+                // with tp^ do
                 tp->len = parlength;
                 tp->dlm = pardelim;
                 tp->str = parstring;
@@ -455,9 +472,9 @@ bool scan_exit_handler(parse_state &ps, int pc1, int &pc4, bool full_scan) {
                 if (!scan_command(ps, full_scan))
                     return false;
             }
-            poke(ps.code_base, pc4, ps.pc + 1);     // End of fail handler.
+            poke(ps.code_base, pc4, ps.pc + 1); // End of fail handler.
         } else {
-            poke(ps.code_base, pc1, ps.pc + 1);     // Set fail label
+            poke(ps.code_base, pc1, ps.pc + 1); // Set fail label
         }
         if (!nextnonbl(ps))
             return false;
@@ -465,9 +482,16 @@ bool scan_exit_handler(parse_state &ps, int pc1, int &pc4, bool full_scan) {
     return true;
 }
 
-bool scan_simple_command(parse_state &ps,
-                         const commands command, const leadparam repsym, int &repcount, tpar_ptr &tparam,
-                         code_ptr &lookup_code, int &pc1, bool full_scan) {
+bool scan_simple_command(
+    parse_state &ps,
+    const commands command,
+    const leadparam repsym,
+    int &repcount,
+    tpar_ptr &tparam,
+    code_ptr &lookup_code,
+    int &pc1,
+    bool full_scan
+) {
 
     if (!cmd_attrib[command].lp_allowed.contains(repsym)) {
         error(ps, "Illegal leading parameter");
@@ -490,7 +514,7 @@ bool scan_simple_command(parse_state &ps,
                     return false;
             } else {
                 tparam = new tpar_object;
-                //with tparam^ do
+                // with tparam^ do
                 tparam->len = 0;
                 tparam->dlm = TPD_PROMPT;
                 tparam->nxt = nullptr;
@@ -499,7 +523,7 @@ bool scan_simple_command(parse_state &ps,
                 for (int i = 2; i <= cmd_attrib[command].tpcount; ++i) {
                     tmp_tp->nxt = new tpar_object;
                     tmp_tp = tmp_tp->nxt;
-                    //with tmp_tp^ do
+                    // with tmp_tp^ do
                     tmp_tp->len = 0;
                     tmp_tp->dlm = TPD_PROMPT;
                     tmp_tp->nxt = nullptr;
@@ -520,8 +544,11 @@ bool scan_simple_command(parse_state &ps,
     return true;
 }
 
-bool scan_compound_command(parse_state &ps, leadparam repsym, int repcount, int &pc1, int &pc2, int &pc3) {
-    if (repsym != leadparam::none && repsym != leadparam::plus && repsym != leadparam::pint && repsym != leadparam::pindef) {
+bool scan_compound_command(
+    parse_state &ps, leadparam repsym, int repcount, int &pc1, int &pc2, int &pc3
+) {
+    if (repsym != leadparam::none && repsym != leadparam::plus && repsym != leadparam::pint &&
+        repsym != leadparam::pindef) {
         error(ps, "Illegal leading parameter");
         return false;
     }
@@ -544,7 +571,7 @@ bool scan_compound_command(parse_state &ps, leadparam repsym, int repcount, int 
     } while (ps.key != ')');
     if (!generate(ps, leadparam::none, 0, commands::cmd_pcjump, nullptr, pc3, nullptr))
         return false;
-    poke(ps.code_base, pc2, ps.pc + 1);    // Fill in exit label.
+    poke(ps.code_base, pc2, ps.pc + 1); // Fill in exit label.
     return true;
 }
 
@@ -553,8 +580,8 @@ bool scan_command(parse_state &ps, bool full_scan) {
     leadparam repsym;
     if (!scan_leading_param(ps, repsym, repcount))
         return false;
-    if (ps.key >= accept_set_type::element_type::min() && ps.key <= accept_set_type::element_type::max() &&
-        LOWER_SET.contains(ps.key.value()))
+    if (ps.key >= accept_set_type::element_type::min() &&
+        ps.key <= accept_set_type::element_type::max() && LOWER_SET.contains(ps.key.value()))
         ps.key = std::toupper(ps.key);
     commands command = lookup[ps.key].command;
     while (prefixes.contains(command)) {
@@ -567,8 +594,8 @@ bool scan_command(parse_state &ps, bool full_scan) {
         const expand_lim_range *p = lookupexp_ptr.data(command);
         int i = p[0];
         int j = p[1];
-//        int i  = lookupexp_ptr[command];
-//        int j  = lookupexp_ptr[command + 1];
+        //        int i  = lookupexp_ptr[command];
+        //        int j  = lookupexp_ptr[command + 1];
         while ((i < j) && (std::toupper(ps.key) != lookupexp[i].extn))
             i += 1;
         if (i < j) {
@@ -587,7 +614,9 @@ bool scan_command(parse_state &ps, bool full_scan) {
         // FIXME: These can probably be declared in scan_simple_command
         tpar_ptr tparam;
         code_ptr lookup_code;
-        if (!scan_simple_command(ps, command, repsym, repcount, tparam, lookup_code, pc1, full_scan))
+        if (!scan_simple_command(
+                ps, command, repsym, repcount, tparam, lookup_code, pc1, full_scan
+            ))
             return false;
     } else {
         error(ps, "Command not valid");
@@ -608,17 +637,17 @@ bool code_compile(span_object &span, bool from_span) {
     ps.eoln = false;
     ps.from_span = from_span;
 
-    //with span do
+    // with span do
     if (from_span) {
-        ps.startpoint   = *span.mark_one;  // Make Local Copies of the
-        ps.endpoint     = *span.mark_two;  // PHYSICAL marks.
+        ps.startpoint = *span.mark_one; // Make Local Copies of the
+        ps.endpoint = *span.mark_two;   // PHYSICAL marks.
         ps.currentpoint = ps.startpoint;
     }
     if (span.code != nullptr)
         code_discard(span.code);
 
     ps.code_base = code_top;
-    ps.pc = 0;      // This will be incremented before code is written.
+    ps.pc = 0; // This will be incremented before code is written.
     ps.verify_count = 0;
     if (!nextnonbl(ps))
         goto l99;
@@ -639,15 +668,15 @@ bool code_compile(span_object &span, bool from_span) {
 
     // Fill in code header.
     span.code = new code_header;
-    //with span do
-    //with code^ do
-    span.code->ref   = 1;
-    span.code->code  = ps.code_base + 1;
-    span.code->len   = ps.pc;
+    // with span do
+    // with code^ do
+    span.code->ref = 1;
+    span.code->code = ps.code_base + 1;
+    span.code->len = ps.pc;
     span.code->flink = code_list->flink; // Link it into chain.
     span.code->blink = code_list;
     code_list->flink->blink = span.code;
-    code_list->flink        = span.code;
+    code_list->flink = span.code;
     code_top = ps.code_base + ps.pc;
     result = true;
 l99:
@@ -658,12 +687,11 @@ l99:
     return result;
 }
 
-
 bool code_interpret(leadparam rept, int count, code_ptr code_head, bool from_span) {
     struct labels_type {
         code_idx exitlabel;
         code_idx faillabel;
-        int      count;
+        int count;
     };
 
     parray<labels_type, prange<1, 100>> labels;
@@ -677,13 +705,13 @@ bool code_interpret(leadparam rept, int count, code_ptr code_head, bool from_spa
 
     if (rept == leadparam::pindef)
         count = -1;
-    enum { success, failure, failforever} interp_status = success;
+    enum { success, failure, failforever } interp_status = success;
     verify_array verify_always = INITIAL_VERIFY;
 
     while ((count != 0) && (interp_status == success)) {
         count -= 1;
         int level = 1;
-        //with labels[1] do begin
+        // with labels[1] do begin
         labels[1].exitlabel = 0;
         labels[1].faillabel = 0;
         labels[1].count = 0;
@@ -697,14 +725,14 @@ bool code_interpret(leadparam rept, int count, code_ptr code_head, bool from_spa
 #endif
             interp_status = success;
             // Note! code_head->code may be changed by a span compilation/creation.
-            //with compiler_code[code_head->code-1 + pc] do
+            // with compiler_code[code_head->code-1 + pc] do
             const auto &cc(compiler_code[code_head->code - 1 + pc]);
-            code_idx  curr_lbl  = cc.lbl;                // label field
-            commands  curr_op   = cc.op;                 // op-code
-            leadparam curr_rep  = cc.rep;                // repeat count type
-            int       curr_cnt  = cc.cnt;                // repeat count value
-            tpar_ptr  curr_tpar = cc.tpar;               // trailing parameter record ptr
-            code_ptr  curr_code = cc.code;
+            code_idx curr_lbl = cc.lbl;   // label field
+            commands curr_op = cc.op;     // op-code
+            leadparam curr_rep = cc.rep;  // repeat count type
+            int curr_cnt = cc.cnt;        // repeat count value
+            tpar_ptr curr_tpar = cc.tpar; // trailing parameter record ptr
+            code_ptr curr_code = cc.code;
             pc += 1;
 
             if (INTERP_CMDS.contains(curr_op)) {
@@ -714,12 +742,13 @@ bool code_interpret(leadparam rept, int count, code_ptr code_head, bool from_spa
                     break;
 
                 case commands::cmd_exitto:
-                    from_span = true; // This is done to fix \n(...) from being Not From_Span to From_Span
+                    from_span =
+                        true; // This is done to fix \n(...) from being Not From_Span to From_Span
                     level += 1;
-                    //with labels[level] do
+                    // with labels[level] do
                     labels[level].exitlabel = curr_lbl;
                     labels[level].faillabel = 0;
-                    labels[level].count     = 0;
+                    labels[level].count = 0;
                     break;
 
                 case commands::cmd_failto:
@@ -779,7 +808,7 @@ bool code_interpret(leadparam rept, int count, code_ptr code_head, bool from_spa
                 case commands::cmd_verify:
                     if (!verify_always[curr_cnt]) {
                         if (ludwig_mode == ludwig_mode_type::ludwig_batch) {
-                            exit_abort  = true;
+                            exit_abort = true;
                             interp_status = failforever;
                             pc = 0;
                         } else if (tpar_get_1(curr_tpar, commands::cmd_verify, request)) {
@@ -798,7 +827,7 @@ bool code_interpret(leadparam rept, int count, code_ptr code_head, bool from_spa
                             } else if (request.str[1] == 'A') {
                                 verify_always[curr_cnt] = true;
                             } else if (request.str[1] == 'Q') {
-                                exit_abort  = true;
+                                exit_abort = true;
                                 interp_status = failforever;
                                 pc = 0;
                             } else {

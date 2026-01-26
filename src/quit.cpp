@@ -24,30 +24,31 @@
 
 #include "quit.h"
 
+#include "const.h"
+#include "fyle.h"
+#include "mark.h"
+#include "screen.h"
 #include "sys.h"
 #include "var.h"
 #include "vdu.h"
-#include "fyle.h"
-#include "mark.h"
-#include "const.h"
-#include "screen.h"
 
 namespace {
-    inline constexpr std::string_view NO_OUTPUT_FILE_MSG { "This frame has no output file--are you sure you want to QUIT? " };
+    inline constexpr std::string_view NO_OUTPUT_FILE_MSG{
+        "This frame has no output file--are you sure you want to QUIT? "
+    };
 };
 
 bool quit_command() {
-    //with current_frame^ do
+    // with current_frame^ do
     if (ludwig_mode != ludwig_mode_type::ludwig_batch) {
         span_ptr new_span = first_span;
         while (new_span != nullptr) {
             if (new_span->frame != nullptr) {
-                //with new_span->frame^ do
-                if (new_span->frame->text_modified &&
-                    new_span->frame->output_file == 0 &&
+                // with new_span->frame^ do
+                if (new_span->frame->text_modified && new_span->frame->output_file == 0 &&
                     new_span->frame->input_file != 0) {
                     current_frame = new_span->frame;
-                    //with marks[mark_modified]^ do
+                    // with marks[mark_modified]^ do
                     mark_ptr mm = new_span->frame->marks[MARK_MODIFIED];
                     mark_create(mm->line, mm->col, new_span->frame->dot);
                     if (ludwig_mode == ludwig_mode_type::ludwig_screen)
@@ -81,9 +82,8 @@ l2:;
     return true; // Given the exit above, this shouldn't happen
 }
 
-
 bool do_frame(frame_ptr f) {
-    //with f^ do
+    // with f^ do
     if (f->output_file == 0)
         return true;
     if (files[f->output_file] == nullptr)
@@ -92,7 +92,7 @@ bool do_frame(frame_ptr f) {
     if (!file_windthru(f, true))
         return false;
     if (f->input_file != 0) {
-	if (files[f->input_file] != nullptr) {
+        if (files[f->input_file] != nullptr) {
             if (!file_close_delete(files[f->input_file], false, true))
                 return false;
             f->input_file = 0;
@@ -101,7 +101,7 @@ bool do_frame(frame_ptr f) {
     // Close the output file.
     bool result = true;
     if (!ludwig_aborted) {
-	result = file_close_delete(files[f->output_file], !f->text_modified, f->text_modified);
+        result = file_close_delete(files[f->output_file], !f->text_modified, f->text_modified);
     }
     f->output_file = 0;
     return result;
@@ -132,7 +132,7 @@ void quit_close_files() {
     }
 l99:;
     // Now free up the VDU, thus re-setting anything we have changed
-    if (!vdu_free_flag) {     // Has it been called already?
+    if (!vdu_free_flag) { // Has it been called already?
         vdu_free();
         vdu_free_flag = true; // Well it has now
         ludwig_mode = ludwig_mode_type::ludwig_batch;

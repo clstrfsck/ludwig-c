@@ -7,15 +7,14 @@
 
 #include "prange.h"
 
-#include <vector>
 #include <algorithm>
 #include <functional>
 #include <type_traits>
+#include <vector>
 
 // FIXME: Could use some range checking, possibly optional.
 
-template <class T, class R>
-class parray {
+template <class T, class R> class parray {
     static_assert(R::min() <= R::max(), "min must be less than or equal to max");
 
 public:
@@ -51,19 +50,16 @@ public:
         // Nothing more to do here
     }
 
-    explicit parray(const_pointer values)
-        : m_array(values, values + R::size()) {
+    explicit parray(const_pointer values) : m_array(values, values + R::size()) {
         // Nothing more to do here
     }
 
-    explicit parray(const_pointer src, size_t size, const_reference fill)
-        : m_array(R::size()) {
+    explicit parray(const_pointer src, size_t size, const_reference fill) : m_array(R::size()) {
         // Not tremendously efficient
         fillcopy(src, size, index_type::min(), index_type::size(), fill);
     }
 
-    explicit parray(size_t size, const_reference init_value = T())
-        : m_array(size, init_value) {
+    explicit parray(size_t size, const_reference init_value = T()) : m_array(size, init_value) {
         // Nothing more to do here.  Be careful with this!
     }
 
@@ -91,19 +87,23 @@ public:
         // Nothing to do here
     }
 
-    reference operator[] (typename index_type::type index) {
+    reference operator[](typename index_type::type index) {
         check_index(index);
         return m_array[adjust_index(index)];
     }
 
-    const_reference operator[] (typename index_type::type index) const {
+    const_reference operator[](typename index_type::type index) const {
         check_index(index);
         return m_array[adjust_index(index)];
     }
 
     template <typename R2>
-    parray &copy(const parray<T, R2> &src, typename index_type::type src_offset, size_t count,
-                 typename index_type::type dst_offset = index_type::min()) {
+    parray &copy(
+        const parray<T, R2> &src,
+        typename index_type::type src_offset,
+        size_t count,
+        typename index_type::type dst_offset = index_type::min()
+    ) {
         if (count > 0) {
             check_index(dst_offset);             // First index used
             check_index(dst_offset + count - 1); // Last index used
@@ -117,7 +117,9 @@ public:
         return *this;
     }
 
-    parray &copy_n(const_pointer src, size_t count, typename index_type::type dst_offset = index_type::min()) {
+    parray &copy_n(
+        const_pointer src, size_t count, typename index_type::type dst_offset = index_type::min()
+    ) {
         if (count > 0) {
             check_index(dst_offset);             // First index used
             check_index(dst_offset + count - 1); // Last index used
@@ -127,8 +129,13 @@ public:
         return *this;
     }
 
-    parray &fillcopy(const_pointer src, size_t src_len,
-                     typename index_type::type dst_index, size_t dst_len, const_reference value) {
+    parray &fillcopy(
+        const_pointer src,
+        size_t src_len,
+        typename index_type::type dst_index,
+        size_t dst_len,
+        const_reference value
+    ) {
         if (dst_len > 0) {
             check_index(dst_index);
             check_index(dst_index + dst_len - 1);
@@ -146,8 +153,11 @@ public:
         return *this;
     }
 
-    parray &fill(const T &value, typename index_type::type beg = index_type::min(),
-                 typename index_type::type endi = index_type::max()) {
+    parray &fill(
+        const T &value,
+        typename index_type::type beg = index_type::min(),
+        typename index_type::type endi = index_type::max()
+    ) {
         check_index(beg);
         check_index(endi);
         size_t ibeg = adjust_index(beg);
@@ -172,7 +182,8 @@ public:
         return *this;
     }
 
-    parray &apply_n(std::function<T(T)> f, size_t n, typename index_type::type beg = index_type::min()) {
+    parray &
+    apply_n(std::function<T(T)> f, size_t n, typename index_type::type beg = index_type::min()) {
         if (n > 0) {
             check_index(beg);
             check_index(beg + n - 1);
@@ -188,8 +199,8 @@ public:
         if (n > 0) {
             check_index(at);
             check_index(at + n - 1);
-            typename array_type::iterator b  = std::next(begin(), adjust_index(at));
-            typename array_type::iterator e  = std::prev(end(), n);
+            typename array_type::iterator b = std::next(begin(), adjust_index(at));
+            typename array_type::iterator e = std::prev(end(), n);
             typename array_type::iterator de = end();
             std::copy_backward(b, e, de);
         }
@@ -262,7 +273,9 @@ public:
     }
 
     bool operator<(const parray &rhs) const {
-        return std::lexicographical_compare(m_array.begin(), m_array.end(), rhs.m_array.begin(), rhs.m_array.end());
+        return std::lexicographical_compare(
+            m_array.begin(), m_array.end(), rhs.m_array.begin(), rhs.m_array.end()
+        );
     }
 
 private:

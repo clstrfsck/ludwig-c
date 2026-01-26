@@ -17,9 +17,13 @@ void screen_position(line_ptr new_line, col_range new_col);
 void screen_pause();
 void screen_clear_msgs(bool pause);
 void screen_fixup();
-void screen_getlinep(const std::string_view &prompt,
-                     str_object &outbuf, strlen_range &outlen,
-                     tpcount_type max_tp, tpcount_type this_tp);
+void screen_getlinep(
+    const std::string_view &prompt,
+    str_object &outbuf,
+    strlen_range &outlen,
+    tpcount_type max_tp,
+    tpcount_type this_tp
+);
 void screen_free_bottom_line();
 verify_response screen_verify(const std::string_view &prompt);
 void screen_beep();

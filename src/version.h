@@ -25,7 +25,7 @@
 
 #include <string_view>
 
-inline constexpr std::string_view LUDWIG_VERSION {
+inline constexpr std::string_view LUDWIG_VERSION{
 #ifdef DEBUG
     "X5.0-006                       "
 #else

@@ -7,8 +7,7 @@
 
 #include <stdexcept>
 
-template <int min_, int max_>
-class prange {
+template <int min_, int max_> class prange {
     static_assert(min_ < max_, "min must be strictly less than max");
 
     static constexpr int check_range(int value) {

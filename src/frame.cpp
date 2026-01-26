@@ -26,14 +26,14 @@
 
 #include "ch.h"
 #include "dfa.h"
-#include "var.h"
-#include "vdu.h"
 #include "line.h"
 #include "mark.h"
+#include "screen.h"
 #include "span.h"
 #include "tpar.h"
 #include "user.h"
-#include "screen.h"
+#include "var.h"
+#include "vdu.h"
 #include "version.h"
 
 #include <cstring>
@@ -45,10 +45,11 @@ namespace {
 
     const accept_set_type npunct() {
         // Here to ensure initialisation after ALPHA_SET et al
-        static const accept_set_type NPUNCT = accept_set_type(ALPHA_SET).add(NUMERIC_SET).add(SPACE_SET);
+        static const accept_set_type NPUNCT =
+            accept_set_type(ALPHA_SET).add(NUMERIC_SET).add(SPACE_SET);
         return NPUNCT;
     }
-}
+} // namespace
 
 bool frame_edit(const std::string_view &frame_name) {
     /***************************************************************************
@@ -68,19 +69,19 @@ bool frame_edit(const std::string_view &frame_name) {
      *           automatically converted to `LUDWIG', the default name.        *
      **************************************************************************/
 
-    const int SPN  = 0x0001;
-    const int FRM  = 0x0002;
+    const int SPN = 0x0001;
+    const int FRM = 0x0002;
     const int MRK1 = 0x0004;
     const int MRK2 = 0x0008;
-    const int GRP  = 0x0010;
-    const int DOT  = 0x0020;
+    const int GRP = 0x0010;
+    const int DOT = 0x0020;
     int created = 0;
     std::string_view fname = frame_name.empty() ? DEFAULT_FRAME_NAME : frame_name;
     span_ptr ptr;
     span_ptr oldp;
     if (span_find(fname, ptr, oldp)) {
         if (ptr->frame != nullptr) {
-            if (ptr->frame != current_frame){
+            if (ptr->frame != current_frame) {
                 ptr->frame->return_frame = current_frame;
                 current_frame = ptr->frame;
             }
@@ -92,22 +93,22 @@ bool frame_edit(const std::string_view &frame_name) {
     } else {
         // No Span/Frame of that name exists, create one.
         frame_ptr fptr = new frame_object;
-        span_ptr  sptr = new span_object;
+        span_ptr sptr = new span_object;
         created |= FRM | SPN;
         group_ptr gptr;
         if (line_eop_create(fptr, gptr)) {
             // see note above
             created |= GRP;
-            //with sptr^ do
+            // with sptr^ do
             sptr->blink = oldp;
             sptr->flink = ptr;
             if (oldp == nullptr)
-                first_span  = sptr;
+                first_span = sptr;
             else
                 oldp->flink = sptr;
             if (ptr != nullptr)
-                ptr->blink  = sptr;
-            sptr->name  = fname;
+                ptr->blink = sptr;
+            sptr->name = fname;
             sptr->frame = fptr;
             sptr->mark_one = nullptr;
             sptr->mark_two = nullptr;
@@ -124,41 +125,41 @@ bool frame_edit(const std::string_view &frame_name) {
                 }
             }
             if (created & DOT) {
-                //with fptr^ do
-                fptr->first_group     = gptr;
-                fptr->last_group      = gptr;
+                // with fptr^ do
+                fptr->first_group = gptr;
+                fptr->last_group = gptr;
                 // dot created above
-                fptr->marks           = initial_marks;
-                fptr->scr_height      = initial_scr_height;
-                fptr->scr_width       = initial_scr_width;
-                fptr->scr_offset      = initial_scr_offset;
-                fptr->scr_dot_line    = 1;
-                fptr->span            = sptr;
-                fptr->return_frame    = current_frame;
-                fptr->input_count     = 0;
-                fptr->space_limit     = file_data.space;
-                fptr->space_left      = file_data.space;
-                fptr->text_modified   = false;
-                fptr->margin_left     = initial_margin_left;
-                fptr->margin_right    = initial_margin_right;
-                fptr->margin_top      = initial_margin_top;
-                fptr->margin_bottom   = initial_margin_bottom;
-                fptr->tab_stops       = initial_tab_stops;
-                fptr->options         = initial_options;
-                fptr->input_file      = 0;
-                fptr->output_file     = 0;
-                fptr->get_tpar.len    = 0;
-                fptr->get_tpar.con    = nullptr;
-                fptr->get_tpar.nxt    = nullptr;
-                fptr->eqs_tpar.len    = 0;
-                fptr->eqs_tpar.con    = nullptr;
-                fptr->eqs_tpar.nxt    = nullptr;
-                fptr->rep1_tpar.len   = 0;
-                fptr->rep1_tpar.con   = nullptr;
-                fptr->rep1_tpar.nxt   = nullptr;
-                fptr->rep2_tpar.len   = 0;
-                fptr->rep2_tpar.con   = nullptr;
-                fptr->rep2_tpar.nxt   = nullptr;
+                fptr->marks = initial_marks;
+                fptr->scr_height = initial_scr_height;
+                fptr->scr_width = initial_scr_width;
+                fptr->scr_offset = initial_scr_offset;
+                fptr->scr_dot_line = 1;
+                fptr->span = sptr;
+                fptr->return_frame = current_frame;
+                fptr->input_count = 0;
+                fptr->space_limit = file_data.space;
+                fptr->space_left = file_data.space;
+                fptr->text_modified = false;
+                fptr->margin_left = initial_margin_left;
+                fptr->margin_right = initial_margin_right;
+                fptr->margin_top = initial_margin_top;
+                fptr->margin_bottom = initial_margin_bottom;
+                fptr->tab_stops = initial_tab_stops;
+                fptr->options = initial_options;
+                fptr->input_file = 0;
+                fptr->output_file = 0;
+                fptr->get_tpar.len = 0;
+                fptr->get_tpar.con = nullptr;
+                fptr->get_tpar.nxt = nullptr;
+                fptr->eqs_tpar.len = 0;
+                fptr->eqs_tpar.con = nullptr;
+                fptr->eqs_tpar.nxt = nullptr;
+                fptr->rep1_tpar.len = 0;
+                fptr->rep1_tpar.con = nullptr;
+                fptr->rep1_tpar.nxt = nullptr;
+                fptr->rep2_tpar.len = 0;
+                fptr->rep2_tpar.con = nullptr;
+                fptr->rep2_tpar.nxt = nullptr;
                 fptr->verify_tpar.len = 0;
                 fptr->verify_tpar.con = nullptr;
                 fptr->verify_tpar.nxt = nullptr;
@@ -166,10 +167,13 @@ bool frame_edit(const std::string_view &frame_name) {
                 fptr->get_pattern_ptr = nullptr;
                 fptr->rep_pattern_ptr = nullptr;
                 if (line_change_length(gptr->last_line, NAME_LEN + END_OF_FILE.size())) {
-                    //with gptr->last_line^ do
-                    // Guaranteed that gptr->last_line->str != nullptr here if line_change_length OK
+                    // with gptr->last_line^ do
+                    //  Guaranteed that gptr->last_line->str != nullptr here if line_change_length
+                    //  OK
                     gptr->last_line->str->copy_n(END_OF_FILE.data(), END_OF_FILE.size());
-                    gptr->last_line->str->copy_n(fname.data(), fname.size(), 1 + END_OF_FILE.size());
+                    gptr->last_line->str->copy_n(
+                        fname.data(), fname.size(), 1 + END_OF_FILE.size()
+                    );
                     gptr->last_line->used = 0; // Special feature of the NULL line !
                     current_frame = fptr;
                     return true;
@@ -194,7 +198,6 @@ bool frame_edit(const std::string_view &frame_name) {
     }
     return false;
 }
-
 
 bool frame_kill(const std::string_view &frame_name) {
     /***************************************************************************
@@ -222,7 +225,7 @@ bool frame_kill(const std::string_view &frame_name) {
         screen_message(MSG_CANT_KILL_FRAME);
         return false;
     }
-    //with this_frame^ do
+    // with this_frame^ do
     if ((this_frame->input_file != 0) || (this_frame->output_file != 0)) {
         screen_message(MSG_FRAME_HAS_FILES_ATTACHED);
         return false;
@@ -235,7 +238,7 @@ bool frame_kill(const std::string_view &frame_name) {
     while (oldp != nullptr) {
         sptr = oldp->flink;
         if (oldp->frame != nullptr) {
-            //with oldp->frame^ do
+            // with oldp->frame^ do
             if (oldp->frame->return_frame == this_frame)
                 oldp->frame->return_frame = nullptr;
         } else if (oldp->mark_one->line->group->frame == this_frame) {
@@ -245,10 +248,10 @@ bool frame_kill(const std::string_view &frame_name) {
         oldp = sptr;
     }
 
-    //with this_frame^ do
-    // Step 2. -- Destroy the Span
-    //            Zap the frame ptr in the span header
-    //            So that Span_Destroy doesnt crash
+    // with this_frame^ do
+    //  Step 2. -- Destroy the Span
+    //             Zap the frame ptr in the span header
+    //             So that Span_Destroy doesnt crash
     this_frame->span->frame = nullptr;
     if (!span_destroy(this_frame->span))
         return false;
@@ -277,7 +280,7 @@ bool frame_kill(const std::string_view &frame_name) {
 
     // Step 4. -- Dispose of the frame header (phew!)
     //            and any pattern tables attatched
-    //with this_frame^ do
+    // with this_frame^ do
     if (!pattern_dfa_table_kill(this_frame->eqs_pattern_ptr))
         return false; // FAV
     if (!pattern_dfa_table_kill(this_frame->get_pattern_ptr))
@@ -290,7 +293,7 @@ bool frame_kill(const std::string_view &frame_name) {
 }
 
 char nextchar(const tpar_object &request, int &pos) {
-    //with request do
+    // with request do
     while ((pos < request.len) && (request.str[pos] == ' '))
         pos += 1;
     char ch;
@@ -308,7 +311,7 @@ bool setmemory(int sz, bool set_initial) {
         sz = MAX_SPACE;
     if (set_initial)
         file_data.space = sz;
-    //with current_frame^ do
+    // with current_frame^ do
     int used_storage = current_frame->space_limit - current_frame->space_left;
     int min_size = used_storage + 800;
     if (min_size > current_frame->space_limit)
@@ -316,12 +319,12 @@ bool setmemory(int sz, bool set_initial) {
     if (sz < min_size)
         sz = min_size;
     current_frame->space_limit = sz;
-    current_frame->space_left  = sz - used_storage;
+    current_frame->space_left = sz - used_storage;
     return true;
 }
 
 bool frame_setheight(int sh, bool set_initial) {
-    //with current_frame^ do
+    // with current_frame^ do
     if ((sh >= 1) && (sh <= terminal_info.height)) {
         if (set_initial)
             initial_scr_height = sh;
@@ -354,7 +357,7 @@ bool setwidth(int wid, bool set_initial) {
 
 void show_options() {
     screen_unload();
-    //with current_frame^ do
+    // with current_frame^ do
     screen_home(true);
     screen_write_str(0, "    Ludwig Option         Code    State");
     screen_writeln();
@@ -511,8 +514,8 @@ bool set_mode(const tpar_object &request, int &pos) {
 }
 
 bool set_tabs(const tpar_object &request, int &pos, bool set_initial) {
-    //with current_frame^ do
-    char ch = nextchar(request,pos);
+    // with current_frame^ do
+    char ch = nextchar(request, pos);
     switch (ch) {
     case 'D': // default tabs
         if (set_initial)
@@ -520,7 +523,7 @@ bool set_tabs(const tpar_object &request, int &pos, bool set_initial) {
         current_frame->tab_stops = DEFAULT_TAB_STOPS;
         break;
     case 'T': // template match
-        //with dot->line^ do
+        // with dot->line^ do
         if (current_frame->dot->line->used > 0) {
             bool ts = (*current_frame->dot->line->str)[1] != ' ';
             if (set_initial)
@@ -540,93 +543,97 @@ bool set_tabs(const tpar_object &request, int &pos, bool set_initial) {
             current_frame->tab_stops[i] = false;
         }
         break;
-    case 'I': { // insert tabs
-        line_ptr first_line;
-        line_ptr last_line;
-        if (!lines_create(1, first_line, last_line))
-            return false;
-        if (!line_change_length(first_line, MAX_STRLEN))
-            return false; // FIXME: is this a leak?
-        //with first_line^ do
-        if (set_initial) {
-            for (int i = 1; i <= MAX_STRLEN; ++i) {
-                if (initial_tab_stops[i])
-                    (*first_line->str)[i] = 'T';
+    case 'I':
+        { // insert tabs
+            line_ptr first_line;
+            line_ptr last_line;
+            if (!lines_create(1, first_line, last_line))
+                return false;
+            if (!line_change_length(first_line, MAX_STRLEN))
+                return false; // FIXME: is this a leak?
+            // with first_line^ do
+            if (set_initial) {
+                for (int i = 1; i <= MAX_STRLEN; ++i) {
+                    if (initial_tab_stops[i])
+                        (*first_line->str)[i] = 'T';
+                }
+                (*first_line->str)[initial_margin_left] = 'L';
+                (*first_line->str)[initial_margin_right] = 'R';
+            } else {
+                for (int i = 1; i < MAX_STRLEN; ++i) {
+                    if (current_frame->tab_stops[i])
+                        (*first_line->str)[i] = 'T';
+                }
+                (*first_line->str)[current_frame->margin_left] = 'L';
+                (*first_line->str)[current_frame->margin_right] = 'R';
             }
-            (*first_line->str)[initial_margin_left] = 'L';
-            (*first_line->str)[initial_margin_right] = 'R';
-        } else {
-            for (int i = 1; i < MAX_STRLEN; ++i) {
-                if (current_frame->tab_stops[i])
-                    (*first_line->str)[i] = 'T';
-            }
-            (*first_line->str)[current_frame->margin_left] = 'L';
-            (*first_line->str)[current_frame->margin_right] = 'R';
+            first_line->used = first_line->str->length(' ');
+            if (!lines_inject(first_line, last_line, current_frame->dot->line))
+                return false; // FIXME: is this a leak?
+            if (!mark_create(first_line, current_frame->dot->col, current_frame->dot))
+                return false;
+            current_frame->text_modified = true;
+            if (!mark_create(
+                    first_line, current_frame->dot->col, current_frame->marks[MARK_MODIFIED]
+                ))
+                return false;
         }
-        first_line->used = first_line->str->length(' ');
-        if (!lines_inject(first_line, last_line, current_frame->dot->line))
-            return false; // FIXME: is this a leak?
-        if (!mark_create(first_line, current_frame->dot->col, current_frame->dot))
-            return false;
-        current_frame->text_modified = true;
-        if (!mark_create(first_line, current_frame->dot->col, current_frame->marks[MARK_MODIFIED]))
-            return false;
-    }
         break;
-    case 'R': { // Template Ruler
-        //with dot^,line^ do
-        int i           = 1;
-        bool legal      = true;
-        enum { LM_NONE, LM_LEFT, LM_RIGHT } last_margin = LM_NONE;
-        while ((i <= current_frame->dot->line->used) && legal) {
-            char chi = std::toupper(current_frame->dot->line->str->operator[](i));
-            legal = (chi == 'T') || (chi == 'L') || (chi == 'R') || (chi == ' ');
-            if (chi == 'L') {
-                legal = legal && (last_margin == LM_NONE);
-                last_margin = LM_LEFT;
-            } else if (chi == 'R') {
-                legal = legal && (last_margin == LM_LEFT);
-                last_margin = LM_RIGHT;
+    case 'R':
+        { // Template Ruler
+            // with dot^,line^ do
+            int i = 1;
+            bool legal = true;
+            enum { LM_NONE, LM_LEFT, LM_RIGHT } last_margin = LM_NONE;
+            while ((i <= current_frame->dot->line->used) && legal) {
+                char chi = std::toupper(current_frame->dot->line->str->operator[](i));
+                legal = (chi == 'T') || (chi == 'L') || (chi == 'R') || (chi == ' ');
+                if (chi == 'L') {
+                    legal = legal && (last_margin == LM_NONE);
+                    last_margin = LM_LEFT;
+                } else if (chi == 'R') {
+                    legal = legal && (last_margin == LM_LEFT);
+                    last_margin = LM_RIGHT;
+                }
+                i += 1;
             }
-            i += 1;
-        }
-        legal = legal && (last_margin == LM_RIGHT);
-        if (!legal) {
-            screen_message(MSG_INVALID_RULER);
-            return false;
-        }
-        i = 1;
-        while (i <= current_frame->dot->line->used) {
-            char chi = std::toupper(current_frame->dot->line->str->operator[](i));
-            if (set_initial)
-                initial_tab_stops[i] = (chi != ' ');
-            current_frame->tab_stops[i] = (chi != ' ');
-            if (chi == 'L') {
-                if (set_initial)
-                    initial_margin_left = i;
-                current_frame->margin_left = i;
-            } else if (chi == 'R') {
-                if (set_initial)
-                    initial_margin_right = i;
-                current_frame->margin_right = i;
+            legal = legal && (last_margin == LM_RIGHT);
+            if (!legal) {
+                screen_message(MSG_INVALID_RULER);
+                return false;
             }
-            i += 1;
+            i = 1;
+            while (i <= current_frame->dot->line->used) {
+                char chi = std::toupper(current_frame->dot->line->str->operator[](i));
+                if (set_initial)
+                    initial_tab_stops[i] = (chi != ' ');
+                current_frame->tab_stops[i] = (chi != ' ');
+                if (chi == 'L') {
+                    if (set_initial)
+                        initial_margin_left = i;
+                    current_frame->margin_left = i;
+                } else if (chi == 'R') {
+                    if (set_initial)
+                        initial_margin_right = i;
+                    current_frame->margin_right = i;
+                }
+                i += 1;
+            }
+            for (int j = current_frame->dot->line->used + 1; j <= MAX_STRLEN; ++j) {
+                if (set_initial)
+                    initial_tab_stops[j] = false;
+                current_frame->tab_stops[j] = false;
+            }
+            line_ptr first_line = current_frame->dot->line;
+            col_range dot_col = current_frame->dot->col;
+            if (!marks_squeeze(first_line, 1, first_line->flink, 1))
+                return false;
+            if (!lines_extract(first_line, first_line))
+                return false;
+            if (!lines_destroy(first_line, first_line))
+                return false; // FIXME: Leak, but what to do?
+            current_frame->dot->col = dot_col;
         }
-        for (int j = current_frame->dot->line->used + 1; j <= MAX_STRLEN; ++j) {
-            if (set_initial)
-                initial_tab_stops[j] = false;
-            current_frame->tab_stops[j] = false;
-        }
-        line_ptr first_line = current_frame->dot->line;
-        col_range dot_col = current_frame->dot->col;
-        if (!marks_squeeze(first_line, 1, first_line->flink, 1))
-            return false;
-        if (!lines_extract(first_line, first_line))
-            return false;
-        if (!lines_destroy(first_line, first_line))
-            return false; // FIXME: Leak, but what to do?
-        current_frame->dot->col = dot_col;
-    }
         break;
     case 'S':
         if (current_frame->dot->col == MAX_STRLENP) {
@@ -646,30 +653,31 @@ bool set_tabs(const tpar_object &request, int &pos, bool set_initial) {
             initial_tab_stops[current_frame->dot->col] = false;
         current_frame->tab_stops[current_frame->dot->col] = false;
         break;
-    case '(': { // multi-columns specified
-        tab_array temptab(false);
-        temptab[0] = true;
-        temptab[MAX_STRLENP] = true;
-        do {
-            int j;
-            if (!tpar_to_int(request, pos, j))
-                return false;
-            if ((1 <= j) && (j <= MAX_STRLEN)) {
-                temptab[j] = true;
-            } else {
-                screen_message(MSG_OUT_OF_RANGE_TAB_VALUE);
-                return false;
-            }
-            ch = nextchar(request,pos);
-            if ((ch != ',') && (ch != ')')) {
-                screen_message(MSG_BAD_FORMAT_IN_TAB_TABLE);
-                return false;
-            }
-        } while (ch != ')');
-        if (set_initial)
-            initial_tab_stops = temptab;
-        current_frame->tab_stops = temptab;
-    }
+    case '(':
+        { // multi-columns specified
+            tab_array temptab(false);
+            temptab[0] = true;
+            temptab[MAX_STRLENP] = true;
+            do {
+                int j;
+                if (!tpar_to_int(request, pos, j))
+                    return false;
+                if ((1 <= j) && (j <= MAX_STRLEN)) {
+                    temptab[j] = true;
+                } else {
+                    screen_message(MSG_OUT_OF_RANGE_TAB_VALUE);
+                    return false;
+                }
+                ch = nextchar(request, pos);
+                if ((ch != ',') && (ch != ')')) {
+                    screen_message(MSG_BAD_FORMAT_IN_TAB_TABLE);
+                    return false;
+                }
+            } while (ch != ')');
+            if (set_initial)
+                initial_tab_stops = temptab;
+            current_frame->tab_stops = temptab;
+        }
         break;
     default:
         screen_message(MSG_INVALID_T_OPTION);
@@ -692,15 +700,17 @@ bool get_mar(char &ch, int &pos, const tpar_object &request, int lo_bnd, int hi_
     return true;
 }
 
-bool get_margins(int lo_bnd, int hi_bnd, const tpar_object &request, int &pos, int &lower, int &upper, bool lr) {
-    char ch = nextchar(request,  pos);
+bool get_margins(
+    int lo_bnd, int hi_bnd, const tpar_object &request, int &pos, int &lower, int &upper, bool lr
+) {
+    char ch = nextchar(request, pos);
     if (ch != '(') {
         screen_message(MSG_MARGIN_SYNTAX_ERROR);
         return false;
     }
-    ch = nextchar(request,pos);
+    ch = nextchar(request, pos);
     if (ch == '.') {
-        //with current_frame^ do
+        // with current_frame^ do
         if (lr)
             lower = current_frame->dot->col;
         else
@@ -712,7 +722,7 @@ bool get_margins(int lo_bnd, int hi_bnd, const tpar_object &request, int &pos, i
     if (ch == ',') {
         ch = nextchar(request, pos);
         if (ch == '.') {
-            //with current_frame^ do
+            // with current_frame^ do
             if (lr)
                 upper = current_frame->dot->col;
             else
@@ -730,7 +740,7 @@ bool get_margins(int lo_bnd, int hi_bnd, const tpar_object &request, int &pos, i
 }
 
 bool set_lrmargin(const tpar_object &request, int &pos, bool set_initial) {
-    //with current_frame^ do
+    // with current_frame^ do
     int tl;
     int tr;
     if (set_initial) {
@@ -744,10 +754,10 @@ bool set_lrmargin(const tpar_object &request, int &pos, bool set_initial) {
         return false;
     if (tl < tr) {
         if (set_initial) {
-            initial_margin_left  = tl;
+            initial_margin_left = tl;
             initial_margin_right = tr;
         }
-        current_frame->margin_left  = tl;
+        current_frame->margin_left = tl;
         current_frame->margin_right = tr;
     } else {
         screen_message(MSG_LEFT_MARGIN_GE_RIGHT);
@@ -757,7 +767,7 @@ bool set_lrmargin(const tpar_object &request, int &pos, bool set_initial) {
 }
 
 bool set_tbmargin(tpar_object &request, int &pos, bool set_initial) {
-   //with current_frame^ do
+    // with current_frame^ do
     int tt;
     int tb;
     if (set_initial) {
@@ -774,10 +784,10 @@ bool set_tbmargin(tpar_object &request, int &pos, bool set_initial) {
         return false; // needs better message--KBN--
     }
     if (set_initial) {
-        initial_margin_top    = tt;
+        initial_margin_top = tt;
         initial_margin_bottom = tb;
     }
-    current_frame->margin_top    = tt;
+    current_frame->margin_top = tt;
     current_frame->margin_bottom = tb;
     return true;
 }
@@ -793,7 +803,7 @@ bool setparam(tpar_object &request) {
         } else {
             set_initial = false;
         }
-        if (nextchar(request,pos) != '=') {
+        if (nextchar(request, pos) != '=') {
             screen_message(MSG_OPTIONS_SYNTAX_ERROR);
             return false;
         }
@@ -802,7 +812,7 @@ bool setparam(tpar_object &request) {
         switch (ch) {
             //      if ch in ['O', 'S', 'H', 'W', 'C', 'T', 'M', 'V', 'K'] then
         case 'O':
-            ok = set_options(request,pos,set_initial);
+            ok = set_options(request, pos, set_initial);
             break;
         case 'S':
             if (tpar_to_int(request, pos, temp))
@@ -810,11 +820,11 @@ bool setparam(tpar_object &request) {
             break;
         case 'H':
             if (tpar_to_int(request, pos, temp))
-                ok = frame_setheight(temp,set_initial);
+                ok = frame_setheight(temp, set_initial);
             break;
         case 'W':
             if (tpar_to_int(request, pos, temp))
-                ok = setwidth(temp,set_initial);
+                ok = setwidth(temp, set_initial);
             break;
         case 'C':
             ok = setcmdintr(request, pos);
@@ -829,7 +839,7 @@ bool setparam(tpar_object &request) {
             ok = set_tbmargin(request, pos, set_initial);
             break;
         case 'K':
-            ok = set_mode(request,pos);
+            ok = set_mode(request, pos);
             break;
         default:
             screen_message(MSG_INVALID_PARAMETER_CODE);
@@ -904,7 +914,7 @@ void print_margins(int m1, int m2) {
 
 bool frame_parameter(tpar_ptr tpar) {
     bool result = false;
-    //with request do
+    // with request do
     tpar->nxt = nullptr;
     tpar->con = nullptr;
     tpar_object request;
@@ -917,7 +927,7 @@ bool frame_parameter(tpar_ptr tpar) {
     // else display parameters and stats
     screen_unload();
     screen_home(true);
-    //with current_frame^ do
+    // with current_frame^ do
     do {
         screen_home(false); // Dont clear the screen here !
         screen_write_str(0, " Ludwig ");
@@ -957,9 +967,15 @@ bool frame_parameter(tpar_ptr tpar) {
         screen_writeln_clel();
         screen_write_str(3, "Keyboard Mode                      K =");
         switch (edit_mode) {
-        case mode_type::mode_overtype: screen_write_str(1, "Overtype Mode"); break;
-        case mode_type::mode_insert  : screen_write_str(1, "Insert Mode");   break;
-        case mode_type::mode_command : screen_write_str(1, "Command Mode");  break;
+        case mode_type::mode_overtype:
+            screen_write_str(1, "Overtype Mode");
+            break;
+        case mode_type::mode_insert:
+            screen_write_str(1, "Insert Mode");
+            break;
+        case mode_type::mode_command:
+            screen_write_str(1, "Command Mode");
+            break;
         }
         screen_writeln_clel();
         if (ludwig_mode == ludwig_mode_type::ludwig_screen) {
@@ -1004,7 +1020,7 @@ bool frame_parameter(tpar_ptr tpar) {
         screen_writeln_clel();
         screen_write_str(3, "Tab settings                       T =");
         screen_writeln_clel();
-        for (int i = 1; i <= current_frame->scr_width; ++i) { //### Scr_width is wrong
+        for (int i = 1; i <= current_frame->scr_width; ++i) { // ### Scr_width is wrong
             if (i == current_frame->margin_left)
                 screen_write_ch(0, 'L');
             else if (i == current_frame->margin_right)
@@ -1024,7 +1040,7 @@ bool frame_parameter(tpar_ptr tpar) {
         }
     } while (!tt_controlc && request.len != 0);
     result = true;
- l99:;
+l99:;
     tpar_clean_object(request);
     return result;
 }

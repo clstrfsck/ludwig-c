@@ -9,8 +9,7 @@
 
 // FIXME: Required enum to be consecutive and have a value "last_entry".
 
-template <typename T>
-class penumset {
+template <typename T> class penumset {
 
     // FIXME: This is pretty horrible
     static constexpr T next_enum(T val) {

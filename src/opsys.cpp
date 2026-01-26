@@ -26,19 +26,19 @@
 #include "opsys.h"
 
 #include "ch.h"
-#include "line.h"
 #include "filesys.h"
+#include "line.h"
 
 bool opsys_command(const tpar_object &command, line_ptr &first, line_ptr &last, int &actual_cnt) {
     first = nullptr;
     last = nullptr;
     actual_cnt = 0;
     file_object mbx;
-    //with mbx^ do
-    mbx.valid       = false;
-    mbx.first_line  = nullptr;
-    mbx.last_line   = nullptr;
-    mbx.line_count  = 0;
+    // with mbx^ do
+    mbx.valid = false;
+    mbx.first_line = nullptr;
+    mbx.last_line = nullptr;
+    mbx.line_count = 0;
     mbx.output_flag = false;
     if (command.len <= FILE_NAME_LEN) {
         mbx.filename = std::string(command.str.data(), command.len);
@@ -63,7 +63,7 @@ bool opsys_command(const tpar_object &command, line_ptr &first, line_ptr &last, 
                 goto l98;
             }
             ch_fillcopy(&result, 1, outlen, line->str, 1, line->len, ' ');
-            line->used  = outlen;
+            line->used = outlen;
             line->blink = last;
             if (last != nullptr)
                 last->flink = line;

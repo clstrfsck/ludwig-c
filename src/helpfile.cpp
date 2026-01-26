@@ -32,10 +32,10 @@
 // significant amount.  For now we are keeping it as a separate file.
 
 namespace {
-    const char * const NEW_HELPFILE_ENV = "LUD_NEWHELPFILE";
-    const char * const OLD_HELPFILE_ENV = "LUD_HELPFILE";
-    inline constexpr std::string_view NEW_DEFAULT_HLPFILE { "/usr/local/help/ludwignewhlp.idx" };
-    inline constexpr std::string_view OLD_DEFAULT_HLPFILE { "/usr/local/help/ludwighlp.idx" };
+    const char *const NEW_HELPFILE_ENV = "LUD_NEWHELPFILE";
+    const char *const OLD_HELPFILE_ENV = "LUD_HELPFILE";
+    inline constexpr std::string_view NEW_DEFAULT_HLPFILE{"/usr/local/help/ludwignewhlp.idx"};
+    inline constexpr std::string_view OLD_DEFAULT_HLPFILE{"/usr/local/help/ludwighlp.idx"};
 
     const size_t SKIP_MAX = 81; // No good reason for this value, but it's a lot of blank lines.
 
@@ -95,7 +95,7 @@ namespace {
         // the file.
         for (auto &p : table) {
             p.second.start_pos += contents.end_pos;
-            p.second.end_pos   += contents.end_pos;
+            p.second.end_pos += contents.end_pos;
         }
 
         // Add the contents to the table.
@@ -103,7 +103,7 @@ namespace {
 
         return true;
     }
-};
+}; // namespace
 
 void helpfile_close() {
     if (helpfile.is_open()) {
@@ -164,7 +164,7 @@ bool helpfile_next(help_record &buffer) {
         return false;
     } else {
         std::getline(helpfile, buffer.txt);
-        buffer.key= current_key.key;
+        buffer.key = current_key.key;
     }
     return true;
 }

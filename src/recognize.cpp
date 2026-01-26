@@ -30,8 +30,15 @@ namespace {
     const accept_set_type EMPTY_SET;
 };
 
-void pattern_get_input_elt(line_ptr line, char &ch, accept_set_type &input_set, col_range &column,
-                           strlen_range length, bool &mark_flag, bool &end_of_line) {
+void pattern_get_input_elt(
+    line_ptr line,
+    char &ch,
+    accept_set_type &input_set,
+    col_range &column,
+    strlen_range length,
+    bool &mark_flag,
+    bool &end_of_line
+) {
     input_set.clear();
     if (length == 0) {
         ch = PATTERN_SPACE; // not 100% corrrect but OK
@@ -40,8 +47,8 @@ void pattern_get_input_elt(line_ptr line, char &ch, accept_set_type &input_set, 
         end_of_line = true;
     } else {
         bool mark_found = false;
-        if (!mark_flag) {      // the last time through was not a mark so look for them this time
-            //with current_frame^ do
+        if (!mark_flag) { // the last time through was not a mark so look for them this time
+            // with current_frame^ do
             if (column == 1) {
                 input_set.add(PATTERN_BEG_LINE);
                 mark_found = true;
@@ -67,7 +74,8 @@ void pattern_get_input_elt(line_ptr line, char &ch, accept_set_type &input_set, 
                 for (mark_range mark_no = MIN_MARK_NUMBER; mark_no <= MAX_MARK_NUMBER; ++mark_no) {
                     // run through user accessible ones
                     if (current_frame->marks[mark_no] != nullptr) {
-                        if ((current_frame->marks[mark_no]->line == line) && (current_frame->marks[mark_no]->col == column)) {
+                        if ((current_frame->marks[mark_no]->line == line) &&
+                            (current_frame->marks[mark_no]->col == column)) {
                             input_set.add(mark_no + PATTERN_MARKS_START);
                             mark_found = true;
                         }
@@ -80,7 +88,7 @@ void pattern_get_input_elt(line_ptr line, char &ch, accept_set_type &input_set, 
 
         if (!mark_found) {
             // if there is not a mark or we have already prossesed it . then get the char
-            mark_flag = false;   // will test for a mark next time through
+            mark_flag = false; // will test for a mark next time through
             ch = (*line->str)[column];
             if (column <= length)
                 column += 1;
@@ -88,8 +96,14 @@ void pattern_get_input_elt(line_ptr line, char &ch, accept_set_type &input_set, 
     }
 }
 
-bool pattern_next_state(dfa_table_ptr dfa_table_pointer, char ch,
-                        const accept_set_type &input_set, bool mark_flag, dfa_state_range &state, bool &started) {
+bool pattern_next_state(
+    dfa_table_ptr dfa_table_pointer,
+    char ch,
+    const accept_set_type &input_set,
+    bool mark_flag,
+    dfa_state_range &state,
+    bool &started
+) {
     bool found = false;
     transition_ptr transition_pointer = dfa_table_pointer->dfa_table[state].transitions;
     if (mark_flag) { // look for transitions on positionals only
@@ -128,25 +142,34 @@ bool pattern_next_state(dfa_table_ptr dfa_table_pointer, char ch,
     return found;
 }
 
-bool pattern_recognize(dfa_table_ptr dfa_table_pointer, line_ptr line, col_range start_col,
-                       bool &mark_flag, col_range &start_pos, col_range &finish_pos) {
+bool pattern_recognize(
+    dfa_table_ptr dfa_table_pointer,
+    line_ptr line,
+    col_range start_col,
+    bool &mark_flag,
+    col_range &start_pos,
+    col_range &finish_pos
+) {
     col_range line_counter = start_col;
-    start_pos    = start_col;
-    finish_pos   = start_col;
+    start_pos = start_col;
+    finish_pos = start_col;
     dfa_state_range state = PATTERN_DFA_START;
-    bool found       = false;
-    bool fail        = false;
-    bool started     = true;
+    bool found = false;
+    bool fail = false;
+    bool started = true;
     bool end_of_line = false;
-    bool left_flag   = false;
+    bool left_flag = false;
     accept_set_type positional_set;
     char ch;
-    //with dfa_table_pointer^ do
+    // with dfa_table_pointer^ do
     do {
         do {
-            pattern_get_input_elt(line, ch, positional_set, line_counter, line->used,
-                                  mark_flag, end_of_line);
-            if (pattern_next_state(dfa_table_pointer, ch, positional_set, mark_flag, state, started)) {
+            pattern_get_input_elt(
+                line, ch, positional_set, line_counter, line->used, mark_flag, end_of_line
+            );
+            if (pattern_next_state(
+                    dfa_table_pointer, ch, positional_set, mark_flag, state, started
+                )) {
                 if (state == PATTERN_DFA_KILL) {
                     state = PATTERN_DFA_START;
                 } else if (state == PATTERN_DFA_FAIL) {
@@ -155,7 +178,7 @@ bool pattern_recognize(dfa_table_ptr dfa_table_pointer, line_ptr line, col_range
                     line_counter = start_col + 1;
                     state = PATTERN_DFA_START;
                 }
-                //with dfa_table[state] do
+                // with dfa_table[state] do
                 if (dfa_table_pointer->dfa_table[state].left_transition) {
                     start_pos = line_counter;
                 } else if (dfa_table_pointer->dfa_table[state].left_context_check) {
@@ -170,18 +193,21 @@ bool pattern_recognize(dfa_table_ptr dfa_table_pointer, line_ptr line, col_range
         } while (!dfa_table_pointer->dfa_table[state].final_accept && !end_of_line);
         if (!end_of_line) {
             do {
-                pattern_get_input_elt(line, ch, positional_set, line_counter, line->used,
-                                      mark_flag, end_of_line);
-                if (pattern_next_state(dfa_table_pointer, ch, positional_set, mark_flag, state, started)) {
+                pattern_get_input_elt(
+                    line, ch, positional_set, line_counter, line->used, mark_flag, end_of_line
+                );
+                if (pattern_next_state(
+                        dfa_table_pointer, ch, positional_set, mark_flag, state, started
+                    )) {
                     if (state == PATTERN_DFA_KILL) {
                         found = true;
                     } else if (state == PATTERN_DFA_FAIL) {
                         fail = true;
                         start_col += 1;
-                        line_counter = start_col +1;
+                        line_counter = start_col + 1;
                         state = PATTERN_DFA_START;
                     }
-                    //with dfa_table[state] do
+                    // with dfa_table[state] do
                     if (dfa_table_pointer->dfa_table[state].right_transition)
                         finish_pos = line_counter;
                 }
@@ -191,14 +217,14 @@ bool pattern_recognize(dfa_table_ptr dfa_table_pointer, line_ptr line, col_range
     if (!found) { // must also be end of line push through the white space at end of line
         bool flag = dfa_table_pointer->dfa_table[state].final_accept;
         if (pattern_next_state(dfa_table_pointer, ' ', EMPTY_SET, false, state, started)) {
-                //with dfa_table[state] do
-                // note end of line positional will already have been prossesed
+            // with dfa_table[state] do
+            //  note end of line positional will already have been prossesed
             if ((state == PATTERN_DFA_KILL) && flag)
                 found = true;
             if (dfa_table_pointer->dfa_table[state].right_transition)
-                finish_pos = line->used +1;
+                finish_pos = line->used + 1;
             if (dfa_table_pointer->dfa_table[state].left_transition)
-                start_pos = line->used +1;
+                start_pos = line->used + 1;
             if (dfa_table_pointer->dfa_table[state].final_accept) {
                 // does not need to be pushed to the kill state
                 // as there is no more input, so there is no

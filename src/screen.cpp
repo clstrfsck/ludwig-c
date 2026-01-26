@@ -29,40 +29,30 @@
 
 #include "screen.h"
 
-//Global Data.
-// SCR_FRAME             -- Frame indicating which frame currently mapped.
-// SCR_TOP_LINE          -- A line_pointer indicating the first line of screen.
-// SCR_BOT_LINE          -- A line_pointer indicating the last  line of screen.
-// SCR_MSG_ROW           -- Lowest row on screen with msg on it.
+// Global Data.
+//  SCR_FRAME             -- Frame indicating which frame currently mapped.
+//  SCR_TOP_LINE          -- A line_pointer indicating the first line of screen.
+//  SCR_BOT_LINE          -- A line_pointer indicating the last  line of screen.
+//  SCR_MSG_ROW           -- Lowest row on screen with msg on it.
 //
-// LINE.SCR_ROW_NR       -- The row number of a line.  0 means 'not
-//                          on screen'.
+//  LINE.SCR_ROW_NR       -- The row number of a line.  0 means 'not
+//                           on screen'.
 //
-// FRAME.SCR_OFFSET      -- To find the column number on the screen
-//                          from the column number of a character in
-//                          a line of a frame, subtract this value.
+//  FRAME.SCR_OFFSET      -- To find the column number on the screen
+//                           from the column number of a character in
+//                           a line of a frame, subtract this value.
 
+#include "line.h"
 #include "var.h"
 #include "vdu.h"
-#include "line.h"
 
 #include <cstring>
 #include <iomanip>
 #include <iostream>
 
-enum class slide_type {
-    slide_dont,
-    slide_left,
-    slide_right,
-    slide_redraw
-};
+enum class slide_type { slide_dont, slide_left, slide_right, slide_redraw };
 
-enum class scroll_type {
-    scroll_dont,
-    scroll_forward,
-    scroll_back,
-    scroll_redraw
-};
+enum class scroll_type { scroll_dont, scroll_forward, scroll_back, scroll_redraw };
 
 const char PAUSE_MSG[] = "Pausing until RETURN pressed: ";
 const char YNAQM_MSG[] = "Reply Y(es),N(o),A(lways),Q(uit),M(ore)";
@@ -110,13 +100,13 @@ void screen_message(const std::string_view &message) {
     if (ludwig_mode == ludwig_mode_type::ludwig_screen) {
         size_t i = 0;
         do {
-            screen_free_bottom_line();             // Make room for msg.
+            screen_free_bottom_line(); // Make room for msg.
             vdu_movecurs(1, terminal_info.height);
             int j = message.size() - i;
             if (j > terminal_info.width - 1)
                 j = terminal_info.width - 1;
             vdu_attr_bold();
-            vdu_displaystr(j, message.data() + i, 3);     // due to wrap avoidance.
+            vdu_displaystr(j, message.data() + i, 3); // due to wrap avoidance.
             vdu_attr_normal();
             i += j;
         } while (i < message.size());
@@ -126,7 +116,6 @@ void screen_message(const std::string_view &message) {
         writeln(message);
     }
 }
-
 
 void screen_draw_line(line_ptr line) {
     // Draw a line if it is on the screen.
@@ -157,7 +146,6 @@ void screen_draw_line(line_ptr line) {
         scr_msg_row += 1;
 }
 
-
 void screen_redraw() {
     // Redraw the screen, exactly as is.
 
@@ -182,12 +170,12 @@ void screen_slide_line(line_ptr line, int slide_dist, slide_type slide_state) {
     // and that the lines on the screen are being accordingly fixed.
 
     if (line->flink == nullptr)
-        return;  // Dont slide NULL line.
+        return; // Dont slide NULL line.
 
     col_offset_range offset = scr_frame->scr_offset;
-    scr_col_range width     = scr_frame->scr_width;
+    scr_col_range width = scr_frame->scr_width;
 
-    //with line^ do
+    // with line^ do
     vdu_movecurs(1, line->scr_row_nr);
     if (slide_state == slide_type::slide_left) {
         int overlap = line->used - offset;
@@ -211,7 +199,9 @@ void screen_slide_line(line_ptr line, int slide_dist, slide_type slide_state) {
             if (overlap > 0) {
                 if (overlap > slide_dist)
                     overlap = slide_dist;
-                vdu_displaystr(overlap, line->str->data() + offset + width + 1 - slide_dist, 2 /*anycurs*/);
+                vdu_displaystr(
+                    overlap, line->str->data() + offset + width + 1 - slide_dist, 2 /*anycurs*/
+                );
             }
         }
     }
@@ -247,8 +237,9 @@ void screen_unload() {
 
     if (scr_frame != nullptr) {
         if (scr_frame->dot->line->scr_row_nr == 0)
-            scr_frame->scr_dot_line = (scr_frame->margin_top + scr_frame->scr_height - scr_frame->margin_bottom + 1) / 2
-                           + (terminal_info.height - scr_frame->scr_height) / 2;
+            scr_frame->scr_dot_line =
+                (scr_frame->margin_top + scr_frame->scr_height - scr_frame->margin_bottom + 1) / 2 +
+                (terminal_info.height - scr_frame->scr_height) / 2;
         else
             scr_frame->scr_dot_line = scr_frame->dot->line->scr_row_nr;
         vdu_clearscr();
@@ -259,7 +250,7 @@ void screen_unload() {
             scr_top_line = scr_top_line->flink;
             scr_top_line->scr_row_nr = 0;
         }
-        scr_frame    = nullptr;
+        scr_frame = nullptr;
         scr_bot_line = nullptr;
         scr_top_line = nullptr;
     }
@@ -285,12 +276,13 @@ void screen_scroll(int count, bool expand) {
     line_ptr bot_line = scr_bot_line;
     line_ptr top_line = scr_top_line;
 
-    if (count >= 0) {                                  // FORWARD DIRECTION.
+    if (count >= 0) { // FORWARD DIRECTION.
         line_range bot_line_nr;
         if (expand) {
             if (!line_to_number(bot_line, bot_line_nr))
                 return;
-            int eop_line_nr = scr_frame->last_group->first_line_nr + scr_frame->last_group->last_line->offset_nr;
+            int eop_line_nr =
+                scr_frame->last_group->first_line_nr + scr_frame->last_group->last_line->offset_nr;
             int remaining_lines = eop_line_nr - bot_line_nr;
             if (remaining_lines < count)
                 count = remaining_lines;
@@ -300,7 +292,8 @@ void screen_scroll(int count, bool expand) {
                 free_lines = count;
             if (count - free_lines <= bot_line_row) {
                 // Won't be redrawing so extend downwards if possible.
-                for (scr_row_range row_nr = bot_line_row + 1; row_nr <= bot_line_row + free_lines; ++row_nr) {
+                for (scr_row_range row_nr = bot_line_row + 1; row_nr <= bot_line_row + free_lines;
+                     ++row_nr) {
                     bot_line = bot_line->flink;
                     bot_line->scr_row_nr = row_nr;
                     screen_draw_line(bot_line);
@@ -325,7 +318,7 @@ void screen_scroll(int count, bool expand) {
             }
             screen_unload();
             if (expand) {
-                scr_frame    = frame;
+                scr_frame = frame;
                 scr_top_line = bot_line;
                 scr_bot_line = bot_line;
                 bot_line->scr_row_nr = terminal_info.height;
@@ -337,8 +330,8 @@ void screen_scroll(int count, bool expand) {
 
         // SCROLL 'COUNT' LINES ONTO THE SCREEN.
 
-        while (count > 0) {                          // Scroll lines on the
-            count -= 1;                              // the screen.
+        while (count > 0) { // Scroll lines on the
+            count -= 1;     // the screen.
             vdu_scrollup(1);
             if (scr_msg_row <= terminal_info.height)
                 scr_msg_row -= 1;
@@ -358,9 +351,9 @@ void screen_scroll(int count, bool expand) {
             }
 
             top_line->scr_row_nr -= 1;
-            if (top_line->scr_row_nr == 0) {         // See if scrolled off.
-                top_line->flink->scr_row_nr = 1;     // Make next line top
-                top_line = top_line->flink;          // of screen.
+            if (top_line->scr_row_nr == 0) {     // See if scrolled off.
+                top_line->flink->scr_row_nr = 1; // Make next line top
+                top_line = top_line->flink;      // of screen.
             }
         }
     } else {
@@ -380,7 +373,8 @@ void screen_scroll(int count, bool expand) {
 
             if (top_line_row + count - free_lines <= terminal_info.height + 1) {
                 // IT IS WORTH WHILE EXTENDING THE SCREEN.
-                for (scr_row_range row_nr = top_line_row - 1; row_nr >= top_line_row - free_lines; --row_nr) {
+                for (scr_row_range row_nr = top_line_row - 1; row_nr >= top_line_row - free_lines;
+                     --row_nr) {
                     top_line = top_line->blink;
                     top_line->scr_row_nr = row_nr;
                     screen_draw_line(top_line);
@@ -399,7 +393,7 @@ void screen_scroll(int count, bool expand) {
             // REDRAW
             frame_ptr frame;
             line_ptr tmp_top_line;
-            if (expand) {  // Remember where to reload the screen.
+            if (expand) { // Remember where to reload the screen.
                 frame = scr_frame;
                 top_line_nr -= count;
                 if (!line_from_number(scr_frame, top_line_nr, tmp_top_line))
@@ -407,7 +401,7 @@ void screen_scroll(int count, bool expand) {
             }
             screen_unload();
             if (expand) {
-                scr_frame    = frame;
+                scr_frame = frame;
                 scr_top_line = tmp_top_line;
                 scr_bot_line = tmp_top_line;
                 tmp_top_line->scr_row_nr = 1 + terminal_info.height - scr_frame->scr_height;
@@ -418,8 +412,8 @@ void screen_scroll(int count, bool expand) {
         }
 
         // SCROLL 'COUNT' LINES ONTO THE SCREEN.
-        while (count > 0) {                           // Scroll lines on the
-            count -= 1;                               // the screen.
+        while (count > 0) { // Scroll lines on the
+            count -= 1;     // the screen.
             vdu_movecurs(1, 1);
             vdu_insertlines(1);
             if (scr_msg_row <= terminal_info.height)
@@ -438,7 +432,7 @@ void screen_scroll(int count, bool expand) {
             if (bot_line->scr_row_nr == terminal_info.height) {
                 bot_line->scr_row_nr = 0;
                 bot_line->blink->scr_row_nr = terminal_info.height;
-                bot_line = bot_line->blink;           // of screen.
+                bot_line = bot_line->blink; // of screen.
             } else {
                 bot_line->scr_row_nr += 1;
             }
@@ -449,9 +443,9 @@ void screen_scroll(int count, bool expand) {
     scr_top_line = top_line;
     scr_bot_line = bot_line;
 
-    scr_row_range row_nr = top_line->scr_row_nr;      // Reset the row numbers.
+    scr_row_range row_nr = top_line->scr_row_nr; // Reset the row numbers.
     while (top_line != bot_line) {
-        //with top_line^ do
+        // with top_line^ do
         top_line->scr_row_nr = row_nr;
         top_line = top_line->flink;
         row_nr += 1;
@@ -468,12 +462,12 @@ void screen_expand(bool init_upwards, bool init_downwards) {
     // Expand a screen out to at least the frame's specified screen height.
     // Use the allowed directions to control the expansion.
 
-    bool upwards   = init_upwards;
+    bool upwards = init_upwards;
     bool downwards = init_downwards;
 
     scr_row_range height = scr_frame->scr_height;
-    line_ptr bot_line    = scr_bot_line;
-    line_ptr top_line    = scr_top_line;
+    line_ptr bot_line = scr_bot_line;
+    line_ptr top_line = scr_top_line;
 
 #ifdef DEBUG
     if (top_line->scr_row_nr == 0) {
@@ -487,11 +481,11 @@ void screen_expand(bool init_upwards, bool init_downwards) {
         if (downwards) {
             downwards = false;
             scr_row_range cur_row = bot_line->scr_row_nr;
-            if (bot_line->flink != nullptr) {           // Add a line at bottom if poss.
+            if (bot_line->flink != nullptr) { // Add a line at bottom if poss.
                 if (cur_row < terminal_info.height) {
                     downwards = true;
-                    lines_on_scr  += 1;                 // Count the line added.
-                    bot_line       = bot_line->flink;   // Step on to next new line.
+                    lines_on_scr += 1;                  // Count the line added.
+                    bot_line = bot_line->flink;         // Step on to next new line.
                     bot_line->scr_row_nr = cur_row + 1; // Set its number.
                     screen_draw_line(bot_line);         // Draw it on the screen.
                 }
@@ -502,10 +496,10 @@ void screen_expand(bool init_upwards, bool init_downwards) {
             upwards = false;
             scr_row_range cur_row = top_line->scr_row_nr;
             if (cur_row > 1) {
-                if (top_line->blink != nullptr) {       // Add a line at top if poss.
+                if (top_line->blink != nullptr) { // Add a line at top if poss.
                     upwards = true;
-                    lines_on_scr  += 1;                 // Count the line added.
-                    top_line       = top_line->blink;   // Step on to next new line.
+                    lines_on_scr += 1;                  // Count the line added.
+                    top_line = top_line->blink;         // Step on to next new line.
                     top_line->scr_row_nr = cur_row - 1; // Set its number.
                     screen_draw_line(top_line);         // Draw it on the screen.
                 }
@@ -522,14 +516,14 @@ void screen_expand(bool init_upwards, bool init_downwards) {
         if (init_downwards) {
             if (bot_line->flink != nullptr) {
                 screen_scroll(height - lines_on_scr, true);
-                lines_on_scr = scr_bot_line->scr_row_nr+1-scr_top_line->scr_row_nr;
+                lines_on_scr = scr_bot_line->scr_row_nr + 1 - scr_top_line->scr_row_nr;
             }
         }
         if (init_upwards && lines_on_scr < height) {
             line_range nr_lines;
             if (line_to_number(scr_top_line, nr_lines)) {
                 if (nr_lines >= height - lines_on_scr)
-                    nr_lines = height-lines_on_scr;
+                    nr_lines = height - lines_on_scr;
                 screen_scroll(-nr_lines, true);
             }
         }
@@ -537,7 +531,7 @@ void screen_expand(bool init_upwards, bool init_downwards) {
 
     // Redraw the <TOP> and <BOTTOM> markers.
 
-    //with scr_bot_line^ do
+    // with scr_bot_line^ do
     if (scr_bot_line->flink != nullptr) {
         scr_row_range cur_row = scr_bot_line->scr_row_nr;
         if (cur_row < terminal_info.height) {
@@ -573,13 +567,13 @@ void screen_lines_extract(line_ptr first_line, line_ptr last_line) {
             scr_top_line = line_limit;
         count = line_limit->scr_row_nr - first_line->scr_row_nr;
         do {
-            //with first_line^ do
+            // with first_line^ do
             first_line->scr_row_nr = 0;
             first_line = first_line->flink;
         } while (first_line != line_limit);
         line_limit = scr_bot_line->flink;
         do {
-            //with first_line^ do
+            // with first_line^ do
             first_line->scr_row_nr -= count;
             first_line = first_line->flink;
         } while (first_line != line_limit);
@@ -591,16 +585,16 @@ void screen_lines_extract(line_ptr first_line, line_ptr last_line) {
     } else /* if (last_line == scr_bot_line) */ {
         const_line_ptr line_limit = first_line->blink;
         do {
-            //with scr_frame^,scr_bot_line^ do
+            // with scr_frame^,scr_bot_line^ do
             scr_bot_line->scr_row_nr = 0;
             scr_bot_line = scr_bot_line->blink;
         } while (scr_bot_line != line_limit);
         vdu_movecurs(1, scr_bot_line->scr_row_nr + 1);
-/*             DONT RUBOUT LINES,     THUS THE LINES STAY ON THE SCREEN UNTIL */
-/*             SCREEN_FIXUP IS CALLED.  THIS ALLOWS THE TEXT TO BE USED FOR   */
-/*             OPTIMIZATION PURPOSES WHILST THE SCREEN IS BEING FIXED UP.     */
-/*     SCR_NEEDS_FIX = TRUE;                                                  */
-/* above code removed and following line added by KBN 30-Jul-1982             */
+        /*             DONT RUBOUT LINES,     THUS THE LINES STAY ON THE SCREEN UNTIL */
+        /*             SCREEN_FIXUP IS CALLED.  THIS ALLOWS THE TEXT TO BE USED FOR   */
+        /*             OPTIMIZATION PURPOSES WHILST THE SCREEN IS BEING FIXED UP.     */
+        /*     SCR_NEEDS_FIX = TRUE;                                                  */
+        /* above code removed and following line added by KBN 30-Jul-1982             */
         vdu_cleareos();
         scr_msg_row = terminal_info.height + 1;
     }
@@ -647,7 +641,7 @@ void screen_lines_inject(line_ptr first_line, line_range count, line_ptr before_
             //         -- rest because they are about to change again.
 
             line = scr_top_line;
-            row_nr = line->scr_row_nr-scrollup_count;
+            row_nr = line->scr_row_nr - scrollup_count;
             do {
                 line->scr_row_nr = row_nr;
                 row_nr += 1;
@@ -656,7 +650,7 @@ void screen_lines_inject(line_ptr first_line, line_range count, line_ptr before_
 
             // Do the two weirdo exceptions, the order is crucial in case
             // they are the same line.
-            //with scr_bot_line^ do
+            // with scr_bot_line^ do
             scr_bot_line->scr_row_nr -= scrollup_count;
             before_line->scr_row_nr = row_nr;
         }
@@ -698,7 +692,7 @@ void screen_lines_inject(line_ptr first_line, line_range count, line_ptr before_
 
         line = scr_bot_line;
         for (int i = line->scr_row_nr + count; i >= terminal_info.height + 1; --i) {
-            //with line^ do
+            // with line^ do
             if (line->scr_row_nr == 0)
                 break;
             line->scr_row_nr = 0;
@@ -712,7 +706,7 @@ void screen_lines_inject(line_ptr first_line, line_range count, line_ptr before_
             scr_bot_line = line;
             row_nr = line->scr_row_nr + count;
             do {
-                //with line^ do
+                // with line^ do
                 if (line->scr_row_nr == 0) {
                     line->scr_row_nr = row_nr;
                     screen_draw_line(line);
@@ -750,93 +744,96 @@ void screen_load(line_ptr line) {
     case ludwig_mode_type::ludwig_batch:
         break;
 
-    case ludwig_mode_type::ludwig_hardcopy: {
-        int new_row = frame->scr_height / 2;
-        while ((new_row > 0) && (line->blink != nullptr)) {
-            line = line->blink;
-            new_row -= 1;
-        }
-        const_line_ptr dot_line = frame->dot->line;
-        col_range dot_col = frame->dot->col;
-        new_row = 1;
-        while ((new_row <= frame->scr_height) && (line != nullptr)) {
-            if (new_row == 1)
-                writeln("WINDOW:");
-            strlen_range buflen = 0;
-            //with line^ do
-            buflen = line->used;
-            if (line->flink == nullptr)
-                buflen = line->len;
-            if (buflen > 0)
-                writeln(line->str->data(), buflen);
-            else
-                writeln("");
-            if (line == dot_line) {
-                if (dot_col == 1)
-                    writeln("<");
-                else if (dot_col == MAX_STRLENP) {
-                    write(' ', MAX_STRLEN - 1);
-                    writeln(">");
-                } else {
-                    write(' ', dot_col - 2);
-                    writeln("><");
-                }
+    case ludwig_mode_type::ludwig_hardcopy:
+        {
+            int new_row = frame->scr_height / 2;
+            while ((new_row > 0) && (line->blink != nullptr)) {
+                line = line->blink;
+                new_row -= 1;
             }
-            new_row += 1;
-            line = line->flink;
+            const_line_ptr dot_line = frame->dot->line;
+            col_range dot_col = frame->dot->col;
+            new_row = 1;
+            while ((new_row <= frame->scr_height) && (line != nullptr)) {
+                if (new_row == 1)
+                    writeln("WINDOW:");
+                strlen_range buflen = 0;
+                // with line^ do
+                buflen = line->used;
+                if (line->flink == nullptr)
+                    buflen = line->len;
+                if (buflen > 0)
+                    writeln(line->str->data(), buflen);
+                else
+                    writeln("");
+                if (line == dot_line) {
+                    if (dot_col == 1)
+                        writeln("<");
+                    else if (dot_col == MAX_STRLENP) {
+                        write(' ', MAX_STRLEN - 1);
+                        writeln(">");
+                    } else {
+                        write(' ', dot_col - 2);
+                        writeln("><");
+                    }
+                }
+                new_row += 1;
+                line = line->flink;
+            }
         }
-    }
         break;
 
-    case ludwig_mode_type::ludwig_screen: {
-        if (scr_frame != nullptr)             // A frame mapped at present.
-            screen_unload();                  //   Unload/clear it.
-        else {
-            vdu_clearscr();                   //   Clear the screen anyway.
-            scr_msg_row = terminal_info.height + 1;
-            scr_needs_fix = false;
-        }
+    case ludwig_mode_type::ludwig_screen:
+        {
+            if (scr_frame != nullptr) // A frame mapped at present.
+                screen_unload();      //   Unload/clear it.
+            else {
+                vdu_clearscr(); //   Clear the screen anyway.
+                scr_msg_row = terminal_info.height + 1;
+                scr_needs_fix = false;
+            }
 
-        //with line->group->frame^ do
-        int new_row = frame->scr_dot_line;
-        line_range line_nr;
-        if (!line_to_number(line, line_nr))
-            return;
-        line_range eop_line_nr = frame->last_group->first_line_nr + frame->last_group->nr_lines - 1;
-        if ((eop_line_nr - line_nr) < (terminal_info.height - new_row))
-            new_row = terminal_info.height - (eop_line_nr - line_nr);
-        if (line_nr < new_row)
-            new_row = line_nr;
+            // with line->group->frame^ do
+            int new_row = frame->scr_dot_line;
+            line_range line_nr;
+            if (!line_to_number(line, line_nr))
+                return;
+            line_range eop_line_nr =
+                frame->last_group->first_line_nr + frame->last_group->nr_lines - 1;
+            if ((eop_line_nr - line_nr) < (terminal_info.height - new_row))
+                new_row = terminal_info.height - (eop_line_nr - line_nr);
+            if (line_nr < new_row)
+                new_row = line_nr;
 
-        line->scr_row_nr = new_row;
+            line->scr_row_nr = new_row;
 
-        // Move left or right in 1/2 window chunks until DOT on screen.
+            // Move left or right in 1/2 window chunks until DOT on screen.
 
-        col_range dot_col = frame->dot->col;
-        while ((dot_col <= frame->scr_offset) ||
-               (dot_col > frame->scr_offset + frame->scr_width)) {
-            col_offset_range half_width = frame->scr_width / 2;
-            if (half_width == 0)
-                half_width = 1;
-            if (dot_col <= frame->scr_offset) {
-                if (frame->scr_offset > half_width)
-                    frame->scr_offset -= half_width;
+            col_range dot_col = frame->dot->col;
+            while ((dot_col <= frame->scr_offset) ||
+                   (dot_col > frame->scr_offset + frame->scr_width)) {
+                col_offset_range half_width = frame->scr_width / 2;
+                if (half_width == 0)
+                    half_width = 1;
+                if (dot_col <= frame->scr_offset) {
+                    if (frame->scr_offset > half_width)
+                        frame->scr_offset -= half_width;
+                    else
+                        frame->scr_offset = 0;
+                } else if (frame->scr_offset + half_width + frame->scr_width < MAX_STRLENP)
+                    frame->scr_offset += half_width;
                 else
-                    frame->scr_offset = 0;
-            } else if (frame->scr_offset + half_width + frame->scr_width < MAX_STRLENP)
-                frame->scr_offset += half_width;
-            else
-                frame->scr_offset = MAX_STRLENP - frame->scr_width;
+                    frame->scr_offset = MAX_STRLENP - frame->scr_width;
+            }
+
+            // Load the screen.
+
+            scr_frame = frame;
+            scr_bot_line = line;
+            scr_top_line = line;
+            screen_draw_line(line);
+            screen_expand(true, true);
         }
-
-        // Load the screen.
-
-        scr_frame = frame;
-        scr_bot_line = line;
-        scr_top_line = line;
-        screen_draw_line(line);
-        screen_expand(true, true);
-    }
         break;
     }
 }
@@ -854,67 +851,72 @@ void screen_position(line_ptr new_line, col_range new_col) {
         return;
     }
 
-    //with scr_frame^ do
-    col_offset_range offset     = scr_frame->scr_offset;
-    scr_col_range    width      = scr_frame->scr_width;
-    scr_row_range    top_margin = scr_frame->margin_top;
-    scr_row_range    bot_margin = scr_frame->margin_bottom;
+    // with scr_frame^ do
+    col_offset_range offset = scr_frame->scr_offset;
+    scr_col_range width = scr_frame->scr_width;
+    scr_row_range top_margin = scr_frame->margin_top;
+    scr_row_range bot_margin = scr_frame->margin_bottom;
 
     // Check that the specified position is not on the screen between margins.
     // The very common case is that it is, and that the screen need not be
     // moved.
 
     if ((new_line->scr_row_nr == 0) ||
-        ((new_line->scr_row_nr - scr_top_line->scr_row_nr < top_margin) && (scr_top_line->blink != nullptr)) ||
-        ((scr_bot_line->scr_row_nr - new_line->scr_row_nr < bot_margin) && (scr_bot_line->flink != nullptr)) ||
-        (new_col <= offset) ||
-        (new_col > offset + width)) {
+        ((new_line->scr_row_nr - scr_top_line->scr_row_nr < top_margin) &&
+         (scr_top_line->blink != nullptr)) ||
+        ((scr_bot_line->scr_row_nr - new_line->scr_row_nr < bot_margin) &&
+         (scr_bot_line->flink != nullptr)) ||
+        (new_col <= offset) || (new_col > offset + width)) {
         // Unfortunately this is the uncommon case.
-        //with scr_frame^ do
-        scr_row_range height   = scr_frame->scr_height;
-        line_ptr      bot_line = scr_bot_line;
-        line_ptr      top_line = scr_top_line;
+        // with scr_frame^ do
+        scr_row_range height = scr_frame->scr_height;
+        line_ptr bot_line = scr_bot_line;
+        line_ptr top_line = scr_top_line;
 
         slide_type slide_state = slide_type::slide_dont; // Compute horizontal adjusting needed.
-        int        slide_dist  = offset + 1 - new_col;
-        if (slide_dist > 0) {                            // Col to left of screen.
-            slide_state = slide_type::slide_redraw;      // Redraw unless can slide there.
-            if (offset < width / 4) {                    // Heuristic, slide if sensible.
+        int slide_dist = offset + 1 - new_col;
+        if (slide_dist > 0) {                       // Col to left of screen.
+            slide_state = slide_type::slide_redraw; // Redraw unless can slide there.
+            if (offset < width / 4) {               // Heuristic, slide if sensible.
                 slide_state = slide_type::slide_left;
-                slide_dist  = offset;
+                slide_dist = offset;
             }
         } else {
             slide_dist = new_col - (offset + width);
-            if (slide_dist > 0) {                        // Col to right of screen.
-                slide_state = slide_type::slide_redraw;  // Redraw unless can slide there.
-                if (offset > MAX_STRLENP - width / 4) {  // Heuristic, slide if sensible.
+            if (slide_dist > 0) {                       // Col to right of screen.
+                slide_state = slide_type::slide_redraw; // Redraw unless can slide there.
+                if (offset > MAX_STRLENP - width / 4) { // Heuristic, slide if sensible.
                     slide_state = slide_type::slide_right;
-                    slide_dist  = MAX_STRLENP - (offset + width);
+                    slide_dist = MAX_STRLENP - (offset + width);
                 }
             }
         }
         scroll_type scroll_state = scroll_type::scroll_dont;
-        int         scroll_dist;
+        int scroll_dist;
         if ((slide_state != slide_type::slide_redraw) &&
-            ((new_line->scr_row_nr == 0)  ||
-             ((new_line->scr_row_nr - scr_top_line->scr_row_nr < top_margin) && (scr_top_line->blink != nullptr)) ||
-             ((scr_bot_line->scr_row_nr-new_line->scr_row_nr < bot_margin) && (scr_bot_line->flink != nullptr)))) {
+            ((new_line->scr_row_nr == 0) ||
+             ((new_line->scr_row_nr - scr_top_line->scr_row_nr < top_margin) &&
+              (scr_top_line->blink != nullptr)) ||
+             ((scr_bot_line->scr_row_nr - new_line->scr_row_nr < bot_margin) &&
+              (scr_bot_line->flink != nullptr)))) {
             // Compute vertical adjusting needed.
             line_range bot_line_nr;
             line_range new_line_nr;
             line_range top_line_nr;
-            if (!line_to_number(bot_line, bot_line_nr) || !line_to_number(new_line, new_line_nr) || !line_to_number(top_line, top_line_nr))
+            if (!line_to_number(bot_line, bot_line_nr) || !line_to_number(new_line, new_line_nr) ||
+                !line_to_number(top_line, top_line_nr))
                 return;
 
             scroll_state = scroll_type::scroll_redraw;
-            if ((new_line_nr < top_line_nr) || ((new_line_nr < top_line_nr+top_margin) && (new_line_nr < bot_line_nr))) {
+            if ((new_line_nr < top_line_nr) ||
+                ((new_line_nr < top_line_nr + top_margin) && (new_line_nr < bot_line_nr))) {
                 scroll_state = scroll_type::scroll_back;
-                scroll_dist  = top_line_nr + top_margin - new_line_nr;
+                scroll_dist = top_line_nr + top_margin - new_line_nr;
                 if (scroll_dist >= top_line_nr)
                     scroll_dist = top_line_nr - 1;
             } else {
                 scroll_state = scroll_type::scroll_forward;
-                scroll_dist  = new_line_nr - (bot_line_nr - bot_margin);
+                scroll_dist = new_line_nr - (bot_line_nr - bot_margin);
                 if (scroll_dist <= 0)
                     scroll_state = scroll_type::scroll_dont;
             }
@@ -927,14 +929,15 @@ void screen_position(line_ptr new_line, col_range new_col) {
         // If either state has voted for a redraw, then a redraw it is, else
         // a combined scroll and slide operation is embarked on.
 
-        if ((scroll_state == scroll_type::scroll_redraw) || (slide_state == slide_type::slide_redraw))
+        if ((scroll_state == scroll_type::scroll_redraw) ||
+            (slide_state == slide_type::slide_redraw))
             screen_load(new_line);
         else {
             if (slide_state != slide_type::slide_dont) {
                 // Adjust the screen offset and the lines that are
                 // going to be left on the screen when scrolling.
 
-                //with scr_frame^ do
+                // with scr_frame^ do
                 if (slide_state == slide_type::slide_left)
                     scr_frame->scr_offset -= slide_dist;
                 else
@@ -945,52 +948,54 @@ void screen_position(line_ptr new_line, col_range new_col) {
                     // impossible
                     break;
                 case scroll_type::scroll_dont:
-                case scroll_type::scroll_forward: {
-                    if (scroll_state == scroll_type::scroll_dont)
-                        scroll_dist = 0;
+                case scroll_type::scroll_forward:
+                    {
+                        if (scroll_state == scroll_type::scroll_dont)
+                            scroll_dist = 0;
 
-                    // Predict which lines are going to be left on the screen.
-                    scr_row_range nr_rows = terminal_info.height - bot_line->scr_row_nr;
-                    scr_row_range row_nr;
-                    if (nr_rows >= scroll_dist)
-                        row_nr = 0;   // slide all the lines.
-                    else              // slide all but the lines that will scroll off.
-                        row_nr = scroll_dist - nr_rows;
+                        // Predict which lines are going to be left on the screen.
+                        scr_row_range nr_rows = terminal_info.height - bot_line->scr_row_nr;
+                        scr_row_range row_nr;
+                        if (nr_rows >= scroll_dist)
+                            row_nr = 0; // slide all the lines.
+                        else            // slide all but the lines that will scroll off.
+                            row_nr = scroll_dist - nr_rows;
 
-                    // Adjust those lines that will be left on the screen.
+                        // Adjust those lines that will be left on the screen.
 
-                    do {
-                        if (line->scr_row_nr > row_nr)
-                            screen_slide_line(line, slide_dist, slide_state);
-                        if (line != bot_line)
-                            line = line->flink;
-                        else
-                            line = nullptr;
-                    } while (line != nullptr);
-                }
+                        do {
+                            if (line->scr_row_nr > row_nr)
+                                screen_slide_line(line, slide_dist, slide_state);
+                            if (line != bot_line)
+                                line = line->flink;
+                            else
+                                line = nullptr;
+                        } while (line != nullptr);
+                    }
                     break;
 
-                case scroll_type::scroll_back: {
-                    // Decide which lines are going to be left on the screen.
+                case scroll_type::scroll_back:
+                    {
+                        // Decide which lines are going to be left on the screen.
 
-                    scr_row_range nr_rows = top_line->scr_row_nr-1;
-                    scr_row_range row_nr;
-                    if (nr_rows < scroll_dist) // slide all the lines
-                        row_nr = terminal_info.height;
-                    else    // slide all the lines that won't scroll off.
-                        row_nr = terminal_info.height - (scroll_dist - nr_rows);
+                        scr_row_range nr_rows = top_line->scr_row_nr - 1;
+                        scr_row_range row_nr;
+                        if (nr_rows < scroll_dist) // slide all the lines
+                            row_nr = terminal_info.height;
+                        else // slide all the lines that won't scroll off.
+                            row_nr = terminal_info.height - (scroll_dist - nr_rows);
 
-                    // Adjust those lines that will be left on the screen.
+                        // Adjust those lines that will be left on the screen.
 
-                    do {
-                        if (line->scr_row_nr <= row_nr)
-                            screen_slide_line(line, slide_dist, slide_state);
-                        if (line != top_line)
-                            line = line->blink;
-                        else
-                            line = nullptr;
-                    } while (line != nullptr);
-                }
+                        do {
+                            if (line->scr_row_nr <= row_nr)
+                                screen_slide_line(line, slide_dist, slide_state);
+                            if (line != top_line)
+                                line = line->blink;
+                            else
+                                line = nullptr;
+                        } while (line != nullptr);
+                    }
                     break;
                 }
             }
@@ -1010,7 +1015,7 @@ void screen_position(line_ptr new_line, col_range new_col) {
             }
         }
     }
-    screen_expand(true,true);
+    screen_expand(true, true);
 }
 
 void screen_pause() {
@@ -1057,7 +1062,7 @@ void screen_clear_msgs(bool pause) {
 }
 
 void change_frame_size(frame_ptr frm, int band, int half_screen) {
-    //with frm^ do
+    // with frm^ do
     if ((frm->scr_height == initial_scr_height) || (frm->scr_height > terminal_info.height))
         frm->scr_height = terminal_info.height;
     if ((frm->scr_width == initial_scr_width) || (frm->scr_width > terminal_info.width))
@@ -1106,11 +1111,13 @@ void screen_resize() {
     // nobody saw fit to provide any comments describing what the hell
     // screen load/unload do, it can't be too much of a problem
 
-    //with current_frame^, dot^ do
+    // with current_frame^, dot^ do
     screen_load(current_frame->dot->line);
     scr_needs_fix = false;
     screen_expand(true, true);
-    vdu_movecurs(current_frame->dot->col - current_frame->scr_offset, current_frame->dot->line->scr_row_nr);
+    vdu_movecurs(
+        current_frame->dot->col - current_frame->scr_offset, current_frame->dot->line->scr_row_nr
+    );
 }
 
 void screen_fixup() {
@@ -1125,16 +1132,18 @@ void screen_fixup() {
     if (tt_winchanged) {
         screen_resize();
     } else {
-        //with current_frame^,dot^ do
+        // with current_frame^,dot^ do
         if (scr_frame != current_frame) {
             if (scr_msg_row <= terminal_info.height)
                 screen_clear_msgs(true);
             screen_load(current_frame->dot->line);
         } else {
             if ((current_frame->dot->line->scr_row_nr == 0) ||
-                ((current_frame->dot->line->scr_row_nr - scr_top_line->scr_row_nr < current_frame->margin_top) &&
+                ((current_frame->dot->line->scr_row_nr - scr_top_line->scr_row_nr <
+                  current_frame->margin_top) &&
                  (scr_top_line->blink != nullptr)) ||
-                ((scr_bot_line->scr_row_nr - current_frame->dot->line->scr_row_nr < current_frame->margin_bottom) &&
+                ((scr_bot_line->scr_row_nr - current_frame->dot->line->scr_row_nr <
+                  current_frame->margin_bottom) &&
                  (scr_bot_line->flink != nullptr)) ||
                 (current_frame->dot->col <= current_frame->scr_offset) ||
                 (current_frame->dot->col > current_frame->scr_offset + current_frame->scr_width)) {
@@ -1143,7 +1152,10 @@ void screen_fixup() {
                 screen_position(current_frame->dot->line, current_frame->dot->col);
             } else if (scr_msg_row <= terminal_info.height) {
                 // Leave screen until key press if there are messages to read.
-                vdu_movecurs(current_frame->dot->col - current_frame->scr_offset, current_frame->dot->line->scr_row_nr);
+                vdu_movecurs(
+                    current_frame->dot->col - current_frame->scr_offset,
+                    current_frame->dot->line->scr_row_nr
+                );
                 key_code_range key = vdu_get_key();
                 screen_clear_msgs(false);
                 if (tt_controlc)
@@ -1153,18 +1165,25 @@ void screen_fixup() {
         }
         scr_needs_fix = false;
         screen_expand(true, true);
-        vdu_movecurs(current_frame->dot->col - current_frame->scr_offset, current_frame->dot->line->scr_row_nr);
+        vdu_movecurs(
+            current_frame->dot->col - current_frame->scr_offset,
+            current_frame->dot->line->scr_row_nr
+        );
     }
 }
 
-void screen_getlinep(const std::string_view &prompt,
-                     str_object &outbuf, strlen_range &outlen,
-                     tpcount_type max_tp, tpcount_type this_tp) {
+void screen_getlinep(
+    const std::string_view &prompt,
+    str_object &outbuf,
+    strlen_range &outlen,
+    tpcount_type max_tp,
+    tpcount_type this_tp
+) {
 
-    outlen = 0;       // THIS IS DONE BECAUSE ?_GET_INPUT MAY TREAT OUTLEN
-                      // AS A WORD, NOT AS A LONGWORD.
+    outlen = 0; // THIS IS DONE BECAUSE ?_GET_INPUT MAY TREAT OUTLEN
+                // AS A WORD, NOT AS A LONGWORD.
     line_ptr tmp_line;
-    max_tp = std::abs(max_tp);        // this is negative with some file prompts
+    max_tp = std::abs(max_tp); // this is negative with some file prompts
     if (!tt_controlc) {
         if (ludwig_mode == ludwig_mode_type::ludwig_screen) {
             prompt_region[this_tp].line_nr = 0;
@@ -1188,14 +1207,16 @@ void screen_getlinep(const std::string_view &prompt,
                 goto l1;
 
             tmp_line = scr_bot_line;
-            for (int index = terminal_info.height - scr_bot_line->scr_row_nr; index <= max_tp - this_tp - 1; ++index)
+            for (int index = terminal_info.height - scr_bot_line->scr_row_nr;
+                 index <= max_tp - this_tp - 1;
+                 ++index)
                 tmp_line = tmp_line->blink;
             if (terminal_info.height - scr_bot_line->scr_row_nr > max_tp - this_tp)
                 tmp_line = nullptr;
             prompt_region[this_tp].redraw = tmp_line;
             prompt_region[this_tp].line_nr = terminal_info.height - max_tp + this_tp;
 
-    l1:
+        l1:
             if (prompt_region[this_tp].line_nr != 0)
                 vdu_movecurs(1, prompt_region[this_tp].line_nr);
             vdu_get_input(prompt, outbuf, MAX_STRLEN, outlen);
@@ -1211,11 +1232,10 @@ void screen_getlinep(const std::string_view &prompt,
                 for (tpcount_type index = 1; index <= max_tp; ++index) {
                     if (prompt_region[index].redraw != nullptr)
                         screen_draw_line(prompt_region[index].redraw);
-                    else
-                        if (prompt_region[index].line_nr != 0) {
-                            vdu_movecurs(1, prompt_region[index].line_nr);
-                            vdu_cleareol();
-                        }
+                    else if (prompt_region[index].line_nr != 0) {
+                        vdu_movecurs(1, prompt_region[index].line_nr);
+                        vdu_cleareol();
+                    }
                 }
             }
             vdu_flush();
@@ -1242,7 +1262,7 @@ void screen_free_bottom_line() {
         return;
     }
 #endif
-    if (scr_frame == nullptr) {                   // IF SCREEN NOT MAPPED.
+    if (scr_frame == nullptr) { // IF SCREEN NOT MAPPED.
         vdu_displaycrlf();
         vdu_deletelines(1);
         return;
@@ -1255,22 +1275,23 @@ void screen_free_bottom_line() {
                                                              // +2 because of <eos> line.
         vdu_movecurs(1, scr_bot_line->scr_row_nr + 2);
         vdu_deletelines(1);
-    } else if (scr_top_line->scr_row_nr != 1) {      // IF TOP LINE FREE.
+    } else if (scr_top_line->scr_row_nr != 1) { // IF TOP LINE FREE.
         screen_scroll(1, false);
     } else {
-        //with scr_bot_line^ do
-        if (scr_bot_line->scr_row_nr + 1 < scr_msg_row) {          // IF ROOM FOR MORE MSGS.
+        // with scr_bot_line^ do
+        if (scr_bot_line->scr_row_nr + 1 < scr_msg_row) { // IF ROOM FOR MORE MSGS.
             vdu_movecurs(1, scr_bot_line->scr_row_nr + 1);
             vdu_deletelines(1);
         } else if ((scr_frame->dot->line != scr_top_line) && // IF DOT NOT ON TOP LINE,
                    !((scr_frame->dot->line != scr_bot_line) &&
-                     (scr_bot_line->scr_row_nr = terminal_info.height))) { // AND WE CANT USE THE BOT.
+                     (scr_bot_line->scr_row_nr =
+                          terminal_info.height))) { // AND WE CANT USE THE BOT.
             screen_scroll(1, false);
         } else if (scr_msg_row <= terminal_info.height / 2) { // 1/2 SCREEN ALREADY MSGS.
             vdu_movecurs(1, scr_msg_row);
             vdu_deletelines(1);
             return;
-        } else {                                     // CONTRACT SCREEN 1 LINE.
+        } else { // CONTRACT SCREEN 1 LINE.
             scr_bot_line->scr_row_nr = 0;
             scr_bot_line = scr_bot_line->blink;
             vdu_movecurs(1, scr_msg_row - 1);
@@ -1286,15 +1307,15 @@ verify_response screen_verify(const std::string_view &prompt) {
 
     const int ver_height = 4;
 
-    //with current_frame^,dot^ do
+    // with current_frame^,dot^ do
     verify_response verify = verify_response::verify_reply_quit;
 
     scr_row_range old_height = current_frame->scr_height;
-    scr_row_range old_top_m  = current_frame->margin_top;
-    scr_row_range old_bot_m  = current_frame->margin_bottom;
+    scr_row_range old_top_m = current_frame->margin_top;
+    scr_row_range old_bot_m = current_frame->margin_bottom;
     if (old_height > ver_height) {
-        current_frame->margin_top    = ver_height / 2;
-        current_frame->scr_height    = ver_height;
+        current_frame->margin_top = ver_height / 2;
+        current_frame->scr_height = ver_height;
         current_frame->margin_bottom = ver_height / 2;
     }
 
@@ -1303,41 +1324,45 @@ verify_response screen_verify(const std::string_view &prompt) {
     bool more;
     do {
         switch (ludwig_mode) {
-        case ludwig_mode_type::ludwig_screen: {
-            screen_fixup();
-            vdu_attr_bold();
-            if (use_prompt) {
-                screen_message(prompt);
-            } else {
-                screen_message(YNAQM_MSG);
+        case ludwig_mode_type::ludwig_screen:
+            {
+                screen_fixup();
+                vdu_attr_bold();
+                if (use_prompt) {
+                    screen_message(prompt);
+                } else {
+                    screen_message(YNAQM_MSG);
+                }
+                vdu_attr_normal();
+                vdu_movecurs(
+                    current_frame->dot->col - current_frame->scr_offset,
+                    current_frame->dot->line->scr_row_nr
+                );
+                key = vdu_get_key();
+                if (LOWER_SET.contains(key.value())) {
+                    key = std::toupper(key.value());
+                }
+                if (key == 13)
+                    key = 'N'; // RETURN <=> NO
+                screen_clear_msgs(false);
             }
-            vdu_attr_normal();
-            vdu_movecurs(current_frame->dot->col - current_frame->scr_offset,
-                         current_frame->dot->line->scr_row_nr);
-            key = vdu_get_key();
-            if (LOWER_SET.contains(key.value())) {
-                key = std::toupper(key.value());
-            }
-            if (key == 13)
-                key = 'N';     // RETURN <=> NO
-            screen_clear_msgs(false);
-        }
             break;
 
         case ludwig_mode_type::ludwig_batch:
-        case ludwig_mode_type::ludwig_hardcopy: {
-            str_object response;
-            strlen_range resp_len;
-            if (use_prompt) {
-                screen_getlinep(prompt, response, resp_len, 1, 1);
-            } else {
-                screen_getlinep(YNAQM_MSG, response, resp_len, 1, 1);
+        case ludwig_mode_type::ludwig_hardcopy:
+            {
+                str_object response;
+                strlen_range resp_len;
+                if (use_prompt) {
+                    screen_getlinep(prompt, response, resp_len, 1, 1);
+                } else {
+                    screen_getlinep(YNAQM_MSG, response, resp_len, 1, 1);
+                }
+                if (resp_len == 0)
+                    key = 'N';
+                else
+                    key = std::toupper(response[1]);
             }
-            if (resp_len == 0)
-                key = 'N';
-            else
-                key = std::toupper(response[1]);
-        }
             break;
         }
         if (tt_controlc)
@@ -1345,7 +1370,7 @@ verify_response screen_verify(const std::string_view &prompt) {
         more = false;
         if (YNAQM_CHARS.find(key.value()) != std::string::npos) {
             switch (key.value()) {
-            case ' ':                                //default for yes on Tops 20;CJB
+            case ' ': // default for yes on Tops 20;CJB
             case 'Y':
                 verify = verify_response::verify_reply_yes;
                 break;
@@ -1367,24 +1392,26 @@ verify_response screen_verify(const std::string_view &prompt) {
             case '7':
             case '8':
             case '9':
-            case 'M': { // MORE CONTEXT PLEASE!
-                // How much is user getting now?
-                if (scr_top_line != nullptr)
-                    current_frame->scr_height = scr_bot_line->scr_row_nr + 1 - scr_top_line->scr_row_nr;
-                // How much more does he want?
-                if (key == 'M')
-                    key = '1';
-                if (key - '0' + current_frame->scr_height < terminal_info.height)
-                    current_frame->scr_height += key - '0';
-                else
-                    current_frame->scr_height = terminal_info.height;
-                if (scr_top_line == nullptr)
-                    screen_load(current_frame->dot->line);
-                else
-                    screen_expand(true, true);
-                more = true;
-                use_prompt = true;
-            }
+            case 'M':
+                { // MORE CONTEXT PLEASE!
+                    // How much is user getting now?
+                    if (scr_top_line != nullptr)
+                        current_frame->scr_height =
+                            scr_bot_line->scr_row_nr + 1 - scr_top_line->scr_row_nr;
+                    // How much more does he want?
+                    if (key == 'M')
+                        key = '1';
+                    if (key - '0' + current_frame->scr_height < terminal_info.height)
+                        current_frame->scr_height += key - '0';
+                    else
+                        current_frame->scr_height = terminal_info.height;
+                    if (scr_top_line == nullptr)
+                        screen_load(current_frame->dot->line);
+                    else
+                        screen_expand(true, true);
+                    more = true;
+                    use_prompt = true;
+                }
                 break;
             }
         } else {
@@ -1394,10 +1421,10 @@ verify_response screen_verify(const std::string_view &prompt) {
         }
     } while (more);
 
- l99:
+l99:
 
-    current_frame->scr_height    = old_height;
-    current_frame->margin_top    = old_top_m;
+    current_frame->scr_height = old_height;
+    current_frame->margin_top = old_top_m;
     current_frame->margin_bottom = old_bot_m;
 
     if (verify == verify_response::verify_reply_quit)
@@ -1427,7 +1454,7 @@ void screen_home(bool clear) {
             vdu_clearscr();
             scr_msg_row = terminal_info.height + 1;
         } else
-            vdu_movecurs(1,1);
+            vdu_movecurs(1, 1);
     } else {
         writeln("");
         writeln("");
@@ -1568,32 +1595,33 @@ key_str screen_help_prompt(const std::string_view &prompt) {
     key_str reply;
     switch (ludwig_mode) {
     case ludwig_mode_type::ludwig_screen:
-    case ludwig_mode_type::ludwig_hardcopy: {
-        if (ludwig_mode == ludwig_mode_type::ludwig_screen)
-            vdu_attr_bold();
-        screen_write_str(0, prompt.data(), prompt.size());
-        if (ludwig_mode == ludwig_mode_type::ludwig_screen)
-            vdu_attr_normal();
-        bool terminated = false;
-        do {
-            key_code_range key = vdu_get_key();
-            if (key == 13)
-                terminated = true;
-            else if (key == 127) {
-                if (!reply.empty()) {
-                    reply.pop_back();
-                    vdu_displaych(char(8));
-                    vdu_displaych(' ');
-                    vdu_displaych(char(8));
+    case ludwig_mode_type::ludwig_hardcopy:
+        {
+            if (ludwig_mode == ludwig_mode_type::ludwig_screen)
+                vdu_attr_bold();
+            screen_write_str(0, prompt.data(), prompt.size());
+            if (ludwig_mode == ludwig_mode_type::ludwig_screen)
+                vdu_attr_normal();
+            bool terminated = false;
+            do {
+                key_code_range key = vdu_get_key();
+                if (key == 13)
+                    terminated = true;
+                else if (key == 127) {
+                    if (!reply.empty()) {
+                        reply.pop_back();
+                        vdu_displaych(char(8));
+                        vdu_displaych(' ');
+                        vdu_displaych(char(8));
+                    }
+                } else if (PRINTABLE_SET.contains(int(key))) {
+                    vdu_displaych(char(key));
+                    reply.push_back(char(key));
+                    terminated = (key == ' ') || (reply.size() == KEY_LEN);
                 }
-            } else if (PRINTABLE_SET.contains(int(key))) {
-                vdu_displaych(char(key));
-                reply.push_back(char(key));
-                terminated = (key == ' ') || (reply.size() == KEY_LEN);
-            }
-        } while (!terminated);
-        screen_writeln();
-    }
+            } while (!terminated);
+            screen_writeln();
+        }
         break;
 
     case ludwig_mode_type::ludwig_batch:

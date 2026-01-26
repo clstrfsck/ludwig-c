@@ -24,17 +24,17 @@
 
 #include "window.h"
 
-#include "var.h"
-#include "vdu.h"
+#include "frame.h"
 #include "line.h"
 #include "mark.h"
-#include "frame.h"
 #include "screen.h"
+#include "var.h"
+#include "vdu.h"
 
 bool window_command(commands command, leadparam rept, int count, bool from_span) {
     bool cmd_success = false;
 
-    //with current_frame^,dot^ do
+    // with current_frame^,dot^ do
     line_range line_nr;
     line_range line2_nr;
     line_range line3_nr;
@@ -43,18 +43,24 @@ bool window_command(commands command, leadparam rept, int count, bool from_span)
         if (!line_to_number(current_frame->dot->line, line_nr))
             goto l99;
         if (line_nr <= current_frame->scr_height * count) {
-            mark_create(current_frame->first_group->first_line, current_frame->dot->col, current_frame->dot);
+            mark_create(
+                current_frame->first_group->first_line, current_frame->dot->col, current_frame->dot
+            );
         } else {
             line_ptr new_line = current_frame->dot->line;
             for (int i = 1; i <= current_frame->scr_height * count; ++i)
                 new_line = new_line->blink;
             if (count == 1) {
-                //with line^ do
+                // with line^ do
                 const_line_ptr line = current_frame->dot->line;
                 if (line->scr_row_nr != 0) {
-                    if (line->scr_row_nr > current_frame->scr_height - current_frame->margin_bottom) {
-                        screen_scroll(-2 * current_frame->scr_height + line->scr_row_nr +
-                                      current_frame->margin_bottom, true);
+                    if (line->scr_row_nr >
+                        current_frame->scr_height - current_frame->margin_bottom) {
+                        screen_scroll(
+                            -2 * current_frame->scr_height + line->scr_row_nr +
+                                current_frame->margin_bottom,
+                            true
+                        );
                     } else {
                         screen_scroll(-current_frame->scr_height, true);
                     }
@@ -68,41 +74,46 @@ bool window_command(commands command, leadparam rept, int count, bool from_span)
         break;
 
     case commands::cmd_window_end:
-        cmd_success = mark_create(current_frame->last_group->last_line,
-                                  current_frame->dot->col, current_frame->dot);
+        cmd_success = mark_create(
+            current_frame->last_group->last_line, current_frame->dot->col, current_frame->dot
+        );
         break;
 
-    case commands::cmd_window_forward: {
-        if (!line_to_number(current_frame->dot->line, line_nr))
-            goto l99;
-        //with last_group^ do
-        group_ptr &last_group(current_frame->last_group);
-        mark_ptr  &dot       (current_frame->dot);
-        if (line_nr + current_frame->scr_height * count >
-            last_group->first_line_nr + last_group->last_line->offset_nr) {
-            mark_create(last_group->last_line, dot->col, dot);
-        } else {
-            line_ptr new_line = dot->line;
-            for (int i = 1; i <= current_frame->scr_height * count; ++i)
-                new_line = new_line->flink;
-            if (count == 1) {
-                //with line^ do
-                const_line_ptr line = dot->line;
-                if (line->scr_row_nr != 0) {
-                    if (line->scr_row_nr <= current_frame->margin_top) {
-                        screen_scroll(current_frame->scr_height + line->scr_row_nr -
-                                      current_frame->margin_top - 1, true);
-                    } else {
-                        screen_scroll(current_frame->scr_height, true);
-                    }
-                }
+    case commands::cmd_window_forward:
+        {
+            if (!line_to_number(current_frame->dot->line, line_nr))
+                goto l99;
+            // with last_group^ do
+            group_ptr &last_group(current_frame->last_group);
+            mark_ptr &dot(current_frame->dot);
+            if (line_nr + current_frame->scr_height * count >
+                last_group->first_line_nr + last_group->last_line->offset_nr) {
+                mark_create(last_group->last_line, dot->col, dot);
             } else {
-                screen_unload();
+                line_ptr new_line = dot->line;
+                for (int i = 1; i <= current_frame->scr_height * count; ++i)
+                    new_line = new_line->flink;
+                if (count == 1) {
+                    // with line^ do
+                    const_line_ptr line = dot->line;
+                    if (line->scr_row_nr != 0) {
+                        if (line->scr_row_nr <= current_frame->margin_top) {
+                            screen_scroll(
+                                current_frame->scr_height + line->scr_row_nr -
+                                    current_frame->margin_top - 1,
+                                true
+                            );
+                        } else {
+                            screen_scroll(current_frame->scr_height, true);
+                        }
+                    }
+                } else {
+                    screen_unload();
+                }
+                mark_create(new_line, dot->col, current_frame->dot);
             }
-            mark_create(new_line, dot->col, current_frame->dot);
+            cmd_success = true;
         }
-        cmd_success = true;
-    }
         break;
 
     case commands::cmd_window_left:
@@ -122,8 +133,7 @@ bool window_command(commands command, leadparam rept, int count, bool from_span)
         cmd_success = true;
         if (scr_frame == current_frame) {
             if (line_to_number(current_frame->dot->line, line_nr) &&
-                line_to_number(scr_top_line, line2_nr) &&
-                line_to_number(scr_bot_line, line3_nr)) {
+                line_to_number(scr_top_line, line2_nr) && line_to_number(scr_bot_line, line3_nr)) {
                 screen_scroll(line_nr - ((line2_nr + line3_nr) / 2), true);
             }
         }
@@ -165,24 +175,26 @@ bool window_command(commands command, leadparam rept, int count, bool from_span)
 
                 // If the dot is still visible and the command is interactive
                 // then support stay-behind mode.
-                if  (!from_span &&
-                     (current_frame->dot->line->scr_row_nr != 0) &&
-                     (current_frame->scr_offset < current_frame->dot->col) &&
-                     (current_frame->dot->col <= current_frame->scr_offset + current_frame->scr_width)) {
+                if (!from_span && (current_frame->dot->line->scr_row_nr != 0) &&
+                    (current_frame->scr_offset < current_frame->dot->col) &&
+                    (current_frame->dot->col <=
+                     current_frame->scr_offset + current_frame->scr_width)) {
                     if (!cmd_success) {
                         vdu_beep();
                         cmd_success = true;
                     }
-                    vdu_movecurs(current_frame->dot->col - current_frame->scr_offset,
-                                 current_frame->dot->line->scr_row_nr);
+                    vdu_movecurs(
+                        current_frame->dot->col - current_frame->scr_offset,
+                        current_frame->dot->line->scr_row_nr
+                    );
                     key = vdu_get_key();
                     if (tt_controlc) {
                         key = 0;
                     } else if (lookup[key].command == commands::cmd_up) {
-                        rept  = leadparam::pint;
+                        rept = leadparam::pint;
                         count = 1;
                     } else if (lookup[key].command == commands::cmd_down) {
-                        rept  = leadparam::nint;
+                        rept = leadparam::nint;
                         count = -1;
                     } else {
                         vdu_take_back_key(key);
@@ -200,8 +212,9 @@ bool window_command(commands command, leadparam rept, int count, bool from_span)
         break;
 
     case commands::cmd_window_top:
-        cmd_success = mark_create(current_frame->first_group->first_line,
-                                  current_frame->dot->col, current_frame->dot);
+        cmd_success = mark_create(
+            current_frame->first_group->first_line, current_frame->dot->col, current_frame->dot
+        );
         break;
 
     case commands::cmd_window_update:
@@ -216,6 +229,6 @@ bool window_command(commands command, leadparam rept, int count, bool from_span)
         break;
     }
 
- l99:;
+l99:;
     return cmd_success;
 }

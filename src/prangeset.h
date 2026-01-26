@@ -7,9 +7,9 @@
 
 #include <bitset>
 
-template <typename T>
-class prangeset {
+template <typename T> class prangeset {
     static_assert(T::min() < T::max(), "min must be strictly less than max");
+
 public:
     using element_type = T;
 

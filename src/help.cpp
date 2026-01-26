@@ -24,21 +24,21 @@
 
 #include "help.h"
 
-#include "var.h"
-#include "screen.h"
 #include "helpfile.h"
+#include "screen.h"
+#include "var.h"
 
 #include <algorithm>
 
 namespace {
 
-    inline constexpr std::string_view INDEX { "0" }; // The index key.
+    inline constexpr std::string_view INDEX{"0"}; // The index key.
 
     unsigned char to_upper(unsigned char c) {
         return std::toupper(c);
     }
 
-};
+}; // namespace
 
 key_str ask_user(const std::string_view &prompt) {
     screen_writeln();

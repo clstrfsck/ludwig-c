@@ -25,23 +25,23 @@
 #include "eqsgetrep.h"
 
 #include "ch.h"
-#include "var.h"
+#include "charcmd.h"
 #include "dfa.h"
 #include "mark.h"
-#include "text.h"
-#include "screen.h"
-#include "charcmd.h"
 #include "patparse.h"
 #include "recognize.h"
+#include "screen.h"
+#include "text.h"
+#include "var.h"
 
 #include <algorithm>
 
 namespace {
 
-    inline constexpr std::string_view THIS_ONE { "This one?" };
-    inline constexpr std::string_view REPLACE_THIS_ONE { "Replace this one?" };
+    inline constexpr std::string_view THIS_ONE{"This one?"};
+    inline constexpr std::string_view REPLACE_THIS_ONE{"Replace this one?"};
 
-};
+}; // namespace
 
 bool eqsgetrep_exactcase(tpar_object &target) {
     if (target.dlm != '"') {
@@ -55,8 +55,11 @@ bool eqsgetrep_exactcase(tpar_object &target) {
     return true;
 }
 
-bool eqsgetrep_same_pattern_def(const pattern_def_type &pattern_1, const pattern_def_type &pattern_2) {
-    if ((pattern_1.length != 0) && (pattern_2.length != 0) && (pattern_1.length == pattern_2.length)) {
+bool eqsgetrep_same_pattern_def(
+    const pattern_def_type &pattern_1, const pattern_def_type &pattern_2
+) {
+    if ((pattern_1.length != 0) && (pattern_2.length != 0) &&
+        (pattern_1.length == pattern_2.length)) {
         for (int count = 1; count <= pattern_1.length; ++count) {
             if (pattern_1.strng[count] != pattern_2.strng[count])
                 return false;
@@ -68,25 +71,41 @@ bool eqsgetrep_same_pattern_def(const pattern_def_type &pattern_1, const pattern
 
 bool eqsgetrep_pattern_build(tpar_object tpar, dfa_table_ptr &pattern_ptr) {
     pattern_def_type pattern_definition;
-    nfa_table_type   nfa_table;
-    nfa_state_range  first_pattern_start;
-    nfa_state_range  pattern_final_state;
-    nfa_state_range  left_context_end;
-    nfa_state_range  middle_context_end;
-    nfa_state_range  states_used;               // DUMMY Will go
-    if (pattern_parser(tpar, nfa_table, first_pattern_start, pattern_final_state,
-                       left_context_end, middle_context_end, pattern_definition, states_used)) {
+    nfa_table_type nfa_table;
+    nfa_state_range first_pattern_start;
+    nfa_state_range pattern_final_state;
+    nfa_state_range left_context_end;
+    nfa_state_range middle_context_end;
+    nfa_state_range states_used; // DUMMY Will go
+    if (pattern_parser(
+            tpar,
+            nfa_table,
+            first_pattern_start,
+            pattern_final_state,
+            left_context_end,
+            middle_context_end,
+            pattern_definition,
+            states_used
+        )) {
         bool already_built;
         if (pattern_ptr != nullptr)
-            already_built =  eqsgetrep_same_pattern_def(pattern_definition, pattern_ptr->definition);
+            already_built = eqsgetrep_same_pattern_def(pattern_definition, pattern_ptr->definition);
         else
             already_built = false;
         if (!already_built) {
             if (!pattern_dfa_table_initialize(pattern_ptr, pattern_definition))
                 return false;
             dfa_state_range dfa_start, dfa_end; // may well go in final version
-            if (!pattern_dfa_convert(nfa_table, pattern_ptr, first_pattern_start, pattern_final_state,
-                                     left_context_end, middle_context_end, dfa_start, dfa_end))
+            if (!pattern_dfa_convert(
+                    nfa_table,
+                    pattern_ptr,
+                    first_pattern_start,
+                    pattern_final_state,
+                    left_context_end,
+                    middle_context_end,
+                    dfa_start,
+                    dfa_end
+                ))
                 return false;
         }
     } else {
@@ -97,15 +116,21 @@ bool eqsgetrep_pattern_build(tpar_object tpar, dfa_table_ptr &pattern_ptr) {
 
 bool eqsgetrep_eqs(leadparam rept, tpar_object tpar) {
     bool success = false;
-    //with current_frame^,dot^,line^ do
+    // with current_frame^,dot^,line^ do
     if (tpar.dlm == TPD_SMART) {
         if (!eqsgetrep_pattern_build(tpar, current_frame->eqs_pattern_ptr))
             return false;
-        bool      mark_flag = false;
+        bool mark_flag = false;
         col_range start_col;
         col_range end_pos;
-        bool      found = pattern_recognize(current_frame->eqs_pattern_ptr, current_frame->dot->line, current_frame->dot->col,
-                                            mark_flag, start_col, end_pos);
+        bool found = pattern_recognize(
+            current_frame->eqs_pattern_ptr,
+            current_frame->dot->line,
+            current_frame->dot->col,
+            mark_flag,
+            start_col,
+            end_pos
+        );
         switch (rept) {
         case leadparam::none:
         case leadparam::plus:
@@ -126,9 +151,10 @@ bool eqsgetrep_eqs(leadparam rept, tpar_object tpar) {
             break;
         }
         if (success && rept != leadparam::minus)
-            success = mark_create(current_frame->dot->line, end_pos, current_frame->marks[MARK_EQUALS]);
+            success =
+                mark_create(current_frame->dot->line, end_pos, current_frame->marks[MARK_EQUALS]);
     } else {
-        bool exactcase = eqsgetrep_exactcase(tpar);   // Decide if exact case.
+        bool exactcase = eqsgetrep_exactcase(tpar); // Decide if exact case.
         strlen_range start_col = current_frame->dot->col;
         strlen_range length;
         if (start_col > current_frame->dot->line->used) {
@@ -142,9 +168,16 @@ bool eqsgetrep_eqs(leadparam rept, tpar_object tpar) {
 
         // Compare string.
         strlen_range nch_ident;
-        int result = ch_compare_str(tpar.str, 1, tpar.len,
-                                    *current_frame->dot->line->str, start_col, length,
-                                    exactcase, nch_ident);
+        int result = ch_compare_str(
+            tpar.str,
+            1,
+            tpar.len,
+            *current_frame->dot->line->str,
+            start_col,
+            length,
+            exactcase,
+            nch_ident
+        );
         switch (rept) {
         case leadparam::none:
         case leadparam::plus:
@@ -164,8 +197,11 @@ bool eqsgetrep_eqs(leadparam rept, tpar_object tpar) {
             break;
         }
         if (success && rept != leadparam::minus) {
-            success = mark_create(current_frame->dot->line, current_frame->dot->col + nch_ident,
-                                  current_frame->marks[MARK_EQUALS]);
+            success = mark_create(
+                current_frame->dot->line,
+                current_frame->dot->col + nch_ident,
+                current_frame->marks[MARK_EQUALS]
+            );
         }
     }
     return success;
@@ -173,17 +209,17 @@ bool eqsgetrep_eqs(leadparam rept, tpar_object tpar) {
 
 bool eqsgetrep_dumb_get(int count, tpar_object tpar, bool from_span) {
     bool result = (count == 0);
-    //with current_frame^ do
-    // Initialize the search variables.
-    line_ptr  dot_line  = current_frame->dot->line;  // Remember initial dot.
-    col_range dot_col   = current_frame->dot->col;
-    bool exactcase      = eqsgetrep_exactcase(tpar); // Decide if exact case.
-    line_ptr line       = dot_line;                  // Line to start on.
+    // with current_frame^ do
+    //  Initialize the search variables.
+    line_ptr dot_line = current_frame->dot->line; // Remember initial dot.
+    col_range dot_col = current_frame->dot->col;
+    bool exactcase = eqsgetrep_exactcase(tpar); // Decide if exact case.
+    line_ptr line = dot_line;                   // Line to start on.
     strlen_range newlen = tpar.len;
     bool tail_space;
     if ((newlen > 1) && (tpar.str[newlen] == ' ')) {
         tail_space = true;
-        newlen     -= 1;
+        newlen -= 1;
     } else {
         tail_space = false;
     }
@@ -192,16 +228,16 @@ bool eqsgetrep_dumb_get(int count, tpar_object tpar, bool from_span) {
     col_range start_col;
     strlen_range length;
     if (count < 0) {
-        count     = -count;
-        //with tpar do
+        count = -count;
+        // with tpar do
         ch_reverse_str(tpar.str, newstr, newlen);
         backwards = true;
         start_col = 1;
-        length    = current_frame->dot->col - 1;
+        length = current_frame->dot->col - 1;
         if (length > line->used)
             length = line->used;
     } else {
-        newstr    = tpar.str;
+        newstr = tpar.str;
         backwards = false;
         start_col = current_frame->dot->col;
         if (start_col > line->used)
@@ -216,14 +252,22 @@ bool eqsgetrep_dumb_get(int count, tpar_object tpar, bool from_span) {
         if (length == 0)
             found = false;
         else
-            found = ch_search_str(newstr, 1, newlen,
-                                  *line->str, start_col.value(), length,
-                                  exactcase, backwards, offset);
+            found = ch_search_str(
+                newstr,
+                1,
+                newlen,
+                *line->str,
+                start_col.value(),
+                length,
+                exactcase,
+                backwards,
+                offset
+            );
         if (found) {
             // Found AN instance, except maybe for TAIL_SPACE.
             // Check that matched string is followed by a space, or EOL space.
             if (tail_space) {
-                //with line^ do
+                // with line^ do
                 char tail_char;
                 if (start_col + offset + newlen <= line->used)
                     tail_char = (*line->str)[start_col + offset + newlen];
@@ -281,17 +325,17 @@ bool eqsgetrep_dumb_get(int count, tpar_object tpar, bool from_span) {
                 }
                 result = true;
                 goto l99;
-        l1:;
+            l1:;
             }
             // Search the rest of this line.
-    l2:;
+        l2:;
             if (backwards) {
-                length    = start_col - 1;
+                length = start_col - 1;
                 start_col = 1;
             } else if (start_col > line->used) {
                 length = 0;
             } else {
-                length    = line->used + 1 - start_col;
+                length = line->used + 1 - start_col;
             }
         } else {
             // No more instances on this line, move to next line.
@@ -311,7 +355,7 @@ l99:;
 
 bool eqsgetrep_pattern_get(int count, tpar_object tpar, bool from_span, bool replace_flag) {
     bool result = (count == 0);
-    //with current_frame^ do
+    // with current_frame^ do
     dfa_table_ptr pattern_ptr;
     if (!replace_flag) {
         if (!eqsgetrep_pattern_build(tpar, current_frame->get_pattern_ptr))
@@ -322,16 +366,16 @@ bool eqsgetrep_pattern_get(int count, tpar_object tpar, bool from_span, bool rep
         pattern_ptr = current_frame->rep_pattern_ptr;
     }
     // Initialize the search variables.
-    line_ptr  dot_line = current_frame->dot->line; // Remember initial dot.
-    col_range dot_col  = current_frame->dot->col;
-    line_ptr  line     = dot_line;                 // Line to start on.
-    bool mark_flag = false;                        // search for marks at start pos
+    line_ptr dot_line = current_frame->dot->line; // Remember initial dot.
+    col_range dot_col = current_frame->dot->col;
+    line_ptr line = dot_line; // Line to start on.
+    bool mark_flag = false;   // search for marks at start pos
     bool backwards = count < 0;
     strlen_range start_col;
-    if (backwards)                                 // Since the matcher can only search
-        start_col = 1;                             // forward it must start in col 1 when
-    else                                           // going backwards.
-        start_col = dot_col;                       // Otherwise start at the dot.
+    if (backwards)           // Since the matcher can only search
+        start_col = 1;       // forward it must start in col 1 when
+    else                     // going backwards.
+        start_col = dot_col; // Otherwise start at the dot.
     count = std::abs(count);
     if (start_col > line->used)
         start_col = line->used + 1;
@@ -339,9 +383,15 @@ bool eqsgetrep_pattern_get(int count, tpar_object tpar, bool from_span, bool rep
     while ((count > 0) && !tt_controlc) {
         col_range matched_start_col;
         col_range matched_finish_col;
-        if (pattern_recognize(pattern_ptr, line, start_col.value(), mark_flag,
-                              matched_start_col, matched_finish_col)) {
-            if (! ((line == dot_line) && (matched_finish_col >= dot_col) && backwards)) {
+        if (pattern_recognize(
+                pattern_ptr,
+                line,
+                start_col.value(),
+                mark_flag,
+                matched_start_col,
+                matched_finish_col
+            )) {
+            if (!((line == dot_line) && (matched_finish_col >= dot_col) && backwards)) {
                 // so long as not somewhere we are not allowed
                 count -= 1;
                 if (count == 0) {
@@ -373,13 +423,17 @@ bool eqsgetrep_pattern_get(int count, tpar_object tpar, bool from_span, bool rep
                     }
                     // Place the equals in the right place.
                     if (backwards) {
-                        if (!mark_create(line, matched_finish_col, current_frame->marks[MARK_EQUALS]))
+                        if (!mark_create(
+                                line, matched_finish_col, current_frame->marks[MARK_EQUALS]
+                            ))
                             goto l99;
-                    } else if (!mark_create(line, matched_start_col, current_frame->marks[MARK_EQUALS]))
+                    } else if (!mark_create(
+                                   line, matched_start_col, current_frame->marks[MARK_EQUALS]
+                               ))
                         goto l99;
                     result = true;
-                    goto l99;  // been there, done that, moving on
-            l1:;
+                    goto l99; // been there, done that, moving on
+                l1:;
                 } // finished code for having found it
                 // Search the rest of this line.
                 // found one but not the right count
@@ -390,7 +444,7 @@ bool eqsgetrep_pattern_get(int count, tpar_object tpar, bool from_span, bool rep
                 if (start_col > line->used) {       // Finished this line, move on.
                     // since strictly greater than must have prosessed
                     if (backwards)
-                        line = line->blink;         // the end of line & white space
+                        line = line->blink; // the end of line & white space
                     else
                         line = line->flink;
                     if (line == nullptr)
@@ -400,9 +454,9 @@ bool eqsgetrep_pattern_get(int count, tpar_object tpar, bool from_span, bool rep
                 }
             } else { // of we are not outside the allowed search bounds
                 // we found one but outside bounds
-                line = line->blink;   // must be backwards, as that is a criterion
+                line = line->blink; // must be backwards, as that is a criterion
                 if (line == nullptr)
-                    goto l99;   // for out of bounds
+                    goto l99; // for out of bounds
                 mark_flag = false;
                 start_col = 1;
             }
@@ -439,11 +493,15 @@ bool eqsgetrep_rep(leadparam rept, int count, tpar_object tpar, tpar_object tpar
     mark_ptr old_equals = nullptr;
     bool okay;
     bool result = false;
-    //with current_frame^ do
+    // with current_frame^ do
     if (!mark_create(current_frame->dot->line, current_frame->dot->col, old_dot))
         goto l99;
     if (current_frame->marks[MARK_EQUALS] != nullptr) {
-        if (!mark_create(current_frame->marks[MARK_EQUALS]->line, current_frame->marks[MARK_EQUALS]->col, old_equals))
+        if (!mark_create(
+                current_frame->marks[MARK_EQUALS]->line,
+                current_frame->marks[MARK_EQUALS]->col,
+                old_equals
+            ))
             goto l99;
     }
     if (tpar.dlm == TPD_SMART) {
@@ -488,7 +546,7 @@ bool eqsgetrep_rep(leadparam rept, int count, tpar_object tpar, tpar_object tpar
         // If EQUALS < DOT then REVERSE THEM.
         if (length < 0) {
             current_frame->dot->col = current_frame->marks[MARK_EQUALS]->col;
-            current_frame->marks[MARK_EQUALS]->col = current_frame->dot->col-length;
+            current_frame->marks[MARK_EQUALS]->col = current_frame->dot->col - length;
             length = -length;
         }
         if (tpar2.con == nullptr) {
@@ -510,12 +568,18 @@ bool eqsgetrep_rep(leadparam rept, int count, tpar_object tpar, tpar_object tpar
             // Overtype the replacement text and place DOT and EQUALS correctly.
             if (!text_overtype(true, 1, tpar2.str, tpar2.len, current_frame->dot))
                 goto l99;
-            //with dot^ do
+            // with dot^ do
             if (getcount > 0) {
-                if (!mark_create(current_frame->dot->line, start_col, current_frame->marks[MARK_EQUALS]))
+                if (!mark_create(
+                        current_frame->dot->line, start_col, current_frame->marks[MARK_EQUALS]
+                    ))
                     goto l99;
             } else {
-                if (!mark_create(current_frame->dot->line, start_col + tpar2.len, current_frame->marks[MARK_EQUALS]))
+                if (!mark_create(
+                        current_frame->dot->line,
+                        start_col + tpar2.len,
+                        current_frame->marks[MARK_EQUALS]
+                    ))
                     goto l99;
                 current_frame->dot->col = start_col;
             }
@@ -527,10 +591,18 @@ bool eqsgetrep_rep(leadparam rept, int count, tpar_object tpar, tpar_object tpar
         }
         if (!mark_create(current_frame->dot->line, current_frame->dot->col, old_dot))
             goto l99;
-        if (!mark_create(current_frame->marks[MARK_EQUALS]->line, current_frame->marks[MARK_EQUALS]->col, old_equals))
+        if (!mark_create(
+                current_frame->marks[MARK_EQUALS]->line,
+                current_frame->marks[MARK_EQUALS]->col,
+                old_equals
+            ))
             goto l99;
         current_frame->text_modified = true;
-        if (!mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_MODIFIED]))
+        if (!mark_create(
+                current_frame->dot->line,
+                current_frame->dot->col,
+                current_frame->marks[MARK_MODIFIED]
+            ))
             goto l99;
         // Decrement the count remaining.
         count -= 1;
