@@ -24,8 +24,8 @@
 
 #include "mark.h"
 
-#include "var.h"
 #include "screen.h"
+#include "var.h"
 
 size_t mark_object::allocated_marks = 0;
 
@@ -45,7 +45,7 @@ namespace {
             mark_list.erase(it);
         }
     }
-}
+} // namespace
 
 size_t marks_allocated() {
     return mark_object::allocated_marks;
@@ -71,7 +71,7 @@ bool mark_create(line_ptr in_line, col_range column, mark_ptr &mark) {
         mark = allocate();
         in_line->marks.push_front(mark);
         mark->line = in_line;
-        mark->col  = column;
+        mark->col = column;
     } else {
         line_ptr this_line = mark->line;
         if (this_line == in_line) {
@@ -80,7 +80,7 @@ bool mark_create(line_ptr in_line, col_range column, mark_ptr &mark) {
             remove_from_marks(this_line->marks, mark);
             in_line->marks.push_front(mark);
             mark->line = in_line;
-            mark->col  = column;
+            mark->col = column;
         }
     }
     return true;
@@ -105,8 +105,12 @@ bool mark_destroy(mark_ptr &mark) {
     return true;
 }
 
-bool marks_squeeze(const line_ptr first_line, col_range first_column,
-                   const line_ptr last_line, col_range last_column) {
+bool marks_squeeze(
+    const line_ptr first_line,
+    col_range first_column,
+    const line_ptr last_line,
+    col_range last_column
+) {
     /*
       Purpose  : Move all marks between <first_line,first_column> and
                  <last_line,last_column> to the latter position.
@@ -158,9 +162,9 @@ bool marks_squeeze(const line_ptr first_line, col_range first_column,
         // Move marks in lines first_line..last_line-1.
         line_ptr this_line = first_line;
         while (this_line != last_line) {
-            auto &marks { this_line->marks };
-            for (auto it = marks.begin(); it != marks.end(); ) {
-                auto mark { *it };
+            auto &marks{this_line->marks};
+            for (auto it = marks.begin(); it != marks.end();) {
+                auto mark{*it};
                 if (mark->col >= first_column) {
                     mark->col = last_column;
                     mark->line = last_line;
@@ -177,8 +181,13 @@ bool marks_squeeze(const line_ptr first_line, col_range first_column,
     return true;
 }
 
-bool marks_shift(const line_ptr source_line, col_range source_column, col_width_range width,
-                 const line_ptr dest_line, col_range dest_column) {
+bool marks_shift(
+    const line_ptr source_line,
+    col_range source_column,
+    col_width_range width,
+    const line_ptr dest_line,
+    col_range dest_column
+) {
     /*
       Purpose  : Move all marks from the <width> columns starting at
                  <source_line,source_column> to corresponding positions
@@ -221,9 +230,9 @@ bool marks_shift(const line_ptr source_line, col_range source_column, col_width_
             return false;
         }
 #endif
-        auto &marks { source_line->marks };
-        for (auto it = marks.begin(); it != marks.end(); ) {
-            auto mark { *it };
+        auto &marks{source_line->marks};
+        for (auto it = marks.begin(); it != marks.end();) {
+            auto mark{*it};
             if ((mark->col >= source_column) && (mark->col <= source_end)) {
                 mark->line = dest_line;
                 mark->col = std::min(MAX_STRLENP, mark->col + offset);
