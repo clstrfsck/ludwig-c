@@ -3,7 +3,7 @@
 
 #include "type.h"
 
-void file_name(file_ptr fp, size_t max_len, file_name_str &act_fnm, size_t &act_len);
+void file_name(file_ptr fp, size_t max_len, file_name_str &act_fnm);
 void file_table();
 void file_fix_eop(bool eof, line_ptr eop_line);
 

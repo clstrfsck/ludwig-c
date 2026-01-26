@@ -1523,22 +1523,22 @@ void screen_write_name_str(scr_col_range indent, const std::string &str, scr_col
     }
 }
 
-void screen_write_file_name_str(scr_col_range indent, const file_name_str &str, scr_col_range width) {
+void screen_write_file_name_str(scr_col_range indent, const file_name_str &str, size_t width) {
     // Write a file name at the current cursor position, or to the output file.
     if (ludwig_mode == ludwig_mode_type::ludwig_screen) {
         for (int i = 0; i < indent; ++i)
             vdu_displaych(' ');
-        for (int i = 0; i < width; ++i) {
-            if (i < FILE_NAME_LEN && std::isprint(str[i + 1]))
-                vdu_displaych(str[i + 1]);
+        for (size_t i = 0; i < width; ++i) {
+            if (i < str.size() && std::isprint(str[i]))
+                vdu_displaych(str[i]);
             else
                 vdu_displaych(' ');
         }
     } else {
         write(' ', indent);
-        for (int i = 0; i < width; ++i) {
-            if (i < FILE_NAME_LEN)
-                write(str[i + 1], 1);
+        for (size_t i = 0; i < width; ++i) {
+            if (i < str.size())
+                write(str[i], 1);
             else
                 write(' ', 1);
         }

@@ -39,17 +39,16 @@ if(ENABLE_COVERAGE)
     message(STATUS "Code coverage enabled")
 endif()
 
-# Test executables
-set(TEST_SOURCES
-    test_const.cpp
-    test_helpfile.cpp
-    test_main.cpp
-    test_mark.cpp
-    test_parray.cpp
-    test_prange.cpp
-)
+## Discover test sources automatically (matches test_*.cpp)
+file(GLOB TEST_SRC_GLOB "${CMAKE_CURRENT_LIST_DIR}/test_*.cpp")
+message(STATUS "Found test sources: ${TEST_SRC_GLOB}")
 
+# Forward to original variable name for compatibility
+set(TEST_SOURCES ${TEST_SRC_GLOB})
+
+# Test executables
 add_executable(ludwig_tests ${TEST_SOURCES})
+# This is where helpfiles etc are located for tests
 target_compile_definitions(ludwig_tests PRIVATE
     TEST_DATA_PATH="${CMAKE_CURRENT_BINARY_DIR}/../"
 )

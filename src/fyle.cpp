@@ -34,7 +34,7 @@
 #include "screen.h"
 #include "filesys.h"
 
-#include <cstring>
+#include <algorithm>
 
 //implementation
 //  uses ch, exec, filesys, line, mark, screen, tpar, vdu;
@@ -43,10 +43,9 @@ namespace {
     const std::string BLANK_NAME("                               ");
 }
 
-void file_name(file_ptr fp, size_t max_len, file_name_str &act_fnm, size_t &act_len) {
+void file_name(file_ptr fp, size_t max_len, file_name_str &act_fnm) {
     // Return a file's name, in the specified width.
-
-    //with fp^ do
+    max_len = std::max(size_t { 5 }, max_len); // Minimum width
     size_t head_len;
     size_t tail_len;
     if (fp->filename.size() <= max_len) {
@@ -57,19 +56,12 @@ void file_name(file_ptr fp, size_t max_len, file_name_str &act_fnm, size_t &act_
         tail_len = (max_len - 3) / 2;
         head_len = max_len - 3 - tail_len;
     }
-    for (size_t i = 1; i <= head_len; ++i)
-        act_fnm[i] = fp->filename[i - 1];
-    if (tail_len > 0) {
-        for (size_t i = 0; i < 3; ++i) {
-            head_len += 1;
-            act_fnm[head_len] = '-';
-        }
-        for (size_t i = fp->filename.size() - tail_len + 1; i <= fp->filename.size(); ++i) {
-            head_len += 1;
-            act_fnm[head_len] = fp->filename[i - 1];
-        }
+    if (tail_len == 0) {
+        act_fnm = fp->filename.substr(0, head_len);
+    } else {
+        act_fnm = fp->filename.substr(0, head_len) + "---" +
+            fp->filename.substr(fp->filename.size() - tail_len, tail_len);
     }
-    act_len = head_len;
 }
 
 void file_table() {
@@ -130,10 +122,9 @@ void file_table() {
                 room = terminal_info.width - 18 - 1;
             else
                 room = FILE_NAME_LEN;
-            size_t file_len;
             file_name_str compressed_fnm;
-            file_name(files[file_slot], room, compressed_fnm, file_len);
-            screen_write_file_name_str(1, compressed_fnm, file_len);
+            file_name(files[file_slot], room, compressed_fnm);
+            screen_write_file_name_str(1, compressed_fnm, compressed_fnm.size());
             screen_writeln();
         }
     }

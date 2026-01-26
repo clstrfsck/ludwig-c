@@ -257,19 +257,18 @@ bool span_index() {
             screen_writeln();
             line_count += 1;
             //with p->frame^ do
-            size_t fyl_nam_len;
             file_name_str fyl_nam;
             if (p->frame->input_file != 0) {
                 screen_write_str(0, "  Input:  ", 10);
-                file_name(files[p->frame->input_file], 70, fyl_nam, fyl_nam_len);
-                screen_write_file_name_str(0, fyl_nam, fyl_nam_len);
+                file_name(files[p->frame->input_file], 70, fyl_nam);
+                screen_write_file_name_str(0, fyl_nam, fyl_nam.size());
                 screen_writeln();
                 line_count += 1;
             }
             if (p->frame->output_file != 0) {
                 screen_write_str(0, "  Output: ", 10);
-                file_name(files[p->frame->output_file], 70, fyl_nam, fyl_nam_len);
-                screen_write_file_name_str(0, fyl_nam, fyl_nam_len);
+                file_name(files[p->frame->output_file], 70, fyl_nam);
+                screen_write_file_name_str(0, fyl_nam, fyl_nam.size());
                 screen_writeln();
                 line_count += 1;
             }
