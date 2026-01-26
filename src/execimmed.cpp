@@ -35,11 +35,11 @@
 #include "text.h"
 #include "screen.h"
 
-#include <cstring>
 #include <iostream>
 
 namespace {
-    const std::string DEFAULT_SPAN_NAME("L. Wittgenstein und Sohn."); // Editors Extraordinaire
+    // Editors Extraordinaire
+    inline constexpr std::string_view DEFAULT_SPAN_NAME("L. Wittgenstein und Sohn.");
 
     void write(const char *message, bool flush = true) {
         std::cout << message;
@@ -55,15 +55,14 @@ namespace {
 
 void execute_immed() {
     scr_col_range scr_col;
-    span_ptr cmd_span = new span_object;
-    //with cmd_span^ do
-    cmd_span->flink    = nullptr;
-    cmd_span->blink    = nullptr;
-    cmd_span->name     = DEFAULT_SPAN_NAME;
-    cmd_span->frame    = nullptr;
-    cmd_span->mark_one = nullptr;
-    cmd_span->mark_two = nullptr;
-    cmd_span->code     = nullptr;
+    span_object cmd_span;
+    cmd_span.flink    = nullptr;
+    cmd_span.blink    = nullptr;
+    cmd_span.name     = DEFAULT_SPAN_NAME;
+    cmd_span.frame    = nullptr;
+    cmd_span.mark_one = nullptr;
+    cmd_span.mark_two = nullptr;
+    cmd_span.code     = nullptr;
 
     // Vector off to the appropriate main execution mode.  Each mode behaves
     // slightly differently at this level.
@@ -211,8 +210,8 @@ void execute_immed() {
             }
 
             if (key == command_introducer) {
-                if (code_compile(*cmd_span, false))
-                    cmd_success = code_interpret(leadparam::none, 1, cmd_span->code, false);
+                if (code_compile(cmd_span, false))
+                    cmd_success = code_interpret(leadparam::none, 1, cmd_span.code, false);
                 else
                     cmd_success = false;
             } else {
@@ -232,7 +231,7 @@ void execute_immed() {
                     screen_unload();
             } else if (!cmd_success) {
                 vdu_beep();         // Complain.
-                vdu_flush();        // Make sure he hears the complaint.
+                vdu_flush();        // Make sure they hear the complaint.
             } else {
                 jammed = false;
             }
@@ -244,11 +243,11 @@ void execute_immed() {
     case ludwig_mode_type::ludwig_hardcopy:
     case ludwig_mode_type::ludwig_batch: {
         //with cmd_span^ do
-        cmd_span->mark_one = new mark_object;
-        cmd_span->mark_one->line = nullptr;
-        cmd_span->mark_one->col = 1;
-        cmd_span->mark_two = new mark_object;
-        cmd_span->mark_two->line = nullptr;
+        cmd_span.mark_one = std::make_shared<mark_object>();
+        cmd_span.mark_one->line = nullptr;
+        cmd_span.mark_one->col = 1;
+        cmd_span.mark_two = std::make_shared<mark_object>();
+        cmd_span.mark_two->line = nullptr;
         int cmd_count;
         if (ludwig_mode == ludwig_mode_type::ludwig_hardcopy)
             cmd_count = 1;
@@ -263,11 +262,11 @@ void execute_immed() {
             do {
                 //with cmd_span^ do
                 // Destroy all of cmd_span's contents.
-                if (cmd_span->mark_one->line != nullptr) {
-                    if (!lines_destroy(cmd_span->mark_one->line, cmd_span->mark_two->line))
+                if (cmd_span.mark_one->line != nullptr) {
+                    if (!lines_destroy(cmd_span.mark_one->line, cmd_span.mark_two->line))
                         return;
-                    cmd_span->mark_one->line = nullptr;
-                    cmd_span->mark_two->line = nullptr;
+                    cmd_span.mark_one->line = nullptr;
+                    cmd_span.mark_two->line = nullptr;
                 }
 
                 // If necessary, prompt.
@@ -279,11 +278,11 @@ void execute_immed() {
 
                 // Read, compile, and execute the next lot of commands.
                 int i;
-                if (file_read(cmd_file, cmd_count, true, cmd_span->mark_one->line, cmd_span->mark_two->line, i)) {
-                    if (cmd_span->mark_one->line != nullptr) {
-                        cmd_span->mark_two->col = cmd_span->mark_two->line->used + 1;
-                        if (code_compile(*cmd_span, true)) {
-                            if (!code_interpret(leadparam::none, 1, cmd_span->code, true)) {
+                if (file_read(cmd_file, cmd_count, true, cmd_span.mark_one->line, cmd_span.mark_two->line, i)) {
+                    if (cmd_span.mark_one->line != nullptr) {
+                        cmd_span.mark_two->col = cmd_span.mark_two->line->used + 1;
+                        if (code_compile(cmd_span, true)) {
+                            if (!code_interpret(leadparam::none, 1, cmd_span.code, true)) {
                                 writeln("\aCOMMAND FAILED");
                             }
                         }

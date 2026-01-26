@@ -14,9 +14,9 @@
 
 #include <set>
 #include <list>
+#include <memory>
 #include <string>
 #include <vector>
-
 
 // POINTERS TO ALL DYNAMIC OBJECTS.
 
@@ -28,8 +28,8 @@ using group_ptr = struct group_object *;
 using const_group_ptr = const struct group_object *;
 using line_ptr = struct line_hdr_object *;
 using const_line_ptr = const struct line_hdr_object *;
-using mark_ptr = struct mark_object *;
-using const_mark_ptr = const struct mark_object *;
+using mark_ptr = std::shared_ptr<struct mark_object>;
+using const_mark_ptr = std::shared_ptr<const struct mark_object>;
 using span_ptr = struct span_object *;
 using const_span_ptr = const struct span_object *;
 using tpar_ptr = struct tpar_object *;
@@ -147,7 +147,7 @@ struct file_object {
     // FIELDS SET BY "FILESYS", READ BY "FILE".
     bool          output_flag; // Is this an output file?
     bool          eof;         // Set when inp file reaches eof.
-    std::string   filename;    // Length of file name.
+    std::string   filename;    // File name.
     int           l_counter;
 
     // FIELDS FOR "FILESYS" ONLY.
@@ -172,9 +172,22 @@ struct file_object {
 };
 
 struct mark_object {
-    mark_ptr          next;
     line_ptr          line;
     int               col;
+
+    mark_object() : line(nullptr), col(0) {
+        allocated_marks += 1;
+    }
+
+    mark_object(const mark_object &other) : line(other.line), col(other.col) {
+        allocated_marks += 1;
+    }
+
+    ~mark_object() {
+        allocated_marks -= 1;
+    }
+
+    static size_t allocated_marks;
 };
 using mark_array = parray<mark_ptr, mark_range>;
 

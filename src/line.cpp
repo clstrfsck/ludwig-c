@@ -145,6 +145,7 @@ bool line_eop_destroy(group_ptr &group) {
 #endif
     if (eop_line->str != nullptr) {
         delete eop_line->str;
+    eop_line->marks.clear();
 #ifdef DEBUG
         eop_line->str = nullptr;
 #endif
@@ -247,6 +248,7 @@ bool lines_destroy(line_ptr &first_line, line_ptr &last_line) {
 #endif
         if (this_line->str != nullptr) {
             delete this_line->str;
+        this_line->marks.clear();
 #ifdef DEBUG
             this_line->str = nullptr;
 #endif

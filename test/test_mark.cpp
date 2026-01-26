@@ -71,9 +71,6 @@ void delete_test_frame(frame_ptr frame) {
 
 TEST_CASE("mark_pool_statistics", "[mark]") {
     SECTION("statistics tracking allocations") {
-        // Reset allocated / freed counts
-        mark_pool_statistics();
-
         line_ptr line = create_test_line();
         mark_ptr mark1 = nullptr;
         mark_ptr mark2 = nullptr;
@@ -81,33 +78,40 @@ TEST_CASE("mark_pool_statistics", "[mark]") {
         mark_create(line, 1, mark1);
         mark_create(line, 5, mark2);
 
-        mark_statistics stats_after_create = mark_pool_statistics();
-        // Allocated should increase by 2 (or pool_available should decrease by 2)
-        REQUIRE(stats_after_create.allocated == 2);
-        REQUIRE(stats_after_create.freed == 0);
+        // Allocated should increase by 2
+        REQUIRE(marks_allocated() == 2);
 
         mark_destroy(mark1);
         mark_destroy(mark2);
-        mark_statistics stats_after_destroy = mark_pool_statistics();
-        REQUIRE(stats_after_destroy.allocated == 0);
-        REQUIRE(stats_after_destroy.freed == 2);
+        REQUIRE(marks_allocated() == 0);
 
         delete_test_line(line);
     }
 
-    SECTION("pool available changes with allocation and freeing") {
+
+    SECTION("creating many marks tracks allocations correctly") {
         line_ptr line = create_test_line();
-        mark_ptr mark = nullptr;
-        mark_pool_statistics(); // Reset stats
+        REQUIRE(marks_allocated() == 0);
+        std::vector<mark_ptr> marks;
 
-        mark_create(line, 1, mark);
-        mark_statistics stats_after_create = mark_pool_statistics();
+        // Create more marks than typical pool extend size (20)
+        for (int i = 0; i < 25; ++i) {
+            mark_ptr mark = nullptr;
+            mark_create(line, i + 1, mark);
+            marks.push_back(mark);
+        }
 
-        mark_destroy(mark);
-        mark_statistics stats_after_destroy = mark_pool_statistics();
+        // Net allocated now should be 25
+        REQUIRE(marks_allocated() == 25);
 
-        // After destroying, available should be 1 more than after creating
-        REQUIRE(stats_after_destroy.pool_available == stats_after_create.pool_available + 1);
+        // Cleanup
+        for (mark_ptr m : marks) {
+            mark_destroy(m);
+        }
+        marks.clear();
+
+        REQUIRE(marks_allocated() == 0);
+
         delete_test_line(line);
     }
 }
@@ -542,58 +546,6 @@ TEST_CASE("marks_shift to different line", "[mark]") {
     delete_test_line(line2);
     delete_test_group(group);
     delete_test_frame(frame);
-}
-
-TEST_CASE("mark_pool_clear clears the pool", "[mark]") {
-    line_ptr line = create_test_line();
-
-    // Create and destroy some marks to populate the free pool
-    mark_ptr mark1 = nullptr;
-    mark_ptr mark2 = nullptr;
-
-    mark_create(line, 5, mark1);
-    mark_create(line, 10, mark2);
-    mark_destroy(mark1);
-    mark_destroy(mark2);
-
-    mark_statistics stats_before = mark_pool_statistics();
-    REQUIRE(stats_before.pool_available > 0);
-
-    mark_pool_clear();
-
-    mark_statistics stats_after = mark_pool_statistics();
-    REQUIRE(stats_after.pool_available == 0);
-
-    delete_test_line(line);
-}
-
-TEST_CASE("mark pool extends automatically", "[mark]") {
-    line_ptr line = create_test_line();
-
-    SECTION("creating many marks tracks allocations correctly") {
-        mark_statistics stats_before = mark_pool_statistics();
-        std::vector<mark_ptr> marks;
-
-        // Create more marks than typical pool extend size (20)
-        for (int i = 0; i < 25; ++i) {
-            mark_ptr mark = nullptr;
-            mark_create(line, i + 1, mark);
-            marks.push_back(mark);
-        }
-
-        mark_statistics stats_after = mark_pool_statistics();
-        // Net allocated (allocated - freed) should increase by 25
-        int net_before = stats_before.allocated - stats_before.freed;
-        int net_after = stats_after.allocated - stats_after.freed;
-        REQUIRE(net_after - net_before == 25);
-
-        // Cleanup
-        for (mark_ptr m : marks) {
-            mark_destroy(m);
-        }
-    }
-
-    delete_test_line(line);
 }
 
 TEST_CASE("marks_shift with MAX_STRLENP boundary", "[mark]") {
