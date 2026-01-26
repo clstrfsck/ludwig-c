@@ -3,14 +3,16 @@
  * Unit tests for helpfile.(cpp|h)
  */
 
-#include <catch2/catch_test_macros.hpp>
 #include "fyle.h"
 
+#include <catch2/catch_test_macros.hpp>
 #include <memory>
 #include <string>
 
-constexpr const std::string_view LONG_TEST_FILENAME  = "/this/is/a/long/path/to/a/test/file/thats/too/long.txt";
-constexpr const std::string_view EQUAL_TEST_FILENAME = "/not/an/extra/long/but/not/short/also/filename.txt";
+constexpr const std::string_view LONG_TEST_FILENAME =
+    "/this/is/a/long/path/to/a/test/file/thats/too/long.txt";
+constexpr const std::string_view EQUAL_TEST_FILENAME =
+    "/not/an/extra/long/but/not/short/also/filename.txt";
 constexpr const std::string_view SHORT_TEST_FILENAME = "/not/a/super/long/filename.txt";
 constexpr size_t MAX_TEST_FILENAME_LEN = EQUAL_TEST_FILENAME.size();
 

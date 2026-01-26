@@ -3,9 +3,10 @@
  * Unit tests for parray template class
  */
 
-#include <catch2/catch_test_macros.hpp>
 #include "parray.h"
 #include "prange.h"
+
+#include <catch2/catch_test_macros.hpp>
 
 TEST_CASE("parray construction and initialization", "[parray]") {
     SECTION("default construction initializes with default value") {
@@ -47,7 +48,7 @@ TEST_CASE("parray element access", "[parray]") {
 
     SECTION("const access") {
         arr[3] = 42;
-        const auto& carr = arr;
+        const auto &carr = arr;
         REQUIRE(carr[3] == 42);
     }
 }
@@ -172,7 +173,8 @@ TEST_CASE("parray with structs", "[parray]") {
         int x = 0;
         int y = 0;
         Point() = default;
-        Point(int x_, int y_) : x(x_), y(y_) {}
+        Point(int x_, int y_) : x(x_), y(y_) {
+        }
     };
 
     SECTION("array of structs") {

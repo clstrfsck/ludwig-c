@@ -3,9 +3,10 @@
  * Unit tests for mark manipulation routines
  */
 
-#include <catch2/catch_test_macros.hpp>
 #include "mark.h"
 #include "type.h"
+
+#include <catch2/catch_test_macros.hpp>
 
 // Helper function to create a minimal line object for testing
 line_ptr create_test_line() {
@@ -87,7 +88,6 @@ TEST_CASE("mark_pool_statistics", "[mark]") {
 
         delete_test_line(line);
     }
-
 
     SECTION("creating many marks tracks allocations correctly") {
         line_ptr line = create_test_line();
@@ -318,9 +318,9 @@ TEST_CASE("marks_squeeze on same line", "[mark]") {
         // Marks in range [10, 20) should move to 30
         REQUIRE(marks_squeeze(line, 10, line, 30));
 
-        REQUIRE(mark1->col == 5);   // Before range (< 10)
-        REQUIRE(mark2->col == 30);  // In range [10, 20)
-        REQUIRE(mark3->col == 30);  // At the end column (25 >= 10 and < 30, so it's in range too!)
+        REQUIRE(mark1->col == 5);  // Before range (< 10)
+        REQUIRE(mark2->col == 30); // In range [10, 20)
+        REQUIRE(mark3->col == 30); // At the end column (25 >= 10 and < 30, so it's in range too!)
 
         mark_destroy(mark1);
         mark_destroy(mark2);
@@ -451,8 +451,8 @@ TEST_CASE("marks_shift on same line", "[mark]") {
         // Shift 10 columns starting at column 30 to column 10
         REQUIRE(marks_shift(line, 30, 10, line, 10));
 
-        REQUIRE(mark1->col == 10);  // 30 + (10-30) = 10
-        REQUIRE(mark2->col == 15);  // 35 + (10-30) = 15
+        REQUIRE(mark1->col == 10); // 30 + (10-30) = 10
+        REQUIRE(mark2->col == 15); // 35 + (10-30) = 15
 
         mark_destroy(mark1);
         mark_destroy(mark2);
@@ -471,9 +471,9 @@ TEST_CASE("marks_shift on same line", "[mark]") {
         // Range is [10, 14] (columns 10, 11, 12, 13, 14)
         REQUIRE(marks_shift(line, 10, 5, line, 30));
 
-        REQUIRE(mark1->col == 5);   // Before range
-        REQUIRE(mark2->col == 32);  // In range: 12 + (30-10) = 32
-        REQUIRE(mark3->col == 25);  // After range [10, 14]
+        REQUIRE(mark1->col == 5);  // Before range
+        REQUIRE(mark2->col == 32); // In range: 12 + (30-10) = 32
+        REQUIRE(mark3->col == 25); // After range [10, 14]
 
         mark_destroy(mark1);
         mark_destroy(mark2);
@@ -517,9 +517,9 @@ TEST_CASE("marks_shift to different line", "[mark]") {
 
         // mark1 and mark2 should move to line2
         REQUIRE(mark1->line == line2);
-        REQUIRE(mark1->col == 5);   // 10 + (5-10) = 5
+        REQUIRE(mark1->col == 5); // 10 + (5-10) = 5
         REQUIRE(mark2->line == line2);
-        REQUIRE(mark2->col == 10);  // 15 + (5-10) = 10
+        REQUIRE(mark2->col == 10); // 15 + (5-10) = 10
 
         // mark3 is outside the range
         REQUIRE(mark3->line == line1);

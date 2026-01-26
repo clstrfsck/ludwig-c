@@ -3,9 +3,10 @@
  * Unit tests for constants and type definitions
  */
 
-#include <catch2/catch_test_macros.hpp>
 #include "const.h"
 #include "type.h"
+
+#include <catch2/catch_test_macros.hpp>
 #include <cstring>
 
 TEST_CASE("Basic constant values", "[const]") {

@@ -3,9 +3,9 @@
  * Unit tests for helpfile.(cpp|h)
  */
 
-#include <catch2/catch_test_macros.hpp>
 #include "helpfile.h"
 
+#include <catch2/catch_test_macros.hpp>
 #include <string>
 
 #ifndef TEST_DATA_PATH
@@ -23,16 +23,16 @@ namespace {
             helpfile_close();
         }
     };
-}
+} // namespace
 
-SCENARIO( "help file can be opened and index read" ) {
-    GIVEN( "An open help file and an index entry read" ) {
+SCENARIO("help file can be opened and index read") {
+    GIVEN("An open help file and an index entry read") {
         HelpfileFixture fixture;
         help_record record;
         bool found = helpfile_read("0", record);
-        REQUIRE( found == true );
+        REQUIRE(found == true);
 
-        WHEN( "reading the remaining lines in the entry" ) {
+        WHEN("reading the remaining lines in the entry") {
             size_t line_count = 1;
             size_t char_count = record.txt.size() + 1; // +1 for newline
             while (found) {
@@ -42,22 +42,22 @@ SCENARIO( "help file can be opened and index read" ) {
                 }
             }
 
-            THEN( "Correct number of lines and characters are read" ) {
-                REQUIRE( line_count == 21 );
-                REQUIRE( char_count == 720 );
+            THEN("Correct number of lines and characters are read") {
+                REQUIRE(line_count == 21);
+                REQUIRE(char_count == 720);
             }
         }
     }
 }
 
-SCENARIO( "help file can be opened and last entry read" ) {
-    GIVEN( "An open help file and the last index entry read" ) {
+SCENARIO("help file can be opened and last entry read") {
+    GIVEN("An open help file and the last index entry read") {
         HelpfileFixture fixture;
         help_record record;
         bool found = helpfile_read("?", record);
-        REQUIRE( found == true );
+        REQUIRE(found == true);
 
-        WHEN( "reading the remaining lines in the entry" ) {
+        WHEN("reading the remaining lines in the entry") {
             size_t line_count = 1;
             size_t char_count = record.txt.size() + 1; // +1 for newline
             while (found) {
@@ -67,9 +67,9 @@ SCENARIO( "help file can be opened and last entry read" ) {
                 }
             }
 
-            THEN( "Correct number of lines and characters are read" ) {
-                REQUIRE( line_count == 22 );
-                REQUIRE( char_count == 538 );
+            THEN("Correct number of lines and characters are read") {
+                REQUIRE(line_count == 22);
+                REQUIRE(char_count == 538);
             }
         }
     }

@@ -3,8 +3,9 @@
  * Unit tests for prange template class
  */
 
-#include <catch2/catch_test_macros.hpp>
 #include "prange.h"
+
+#include <catch2/catch_test_macros.hpp>
 
 TEST_CASE("prange basic construction", "[prange]") {
     SECTION("default construction initializes to min") {
