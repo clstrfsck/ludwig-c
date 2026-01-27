@@ -134,14 +134,11 @@ bool validate_command() {
                         screen_message(DBG_INVALID_OFFSET_NR);
                         return false;
                     }
-                    const_mark_ptr this_mark = this_line->mark;
-                    while (this_mark != nullptr) {
-                        // with this_mark^ do
+                    for (const auto &this_mark : this_line->marks) {
                         if (this_mark->line != this_line) {
                             screen_message(DBG_INVALID_LINE_PTR);
                             return false;
                         }
-                        this_mark = this_mark->next;
                     }
                     if ((this_line->str == nullptr) && (this_line->len != 0)) {
                         screen_message(DBG_INVALID_LINE_LENGTH);

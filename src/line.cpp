@@ -134,7 +134,7 @@ bool line_eop_destroy(group_ptr &group) {
         screen_message(DBG_INVALID_OFFSET_NR);
         return false;
     }
-    if (eop_line->mark != nullptr) {
+    if (!eop_line->marks.empty()) {
         screen_message(DBG_LINE_HAS_MARKS);
         return false;
     }
@@ -237,7 +237,7 @@ bool lines_destroy(line_ptr &first_line, line_ptr &last_line) {
             screen_message(DBG_INVALID_OFFSET_NR);
             return false;
         }
-        if (this_line->mark != nullptr) {
+        if (!this_line->marks.empty()) {
             screen_message(DBG_LINE_HAS_MARKS);
             return false;
         }
@@ -375,7 +375,7 @@ bool lines_inject(line_ptr first_line, line_ptr last_line, line_ptr before_line)
             screen_message(DBG_INVALID_OFFSET_NR);
             return false;
         }
-        if (this_line->mark != nullptr) {
+        if (!this_line->marks.empty()) {
             screen_message(DBG_LINE_HAS_MARKS);
             return false;
         }
@@ -628,7 +628,7 @@ bool lines_extract(line_ptr first_line, line_ptr last_line) {
         for (line_range line_nr = 1; line_nr <= nr_lines_to_remove; ++line_nr) {
             // with this_line^ do
             // begin
-            if (this_line->mark != nullptr) {
+            if (!this_line->marks.empty()) {
                 screen_message(DBG_LINE_HAS_MARKS);
                 return false;
             }
