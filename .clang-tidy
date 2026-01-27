@@ -1,0 +1,34 @@
+---
+# Specify which checks to run.
+# The first three suppressions are probably something we don't really want.
+# The remainder we should work towards resolving, but are too numerous and
+# intrusive to really address sensibly now.
+Checks: >
+    -*,
+    bugprone-*,
+    cppcoreguidelines-*,
+    modernize-*,
+    performance-*,
+    readability-*,
+    -bugprone-easily-swappable-parameters,
+    -modernize-use-trailing-return-type,
+    -performance-unnecessary-value-param,
+    -cppcoreguidelines-avoid-do-while,
+    -cppcoreguidelines-avoid-goto,
+    -cppcoreguidelines-avoid-magic-numbers,
+    -cppcoreguidelines-avoid-non-const-global-variables,
+    -readability-else-after-return,
+    -readability-function-cognitive-complexity,
+    -readability-magic-numbers,
+    -readability-math-missing-parentheses
+
+# Filter which headers are analyzed.
+HeaderFilterRegex: '(^src/|^test/)'
+
+# If true, clang-tidy will consider certain diagnostics as errors and return a non-zero exit code.
+WarningsAsErrors: ""
+
+# Style configuration for some checks that fix formatting.
+FormatStyle: file
+
+...

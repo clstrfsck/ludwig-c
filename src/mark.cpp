@@ -40,9 +40,9 @@ namespace {
     }
 
     void remove_from_marks(std::list<mark_ptr> &mark_list, mark_ptr mark) {
-        auto it = std::find(mark_list.begin(), mark_list.end(), mark);
-        if (it != mark_list.end()) {
-            mark_list.erase(it);
+        auto imark = std::ranges::find(mark_list, mark);
+        if (imark != mark_list.end()) {
+            mark_list.erase(imark);
         }
     }
 } // namespace
@@ -155,9 +155,7 @@ bool marks_squeeze(
 #endif
         // Move marks in last_line.
         for (auto &this_mark : last_line->marks) {
-            if (this_mark->col < last_column) {
-                this_mark->col = last_column;
-            }
+            this_mark->col = std::max(this_mark->col, int(last_column));
         }
         // Move marks in lines first_line..last_line-1.
         line_ptr this_line = first_line;
