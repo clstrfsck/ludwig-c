@@ -40,10 +40,6 @@ namespace {
 
     enum class vartype { unknown, terminal, frame, opsys, ludwig };
 
-    template <class R> std::string to_string(const parray<char, R> &a) {
-        return std::string(a.data(), a.length(' '));
-    }
-
     template <typename T> std::string left_padded(std::streamsize width, const T &value) {
         std::ostringstream oss;
         oss << std::setw(width) << std::setfill(' ') << value;
