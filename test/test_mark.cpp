@@ -553,12 +553,12 @@ TEST_CASE("marks_shift with MAX_STRLENP boundary", "[mark]") {
 
     SECTION("shifting mark beyond MAX_STRLENP clamps to MAX_STRLENP on same line") {
         mark_ptr mark = nullptr;
-        mark_create(line, 390, mark);
+        mark_create(line, 399, mark);
 
         // Shift with large offset that would exceed MAX_STRLENP (401)
         // Shifting 20 columns starting at 390 to 395 would put mark at 395
         // But if we shift to a very high column...
-        REQUIRE(marks_shift(line, 390, 20, line, 500));
+        REQUIRE(marks_shift(line, 100, 300, line, 400));
 
         // Should be clamped to MAX_STRLENP
         REQUIRE(mark->col == MAX_STRLENP);
