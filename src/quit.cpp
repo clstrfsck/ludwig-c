@@ -123,7 +123,7 @@ void quit_close_files() {
 
     // Close all remaining files.
     if (!ludwig_aborted) {
-        for (file_range file_index = 1; file_index <= MAX_FILES; ++file_index) {
+        for (file_range file_index : file_range::iota()) {
             if (files[file_index] != nullptr) {
                 if (!file_close_delete(files[file_index], false, true))
                     goto l99;

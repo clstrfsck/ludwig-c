@@ -5,6 +5,7 @@
 #ifndef PRANGE_H
 #define PRANGE_H
 
+#include <ranges>
 #include <stdexcept>
 
 template <int min_, int max_> class prange {
@@ -34,6 +35,10 @@ public:
 
     static constexpr size_t zero_based(type n) {
         return n - min_;
+    }
+
+    static constexpr auto iota() {
+        return std::ranges::views::iota(min(), max() + 1);
     }
 
     prange() {

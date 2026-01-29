@@ -19,8 +19,9 @@ Checks: >
     -cppcoreguidelines-avoid-non-const-global-variables,
     -readability-else-after-return,
     -readability-function-cognitive-complexity,
+    -readability-identifier-length,
     -readability-magic-numbers,
-    -readability-math-missing-parentheses
+    -readability-math-missing-parentheses,
 
 # Filter which headers are analyzed.
 HeaderFilterRegex: '(^src/|^test/)'

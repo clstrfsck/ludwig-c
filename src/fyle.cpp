@@ -74,7 +74,7 @@ void file_table() {
     screen_write_str(0, "------- --- ------ --------", 27);
     screen_writeln();
     screen_writeln();
-    for (file_range file_slot = 1; file_slot <= MAX_FILES; ++file_slot) {
+    for (file_range file_slot : file_range::iota()) {
         if (files[file_slot] != nullptr) {
             std::string frame_name;
             if (files_frames[file_slot] != nullptr) {
