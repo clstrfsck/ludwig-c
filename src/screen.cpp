@@ -1179,7 +1179,6 @@ void screen_getlinep(
     tpcount_type max_tp,
     tpcount_type this_tp
 ) {
-
     outlen = 0; // THIS IS DONE BECAUSE ?_GET_INPUT MAY TREAT OUTLEN
                 // AS A WORD, NOT AS A LONGWORD.
     line_ptr tmp_line;
@@ -1192,15 +1191,15 @@ void screen_getlinep(
             if (scr_top_line == nullptr)
                 goto l1;
             screen_fixup();
-            prompt_region[this_tp].line_nr = this_tp;
+            prompt_region[this_tp].line_nr = this_tp + 1;
             if (scr_top_line->scr_row_nr > max_tp)
                 goto l1;
             if (scr_bot_line->scr_row_nr < scr_msg_row - max_tp) {
-                prompt_region[this_tp].line_nr = scr_msg_row - max_tp + this_tp - 1;
+                prompt_region[this_tp].line_nr = scr_msg_row - max_tp + this_tp;
                 goto l1;
             }
             tmp_line = scr_top_line;
-            for (int index = scr_top_line->scr_row_nr; index <= this_tp - 1; ++index)
+            for (int index = scr_top_line->scr_row_nr; index <= this_tp; ++index)
                 tmp_line = tmp_line->flink;
             prompt_region[this_tp].redraw = tmp_line;
             if (scr_frame->dot->line->scr_row_nr > 2)
@@ -1208,13 +1207,13 @@ void screen_getlinep(
 
             tmp_line = scr_bot_line;
             for (int index = terminal_info.height - scr_bot_line->scr_row_nr;
-                 index <= max_tp - this_tp - 1;
+                 index < max_tp - this_tp - 1;
                  ++index)
                 tmp_line = tmp_line->blink;
-            if (terminal_info.height - scr_bot_line->scr_row_nr > max_tp - this_tp)
+            if (terminal_info.height - scr_bot_line->scr_row_nr > max_tp - this_tp - 1)
                 tmp_line = nullptr;
             prompt_region[this_tp].redraw = tmp_line;
-            prompt_region[this_tp].line_nr = terminal_info.height - max_tp + this_tp;
+            prompt_region[this_tp].line_nr = terminal_info.height - max_tp + this_tp + 1;
 
         l1:
             if (prompt_region[this_tp].line_nr != 0)
@@ -1223,13 +1222,13 @@ void screen_getlinep(
             if (tt_controlc)
                 goto l2;
             if (outlen == 0) {
-                for (int index = this_tp + 1; index <= max_tp; ++index) {
+                for (int index = this_tp + 1; index < max_tp; ++index) {
                     prompt_region[index].line_nr = 0;
                     prompt_region[index].redraw = nullptr;
                 }
             }
-            if ((this_tp == max_tp) || (outlen == 0)) {
-                for (tpcount_type index = 1; index <= max_tp; ++index) {
+            if ((this_tp == max_tp - 1) || (outlen == 0)) {
+                for (tpcount_type index = 0; index < max_tp; ++index) {
                     if (prompt_region[index].redraw != nullptr)
                         screen_draw_line(prompt_region[index].redraw);
                     else if (prompt_region[index].line_nr != 0) {

@@ -41,7 +41,7 @@ span_ptr first_span; // Pointer to first in the list of spans.
 ludwig_mode_type ludwig_mode;
 key_code_range command_introducer; // Key used to prefix immediate commands.
 
-parray<prompt_region_attrib, prange<1, MAX_TPCOUNT>> prompt_region;
+std::array<prompt_region_attrib, MAX_TPCOUNT + 1> prompt_region;
 
 frame_ptr scr_frame;       // Frame that screen currently mapped into.
 line_ptr scr_top_line;     // Pointer to first line mapped on screen.

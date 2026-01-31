@@ -123,11 +123,11 @@ void init_cmd(
     p->lp_allowed.add(lps);
     p->eq_action = eqa;
     p->tpcount = tpc;
-    tpar_attribute *t1 = &p->tpar_info[1];
+    tpar_attribute *t1 = &p->tpar_info[0];
     t1->prompt_name = pnm1;
     t1->trim_reply = tr1;
     t1->ml_allowed = mla1;
-    tpar_attribute *t2 = &p->tpar_info[2];
+    tpar_attribute *t2 = &p->tpar_info[1];
     t2->prompt_name = pnm2;
     t2->trim_reply = tr2;
     t2->ml_allowed = mla2;

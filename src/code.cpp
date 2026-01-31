@@ -393,7 +393,7 @@ bool scan_trailing_param(parse_state &ps, commands command, leadparam repsym, tp
             return false;
         }
         tpar_ptr tpl = nullptr;
-        for (tpcount_type tci = 1; tci <= tc; ++tci) {
+        for (tpcount_type tci = 0; tci < tc; ++tci) {
             do {
                 int parlength = 0;
                 str_object parstring;

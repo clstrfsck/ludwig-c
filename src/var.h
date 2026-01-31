@@ -47,7 +47,7 @@ enum class ludwig_mode_type { ludwig_batch, ludwig_hardcopy, ludwig_screen };
 extern ludwig_mode_type ludwig_mode;
 extern key_code_range command_introducer; // Key used to prefix immediate commands.
 
-extern parray<prompt_region_attrib, prange<1, MAX_TPCOUNT>> prompt_region;
+extern std::array<prompt_region_attrib, MAX_TPCOUNT + 1> prompt_region;
 
 extern frame_ptr scr_frame;       // Frame that screen currently mapped into.
 extern line_ptr scr_top_line;     // Pointer to first line mapped on screen.

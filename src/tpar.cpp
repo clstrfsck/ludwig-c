@@ -552,8 +552,8 @@ bool tpar_get_1(const_tpar_ptr tpar, user_commands cmd, tpar_object &tran) {
 #endif
     tpar_duplicate_con(tpar, tran);
 
-    if (tpar_analyse(cmd, tran, 1, 1)) {
-        if (cmd_attrib[cmd.value()].tpar_info[1].trim_reply)
+    if (tpar_analyse(cmd, tran, 1, 0)) {
+        if (cmd_attrib[cmd.value()].tpar_info[0].trim_reply)
             trim(tran);
         return true;
     }
@@ -575,15 +575,15 @@ bool tpar_get_2(const_tpar_ptr tpar, user_commands cmd, tpar_object &trn1, tpar_
     tpar_duplicate_con(tpar, trn1);
     tpar_duplicate_con(tpar->nxt, trn2);
 
-    if (!tpar_analyse(cmd, trn1, 1, 1))
+    if (!tpar_analyse(cmd, trn1, 1, 0))
         return false;
     if (trn1.len != 0) {
-        if (!tpar_analyse(cmd, trn2, 1, 2))
+        if (!tpar_analyse(cmd, trn2, 1, 1))
             return false;
     }
-    if (cmd_attrib[cmd.value()].tpar_info[1].trim_reply)
+    if (cmd_attrib[cmd.value()].tpar_info[0].trim_reply)
         trim(trn1);
-    if (cmd_attrib[cmd.value()].tpar_info[2].trim_reply)
+    if (cmd_attrib[cmd.value()].tpar_info[1].trim_reply)
         trim(trn2);
     return true;
 }

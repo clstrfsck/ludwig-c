@@ -547,7 +547,7 @@ struct cmd_attrib_rec {
     penumset<leadparam> lp_allowed;
     equalaction eq_action;
     tpcount_type tpcount;
-    parray<tpar_attribute, prange<1, MAX_TPCOUNT>> tpar_info;
+    std::array<tpar_attribute, MAX_TPCOUNT> tpar_info;
 };
 
 struct help_record {
