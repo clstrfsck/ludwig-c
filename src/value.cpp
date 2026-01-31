@@ -1799,178 +1799,179 @@ void load_command_table(bool old_version) {
         }
 
         // initialize lookupexp
-        // case change command ; command =  * prefix }      {start at 1}
-        addlookupexp(1, 'U', commands::cmd_case_up);
-        addlookupexp(2, 'L', commands::cmd_case_low);
-        addlookupexp(3, 'E', commands::cmd_case_edit);
+        // case change command ; command =  * prefix }      {start at 0}
+        addlookupexp(0, 'U', commands::cmd_case_up);
+        addlookupexp(1, 'L', commands::cmd_case_low);
+        addlookupexp(2, 'E', commands::cmd_case_edit);
 
-        // A prefix }    {4}
+        // A prefix }    {3}
         // There aren't any in this table! }
 
-        // B prefix }    {4}
-        addlookupexp(4, 'R', commands::cmd_bridge);
+        // B prefix }    {3}
+        addlookupexp(3, 'R', commands::cmd_bridge);
 
-        // C prefix }    {5}
+        // C prefix }    {4}
         // There aren't any in this table! }
 
-        // D prefix }    {5}
+        // D prefix }    {4}
         // There aren't any in this table! }
 
-        // E prefix }    {5}
-        addlookupexp(5, 'X', commands::cmd_span_execute);
-        addlookupexp(6, 'D', commands::cmd_frame_edit);
-        addlookupexp(7, 'R', commands::cmd_frame_return);
-        addlookupexp(8, 'N', commands::cmd_span_execute_no_recompile);
-        addlookupexp(9, 'Q', commands::cmd_prefix_eq);
-        addlookupexp(10, 'O', commands::cmd_prefix_eo);
-        addlookupexp(11, 'K', commands::cmd_frame_kill);
-        addlookupexp(12, 'P', commands::cmd_frame_parameters);
+        // E prefix }    {4}
+        addlookupexp(4, 'X', commands::cmd_span_execute);
+        addlookupexp(5, 'D', commands::cmd_frame_edit);
+        addlookupexp(6, 'R', commands::cmd_frame_return);
+        addlookupexp(7, 'N', commands::cmd_span_execute_no_recompile);
+        addlookupexp(8, 'Q', commands::cmd_prefix_eq);
+        addlookupexp(9, 'O', commands::cmd_prefix_eo);
+        addlookupexp(10, 'K', commands::cmd_frame_kill);
+        addlookupexp(11, 'P', commands::cmd_frame_parameters);
 
-        // EO prefix }   {13}
-        addlookupexp(13, 'L', commands::cmd_equal_eol);
-        addlookupexp(14, 'F', commands::cmd_equal_eof);
-        addlookupexp(15, 'P', commands::cmd_equal_eop);
+        // EO prefix }   {12}
+        addlookupexp(12, 'L', commands::cmd_equal_eol);
+        addlookupexp(13, 'F', commands::cmd_equal_eof);
+        addlookupexp(14, 'P', commands::cmd_equal_eop);
 
-        // EQ prefix }   {16}
-        addlookupexp(16, 'S', commands::cmd_equal_string);
-        addlookupexp(17, 'C', commands::cmd_equal_column);
-        addlookupexp(18, 'M', commands::cmd_equal_mark);
+        // EQ prefix }   {15}
+        addlookupexp(15, 'S', commands::cmd_equal_string);
+        addlookupexp(16, 'C', commands::cmd_equal_column);
+        addlookupexp(17, 'M', commands::cmd_equal_mark);
 
-        // F prefix - files }    {19}
-        addlookupexp(19, 'S', commands::cmd_file_save);
-        addlookupexp(20, 'B', commands::cmd_file_rewind);
-        addlookupexp(21, 'I', commands::cmd_file_input);
-        addlookupexp(22, 'E', commands::cmd_file_edit);
-        addlookupexp(23, 'O', commands::cmd_file_output);
-        addlookupexp(24, 'G', commands::cmd_prefix_fg);
-        addlookupexp(25, 'K', commands::cmd_file_kill);
-        addlookupexp(26, 'X', commands::cmd_file_execute);
-        addlookupexp(27, 'T', commands::cmd_file_table);
-        addlookupexp(28, 'P', commands::cmd_page);
+        // F prefix - files }    {18}
+        addlookupexp(18, 'S', commands::cmd_file_save);
+        addlookupexp(19, 'B', commands::cmd_file_rewind);
+        addlookupexp(20, 'I', commands::cmd_file_input);
+        addlookupexp(21, 'E', commands::cmd_file_edit);
+        addlookupexp(22, 'O', commands::cmd_file_output);
+        addlookupexp(23, 'G', commands::cmd_prefix_fg);
+        addlookupexp(24, 'K', commands::cmd_file_kill);
+        addlookupexp(25, 'X', commands::cmd_file_execute);
+        addlookupexp(26, 'T', commands::cmd_file_table);
+        addlookupexp(27, 'P', commands::cmd_page);
 
-        // FG prefix - global files }    {29}
-        addlookupexp(29, 'I', commands::cmd_file_global_input);
-        addlookupexp(30, 'O', commands::cmd_file_global_output);
-        addlookupexp(31, 'B', commands::cmd_file_global_rewind);
-        addlookupexp(32, 'K', commands::cmd_file_global_kill);
-        addlookupexp(33, 'R', commands::cmd_file_read);
-        addlookupexp(34, 'W', commands::cmd_file_write);
+        // FG prefix - global files }    {28}
+        addlookupexp(28, 'I', commands::cmd_file_global_input);
+        addlookupexp(29, 'O', commands::cmd_file_global_output);
+        addlookupexp(30, 'B', commands::cmd_file_global_rewind);
+        addlookupexp(31, 'K', commands::cmd_file_global_kill);
+        addlookupexp(32, 'R', commands::cmd_file_read);
+        addlookupexp(33, 'W', commands::cmd_file_write);
 
-        // I prefix }    {35}
+        // I prefix }    {34}
         // There aren't any in this table! }
 
-        // K prefix }    {35}
+        // K prefix }    {34}
         // There aren't any in this table! }
 
-        // L prefix }    {35}
+        // L prefix }    {34}
         // There aren't any in this table! }
 
-        // O prefix }    {35}
+        // O prefix }    {34}
         // There aren't any in this table! }
 
-        // P prefix }    {35}
+        // P prefix }    {34}
         // There aren't any in this table! }
 
-        // S prefix - mainly spans }     {35}
-        addlookupexp(35, 'A', commands::cmd_span_assign);
-        addlookupexp(36, 'C', commands::cmd_span_copy);
-        addlookupexp(37, 'D', commands::cmd_span_define);
-        addlookupexp(38, 'T', commands::cmd_span_transfer);
-        addlookupexp(39, 'W', commands::cmd_swap_line);
-        addlookupexp(40, 'L', commands::cmd_split_line);
-        addlookupexp(41, 'J', commands::cmd_span_jump);
-        addlookupexp(42, 'I', commands::cmd_span_index);
-        addlookupexp(43, 'R', commands::cmd_span_compile);
+        // S prefix - mainly spans }     {34}
+        addlookupexp(34, 'A', commands::cmd_span_assign);
+        addlookupexp(35, 'C', commands::cmd_span_copy);
+        addlookupexp(36, 'D', commands::cmd_span_define);
+        addlookupexp(37, 'T', commands::cmd_span_transfer);
+        addlookupexp(38, 'W', commands::cmd_swap_line);
+        addlookupexp(39, 'L', commands::cmd_split_line);
+        addlookupexp(40, 'J', commands::cmd_span_jump);
+        addlookupexp(41, 'I', commands::cmd_span_index);
+        addlookupexp(42, 'R', commands::cmd_span_compile);
 
-        // T prefix }    {44}
+        // T prefix }    {43}
         // There aren't any in this table! }
 
-        // TC prefix }    {44}
+        // TC prefix }    {43}
         // There aren't any in this table! }
 
-        // TF prefix }    {44}
+        // TF prefix }    {43}
         // There aren't any in this table! }
 
-        // U prefix - user keyboard mappings }   {44}
-        addlookupexp(44, 'C', commands::cmd_user_command_introducer);
-        addlookupexp(45, 'K', commands::cmd_user_key);
-        addlookupexp(46, 'P', commands::cmd_user_parent);
-        addlookupexp(47, 'S', commands::cmd_user_subprocess);
+        // U prefix - user keyboard mappings }   {43}
+        addlookupexp(43, 'C', commands::cmd_user_command_introducer);
+        addlookupexp(44, 'K', commands::cmd_user_key);
+        addlookupexp(45, 'P', commands::cmd_user_parent);
+        addlookupexp(46, 'S', commands::cmd_user_subprocess);
 
-        // W prefix - window commands }  {48}
-        addlookupexp(48, 'F', commands::cmd_window_forward);
-        addlookupexp(49, 'B', commands::cmd_window_backward);
-        addlookupexp(50, 'M', commands::cmd_window_middle);
-        addlookupexp(51, 'T', commands::cmd_window_top);
-        addlookupexp(52, 'E', commands::cmd_window_end);
-        addlookupexp(53, 'N', commands::cmd_window_new);
-        addlookupexp(54, 'R', commands::cmd_window_right);
-        addlookupexp(55, 'L', commands::cmd_window_left);
-        addlookupexp(56, 'H', commands::cmd_window_setheight);
-        addlookupexp(57, 'S', commands::cmd_window_scroll);
-        addlookupexp(58, 'U', commands::cmd_window_update);
+        // W prefix - window commands }  {47}
+        addlookupexp(47, 'F', commands::cmd_window_forward);
+        addlookupexp(48, 'B', commands::cmd_window_backward);
+        addlookupexp(49, 'M', commands::cmd_window_middle);
+        addlookupexp(50, 'T', commands::cmd_window_top);
+        addlookupexp(51, 'E', commands::cmd_window_end);
+        addlookupexp(52, 'N', commands::cmd_window_new);
+        addlookupexp(53, 'R', commands::cmd_window_right);
+        addlookupexp(54, 'L', commands::cmd_window_left);
+        addlookupexp(55, 'H', commands::cmd_window_setheight);
+        addlookupexp(56, 'S', commands::cmd_window_scroll);
+        addlookupexp(57, 'U', commands::cmd_window_update);
 
-        // X prefix - exit }             {59}
-        addlookupexp(59, 'S', commands::cmd_exit_success);
-        addlookupexp(60, 'F', commands::cmd_exit_fail);
-        addlookupexp(61, 'A', commands::cmd_exit_abort);
+        // X prefix - exit }             {58}
+        addlookupexp(58, 'S', commands::cmd_exit_success);
+        addlookupexp(59, 'F', commands::cmd_exit_fail);
+        addlookupexp(60, 'A', commands::cmd_exit_abort);
 
-        // Y prefix - word processing }  {62}
-        addlookupexp(62, 'F', commands::cmd_line_fill);
-        addlookupexp(63, 'J', commands::cmd_line_justify);
-        addlookupexp(64, 'S', commands::cmd_line_squash);
-        addlookupexp(65, 'C', commands::cmd_line_centre);
-        addlookupexp(66, 'L', commands::cmd_line_left);
-        addlookupexp(67, 'R', commands::cmd_line_right);
-        addlookupexp(68, 'A', commands::cmd_word_advance);
-        addlookupexp(69, 'D', commands::cmd_word_delete);
+        // Y prefix - word processing }  {61}
+        addlookupexp(61, 'F', commands::cmd_line_fill);
+        addlookupexp(62, 'J', commands::cmd_line_justify);
+        addlookupexp(63, 'S', commands::cmd_line_squash);
+        addlookupexp(64, 'C', commands::cmd_line_centre);
+        addlookupexp(65, 'L', commands::cmd_line_left);
+        addlookupexp(66, 'R', commands::cmd_line_right);
+        addlookupexp(67, 'A', commands::cmd_word_advance);
+        addlookupexp(68, 'D', commands::cmd_word_delete);
 
-        // Z prefix - cursor commands }  {70}
-        addlookupexp(70, 'U', commands::cmd_up);
-        addlookupexp(71, 'D', commands::cmd_down);
-        addlookupexp(72, 'R', commands::cmd_right);
-        addlookupexp(73, 'L', commands::cmd_left);
-        addlookupexp(74, 'H', commands::cmd_home);
-        addlookupexp(75, 'C', commands::cmd_return);
-        addlookupexp(76, 'T', commands::cmd_tab);
-        addlookupexp(77, 'B', commands::cmd_backtab);
-        addlookupexp(78, 'Z', commands::cmd_rubout);
+        // Z prefix - cursor commands }  {69}
+        addlookupexp(69, 'U', commands::cmd_up);
+        addlookupexp(70, 'D', commands::cmd_down);
+        addlookupexp(71, 'R', commands::cmd_right);
+        addlookupexp(72, 'L', commands::cmd_left);
+        addlookupexp(73, 'H', commands::cmd_home);
+        addlookupexp(74, 'C', commands::cmd_return);
+        addlookupexp(75, 'T', commands::cmd_tab);
+        addlookupexp(76, 'B', commands::cmd_backtab);
+        addlookupexp(77, 'Z', commands::cmd_rubout);
 
-        // ~ prefix - miscellaneous debugging commands}  {79}
-        addlookupexp(79, 'V', commands::cmd_validate);
-        addlookupexp(80, 'D', commands::cmd_dump);
+        // ~ prefix - miscellaneous debugging commands}  {78}
+        addlookupexp(78, 'V', commands::cmd_validate);
+        addlookupexp(79, 'D', commands::cmd_dump);
 
-        // sentinel }                    {81}
-        addlookupexp(81, '?', commands::cmd_nosuch);
+        // sentinel }                    {80}
+        addlookupexp(80, '?', commands::cmd_nosuch);
 
         // initialize lookupexp_ptr }
         // These magic numbers point to the start of each section in lookupexp table }
-        lookupexp_ptr[commands::cmd_prefix_ast] = 1;
-        lookupexp_ptr[commands::cmd_prefix_a] = 4;
-        lookupexp_ptr[commands::cmd_prefix_b] = 4;
-        lookupexp_ptr[commands::cmd_prefix_c] = 5;
-        lookupexp_ptr[commands::cmd_prefix_d] = 5;
-        lookupexp_ptr[commands::cmd_prefix_e] = 5;
-        lookupexp_ptr[commands::cmd_prefix_eo] = 13;
-        lookupexp_ptr[commands::cmd_prefix_eq] = 16;
-        lookupexp_ptr[commands::cmd_prefix_f] = 19;
-        lookupexp_ptr[commands::cmd_prefix_fg] = 29;
-        lookupexp_ptr[commands::cmd_prefix_i] = 35;
-        lookupexp_ptr[commands::cmd_prefix_k] = 35;
-        lookupexp_ptr[commands::cmd_prefix_l] = 35;
-        lookupexp_ptr[commands::cmd_prefix_o] = 35;
-        lookupexp_ptr[commands::cmd_prefix_p] = 35;
-        lookupexp_ptr[commands::cmd_prefix_s] = 35;
-        lookupexp_ptr[commands::cmd_prefix_t] = 44;
-        lookupexp_ptr[commands::cmd_prefix_tc] = 44;
-        lookupexp_ptr[commands::cmd_prefix_tf] = 44;
-        lookupexp_ptr[commands::cmd_prefix_u] = 44;
-        lookupexp_ptr[commands::cmd_prefix_w] = 48;
-        lookupexp_ptr[commands::cmd_prefix_x] = 59;
-        lookupexp_ptr[commands::cmd_prefix_y] = 62;
-        lookupexp_ptr[commands::cmd_prefix_z] = 70;
-        lookupexp_ptr[commands::cmd_prefix_tilde] = 79;
-        lookupexp_ptr[commands::cmd_nosuch] = 81;
+        // (converted to 0-based indices)
+        lookupexp_ptr[commands::cmd_prefix_ast] = 0;
+        lookupexp_ptr[commands::cmd_prefix_a] = 3;
+        lookupexp_ptr[commands::cmd_prefix_b] = 3;
+        lookupexp_ptr[commands::cmd_prefix_c] = 4;
+        lookupexp_ptr[commands::cmd_prefix_d] = 4;
+        lookupexp_ptr[commands::cmd_prefix_e] = 4;
+        lookupexp_ptr[commands::cmd_prefix_eo] = 12;
+        lookupexp_ptr[commands::cmd_prefix_eq] = 15;
+        lookupexp_ptr[commands::cmd_prefix_f] = 18;
+        lookupexp_ptr[commands::cmd_prefix_fg] = 28;
+        lookupexp_ptr[commands::cmd_prefix_i] = 34;
+        lookupexp_ptr[commands::cmd_prefix_k] = 34;
+        lookupexp_ptr[commands::cmd_prefix_l] = 34;
+        lookupexp_ptr[commands::cmd_prefix_o] = 34;
+        lookupexp_ptr[commands::cmd_prefix_p] = 34;
+        lookupexp_ptr[commands::cmd_prefix_s] = 34;
+        lookupexp_ptr[commands::cmd_prefix_t] = 43;
+        lookupexp_ptr[commands::cmd_prefix_tc] = 43;
+        lookupexp_ptr[commands::cmd_prefix_tf] = 43;
+        lookupexp_ptr[commands::cmd_prefix_u] = 43;
+        lookupexp_ptr[commands::cmd_prefix_w] = 47;
+        lookupexp_ptr[commands::cmd_prefix_x] = 58;
+        lookupexp_ptr[commands::cmd_prefix_y] = 61;
+        lookupexp_ptr[commands::cmd_prefix_z] = 69;
+        lookupexp_ptr[commands::cmd_prefix_tilde] = 78;
+        lookupexp_ptr[commands::cmd_nosuch] = 80;
     } else {
         lookup[0].command = commands::cmd_noop;
         lookup[1].command = commands::cmd_noop;
@@ -2081,207 +2082,208 @@ void load_command_table(bool old_version) {
         }
 
         // initialize lookupexp
-        // Ast ( * ) prefix } {start at 1}
+        // Ast ( * ) prefix } {start at 0}
         // There aren't any in this table!
 
-        // A prefix }    {start at 1}
-        addlookupexp(1, 'C', commands::cmd_jump);
-        addlookupexp(2, 'L', commands::cmd_advance);
-        addlookupexp(3, 'O', commands::cmd_bridge);
-        addlookupexp(4, 'P', commands::cmd_advance_paragraph);
-        addlookupexp(5, 'S', commands::cmd_noop);
-        addlookupexp(6, 'T', commands::cmd_next);
-        addlookupexp(7, 'W', commands::cmd_word_advance);
+        // A prefix }    {start at 0}
+        addlookupexp(0, 'C', commands::cmd_jump);
+        addlookupexp(1, 'L', commands::cmd_advance);
+        addlookupexp(2, 'O', commands::cmd_bridge);
+        addlookupexp(3, 'P', commands::cmd_advance_paragraph);
+        addlookupexp(4, 'S', commands::cmd_noop);
+        addlookupexp(5, 'T', commands::cmd_next);
+        addlookupexp(6, 'W', commands::cmd_word_advance);
 
-        // B prefix }    {8}
-        addlookupexp(8, 'B', commands::cmd_noop);
-        addlookupexp(9, 'C', commands::cmd_noop);  // cmd_block_copy
-        addlookupexp(10, 'D', commands::cmd_noop); // cmd_block_define
-        addlookupexp(11, 'I', commands::cmd_noop);
-        addlookupexp(12, 'K', commands::cmd_noop);
-        addlookupexp(13, 'M', commands::cmd_noop); // cmd_block_transfer
-        addlookupexp(14, 'O', commands::cmd_noop);
+        // B prefix }    {7}
+        addlookupexp(7, 'B', commands::cmd_noop);
+        addlookupexp(8, 'C', commands::cmd_noop);  // cmd_block_copy
+        addlookupexp(9, 'D', commands::cmd_noop); // cmd_block_define
+        addlookupexp(10, 'I', commands::cmd_noop);
+        addlookupexp(11, 'K', commands::cmd_noop);
+        addlookupexp(12, 'M', commands::cmd_noop); // cmd_block_transfer
+        addlookupexp(13, 'O', commands::cmd_noop);
 
-        // C prefix }    {15}
-        addlookupexp(15, 'C', commands::cmd_insert_char);
-        addlookupexp(16, 'L', commands::cmd_insert_line);
+        // C prefix }    {14}
+        addlookupexp(14, 'C', commands::cmd_insert_char);
+        addlookupexp(15, 'L', commands::cmd_insert_line);
 
-        // D prefix }    {17}
-        addlookupexp(17, 'C', commands::cmd_delete_char);
-        addlookupexp(18, 'L', commands::cmd_delete_line);
-        addlookupexp(19, 'P', commands::cmd_delete_paragraph);
-        addlookupexp(20, 'S', commands::cmd_noop);
-        addlookupexp(21, 'W', commands::cmd_word_delete);
+        // D prefix }    {16}
+        addlookupexp(16, 'C', commands::cmd_delete_char);
+        addlookupexp(17, 'L', commands::cmd_delete_line);
+        addlookupexp(18, 'P', commands::cmd_delete_paragraph);
+        addlookupexp(19, 'S', commands::cmd_noop);
+        addlookupexp(20, 'W', commands::cmd_word_delete);
 
-        // E prefix }    {22}
-        addlookupexp(22, 'D', commands::cmd_frame_edit);
-        addlookupexp(23, 'K', commands::cmd_frame_kill);
-        addlookupexp(24, 'O', commands::cmd_prefix_eo);
-        addlookupexp(25, 'P', commands::cmd_frame_parameters);
-        addlookupexp(26, 'Q', commands::cmd_prefix_eq);
-        addlookupexp(27, 'R', commands::cmd_frame_return);
+        // E prefix }    {21}
+        addlookupexp(21, 'D', commands::cmd_frame_edit);
+        addlookupexp(22, 'K', commands::cmd_frame_kill);
+        addlookupexp(23, 'O', commands::cmd_prefix_eo);
+        addlookupexp(24, 'P', commands::cmd_frame_parameters);
+        addlookupexp(25, 'Q', commands::cmd_prefix_eq);
+        addlookupexp(26, 'R', commands::cmd_frame_return);
 
-        // EO prefix }   {28}
-        addlookupexp(28, 'L', commands::cmd_equal_eol);
-        addlookupexp(29, 'F', commands::cmd_equal_eof);
-        addlookupexp(30, 'P', commands::cmd_equal_eop);
+        // EO prefix }   {27}
+        addlookupexp(27, 'L', commands::cmd_equal_eol);
+        addlookupexp(28, 'F', commands::cmd_equal_eof);
+        addlookupexp(29, 'P', commands::cmd_equal_eop);
 
-        // EQ prefix }   {31}
-        addlookupexp(31, 'C', commands::cmd_equal_column);
-        addlookupexp(32, 'L', commands::cmd_noop);
-        addlookupexp(33, 'M', commands::cmd_equal_mark);
-        addlookupexp(34, 'S', commands::cmd_equal_string);
+        // EQ prefix }   {30}
+        addlookupexp(30, 'C', commands::cmd_equal_column);
+        addlookupexp(31, 'L', commands::cmd_noop);
+        addlookupexp(32, 'M', commands::cmd_equal_mark);
+        addlookupexp(33, 'S', commands::cmd_equal_string);
 
-        // F prefix - files }    {35}
-        addlookupexp(35, 'S', commands::cmd_file_save);
-        addlookupexp(36, 'B', commands::cmd_file_rewind);
-        addlookupexp(37, 'E', commands::cmd_file_edit);
-        addlookupexp(38, 'G', commands::cmd_prefix_fg);
-        addlookupexp(39, 'I', commands::cmd_file_input);
-        addlookupexp(40, 'K', commands::cmd_file_kill);
-        addlookupexp(41, 'O', commands::cmd_file_output);
-        addlookupexp(42, 'P', commands::cmd_page);
-        addlookupexp(43, 'S', commands::cmd_noop);
-        addlookupexp(44, 'T', commands::cmd_file_table);
-        addlookupexp(45, 'X', commands::cmd_file_execute);
+        // F prefix - files }    {34}
+        addlookupexp(34, 'S', commands::cmd_file_save);
+        addlookupexp(35, 'B', commands::cmd_file_rewind);
+        addlookupexp(36, 'E', commands::cmd_file_edit);
+        addlookupexp(37, 'G', commands::cmd_prefix_fg);
+        addlookupexp(38, 'I', commands::cmd_file_input);
+        addlookupexp(39, 'K', commands::cmd_file_kill);
+        addlookupexp(40, 'O', commands::cmd_file_output);
+        addlookupexp(41, 'P', commands::cmd_page);
+        addlookupexp(42, 'S', commands::cmd_noop);
+        addlookupexp(43, 'T', commands::cmd_file_table);
+        addlookupexp(44, 'X', commands::cmd_file_execute);
 
-        // FG prefix - global files }    {46}
-        addlookupexp(46, 'B', commands::cmd_file_global_rewind);
-        addlookupexp(47, 'I', commands::cmd_file_global_input);
-        addlookupexp(48, 'K', commands::cmd_file_global_kill);
-        addlookupexp(49, 'O', commands::cmd_file_global_output);
-        addlookupexp(50, 'R', commands::cmd_file_read);
-        addlookupexp(51, 'W', commands::cmd_file_write);
+        // FG prefix - global files }    {45}
+        addlookupexp(45, 'B', commands::cmd_file_global_rewind);
+        addlookupexp(46, 'I', commands::cmd_file_global_input);
+        addlookupexp(47, 'K', commands::cmd_file_global_kill);
+        addlookupexp(48, 'O', commands::cmd_file_global_output);
+        addlookupexp(49, 'R', commands::cmd_file_read);
+        addlookupexp(50, 'W', commands::cmd_file_write);
 
-        // I prefix }    {52}
+        // I prefix }    {51}
         // There aren't any yet! }
 
-        // K prefix }    {52}
-        addlookupexp(52, 'B', commands::cmd_backtab);
-        addlookupexp(53, 'C', commands::cmd_return);
-        addlookupexp(54, 'D', commands::cmd_down);
-        addlookupexp(55, 'H', commands::cmd_home);
-        addlookupexp(56, 'I', commands::cmd_insert_mode);
-        addlookupexp(57, 'L', commands::cmd_left);
-        addlookupexp(58, 'M', commands::cmd_user_key);
-        addlookupexp(59, 'O', commands::cmd_overtype_mode);
-        addlookupexp(60, 'R', commands::cmd_right);
-        addlookupexp(61, 'T', commands::cmd_tab);
-        addlookupexp(62, 'U', commands::cmd_up);
-        addlookupexp(63, 'X', commands::cmd_rubout);
+        // K prefix }    {51}
+        addlookupexp(51, 'B', commands::cmd_backtab);
+        addlookupexp(52, 'C', commands::cmd_return);
+        addlookupexp(53, 'D', commands::cmd_down);
+        addlookupexp(54, 'H', commands::cmd_home);
+        addlookupexp(55, 'I', commands::cmd_insert_mode);
+        addlookupexp(56, 'L', commands::cmd_left);
+        addlookupexp(57, 'M', commands::cmd_user_key);
+        addlookupexp(58, 'O', commands::cmd_overtype_mode);
+        addlookupexp(59, 'R', commands::cmd_right);
+        addlookupexp(60, 'T', commands::cmd_tab);
+        addlookupexp(61, 'U', commands::cmd_up);
+        addlookupexp(62, 'X', commands::cmd_rubout);
 
-        // L prefix }    {64}
-        addlookupexp(64, 'R', commands::cmd_noop);
-        addlookupexp(65, 'S', commands::cmd_noop);
+        // L prefix }    {63}
+        addlookupexp(63, 'R', commands::cmd_noop);
+        addlookupexp(64, 'S', commands::cmd_noop);
 
-        // O prefix }    {66}
-        addlookupexp(66, 'P', commands::cmd_user_parent);
-        addlookupexp(67, 'S', commands::cmd_user_subprocess);
-        addlookupexp(68, 'X', commands::cmd_op_sys_command);
+        // O prefix }    {65}
+        addlookupexp(65, 'P', commands::cmd_user_parent);
+        addlookupexp(66, 'S', commands::cmd_user_subprocess);
+        addlookupexp(67, 'X', commands::cmd_op_sys_command);
 
-        // P prefix }    {69}
-        addlookupexp(69, 'C', commands::cmd_position_column);
-        addlookupexp(70, 'L', commands::cmd_position_line);
+        // P prefix }    {68}
+        addlookupexp(68, 'C', commands::cmd_position_column);
+        addlookupexp(69, 'L', commands::cmd_position_line);
 
-        // S prefix }    {71}
-        addlookupexp(71, 'A', commands::cmd_span_assign);
-        addlookupexp(72, 'C', commands::cmd_span_copy);
-        addlookupexp(73, 'D', commands::cmd_span_define);
-        addlookupexp(74, 'E', commands::cmd_span_execute_no_recompile);
-        addlookupexp(75, 'J', commands::cmd_span_jump);
-        addlookupexp(76, 'M', commands::cmd_span_transfer);
-        addlookupexp(77, 'R', commands::cmd_span_compile);
-        addlookupexp(78, 'T', commands::cmd_span_index);
-        addlookupexp(79, 'X', commands::cmd_span_execute);
+        // S prefix }    {70}
+        addlookupexp(70, 'A', commands::cmd_span_assign);
+        addlookupexp(71, 'C', commands::cmd_span_copy);
+        addlookupexp(72, 'D', commands::cmd_span_define);
+        addlookupexp(73, 'E', commands::cmd_span_execute_no_recompile);
+        addlookupexp(74, 'J', commands::cmd_span_jump);
+        addlookupexp(75, 'M', commands::cmd_span_transfer);
+        addlookupexp(76, 'R', commands::cmd_span_compile);
+        addlookupexp(77, 'T', commands::cmd_span_index);
+        addlookupexp(78, 'X', commands::cmd_span_execute);
 
-        // T prefix }    {80}
-        addlookupexp(80, 'B', commands::cmd_split_line);
-        addlookupexp(81, 'C', commands::cmd_prefix_tc);
-        addlookupexp(82, 'F', commands::cmd_prefix_tf);
-        addlookupexp(83, 'I', commands::cmd_insert_text);
-        addlookupexp(84, 'N', commands::cmd_insert_invisible);
-        addlookupexp(85, 'O', commands::cmd_overtype_text);
-        addlookupexp(86, 'R', commands::cmd_noop);
-        addlookupexp(87, 'S', commands::cmd_swap_line);
-        addlookupexp(88, 'X', commands::cmd_execute_string);
+        // T prefix }    {79}
+        addlookupexp(79, 'B', commands::cmd_split_line);
+        addlookupexp(80, 'C', commands::cmd_prefix_tc);
+        addlookupexp(81, 'F', commands::cmd_prefix_tf);
+        addlookupexp(82, 'I', commands::cmd_insert_text);
+        addlookupexp(83, 'N', commands::cmd_insert_invisible);
+        addlookupexp(84, 'O', commands::cmd_overtype_text);
+        addlookupexp(85, 'R', commands::cmd_noop);
+        addlookupexp(86, 'S', commands::cmd_swap_line);
+        addlookupexp(87, 'X', commands::cmd_execute_string);
 
-        // TC prefix }   {89}
-        addlookupexp(89, 'E', commands::cmd_case_edit);
-        addlookupexp(90, 'L', commands::cmd_case_low);
-        addlookupexp(91, 'U', commands::cmd_case_up);
+        // TC prefix }   {88}
+        addlookupexp(88, 'E', commands::cmd_case_edit);
+        addlookupexp(89, 'L', commands::cmd_case_low);
+        addlookupexp(90, 'U', commands::cmd_case_up);
 
-        // TF prefix }   {92}
-        addlookupexp(92, 'C', commands::cmd_line_centre);
-        addlookupexp(93, 'F', commands::cmd_line_fill);
-        addlookupexp(94, 'J', commands::cmd_line_justify);
-        addlookupexp(95, 'L', commands::cmd_line_left);
-        addlookupexp(96, 'R', commands::cmd_line_right);
-        addlookupexp(97, 'S', commands::cmd_line_squash);
+        // TF prefix }   {91}
+        addlookupexp(91, 'C', commands::cmd_line_centre);
+        addlookupexp(92, 'F', commands::cmd_line_fill);
+        addlookupexp(93, 'J', commands::cmd_line_justify);
+        addlookupexp(94, 'L', commands::cmd_line_left);
+        addlookupexp(95, 'R', commands::cmd_line_right);
+        addlookupexp(96, 'S', commands::cmd_line_squash);
 
-        // U prefix - user keyboard mappings }   {98}
-        addlookupexp(98, 'C', commands::cmd_user_command_introducer);
+        // U prefix - user keyboard mappings }   {97}
+        addlookupexp(97, 'C', commands::cmd_user_command_introducer);
 
-        // W prefix - window commands }  {99}
-        addlookupexp(99, 'B', commands::cmd_window_backward);
-        addlookupexp(100, 'C', commands::cmd_window_middle);
-        addlookupexp(101, 'E', commands::cmd_window_end);
-        addlookupexp(102, 'F', commands::cmd_window_forward);
-        addlookupexp(103, 'H', commands::cmd_window_setheight);
-        addlookupexp(104, 'L', commands::cmd_window_left);
-        addlookupexp(105, 'M', commands::cmd_window_scroll);
-        addlookupexp(106, 'N', commands::cmd_window_new);
-        addlookupexp(107, 'O', commands::cmd_noop);
-        addlookupexp(108, 'R', commands::cmd_window_right);
-        addlookupexp(109, 'S', commands::cmd_noop);
-        addlookupexp(110, 'T', commands::cmd_window_top);
-        addlookupexp(111, 'U', commands::cmd_window_update);
+        // W prefix - window commands }  {98}
+        addlookupexp(98, 'B', commands::cmd_window_backward);
+        addlookupexp(99, 'C', commands::cmd_window_middle);
+        addlookupexp(100, 'E', commands::cmd_window_end);
+        addlookupexp(101, 'F', commands::cmd_window_forward);
+        addlookupexp(102, 'H', commands::cmd_window_setheight);
+        addlookupexp(103, 'L', commands::cmd_window_left);
+        addlookupexp(104, 'M', commands::cmd_window_scroll);
+        addlookupexp(105, 'N', commands::cmd_window_new);
+        addlookupexp(106, 'O', commands::cmd_noop);
+        addlookupexp(107, 'R', commands::cmd_window_right);
+        addlookupexp(108, 'S', commands::cmd_noop);
+        addlookupexp(109, 'T', commands::cmd_window_top);
+        addlookupexp(110, 'U', commands::cmd_window_update);
 
-        // X prefix - exit }             {112}
-        addlookupexp(112, 'A', commands::cmd_exit_abort);
-        addlookupexp(113, 'F', commands::cmd_exit_fail);
-        addlookupexp(114, 'S', commands::cmd_exit_success);
+        // X prefix - exit }             {111}
+        addlookupexp(111, 'A', commands::cmd_exit_abort);
+        addlookupexp(112, 'F', commands::cmd_exit_fail);
+        addlookupexp(113, 'S', commands::cmd_exit_success);
 
-        // Y prefix }        {115}
+        // Y prefix }        {114}
         // There aren't any in this table! }
 
-        // Z prefix }        {115}
+        // Z prefix }        {114}
         // There aren't any in this table! }
 
-        // ~ prefix - miscellaneous debugging commands}  {115}
-        addlookupexp(115, 'D', commands::cmd_dump);
-        addlookupexp(116, 'V', commands::cmd_validate);
+        // ~ prefix - miscellaneous debugging commands}  {114}
+        addlookupexp(114, 'D', commands::cmd_dump);
+        addlookupexp(115, 'V', commands::cmd_validate);
 
-        // sentinel }                    {117}
-        addlookupexp(117, '?', commands::cmd_nosuch);
+        // sentinel }                    {116}
+        addlookupexp(116, '?', commands::cmd_nosuch);
 
         // initialize lookupexp_ptr }
         // These magic numbers point to the start of each section in lookupexp table }
-        lookupexp_ptr[commands::cmd_prefix_ast] = 1;
-        lookupexp_ptr[commands::cmd_prefix_a] = 1;
-        lookupexp_ptr[commands::cmd_prefix_b] = 8;
-        lookupexp_ptr[commands::cmd_prefix_c] = 15;
-        lookupexp_ptr[commands::cmd_prefix_d] = 17;
-        lookupexp_ptr[commands::cmd_prefix_e] = 22;
-        lookupexp_ptr[commands::cmd_prefix_eo] = 28;
-        lookupexp_ptr[commands::cmd_prefix_eq] = 31;
-        lookupexp_ptr[commands::cmd_prefix_f] = 35;
-        lookupexp_ptr[commands::cmd_prefix_fg] = 46;
-        lookupexp_ptr[commands::cmd_prefix_i] = 52;
-        lookupexp_ptr[commands::cmd_prefix_k] = 52;
-        lookupexp_ptr[commands::cmd_prefix_l] = 64;
-        lookupexp_ptr[commands::cmd_prefix_o] = 66;
-        lookupexp_ptr[commands::cmd_prefix_p] = 69;
-        lookupexp_ptr[commands::cmd_prefix_s] = 71;
-        lookupexp_ptr[commands::cmd_prefix_t] = 80;
-        lookupexp_ptr[commands::cmd_prefix_tc] = 89;
-        lookupexp_ptr[commands::cmd_prefix_tf] = 92;
-        lookupexp_ptr[commands::cmd_prefix_u] = 98;
-        lookupexp_ptr[commands::cmd_prefix_w] = 99;
-        lookupexp_ptr[commands::cmd_prefix_x] = 112;
-        lookupexp_ptr[commands::cmd_prefix_y] = 115;
-        lookupexp_ptr[commands::cmd_prefix_z] = 115;
-        lookupexp_ptr[commands::cmd_prefix_tilde] = 115;
-        lookupexp_ptr[commands::cmd_nosuch] = 117;
+        // (converted to 0-based indices)
+        lookupexp_ptr[commands::cmd_prefix_ast] = 0;
+        lookupexp_ptr[commands::cmd_prefix_a] = 0;
+        lookupexp_ptr[commands::cmd_prefix_b] = 7;
+        lookupexp_ptr[commands::cmd_prefix_c] = 14;
+        lookupexp_ptr[commands::cmd_prefix_d] = 16;
+        lookupexp_ptr[commands::cmd_prefix_e] = 21;
+        lookupexp_ptr[commands::cmd_prefix_eo] = 27;
+        lookupexp_ptr[commands::cmd_prefix_eq] = 30;
+        lookupexp_ptr[commands::cmd_prefix_f] = 34;
+        lookupexp_ptr[commands::cmd_prefix_fg] = 45;
+        lookupexp_ptr[commands::cmd_prefix_i] = 51;
+        lookupexp_ptr[commands::cmd_prefix_k] = 51;
+        lookupexp_ptr[commands::cmd_prefix_l] = 63;
+        lookupexp_ptr[commands::cmd_prefix_o] = 65;
+        lookupexp_ptr[commands::cmd_prefix_p] = 68;
+        lookupexp_ptr[commands::cmd_prefix_s] = 70;
+        lookupexp_ptr[commands::cmd_prefix_t] = 79;
+        lookupexp_ptr[commands::cmd_prefix_tc] = 88;
+        lookupexp_ptr[commands::cmd_prefix_tf] = 91;
+        lookupexp_ptr[commands::cmd_prefix_u] = 97;
+        lookupexp_ptr[commands::cmd_prefix_w] = 98;
+        lookupexp_ptr[commands::cmd_prefix_x] = 111;
+        lookupexp_ptr[commands::cmd_prefix_y] = 114;
+        lookupexp_ptr[commands::cmd_prefix_z] = 114;
+        lookupexp_ptr[commands::cmd_prefix_tilde] = 114;
+        lookupexp_ptr[commands::cmd_nosuch] = 116;
     }
 }
 

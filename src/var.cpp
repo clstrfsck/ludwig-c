@@ -57,7 +57,7 @@ prange<0, MAX_CODE> code_top;
 // VARIABLES USED IN INTERPRETING A COMMAND
 penumset<commands> prefixes;
 parray<command_object, key_code_range> lookup;
-parray<lookupexp_type, expand_lim_range> lookupexp;
+std::array<lookupexp_type, EXPAND_LIM> lookupexp;
 parray<expand_lim_range, prefix_plus> lookupexp_ptr;
 parray<cmd_attrib_rec, user_commands> cmd_attrib;
 std::unordered_map<prompt_type, std::string_view> dflt_prompts;
