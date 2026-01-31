@@ -68,7 +68,7 @@ void initialize() {
     code_list->flink = code_list;
     code_list->blink = code_list;
     code_list->ref = 1;
-    code_list->code = 1;
+    code_list->code = 0;
     code_list->len = 0;
 }
 

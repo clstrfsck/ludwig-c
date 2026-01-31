@@ -676,7 +676,7 @@ bool code_compile(span_object &span, bool from_span) {
     // with span do
     // with code^ do
     span.code->ref = 1;
-    span.code->code = ps.code_base + 1;
+    span.code->code = ps.code_base;
     span.code->len = ps.pc;
     span.code->flink = code_list->flink; // Link it into chain.
     span.code->blink = code_list;
@@ -746,8 +746,7 @@ bool code_interpret_execute(
 #endif
             interp_status = success;
             // Note! code_head->code may be changed by a span compilation/creation.
-            // with compiler_code[code_head->code-1 + pc] do
-            const auto &cc(compiler_code[code_head->code - 1 + pc]);
+            const auto &cc(compiler_code[code_head->code + pc]);
             code_idx curr_lbl = cc.lbl;   // label field
             commands curr_op = cc.op;     // op-code
             leadparam curr_rep = cc.rep;  // repeat count type

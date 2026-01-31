@@ -50,7 +50,7 @@ scr_row_range scr_msg_row; // First (highest) msg on scr, 0 if none.
 bool scr_needs_fix;        // Set when user is viewing a corrupt screen.
 
 // COMPILER VARIABLES.
-parray<code_object, prange<1, MAX_CODE>> compiler_code;
+parray<code_object, prange<0, MAX_CODE - 1>> compiler_code;
 code_ptr code_list;
 prange<0, MAX_CODE> code_top;
 

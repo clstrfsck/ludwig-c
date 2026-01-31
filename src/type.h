@@ -131,7 +131,7 @@ struct code_header {
     code_ptr flink;
     code_ptr blink;           // Links into code_list
     size_t ref;               // Reference count
-    prange<1, MAX_CODE> code; // Pointer into code array
+    prange<0, MAX_CODE - 1> code; // Pointer into code array (0-based)
     prange<0, MAX_CODE> len;  // Length of segment
 };
 
