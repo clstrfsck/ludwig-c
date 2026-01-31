@@ -133,11 +133,10 @@ bool pattern_dfa_convert(
 
     auto epsilon_closures = [&](const nfa_attribute_type &state_set,
                                 nfa_attribute_type &closure) -> bool {
-        const int MAX_STACK_SIZE = 50;
-        using stack_range = prange<0, MAX_STACK_SIZE>;
+        constexpr int MAX_STACK_SIZE = 50;
 
-        parray<nfa_state_range, stack_range> stack;
-        stack_range stack_top;
+        std::array<nfa_state_range, MAX_STACK_SIZE + 1> stack;
+        int stack_top;
         state_elt_ptr_type state_elt_ptr;
         nfa_state_range aux_state;
         bool fail_equivalent;
