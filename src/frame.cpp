@@ -655,7 +655,8 @@ bool set_tabs(const tpar_object &request, int &pos, bool set_initial) {
         break;
     case '(':
         { // multi-columns specified
-            tab_array temptab(false);
+            tab_array temptab{};
+            temptab.fill(false);
             temptab[0] = true;
             temptab[MAX_STRLENP] = true;
             do {

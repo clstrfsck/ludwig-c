@@ -30,8 +30,8 @@ bool hangup;         // Ludwig has received a hangup signal.
 mode_type edit_mode; // User selectable editing mode.
 mode_type previous_mode;
 
-parray<file_ptr, file_range> files; // I/O file pointers.
-parray<frame_ptr, file_range> files_frames;
+std::array<file_ptr, MAX_FILES> files; // I/O file pointers.
+std::array<frame_ptr, MAX_FILES> files_frames;
 
 slot_range fgi_file;
 slot_range fgo_file;
@@ -50,7 +50,7 @@ scr_row_range scr_msg_row; // First (highest) msg on scr, 0 if none.
 bool scr_needs_fix;        // Set when user is viewing a corrupt screen.
 
 // COMPILER VARIABLES.
-parray<code_object, prange<0, MAX_CODE - 1>> compiler_code;
+std::array<code_object, MAX_CODE> compiler_code;
 code_ptr code_list;
 prange<0, MAX_CODE> code_top;
 
@@ -76,9 +76,18 @@ tab_array initial_tab_stops;
 frame_options initial_options;
 
 // USEFUL STUFF.
+// Helper function to create default tab stops (every 8 columns starting at 1)
+constexpr tab_array make_default_tab_stops() {
+    tab_array tabs{};
+    for (size_t i = 0; i < tabs.size(); ++i) {
+        tabs[i] = (i % 8 == 1);
+    }
+    return tabs;
+}
+
 const str_object BLANK_STRING(' ');       // Blank chars only
 const verify_array INITIAL_VERIFY(false); //
-const tab_array DEFAULT_TAB_STOPS({false, true, false, false, false, false, false, false});
+const tab_array DEFAULT_TAB_STOPS = make_default_tab_stops();
 
 // STRUCTURE POOLS
 group_ptr free_group_pool;
@@ -91,7 +100,7 @@ file_data_type file_data;
 terminal_info_type terminal_info;
 
 // Word definition sets
-parray<accept_set_type, word_set_range> word_elements;
+std::array<accept_set_type, MAX_WORD_SETS> word_elements;
 
 // Pattern matcher parser stuff
 

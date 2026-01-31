@@ -7,8 +7,6 @@
 
 #include "type.h"
 
-#include <string>
-
 extern const std::string ludwig_version;
 extern std::string program_directory; // Used to determine program startup directory.
 extern bool tt_controlc;              // User has typed CNTRL/C.
@@ -36,8 +34,8 @@ enum class mode_type { mode_overtype, mode_insert, mode_command };
 extern mode_type edit_mode; // User selectable editing mode.
 extern mode_type previous_mode;
 
-extern parray<file_ptr, file_range> files; // I/O file pointers.
-extern parray<frame_ptr, file_range> files_frames;
+extern std::array<file_ptr, MAX_FILES> files; // I/O file pointers.
+extern std::array<frame_ptr, MAX_FILES> files_frames;
 
 extern slot_range fgi_file;
 extern slot_range fgo_file;
@@ -58,7 +56,7 @@ extern scr_row_range scr_msg_row; // First (highest) msg on scr, 0 if none.
 extern bool scr_needs_fix;        // Set when user is viewing a corrupt screen.
 
 // COMPILER VARIABLES.
-extern parray<code_object, prange<0, MAX_CODE - 1>> compiler_code;
+extern std::array<code_object, MAX_CODE> compiler_code;
 extern code_ptr code_list;
 extern prange<0, MAX_CODE> code_top;
 
@@ -116,6 +114,6 @@ extern file_data_type file_data;
 extern terminal_info_type terminal_info;
 
 // Word definition sets
-extern parray<accept_set_type, word_set_range> word_elements;
+extern std::array<accept_set_type, MAX_WORD_SETS> word_elements;
 
 #endif // !defined(VAR_H)

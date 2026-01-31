@@ -33,8 +33,6 @@
 #include "var.h"
 #include "vdu.h"
 
-#include <cstring>
-
 namespace {
     const penumset<commands> INTERP_CMDS(
         {commands::cmd_pcjump,
@@ -54,16 +52,6 @@ namespace {
         static const accept_set_type PUNCT =
             accept_set_type(PRINTABLE_SET).remove(ALPHA_SET).remove(NUMERIC_SET).remove(SPACE_SET);
         return PUNCT;
-    }
-
-    template <class R> void assign(parray<char, R> &dst, const char *src) {
-        dst.fillcopy(
-            src,
-            std::strlen(src),
-            parray<char, R>::index_type::min(),
-            parray<char, R>::index_type::size(),
-            ' '
-        );
     }
 
     struct parse_state {
@@ -715,7 +703,7 @@ bool code_interpret_execute(
         int count;
     };
 
-    parray<labels_type, prange<1, 100>> labels;
+    std::array<labels_type, 100> labels;
 
     bool result = false;
     tpar_object request;
@@ -731,11 +719,11 @@ bool code_interpret_execute(
 
     while ((count != 0) && (interp_status == success)) {
         count -= 1;
-        int level = 1;
-        // with labels[1] do begin
-        labels[1].exitlabel = 0;
-        labels[1].faillabel = 0;
-        labels[1].count = 0;
+        int level = 0;
+        // with labels[0] do begin
+        labels[0].exitlabel = 0;
+        labels[0].faillabel = 0;
+        labels[0].count = 0;
         code_idx pc = 1;
         do {
 #ifdef DEBUG
@@ -786,10 +774,10 @@ bool code_interpret_execute(
 
                 case commands::cmd_exit_success:
                     if (curr_rep == leadparam::pindef)
-                        curr_cnt = level;
+                        curr_cnt = level + 1;
                     if (curr_cnt > 0) {
-                        if (curr_cnt >= level)
-                            level = 0;
+                        if (curr_cnt > level)
+                            level = -1;
                         else
                             level -= curr_cnt;
                     }
@@ -799,10 +787,10 @@ bool code_interpret_execute(
                 case commands::cmd_exit_fail:
                     interp_status = failure;
                     if (curr_rep == leadparam::pindef)
-                        curr_cnt = level;
+                        curr_cnt = level + 1;
                     if (curr_cnt > 0) {
-                        if (curr_cnt >= level)
-                            level = 0;
+                        if (curr_cnt > level)
+                            level = -1;
                         else
                             level -= curr_cnt;
                     }
@@ -887,7 +875,7 @@ bool code_interpret_execute(
             }
 
             if (interp_status == failure) {
-                while (pc == 0 && level >= 1) {
+                while (pc == 0 && level >= 0) {
                     pc = labels[level].faillabel;
                     level -= 1;
                 }

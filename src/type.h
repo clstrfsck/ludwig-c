@@ -12,6 +12,7 @@
 #include "prange.h"
 #include "prangeset.h"
 
+#include <array>
 #include <list>
 #include <memory>
 #include <set>
@@ -97,7 +98,7 @@ using dfa_set_type = prangeset<dfa_state_range>;
 using accept_set_type = prangeset<accept_set_range>;
 
 // Arrays
-using tab_array = parray<bool, col_width_range>;
+using tab_array = std::array<bool, MAX_STRLENP + 1>;
 using verify_array = parray<bool, prange<1, MAX_VERIFY>>;
 
 // Strings
