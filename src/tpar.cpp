@@ -464,7 +464,7 @@ bool tpar_analyse(user_commands cmd, tpar_object &tran, int depth, tpcount_type 
                         if (tran.len == 0) {
                             // with cmd_attrib[cmd].tpar_info[this_tp] do
                             const auto &prompt{
-                                dflt_prompts[cmd_attrib[cmd.value()].tpar_info[this_tp].prompt_name]
+                                dflt_prompts.at(cmd_attrib[cmd.value()].tpar_info[this_tp].prompt_name)
                             };
                             verify_reply = screen_verify(prompt);
                         } else {
@@ -493,7 +493,7 @@ bool tpar_analyse(user_commands cmd, tpar_object &tran, int depth, tpcount_type 
                         // change first str and len with cmd values
                         // with cmd_attrib[cmd].tpar_info[this_tp] do
                         const auto &prompt{
-                            dflt_prompts[cmd_attrib[cmd.value()].tpar_info[this_tp].prompt_name]
+                            dflt_prompts.at(cmd_attrib[cmd.value()].tpar_info[this_tp].prompt_name)
                         };
                         screen_getlinep(
                             prompt, tran.str, tran.len, cmd_attrib[cmd.value()].tpcount, this_tp

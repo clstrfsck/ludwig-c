@@ -531,9 +531,7 @@ enum class prompt_type {
     by_prompt,
     verify_prompt,
     pattern_prompt,
-    pattern_set_prompt,
-
-    last_entry
+    pattern_set_prompt
 };
 
 // used for default prompt strings

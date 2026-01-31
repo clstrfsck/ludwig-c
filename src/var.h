@@ -73,7 +73,7 @@ using expand_lim_range = prange<1, EXPAND_LIM>;
 extern parray<lookupexp_type, expand_lim_range> lookupexp;
 extern parray<expand_lim_range, prefix_plus> lookupexp_ptr;
 extern parray<cmd_attrib_rec, user_commands> cmd_attrib;
-extern parray<std::string_view, perange<prompt_type>> dflt_prompts;
+extern std::unordered_map<prompt_type, std::string_view> dflt_prompts;
 extern prange<0, MAX_EXEC_RECURSION> exec_level;
 
 // INITIAL FRAME SETTINGS.

@@ -60,7 +60,7 @@ parray<command_object, key_code_range> lookup;
 parray<lookupexp_type, expand_lim_range> lookupexp;
 parray<expand_lim_range, prefix_plus> lookupexp_ptr;
 parray<cmd_attrib_rec, user_commands> cmd_attrib;
-parray<std::string_view, perange<prompt_type>> dflt_prompts;
+std::unordered_map<prompt_type, std::string_view> dflt_prompts;
 prange<0, MAX_EXEC_RECURSION> exec_level;
 
 // INITIAL FRAME SETTINGS.
