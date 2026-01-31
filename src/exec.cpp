@@ -1396,7 +1396,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
 
     if (cmd_success) {
         // with old_frame^,old_dot do
-        switch (cmd_attrib[command].eq_action) {
+        switch (cmd_attrib.at(command).eq_action) {
         case equalaction::eqold:
             eq_set = mark_create(old_dot.line, old_dot.col, old_frame->marks[MARK_EQUALS]);
             break;

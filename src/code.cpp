@@ -374,7 +374,7 @@ bool scan_leading_param(parse_state &ps, leadparam &repsym, int &repcount) {
 }
 
 bool scan_trailing_param(parse_state &ps, commands command, leadparam repsym, tpar_ptr &tparam) {
-    tpcount_type tc = cmd_attrib[command].tpcount;
+    tpcount_type tc = cmd_attrib.at(command).tpcount;
     tparam = nullptr;
     // Some commands only take trailing parameters when repcount is +ve
     if (tc < 0) {
@@ -408,7 +408,7 @@ bool scan_trailing_param(parse_state &ps, commands command, leadparam repsym, tp
                     parstring[parlength] = ps.key;
                 } while (!ps.eoln && ps.key != pardelim);
                 parlength -= 1;
-                if (ps.eoln && !cmd_attrib[command].tpar_info[tci].ml_allowed) {
+                if (ps.eoln && !cmd_attrib.at(command).tpar_info[tci].ml_allowed) {
                     error(ps, "Missing trailing delimiter");
                     return false;
                 }
@@ -486,7 +486,7 @@ bool scan_simple_command(
     bool full_scan
 ) {
 
-    if (!cmd_attrib[command].lp_allowed.contains(repsym)) {
+    if (!cmd_attrib.at(command).lp_allowed.contains(repsym)) {
         error(ps, "Illegal leading parameter");
         return false;
     }
@@ -501,7 +501,7 @@ bool scan_simple_command(
 
     lookup_code = lookup[ps.key].code;
     if (lookup[ps.key].tpar == nullptr) {
-        if (cmd_attrib[command].tpcount != 0) {
+        if (cmd_attrib.at(command).tpcount != 0) {
             if (full_scan) {
                 if (!scan_trailing_param(ps, command, repsym, tparam))
                     return false;
@@ -513,7 +513,7 @@ bool scan_simple_command(
                 tparam->nxt = nullptr;
                 tparam->con = nullptr;
                 tpar_ptr tmp_tp = tparam;
-                for (int i = 2; i <= cmd_attrib[command].tpcount; ++i) {
+                for (int i = 2; i <= cmd_attrib.at(command).tpcount; ++i) {
                     tmp_tp->nxt = new tpar_object;
                     tmp_tp = tmp_tp->nxt;
                     // with tmp_tp^ do

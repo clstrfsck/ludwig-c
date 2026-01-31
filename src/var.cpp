@@ -59,7 +59,7 @@ penumset<commands> prefixes;
 parray<command_object, key_code_range> lookup;
 std::array<lookupexp_type, EXPAND_LIM> lookupexp;
 std::unordered_map<commands, std::pair<int, int>> lookupexp_ptr;
-parray<cmd_attrib_rec, user_commands> cmd_attrib;
+std::unordered_map<commands, cmd_attrib_rec> cmd_attrib;
 std::unordered_map<prompt_type, std::string_view> dflt_prompts;
 prange<0, MAX_EXEC_RECURSION> exec_level;
 

@@ -185,7 +185,7 @@ bool tpar_substitute(tpar_object &tpar, user_commands cmd, tpcount_type this_tp)
                 srclen = tpar.len;
             // with start_mark do
             tpar.str.fillcopy(start_mark.line->str->data(start_mark.col), srclen, 1, tpar.len, ' ');
-        } else if (!cmd_attrib[cmd.value()].tpar_info[this_tp].ml_allowed) {
+        } else if (!cmd_attrib.at(cmd.value()).tpar_info[this_tp].ml_allowed) {
             screen_message(MSG_SPAN_MUST_BE_ONE_LINE);
             return false;
         } else {
@@ -464,7 +464,7 @@ bool tpar_analyse(user_commands cmd, tpar_object &tran, int depth, tpcount_type 
                         if (tran.len == 0) {
                             // with cmd_attrib[cmd].tpar_info[this_tp] do
                             const auto &prompt{
-                                dflt_prompts.at(cmd_attrib[cmd.value()].tpar_info[this_tp].prompt_name)
+                                dflt_prompts.at(cmd_attrib.at(cmd.value()).tpar_info[this_tp].prompt_name)
                             };
                             verify_reply = screen_verify(prompt);
                         } else {
@@ -493,10 +493,10 @@ bool tpar_analyse(user_commands cmd, tpar_object &tran, int depth, tpcount_type 
                         // change first str and len with cmd values
                         // with cmd_attrib[cmd].tpar_info[this_tp] do
                         const auto &prompt{
-                            dflt_prompts.at(cmd_attrib[cmd.value()].tpar_info[this_tp].prompt_name)
+                            dflt_prompts.at(cmd_attrib.at(cmd.value()).tpar_info[this_tp].prompt_name)
                         };
                         screen_getlinep(
-                            prompt, tran.str, tran.len, cmd_attrib[cmd.value()].tpcount, this_tp
+                            prompt, tran.str, tran.len, cmd_attrib.at(cmd.value()).tpcount, this_tp
                         );
                     } else {
                         if (tran.con != nullptr) {
@@ -508,7 +508,7 @@ bool tpar_analyse(user_commands cmd, tpar_object &tran, int depth, tpcount_type 
                                 tran.str.data(), static_cast<size_t>(tran.len)
                             };
                             screen_getlinep(
-                                prompt, tran.str, tran.len, cmd_attrib[cmd.value()].tpcount, this_tp
+                                prompt, tran.str, tran.len, cmd_attrib.at(cmd.value()).tpcount, this_tp
                             );
                         }
                     }
@@ -553,7 +553,7 @@ bool tpar_get_1(const_tpar_ptr tpar, user_commands cmd, tpar_object &tran) {
     tpar_duplicate_con(tpar, tran);
 
     if (tpar_analyse(cmd, tran, 1, 0)) {
-        if (cmd_attrib[cmd.value()].tpar_info[0].trim_reply)
+        if (cmd_attrib.at(cmd.value()).tpar_info[0].trim_reply)
             trim(tran);
         return true;
     }
@@ -581,9 +581,9 @@ bool tpar_get_2(const_tpar_ptr tpar, user_commands cmd, tpar_object &trn1, tpar_
         if (!tpar_analyse(cmd, trn2, 1, 1))
             return false;
     }
-    if (cmd_attrib[cmd.value()].tpar_info[0].trim_reply)
+    if (cmd_attrib.at(cmd.value()).tpar_info[0].trim_reply)
         trim(trn1);
-    if (cmd_attrib[cmd.value()].tpar_info[1].trim_reply)
+    if (cmd_attrib.at(cmd.value()).tpar_info[1].trim_reply)
         trim(trn2);
     return true;
 }
