@@ -17,7 +17,7 @@ namespace {
     struct HelpfileFixture {
         HelpfileFixture() {
             auto helpfile = std::string(TEST_DATA_PATH) + "ludwighlp.idx";
-            helpfile_open(helpfile);
+            (void)helpfile_open(helpfile);
         }
         ~HelpfileFixture() {
             helpfile_close();

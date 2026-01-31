@@ -15,7 +15,7 @@ int ch_compare_str(
 );
 void ch_reverse_str(const str_object &src, str_object &dst, strlen_range len);
 char ch_toupper(char ch);
-bool ch_search_str(
+[[nodiscard]] bool ch_search_str(
     const str_object &target,
     strlen_range st1,
     strlen_range len1,

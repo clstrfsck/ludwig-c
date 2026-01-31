@@ -93,7 +93,6 @@ enum class frame_options_elts {
 using frame_options = penumset<frame_options_elts>;
 
 using nfa_set_type = prangeset<nfa_state_range>;
-using dfa_set_type = prangeset<dfa_state_range>;
 using accept_set_type = prangeset<accept_set_range>;
 
 // Arrays

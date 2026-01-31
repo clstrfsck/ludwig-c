@@ -47,7 +47,7 @@ void vdu_keyboard_init(
     terminal_info_type &terminal_info
 );
 
-bool vdu_init(terminal_info_type &terminal_info, bool &ctrl_c_flag, bool &winchange_flag);
+[[nodiscard]] bool vdu_init(terminal_info_type &terminal_info, bool &ctrl_c_flag, bool &winchange_flag);
 
 void vdu_free();
 

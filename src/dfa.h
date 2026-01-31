@@ -3,11 +3,11 @@
 
 #include "type.h"
 
-bool pattern_dfa_table_kill(dfa_table_ptr &pattern_ptr);
-bool pattern_dfa_table_initialize(
+[[nodiscard]] bool pattern_dfa_table_kill(dfa_table_ptr &pattern_ptr);
+[[nodiscard]] bool pattern_dfa_table_initialize(
     dfa_table_ptr &pattern_ptr, const pattern_def_type &pattern_definition
 );
-bool pattern_dfa_convert(
+[[nodiscard]] bool pattern_dfa_convert(
     nfa_table_type &nfa_table,
     dfa_table_ptr dfa_table_pointer,
     const nfa_state_range &nfa_start,

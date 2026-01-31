@@ -1096,7 +1096,7 @@ TEST_CASE("code_compile various commands", "[code][compile][integration]") {
         REQUIRE(code_compile(span, true));
         g_execution_log.clear();
 
-        code_interpret_execute(mock_execute, leadparam::none, 1, span.code, true);
+        REQUIRE(code_interpret_execute(mock_execute, leadparam::none, 1, span.code, true));
         CHECK_EXECUTION_LOG({commands::cmd_jump, leadparam::none, 1});
 
         destroy_test_span(span);
@@ -1108,7 +1108,7 @@ TEST_CASE("code_compile various commands", "[code][compile][integration]") {
         REQUIRE(code_compile(span, true));
         g_execution_log.clear();
 
-        code_interpret_execute(mock_execute, leadparam::none, 1, span.code, true);
+        REQUIRE(code_interpret_execute(mock_execute, leadparam::none, 1, span.code, true));
         CHECK_EXECUTION_LOG({commands::cmd_delete_char, leadparam::none, 1});
 
         destroy_test_span(span);
@@ -1120,7 +1120,7 @@ TEST_CASE("code_compile various commands", "[code][compile][integration]") {
         REQUIRE(code_compile(span, true));
         g_execution_log.clear();
 
-        code_interpret_execute(mock_execute, leadparam::none, 1, span.code, true);
+        REQUIRE(code_interpret_execute(mock_execute, leadparam::none, 1, span.code, true));
         CHECK_EXECUTION_LOG({commands::cmd_delete_line, leadparam::none, 1});
 
         destroy_test_span(span);
@@ -1132,7 +1132,7 @@ TEST_CASE("code_compile various commands", "[code][compile][integration]") {
         REQUIRE(code_compile(span, true));
         g_execution_log.clear();
 
-        code_interpret_execute(mock_execute, leadparam::none, 1, span.code, true);
+        REQUIRE(code_interpret_execute(mock_execute, leadparam::none, 1, span.code, true));
         CHECK_EXECUTION_LOG({commands::cmd_insert_char, leadparam::none, 1});
 
         destroy_test_span(span);
@@ -1158,7 +1158,7 @@ TEST_CASE("code_compile recompilation", "[code][compile][integration]") {
         // Update line content for recompilation
         const char *new_text = "D";
         int new_len = std::strlen(new_text);
-        line_change_length(line, new_len);
+        REQUIRE(line_change_length(line, new_len));
         for (int i = 0; i < new_len; ++i) {
             (*line->str)[i + 1] = new_text[i];
         }
@@ -1174,7 +1174,7 @@ TEST_CASE("code_compile recompilation", "[code][compile][integration]") {
         REQUIRE(span.code != nullptr);
 
         g_execution_log.clear();
-        code_interpret_execute(mock_execute, leadparam::none, 1, span.code, true);
+        REQUIRE(code_interpret_execute(mock_execute, leadparam::none, 1, span.code, true));
         CHECK_EXECUTION_LOG({commands::cmd_delete_char, leadparam::none, 1});
 
         destroy_test_span(span);

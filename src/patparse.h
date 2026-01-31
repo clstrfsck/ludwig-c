@@ -3,7 +3,7 @@
 
 #include "type.h"
 
-bool pattern_parser(
+[[nodiscard]] bool pattern_parser(
     tpar_object &pattern,
     nfa_table_type &nfa_table,
     nfa_state_range &first_pattern_start,
