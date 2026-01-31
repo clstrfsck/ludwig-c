@@ -293,7 +293,7 @@ bool find_enquiry(const std::string &name, str_object &result, strlen_range &res
                 reslen = current_frame->span->name.size();
                 result.fillcopy(current_frame->span->name.data(), reslen, 1, MAX_STRLEN, ' ');
             } else if (item == "INPUTFILE") {
-                if (current_frame->input_file == 0) {
+                if (current_frame->input_file < 0) {
                     reslen = 0;
                 } else {
                     reslen = files[current_frame->input_file]->filename.size();
@@ -306,7 +306,7 @@ bool find_enquiry(const std::string &name, str_object &result, strlen_range &res
                     );
                 }
             } else if (item == "OUTPUTFILE") {
-                if (current_frame->output_file == 0) {
+                if (current_frame->output_file < 0) {
                     reslen = 0;
                 } else {
                     reslen = files[current_frame->output_file]->filename.size();

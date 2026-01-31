@@ -14,7 +14,7 @@ add_compile_options(-Wall -Wextra -Wno-tautological-pointer-compare)
 
 # --- Debug/Release Specific Flags ---
 # CMake automatically sets -g for Debug and -O3 for Release by default.
-string(APPEND CMAKE_CXX_FLAGS_DEBUG " -DDEBUG -D_GLIBCXX_DEBUG")
+string(APPEND CMAKE_CXX_FLAGS_DEBUG " -DDEBUG -D_GLIBCXX_DEBUG -fsanitize=address,undefined -O1 -g -fno-omit-frame-pointer")
 
 # --- Find External Dependencies ---
 find_package(Curses REQUIRED)

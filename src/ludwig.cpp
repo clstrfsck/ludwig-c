@@ -701,7 +701,7 @@ bool start_up(int argc, char **argv) {
     }
 
     // Open the files.
-    if (!file_create_open(command_line, parse_type::parse_command, files[1], files[2]))
+    if (!file_create_open(command_line, parse_type::parse_command, files[0], files[1]))
         goto l99;
 
     load_command_table(file_data.old_cmds);
@@ -765,13 +765,13 @@ bool start_up(int argc, char **argv) {
     // Hook our input and output files into the current frame.
 
     // with current_frame^ do
-    if (files[1] != nullptr) {
-        current_frame->input_file = 1;
-        files_frames[1] = current_frame;
+    if (files[0] != nullptr) {
+        current_frame->input_file = 0;
+        files_frames[0] = current_frame;
     }
-    if (files[2] != nullptr) {
-        current_frame->output_file = 2;
-        files_frames[2] = current_frame;
+    if (files[1] != nullptr) {
+        current_frame->output_file = 1;
+        files_frames[1] = current_frame;
     }
 
     // Load the input file.

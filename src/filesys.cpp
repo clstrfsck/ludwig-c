@@ -101,7 +101,7 @@ bool filesys_create_open(file_ptr fyle, const_file_ptr rfyle, bool ordinary_open
         }
         fyle->idx = 0;
         fyle->len = 0;
-        fyle->eof = 0;
+        fyle->eof = false;
     } else { // otherwise open new file for output
         std::string related;
         if (rfyle != nullptr)
@@ -297,7 +297,7 @@ bool filesys_read(file_ptr fyle, str_object &output_buffer, strlen_range &outlen
             fyle->idx = 0;
         }
         if (fyle->len <= 0) {
-            fyle->eof = 1;
+            fyle->eof = true;
             // If the last line is not terminated properly,
             // the buffer is not empty and we must return the buffer.
             if (outlen)
@@ -332,7 +332,7 @@ bool filesys_rewind(file_ptr fyle) {
         return false;
     fyle->idx = 0;
     fyle->len = 0;
-    fyle->eof = 0;
+    fyle->eof = false;
     fyle->l_counter = 0;
     return true;
 }

@@ -35,12 +35,12 @@ void setup_initial_values() {
     hangup = false;
     edit_mode = mode_type::mode_insert;
     previous_mode = mode_type::mode_insert;
-    for (int i = 1; i <= MAX_FILES; ++i) {
+    for (auto i : file_range::iota()) {
         files[i] = nullptr;
         files_frames[i] = nullptr;
     }
-    fgi_file = 0;
-    fgo_file = 0;
+    fgi_file = -1;
+    fgo_file = -1;
     first_span = nullptr;
     ludwig_mode = ludwig_mode_type::ludwig_batch;
     command_introducer = '\\';

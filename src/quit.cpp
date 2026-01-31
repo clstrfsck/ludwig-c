@@ -45,8 +45,8 @@ bool quit_command() {
         while (new_span != nullptr) {
             if (new_span->frame != nullptr) {
                 // with new_span->frame^ do
-                if (new_span->frame->text_modified && new_span->frame->output_file == 0 &&
-                    new_span->frame->input_file != 0) {
+                if (new_span->frame->text_modified && new_span->frame->output_file < 0 &&
+                    new_span->frame->input_file >= 0) {
                     current_frame = new_span->frame;
                     // with marks[mark_modified]^ do
                     mark_ptr mm = new_span->frame->marks[MARK_MODIFIED];
@@ -84,18 +84,18 @@ l2:;
 
 bool do_frame(frame_ptr f) {
     // with f^ do
-    if (f->output_file == 0)
+    if (f->output_file < 0)
         return true;
     if (files[f->output_file] == nullptr)
         return true;
     // Wind out and close the associated input file.
     if (!file_windthru(f, true))
         return false;
-    if (f->input_file != 0) {
+    if (f->input_file >= 0) {
         if (files[f->input_file] != nullptr) {
             if (!file_close_delete(files[f->input_file], false, true))
                 return false;
-            f->input_file = 0;
+            f->input_file = -1;
         }
     }
     // Close the output file.
@@ -103,7 +103,7 @@ bool do_frame(frame_ptr f) {
     if (!ludwig_aborted) {
         result = file_close_delete(files[f->output_file], !f->text_modified, f->text_modified);
     }
-    f->output_file = 0;
+    f->output_file = -1;
     return result;
 }
 

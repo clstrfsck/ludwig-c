@@ -146,8 +146,8 @@ bool frame_edit(const std::string_view &frame_name) {
                 fptr->margin_bottom = initial_margin_bottom;
                 fptr->tab_stops = initial_tab_stops;
                 fptr->options = initial_options;
-                fptr->input_file = 0;
-                fptr->output_file = 0;
+                fptr->input_file = -1;
+                fptr->output_file = -1;
                 fptr->get_tpar.len = 0;
                 fptr->get_tpar.con = nullptr;
                 fptr->get_tpar.nxt = nullptr;
@@ -226,7 +226,7 @@ bool frame_kill(const std::string_view &frame_name) {
         return false;
     }
     // with this_frame^ do
-    if ((this_frame->input_file != 0) || (this_frame->output_file != 0)) {
+    if ((this_frame->input_file >= 0) || (this_frame->output_file >= 0)) {
         screen_message(MSG_FRAME_HAS_FILES_ATTACHED);
         return false;
     }

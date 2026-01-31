@@ -504,7 +504,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
     case commands::cmd_equal_eof:
         cmd_success = (current_frame->dot->line->flink == nullptr);
         if (command == commands::cmd_equal_eof) {
-            if (current_frame->input_file != 0) {
+            if (current_frame->input_file >= 0) {
                 if (!files[current_frame->input_file]->eof)
                     cmd_success = false;
             }

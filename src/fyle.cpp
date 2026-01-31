@@ -165,7 +165,7 @@ bool file_create_open(file_name_str &fn, parse_type parse, file_ptr &inputfp, fi
             inputfp->line_count = 0;
             inputfp->output_flag = false;
             inputfp->eof = false;
-            inputfp->idx = MAX_STRLEN; // make sure we read something
+            inputfp->idx = 0;
             inputfp->len = 0;
             inputfp->zed = 'Z';
         }
@@ -190,6 +190,9 @@ bool file_create_open(file_name_str &fn, parse_type parse, file_ptr &inputfp, fi
             outputfp->last_line = nullptr;
             outputfp->line_count = 0;
             outputfp->output_flag = true;
+            outputfp->eof = false;
+            outputfp->idx = 0;
+            outputfp->len = 0;
             outputfp->zed = 'Z';
         }
         break;
@@ -338,7 +341,7 @@ bool file_windthru(frame_ptr current, bool from_span) {
 
     // with current^ do
     //  Check that there is something to windthru to!
-    if (current->output_file == 0)
+    if (current->output_file < 0)
         return false;
     if (files[current->output_file] == nullptr)
         return false;
@@ -362,7 +365,7 @@ bool file_windthru(frame_ptr current, bool from_span) {
             goto l98;
         if (!lines_destroy(first_line, last_line))
             goto l98;
-        if (current->input_file != 0) {
+        if (current->input_file >= 0) {
             if (files[current->input_file] != nullptr)
                 files[current->input_file]->line_count = 0;
         }
@@ -372,7 +375,7 @@ bool file_windthru(frame_ptr current, bool from_span) {
     result = true;
     if (current->text_modified) {
         // Only bother if we are going to keep the output
-        if (current->input_file != 0) {
+        if (current->input_file >= 0) {
             if (files[current->input_file] != nullptr) {
                 if (!files[current->input_file]->eof) {
                     // Copy the file through until eof found.
@@ -425,7 +428,7 @@ bool file_page(frame_ptr current_frame, bool &exit_abort) {
     }
     //  PAGE OUT THE STUFF ABOVE THE DOT LINE.
     if (first_line != nullptr) {
-        if (current_frame->output_file != 0 &&
+        if (current_frame->output_file >= 0 &&
             !file_write(first_line, last_line, files[current_frame->output_file])) {
             // SHOULD EXIT_ABORT, NOT JUST FAIL.
             exit_abort = true;
@@ -441,7 +444,7 @@ bool file_page(frame_ptr current_frame, bool &exit_abort) {
             return false;
     }
     //  PAGE IN THE NEW LINES
-    if (current_frame->input_file == 0)
+    if (current_frame->input_file < 0)
         goto l98;
     while ((current_frame->space_left * 10 > current_frame->space_limit) && !tt_controlc) {
         int i;
@@ -462,17 +465,14 @@ bool file_page(frame_ptr current_frame, bool &exit_abort) {
         }
     }
 l98:;
-    if (current_frame->input_file != 0)
+    if (current_frame->input_file >= 0)
         file_fix_eop(files[current_frame->input_file]->eof, current_frame->last_group->last_line);
     return true;
 }
 
 bool check_slot_allocation(slot_range slot, bool must_be_allocated, std::string &status) {
-    if ((slot == 0) == must_be_allocated) {
-        if (must_be_allocated)
-            status = MSG_NO_FILE_OPEN;
-        else
-            status = MSG_FILE_ALREADY_OPEN;
+    if ((slot < 0) == must_be_allocated) {
+        status = must_be_allocated ? MSG_NO_FILE_OPEN : MSG_FILE_ALREADY_OPEN;
         return false;
     }
     return true;
@@ -481,12 +481,10 @@ bool check_slot_allocation(slot_range slot, bool must_be_allocated, std::string 
 bool check_slot_usage(slot_range slot, bool must_be_in_use, std::string &status) {
     if (check_slot_allocation(slot, true, status)) {
         if ((files[slot] == nullptr) == must_be_in_use) {
-            if (must_be_in_use)
-                status = MSG_NO_FILE_OPEN;
-            else
-                status = MSG_FILE_ALREADY_OPEN;
-        } else
+            status = must_be_in_use ? MSG_NO_FILE_OPEN : MSG_FILE_ALREADY_OPEN;
+        } else {
             return true;
+        }
     }
     return false;
 }
@@ -494,12 +492,10 @@ bool check_slot_usage(slot_range slot, bool must_be_in_use, std::string &status)
 bool check_slot_direction(slot_range slot, bool must_be_output, std::string &status) {
     if (check_slot_usage(slot, true, status)) {
         if (files[slot]->output_flag != must_be_output) {
-            if (must_be_output)
-                status = MSG_NOT_OUTPUT_FILE;
-            else
-                status = MSG_NOT_INPUT_FILE;
-        } else
+            status = must_be_output ? MSG_NOT_OUTPUT_FILE : MSG_NOT_INPUT_FILE;
+        } else {
             return true;
+        }
     }
     return false;
 }
@@ -509,25 +505,26 @@ bool free_file(slot_range slot, std::string &status) {
         return false;
     if (files_frames[slot] != nullptr) {
         // with files_frames[slot]^ do
-        if (slot == files_frames[slot]->output_file)
-            files_frames[slot]->output_file = 0;
-        else {
+        if (slot == files_frames[slot]->output_file) {
+            files_frames[slot]->output_file = -1;
+        } else {
             file_fix_eop(true, files_frames[slot]->last_group->last_line);
-            files_frames[slot]->input_file = 0;
+            files_frames[slot]->input_file = -1;
         }
         files_frames[slot] = nullptr;
-    } else if (slot == fgi_file)
-        fgi_file = 0;
-    else if (slot == fgo_file)
-        fgo_file = 0;
+    } else if (slot == fgi_file) {
+        fgi_file = -1;
+    } else if (slot == fgo_file) {
+        fgo_file = -1;
+    }
     return true;
 }
 
 bool get_free_slot(slot_range &new_slot, slot_range file_slot, std::string &status) {
-    slot_range slot = 1;
+    slot_range slot = 0;
     while ((slot < MAX_FILES) && ((files[slot] != nullptr) || (slot == file_slot)))
         slot += 1;
-    if (files[slot] != nullptr) {
+    if (slot >= MAX_FILES) {
         status = MSG_NO_MORE_FILES_ALLOWED;
         return false;
     }
@@ -561,7 +558,7 @@ bool file_command(
 
     // Perform the operation.
     std::string status;
-    slot_range file_slot = 0;
+    slot_range file_slot = -1;
     file_name_str fnm;
     bool result = false;
     switch (command) {
@@ -752,7 +749,7 @@ bool file_command(
                 goto l99;
             if (!get_file_name(tparam, fnm, command))
                 goto l99;
-            if (current_frame->input_file != 0) {
+            if (current_frame->input_file >= 0) {
                 if (!file_create_open(
                         fnm,
                         parse_type::parse_output,
@@ -867,7 +864,7 @@ bool file_command(
 
     case commands::cmd_file_save:
         {
-            if (current_frame->output_file == 0) {
+            if (current_frame->output_file < 0) {
                 status = MSG_NO_OUTPUT;
                 goto l99;
             }
@@ -894,7 +891,7 @@ bool file_command(
                     goto l99;
             }
             file_ptr dummy_fptr;
-            if (current_frame->input_file != 0)
+            if (current_frame->input_file >= 0)
                 dummy_fptr = files[current_frame->input_file];
             else
                 dummy_fptr = nullptr;
@@ -906,7 +903,7 @@ bool file_command(
             else if (!line_to_number(last, nr_lines))
                 nr_lines = 0;
             current_frame->input_count = files[current_frame->output_file]->l_counter + nr_lines;
-            if (current_frame->input_file != 0)
+            if (current_frame->input_file >= 0)
                 files[current_frame->input_file]->l_counter = current_frame->input_count;
             current_frame->text_modified = false;
         }
