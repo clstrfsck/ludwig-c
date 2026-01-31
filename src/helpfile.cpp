@@ -139,7 +139,7 @@ bool helpfile_open(const std::string_view &filename) {
     return read_index();
 }
 
-bool helpfile_read(const key_str &keystr, help_record &buffer) {
+bool helpfile_read(const std::string &keystr, help_record &buffer) {
     current_key.key = keystr;
 
     auto result = table.find(current_key.key);

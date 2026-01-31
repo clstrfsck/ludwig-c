@@ -40,7 +40,7 @@ namespace {
 
 }; // namespace
 
-key_str ask_user(const std::string_view &prompt) {
+std::string ask_user(const std::string_view &prompt) {
     screen_writeln();
     auto reply = screen_help_prompt(prompt);
     // Note that all characters not overwritten by the user will be spaces!
@@ -53,7 +53,7 @@ void help_help(const std::string &selection) {
     // The argument selects a particular part of the help file to read e.g. SD
     screen_unload();
     screen_home(true);
-    key_str topic = selection.empty() ? std::string(INDEX) : selection;
+    std::string topic = selection.empty() ? std::string(INDEX) : selection;
     if (!helpfile_open(file_data.old_cmds)) {
         screen_write_str(3, "Can't open HELP file", 20);
         screen_writeln();
@@ -71,7 +71,7 @@ void help_help(const std::string &selection) {
         }
         while (continu) {
             if ((buf.txt[0] == '\\') && (buf.txt[1] == '%')) {
-                key_str reply = ask_user("<space> for more, <return> to exit : ");
+                std::string reply = ask_user("<space> for more, <return> to exit : ");
                 if (tt_controlc)
                     reply.clear();
                 if (reply.empty() || reply[0] != ' ') {

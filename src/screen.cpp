@@ -1591,8 +1591,8 @@ void screen_writeln_clel() {
         writeln("");
 }
 
-key_str screen_help_prompt(const std::string_view &prompt) {
-    key_str reply;
+std::string screen_help_prompt(const std::string_view &prompt) {
+    std::string reply;
     switch (ludwig_mode) {
     case ludwig_mode_type::ludwig_screen:
     case ludwig_mode_type::ludwig_hardcopy:

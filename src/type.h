@@ -64,7 +64,6 @@ enum class parse_type {
 using code_idx = prange<0, MAX_CODE>;
 using col_offset_range = prange<0, MAX_STRLEN>;
 using code_idx = prange<0, MAX_CODE>;
-using col_offset_range = prange<0, MAX_STRLEN>;
 using col_range = prange<1, MAX_STRLENP>;
 using col_width_range = prange<0, MAX_STRLENP>;
 using file_range = prange<0, MAX_FILES - 1>;
@@ -103,8 +102,6 @@ using verify_array = parray<bool, prange<1, MAX_VERIFY>>;
 
 // Strings
 using file_name_str = std::string;
-using write_str = std::string;
-using key_str = std::string;
 
 // Keyboard interface.
 using key_code_range = prange<-MAX_SPECIAL_KEYS, ORD_MAXCHAR>;
@@ -486,8 +483,6 @@ enum class commands {
 };
 
 using user_commands = perange<commands, commands::cmd_noop, commands::cmd_pattern_dummy_text>;
-using comp_commands = perange<commands, commands::cmd_pcjump, commands::cmd_iterate>;
-using prefix_commands = perange<commands, commands::cmd_prefix_ast, commands::cmd_prefix_tilde>;
 using prefix_plus = perange<commands, commands::cmd_prefix_ast, commands::cmd_nosuch>;
 
 enum class leadparam {
@@ -557,8 +552,8 @@ struct cmd_attrib_rec {
 };
 
 struct help_record {
-    key_str key;
-    write_str txt;
+    std::string key;
+    std::string txt;
 };
 
 // more Pattern Matcher stuff
