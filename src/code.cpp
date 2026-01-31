@@ -584,9 +584,7 @@ bool scan_command(parse_state &ps, bool full_scan) {
             error(ps, "Command not valid");
             return false;
         }
-        const expand_lim_range *p = lookupexp_ptr.data(command);
-        int i = p[0];
-        int j = p[1];
+        auto [i, j] = lookupexp_ptr.at(command);
         //        int i  = lookupexp_ptr[command];
         //        int j  = lookupexp_ptr[command + 1];
         while ((i < j) && (std::toupper(ps.key) != lookupexp[i].extn))

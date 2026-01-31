@@ -71,7 +71,7 @@ struct lookupexp_type {
 using expand_lim_range = prange<0, EXPAND_LIM - 1>;
 
 extern std::array<lookupexp_type, EXPAND_LIM> lookupexp;
-extern parray<expand_lim_range, prefix_plus> lookupexp_ptr;
+extern std::unordered_map<commands, std::pair<int, int>> lookupexp_ptr;
 extern parray<cmd_attrib_rec, user_commands> cmd_attrib;
 extern std::unordered_map<prompt_type, std::string_view> dflt_prompts;
 extern prange<0, MAX_EXEC_RECURSION> exec_level;

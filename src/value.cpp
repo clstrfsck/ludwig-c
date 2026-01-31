@@ -1944,34 +1944,34 @@ void load_command_table(bool old_version) {
         addlookupexp(80, '?', commands::cmd_nosuch);
 
         // initialize lookupexp_ptr }
-        // These magic numbers point to the start of each section in lookupexp table }
+        // These magic numbers point to the start/end of each section in lookupexp table }
         // (converted to 0-based indices)
-        lookupexp_ptr[commands::cmd_prefix_ast] = 0;
-        lookupexp_ptr[commands::cmd_prefix_a] = 3;
-        lookupexp_ptr[commands::cmd_prefix_b] = 3;
-        lookupexp_ptr[commands::cmd_prefix_c] = 4;
-        lookupexp_ptr[commands::cmd_prefix_d] = 4;
-        lookupexp_ptr[commands::cmd_prefix_e] = 4;
-        lookupexp_ptr[commands::cmd_prefix_eo] = 12;
-        lookupexp_ptr[commands::cmd_prefix_eq] = 15;
-        lookupexp_ptr[commands::cmd_prefix_f] = 18;
-        lookupexp_ptr[commands::cmd_prefix_fg] = 28;
-        lookupexp_ptr[commands::cmd_prefix_i] = 34;
-        lookupexp_ptr[commands::cmd_prefix_k] = 34;
-        lookupexp_ptr[commands::cmd_prefix_l] = 34;
-        lookupexp_ptr[commands::cmd_prefix_o] = 34;
-        lookupexp_ptr[commands::cmd_prefix_p] = 34;
-        lookupexp_ptr[commands::cmd_prefix_s] = 34;
-        lookupexp_ptr[commands::cmd_prefix_t] = 43;
-        lookupexp_ptr[commands::cmd_prefix_tc] = 43;
-        lookupexp_ptr[commands::cmd_prefix_tf] = 43;
-        lookupexp_ptr[commands::cmd_prefix_u] = 43;
-        lookupexp_ptr[commands::cmd_prefix_w] = 47;
-        lookupexp_ptr[commands::cmd_prefix_x] = 58;
-        lookupexp_ptr[commands::cmd_prefix_y] = 61;
-        lookupexp_ptr[commands::cmd_prefix_z] = 69;
-        lookupexp_ptr[commands::cmd_prefix_tilde] = 78;
-        lookupexp_ptr[commands::cmd_nosuch] = 80;
+        lookupexp_ptr[commands::cmd_prefix_ast] = {0, 3};
+        lookupexp_ptr[commands::cmd_prefix_a] = {3, 3};
+        lookupexp_ptr[commands::cmd_prefix_b] = {3, 4};
+        lookupexp_ptr[commands::cmd_prefix_c] = {4, 4};
+        lookupexp_ptr[commands::cmd_prefix_d] = {4, 4};
+        lookupexp_ptr[commands::cmd_prefix_e] = {4, 12};
+        lookupexp_ptr[commands::cmd_prefix_eo] = {12, 15};
+        lookupexp_ptr[commands::cmd_prefix_eq] = {15, 18};
+        lookupexp_ptr[commands::cmd_prefix_f] = {18, 28};
+        lookupexp_ptr[commands::cmd_prefix_fg] = {28, 34};
+        lookupexp_ptr[commands::cmd_prefix_i] = {34, 34};
+        lookupexp_ptr[commands::cmd_prefix_k] = {34, 34};
+        lookupexp_ptr[commands::cmd_prefix_l] = {34, 34};
+        lookupexp_ptr[commands::cmd_prefix_o] = {34, 34};
+        lookupexp_ptr[commands::cmd_prefix_p] = {34, 34};
+        lookupexp_ptr[commands::cmd_prefix_s] = {34, 43};
+        lookupexp_ptr[commands::cmd_prefix_t] = {43, 43};
+        lookupexp_ptr[commands::cmd_prefix_tc] = {43, 43};
+        lookupexp_ptr[commands::cmd_prefix_tf] = {43, 43};
+        lookupexp_ptr[commands::cmd_prefix_u] = {43, 47};
+        lookupexp_ptr[commands::cmd_prefix_w] = {47, 58};
+        lookupexp_ptr[commands::cmd_prefix_x] = {58, 61};
+        lookupexp_ptr[commands::cmd_prefix_y] = {61, 69};
+        lookupexp_ptr[commands::cmd_prefix_z] = {69, 78};
+        lookupexp_ptr[commands::cmd_prefix_tilde] = {78, 80};
+        lookupexp_ptr[commands::cmd_nosuch] = {80, 81};
     } else {
         lookup[0].command = commands::cmd_noop;
         lookup[1].command = commands::cmd_noop;
@@ -2256,34 +2256,34 @@ void load_command_table(bool old_version) {
         addlookupexp(116, '?', commands::cmd_nosuch);
 
         // initialize lookupexp_ptr }
-        // These magic numbers point to the start of each section in lookupexp table }
+        // These magic numbers point to the start/end of each section in lookupexp table }
         // (converted to 0-based indices)
-        lookupexp_ptr[commands::cmd_prefix_ast] = 0;
-        lookupexp_ptr[commands::cmd_prefix_a] = 0;
-        lookupexp_ptr[commands::cmd_prefix_b] = 7;
-        lookupexp_ptr[commands::cmd_prefix_c] = 14;
-        lookupexp_ptr[commands::cmd_prefix_d] = 16;
-        lookupexp_ptr[commands::cmd_prefix_e] = 21;
-        lookupexp_ptr[commands::cmd_prefix_eo] = 27;
-        lookupexp_ptr[commands::cmd_prefix_eq] = 30;
-        lookupexp_ptr[commands::cmd_prefix_f] = 34;
-        lookupexp_ptr[commands::cmd_prefix_fg] = 45;
-        lookupexp_ptr[commands::cmd_prefix_i] = 51;
-        lookupexp_ptr[commands::cmd_prefix_k] = 51;
-        lookupexp_ptr[commands::cmd_prefix_l] = 63;
-        lookupexp_ptr[commands::cmd_prefix_o] = 65;
-        lookupexp_ptr[commands::cmd_prefix_p] = 68;
-        lookupexp_ptr[commands::cmd_prefix_s] = 70;
-        lookupexp_ptr[commands::cmd_prefix_t] = 79;
-        lookupexp_ptr[commands::cmd_prefix_tc] = 88;
-        lookupexp_ptr[commands::cmd_prefix_tf] = 91;
-        lookupexp_ptr[commands::cmd_prefix_u] = 97;
-        lookupexp_ptr[commands::cmd_prefix_w] = 98;
-        lookupexp_ptr[commands::cmd_prefix_x] = 111;
-        lookupexp_ptr[commands::cmd_prefix_y] = 114;
-        lookupexp_ptr[commands::cmd_prefix_z] = 114;
-        lookupexp_ptr[commands::cmd_prefix_tilde] = 114;
-        lookupexp_ptr[commands::cmd_nosuch] = 116;
+        lookupexp_ptr[commands::cmd_prefix_ast] = {0, 0};
+        lookupexp_ptr[commands::cmd_prefix_a] = {0, 7};
+        lookupexp_ptr[commands::cmd_prefix_b] = {7, 14};
+        lookupexp_ptr[commands::cmd_prefix_c] = {14, 16};
+        lookupexp_ptr[commands::cmd_prefix_d] = {16, 21};
+        lookupexp_ptr[commands::cmd_prefix_e] = {21, 27};
+        lookupexp_ptr[commands::cmd_prefix_eo] = {27, 30};
+        lookupexp_ptr[commands::cmd_prefix_eq] = {30, 34};
+        lookupexp_ptr[commands::cmd_prefix_f] = {34, 45};
+        lookupexp_ptr[commands::cmd_prefix_fg] = {45, 51};
+        lookupexp_ptr[commands::cmd_prefix_i] = {51, 51};
+        lookupexp_ptr[commands::cmd_prefix_k] = {51, 63};
+        lookupexp_ptr[commands::cmd_prefix_l] = {63, 65};
+        lookupexp_ptr[commands::cmd_prefix_o] = {65, 68};
+        lookupexp_ptr[commands::cmd_prefix_p] = {68, 70};
+        lookupexp_ptr[commands::cmd_prefix_s] = {70, 79};
+        lookupexp_ptr[commands::cmd_prefix_t] = {79, 88};
+        lookupexp_ptr[commands::cmd_prefix_tc] = {88, 91};
+        lookupexp_ptr[commands::cmd_prefix_tf] = {91, 97};
+        lookupexp_ptr[commands::cmd_prefix_u] = {97, 98};
+        lookupexp_ptr[commands::cmd_prefix_w] = {98, 111};
+        lookupexp_ptr[commands::cmd_prefix_x] = {111, 114};
+        lookupexp_ptr[commands::cmd_prefix_y] = {114, 114};
+        lookupexp_ptr[commands::cmd_prefix_z] = {114, 114};
+        lookupexp_ptr[commands::cmd_prefix_tilde] = {114, 116};
+        lookupexp_ptr[commands::cmd_nosuch] = {116, 117};
     }
 }
 
