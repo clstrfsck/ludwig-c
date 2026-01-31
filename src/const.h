@@ -85,6 +85,7 @@ const int KEY_LEN = 4;                  // Key length for HELP FILE
 
 // Keyboard interface.
 const int MAX_SPECIAL_KEYS = 1000; // Taken from original XWin def
+const int LOOKUP_SIZE = ORD_MAXCHAR + 1 + MAX_SPECIAL_KEYS; // Size of lookup array
 const int MAX_NR_KEY_NAMES = 1000;
 const int MAX_PARSE_TABLE = 300;
 

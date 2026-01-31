@@ -241,7 +241,7 @@ bool caseditto_command(commands command, leadparam rept, int count, bool from_sp
             break;
         }
         if (command == commands::cmd_ditto_up || command == commands::cmd_ditto_down)
-            command = lookup[key_up].command;
+            command = lookup_at(key_up).command;
         else if (key_up == 'E')
             command = commands::cmd_case_edit;
         else if (key_up == 'L')

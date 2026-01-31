@@ -62,7 +62,14 @@ extern prange<0, MAX_CODE> code_top;
 
 // VARIABLES USED IN INTERPRETING A COMMAND
 extern penumset<commands> prefixes;
-extern parray<command_object, key_code_range> lookup;
+extern std::array<command_object, LOOKUP_SIZE> lookup;
+
+// Helper to convert key code to lookup array index
+// Keys 0..ORD_MAXCHAR stay at indices 0..255
+// Keys -1..-MAX_SPECIAL_KEYS map to indices 256..1255
+inline command_object& lookup_at(int key) {
+    return lookup[(key >= 0) ? static_cast<size_t>(key) : static_cast<size_t>(ORD_MAXCHAR - key)];
+}
 
 struct lookupexp_type {
     char extn;

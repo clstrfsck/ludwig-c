@@ -190,10 +190,10 @@ bool window_command(commands command, leadparam rept, int count, bool from_span)
                     key = vdu_get_key();
                     if (tt_controlc) {
                         key = 0;
-                    } else if (lookup[key].command == commands::cmd_up) {
+                    } else if (lookup_at(key).command == commands::cmd_up) {
                         rept = leadparam::pint;
                         count = 1;
-                    } else if (lookup[key].command == commands::cmd_down) {
+                    } else if (lookup_at(key).command == commands::cmd_down) {
                         rept = leadparam::nint;
                         count = -1;
                     } else {

@@ -275,7 +275,7 @@ bool arrow_command(commands command, leadparam rept, int count, bool from_span) 
             goto l9;
         rept = leadparam::none;
         count = 1;
-        command = lookup[key].command;
+        command = lookup_at(key).command;
         if ((command == commands::cmd_return) && (edit_mode == mode_type::mode_insert))
             command = commands::cmd_split_line;
     }

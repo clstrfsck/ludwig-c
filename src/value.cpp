@@ -1688,7 +1688,7 @@ void load_command_table(bool old_version) {
     key_code_range key_code;
 
     for (key_code = -MAX_SPECIAL_KEYS; key_code <= -1; ++key_code)
-        lookup[key_code].command = commands::cmd_noop;
+        lookup_at(key_code).command = commands::cmd_noop;
     if (old_version) {
         lookup[0].command = commands::cmd_noop;
         lookup[1].command = commands::cmd_noop;
@@ -1794,8 +1794,8 @@ void load_command_table(bool old_version) {
             lookup[key_code].command = commands::cmd_noop;
         for (key_code = -MAX_SPECIAL_KEYS; key_code <= ORD_MAXCHAR; ++key_code) {
             // with lookup[key_code] do
-            lookup[key_code].code = nullptr;
-            lookup[key_code].tpar = nullptr;
+            lookup_at(key_code).code = nullptr;
+            lookup_at(key_code).tpar = nullptr;
         }
 
         // initialize lookupexp
@@ -2077,8 +2077,8 @@ void load_command_table(bool old_version) {
             lookup[key_code].command = commands::cmd_noop;
         for (key_code = -MAX_SPECIAL_KEYS; key_code <= ORD_MAXCHAR; ++key_code) {
             // with lookup[key_code] do
-            lookup[key_code].code = nullptr;
-            lookup[key_code].tpar = nullptr;
+            lookup_at(key_code).code = nullptr;
+            lookup_at(key_code).tpar = nullptr;
         }
 
         // initialize lookupexp

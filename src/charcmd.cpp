@@ -84,7 +84,7 @@ bool charcmd_insert(commands cmd, leadparam rept, int count, bool from_span) {
         if (key_in_set(key, PRINTABLE_SET))
             cmd = commands::cmd_noop;
         else
-            cmd = lookup[key].command;
+            cmd = lookup_at(key).command;
     } while (cmd == commands::cmd_insert_char);
     vdu_take_back_key(key);
 
@@ -211,7 +211,7 @@ bool charcmd_delete(commands cmd, leadparam rept, int count, bool from_span) {
         if (key_in_set(key, PRINTABLE_SET))
             cmd = commands::cmd_noop;
         else
-            cmd = lookup[key].command;
+            cmd = lookup_at(key).command;
         if ((cmd == commands::cmd_rubout) && (edit_mode == mode_type::mode_insert)) {
             // In insert_mode treat RUBOUT as \-D
             rept = leadparam::minus;
@@ -297,7 +297,7 @@ bool charcmd_rubout(commands cmd, leadparam rept, int count, bool from_span) {
             if (key_in_set(key, PRINTABLE_SET))
                 cmd = commands::cmd_noop;
             else
-                cmd = lookup[key].command;
+                cmd = lookup_at(key).command;
         } while (cmd == commands::cmd_rubout);
         vdu_take_back_key(key);
 

@@ -241,11 +241,11 @@ void execute_immed() {
                         cmd_success = false;
                 } else {
                     // with lookup[key] do
-                    if (lookup[key].command == commands::cmd_extended)
-                        cmd_success = code_interpret(leadparam::none, 1, lookup[key].code, true);
+                    if (lookup_at(key).command == commands::cmd_extended)
+                        cmd_success = code_interpret(leadparam::none, 1, lookup_at(key).code, true);
                     else
                         cmd_success = execute(
-                            lookup[key].command, leadparam::none, 1, lookup[key].tpar, false
+                            lookup_at(key).command, leadparam::none, 1, lookup_at(key).tpar, false
                         );
                 }
 

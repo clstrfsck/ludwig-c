@@ -499,8 +499,8 @@ bool scan_simple_command(
         repcount = ps.verify_count;
     }
 
-    lookup_code = lookup[ps.key].code;
-    if (lookup[ps.key].tpar == nullptr) {
+    lookup_code = lookup_at(ps.key).code;
+    if (lookup_at(ps.key).tpar == nullptr) {
         if (cmd_attrib.at(command).tpcount != 0) {
             if (full_scan) {
                 if (!scan_trailing_param(ps, command, repsym, tparam))
@@ -527,7 +527,7 @@ bool scan_simple_command(
             tparam = nullptr;
         }
     } else {
-        tpar_duplicate(lookup[ps.key].tpar, tparam);
+        tpar_duplicate(lookup_at(ps.key).tpar, tparam);
     }
     if (lookup_code != nullptr)
         lookup_code->ref += 1;
@@ -576,7 +576,7 @@ bool scan_command(parse_state &ps, bool full_scan) {
     if (ps.key >= accept_set_type::element_type::min() &&
         ps.key <= accept_set_type::element_type::max() && LOWER_SET.contains(ps.key.value()))
         ps.key = std::toupper(ps.key);
-    commands command = lookup[ps.key].command;
+    commands command = lookup_at(ps.key).command;
     while (prefixes.contains(command)) {
         if (!nextkey(ps))
             return false;
