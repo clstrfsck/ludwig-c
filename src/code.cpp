@@ -85,6 +85,9 @@ namespace {
 } // namespace
 
 void code_discard(code_ptr &code_head) {
+    if (code_head == nullptr) {
+        return;
+    }
     // This routine releases the specified code and compacts the code array.
     // The code_head is set to NIL.
 
@@ -96,10 +99,12 @@ void code_discard(code_ptr &code_head) {
 
         for (code_idx source = start; source < start + size; ++source) {
             // with compiler_code[source] do
-            if (compiler_code[source].code != nullptr)
+            if (compiler_code[source].code != nullptr) {
                 code_discard(compiler_code[source].code);
-            if (compiler_code[source].tpar != nullptr)
+            }
+            if (compiler_code[source].tpar != nullptr) {
                 tpar_clean_object(*compiler_code[source].tpar);
+            }
         }
         for (code_idx source = start + size; source <= code_top; ++source) {
             compiler_code[source - size] = compiler_code[source];
@@ -688,6 +693,22 @@ l99:
 }
 
 bool code_interpret(leadparam rept, int count, code_ptr code_head, bool from_span) {
+    return code_interpret_execute(execute, rept, count, code_head, from_span);
+}
+
+bool code_interpret_execute(
+    execute_fn exec,
+    leadparam rept,
+    int count,
+    code_ptr code_head,
+    bool from_span
+) {
+    if (code_head == nullptr) {
+#ifdef DEBUG
+        screen_message(DBG_CODE_PTR_IS_NIL);
+#endif
+        return false;
+    }
     struct labels_type {
         code_idx exitlabel;
         code_idx faillabel;
@@ -742,8 +763,8 @@ bool code_interpret(leadparam rept, int count, code_ptr code_head, bool from_spa
                     break;
 
                 case commands::cmd_exitto:
-                    from_span =
-                        true; // This is done to fix \n(...) from being Not From_Span to From_Span
+                    // This is done to fix \n(...) from being Not From_Span to From_Span
+                    from_span = true;
                     level += 1;
                     // with labels[level] do
                     labels[level].exitlabel = curr_lbl;
@@ -851,7 +872,7 @@ bool code_interpret(leadparam rept, int count, code_ptr code_head, bool from_spa
                 }
             } else {
                 // call execute command
-                if (!execute(curr_op, curr_rep, curr_cnt, curr_tpar, from_span)) {
+                if (!exec(curr_op, curr_rep, curr_cnt, curr_tpar, from_span)) {
                     interp_status = failure;
                     pc = curr_lbl;
                 }
