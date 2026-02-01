@@ -107,4 +107,13 @@ private:
     int m_value;
 };
 
+namespace std {
+    template <int min_, int max_>
+    struct hash<prange<min_, max_>> {
+        size_t operator()(const prange<min_, max_>& p) const noexcept {
+            return std::hash<int>{}(p.value());
+        }
+    };
+}
+
 #endif // !defined(PRANGE_H)

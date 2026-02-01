@@ -480,9 +480,8 @@ bool pattern_parser(
                                     }
                                 }
                                 pattern_definition.length = pattern_definition.length - (aux + 2);
-                                tpar_sort =
-                                    commands::cmd_pattern_dummy_pattern; // back up over delims
-                                                                         // and string
+                                // back up over delims and string
+                                tpar_sort = commands::cmd_pattern_dummy_pattern;
                                 deref_tpar.len = aux;
                                 deref_tpar.dlm = delimiter;
                                 if (!tpar_get_1(&deref_tpar, tpar_sort, deref_span)) {

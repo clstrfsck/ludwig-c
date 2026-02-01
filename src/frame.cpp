@@ -398,21 +398,21 @@ bool set_opt(char ch, bool seton, frame_options &options) {
         break;
     case 'I':
         if (seton)
-            options.add(frame_options_elts::opt_auto_indent);
+            options.insert(frame_options_elts::opt_auto_indent);
         else
-            options.remove(frame_options_elts::opt_auto_indent);
+            options.erase(frame_options_elts::opt_auto_indent);
         break;
     case 'W':
         if (seton)
-            options.add(frame_options_elts::opt_auto_wrap);
+            options.insert(frame_options_elts::opt_auto_wrap);
         else
-            options.remove(frame_options_elts::opt_auto_wrap);
+            options.erase(frame_options_elts::opt_auto_wrap);
         break;
     case 'N':
         if (seton)
-            options.add(frame_options_elts::opt_new_line);
+            options.insert(frame_options_elts::opt_new_line);
         else
-            options.remove(frame_options_elts::opt_new_line);
+            options.erase(frame_options_elts::opt_new_line);
         break;
     default:
         // No such option

@@ -7,8 +7,6 @@
 
 #include "const.h"
 #include "parray.h"
-#include "penumset.h"
-#include "perange.h"
 #include "prange.h"
 #include "prangeset.h"
 
@@ -17,6 +15,7 @@
 #include <memory>
 #include <set>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 // POINTERS TO ALL DYNAMIC OBJECTS.
@@ -90,7 +89,7 @@ enum class frame_options_elts {
     opt_special_frame, // OOPS,COMMAND,HEAP
     last_entry
 };
-using frame_options = penumset<frame_options_elts>;
+using frame_options = std::unordered_set<frame_options_elts>;
 
 using nfa_set_type = prangeset<nfa_state_range>;
 using accept_set_type = prangeset<accept_set_range>;
@@ -481,8 +480,8 @@ enum class commands {
     last_entry
 };
 
-using user_commands = perange<commands, commands::cmd_noop, commands::cmd_pattern_dummy_text>;
-using prefix_plus = perange<commands, commands::cmd_prefix_ast, commands::cmd_nosuch>;
+// Was: from commands::cmd_noop to commands::cmd_pattern_dummy_text inclusive.
+using user_commands = commands;
 
 enum class leadparam {
     none,   // no leading parameter
@@ -542,7 +541,7 @@ struct tpar_attribute {
 };
 
 struct cmd_attrib_rec {
-    penumset<leadparam> lp_allowed;
+    std::unordered_set<leadparam> lp_allowed;
     equalaction eq_action;
     tpcount_type tpcount;
     std::array<tpar_attribute, MAX_TPCOUNT> tpar_info;

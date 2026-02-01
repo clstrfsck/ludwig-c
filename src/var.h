@@ -61,7 +61,7 @@ extern code_ptr code_list;
 extern prange<0, MAX_CODE> code_top;
 
 // VARIABLES USED IN INTERPRETING A COMMAND
-extern penumset<commands> prefixes;
+extern std::unordered_set<commands> prefixes;
 extern std::array<command_object, LOOKUP_SIZE> lookup;
 
 // Helper to convert key code to lookup array index

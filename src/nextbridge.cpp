@@ -31,7 +31,7 @@
 
 namespace {
     using chset_range = prange<0, ORD_MAXCHAR>;
-    using chset = prangeset<chset_range>;
+    using chset = std::unordered_set<chset_range>;
 }; // namespace
 
 bool nextbridge_command(int count, const tpar_object &tpar, bool bridge) {
@@ -49,12 +49,18 @@ bool nextbridge_command(int count, const tpar_object &tpar, bool bridge) {
                 i += 3;
             }
         }
-        chars.add_range(ch1, ch2);
+        for (auto ch = ch1; ch <= ch2; ++ch) {
+            chars.insert(ch);
+        }
     }
     if (bridge) {
         chset old(chars);
-        chars.add_range(0, ORD_MAXCHAR);
-        chars.remove(old);
+        for (chset_range ch = 0; ch <= ORD_MAXCHAR; ++ch) {
+            chars.insert(ch);
+        }
+        for (const auto& elem : old) {
+            chars.erase(elem);
+        }
     }
     // Search for a character in the set.
     // with current_frame^ do

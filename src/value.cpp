@@ -69,8 +69,33 @@ void setup_initial_values() {
     // set up sets for prefixes
 
     // NOTE - this matches prefixcommands
-    prefixes.clear();
-    prefixes.add_range(commands::cmd_prefix_ast, commands::cmd_prefix_tilde);
+    prefixes = {
+        commands::cmd_prefix_ast, // prefix commands
+        commands::cmd_prefix_a,
+        commands::cmd_prefix_b,
+        commands::cmd_prefix_c,
+        commands::cmd_prefix_d,
+        commands::cmd_prefix_e,
+        commands::cmd_prefix_eo,
+        commands::cmd_prefix_eq,
+        commands::cmd_prefix_f,
+        commands::cmd_prefix_fg, // global files
+        commands::cmd_prefix_i,
+        commands::cmd_prefix_k,
+        commands::cmd_prefix_l,
+        commands::cmd_prefix_o,
+        commands::cmd_prefix_p,
+        commands::cmd_prefix_s,
+        commands::cmd_prefix_t,
+        commands::cmd_prefix_tc,
+        commands::cmd_prefix_tf,
+        commands::cmd_prefix_u,
+        commands::cmd_prefix_w,
+        commands::cmd_prefix_x,
+        commands::cmd_prefix_y,
+        commands::cmd_prefix_z,
+        commands::cmd_prefix_tilde
+    };
 
     dflt_prompts[prompt_type::no_prompt] = "        ";
     dflt_prompts[prompt_type::char_prompt] = "Charset:";
@@ -120,7 +145,7 @@ void init_cmd(
 ) {
     cmd_attrib_rec *p = &cmd_attrib[cmd];
     p->lp_allowed.clear();
-    p->lp_allowed.add(lps);
+    p->lp_allowed.insert(lps);
     p->eq_action = eqa;
     p->tpcount = tpc;
     tpar_attribute *t1 = &p->tpar_info[0];

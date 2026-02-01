@@ -131,17 +131,17 @@ bool start_up(int argc, char **argv) {
     current_frame = nullptr;
     frame_oops->space_limit = MAX_SPACE;     // Big !
     frame_oops->space_left = MAX_SPACE - 50; // Big ! - space for <eop> line !!
-    frame_oops->options.add(frame_options_elts::opt_special_frame);
+    frame_oops->options.insert(frame_options_elts::opt_special_frame);
     if (!frame_edit(frame_name_cmd))
         goto l99;
     frame_cmd = current_frame;
     current_frame = nullptr;
-    frame_cmd->options.add(frame_options_elts::opt_special_frame);
+    frame_cmd->options.insert(frame_options_elts::opt_special_frame);
     if (!frame_edit(frame_name_heap))
         goto l99;
     frame_heap = current_frame;
     current_frame = nullptr;
-    frame_heap->options.add(frame_options_elts::opt_special_frame);
+    frame_heap->options.insert(frame_options_elts::opt_special_frame);
     {
         if (!frame_edit(DEFAULT_FRAME_NAME))
             goto l99;

@@ -31,7 +31,7 @@
 #include "var.h"
 #include "vdu.h"
 
-const penumset<commands> ARROW_COMMANDS{
+const std::unordered_set<commands> ARROW_COMMANDS{
     commands::cmd_return,
     commands::cmd_home,
     commands::cmd_tab,

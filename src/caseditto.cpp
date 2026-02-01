@@ -70,14 +70,14 @@ bool caseditto_command(commands command, leadparam rept, int count, bool from_sp
         MAX_STRLEN,
         ' '
     );
-    penumset<commands> command_set;
+    std::unordered_set<commands> command_set;
     line_ptr other_line;
     switch (command) {
     case commands::cmd_case_up:
     case commands::cmd_case_low:
     case commands::cmd_case_edit:
         {
-            command_set.add(
+            command_set.insert(
                 {commands::cmd_case_up, commands::cmd_case_low, commands::cmd_case_edit}
             );
             other_line = current_frame->dot->line;
@@ -91,7 +91,7 @@ bool caseditto_command(commands command, leadparam rept, int count, bool from_sp
                 screen_message(MSG_NOT_ALLOWED_IN_INSERT_MODE);
                 return false;
             }
-            command_set.add({commands::cmd_ditto_up, commands::cmd_ditto_down});
+            command_set.insert({commands::cmd_ditto_up, commands::cmd_ditto_down});
         }
         break;
     default:

@@ -34,7 +34,7 @@
 #include "vdu.h"
 
 namespace {
-    const penumset<commands> INTERP_CMDS(
+    const std::unordered_set<commands> INTERP_CMDS(
         {commands::cmd_pcjump,
          commands::cmd_exitto,
          commands::cmd_failto,
@@ -47,11 +47,18 @@ namespace {
          commands::cmd_noop}
     );
 
-    const accept_set_type &punct() {
-        // Here to ensure initialised after PRINTABLE_SET et al
-        static const accept_set_type PUNCT =
-            accept_set_type(PRINTABLE_SET).remove(ALPHA_SET).remove(NUMERIC_SET).remove(SPACE_SET);
-        return PUNCT;
+    constexpr bool is_punct(key_code_range ch) {
+        if (ch < 0 || ch > ORD_MAXCHAR) {
+            return false;
+        }
+        return std::ispunct(static_cast<unsigned char>(ch));
+    }
+
+    constexpr bool is_lower(key_code_range ch) {
+        if (ch < 0 || ch > ORD_MAXCHAR) {
+            return false;
+        }
+        return std::islower(static_cast<unsigned char>(ch));
     }
 
     struct parse_state {
@@ -387,8 +394,7 @@ bool scan_trailing_param(parse_state &ps, commands command, leadparam repsym, tp
         if (!nextkey(ps))
             return false;
         key_code_range pardelim = ps.key;
-        if (ps.key < accept_set_type::element_type::min() ||
-            ps.key > accept_set_type::element_type::max() || !punct().contains(pardelim.value())) {
+        if (!is_punct(pardelim)) {
             error(ps, "Illegal parameter delimiter");
             return false;
         }
@@ -573,8 +579,7 @@ bool scan_command(parse_state &ps, bool full_scan) {
     leadparam repsym;
     if (!scan_leading_param(ps, repsym, repcount))
         return false;
-    if (ps.key >= accept_set_type::element_type::min() &&
-        ps.key <= accept_set_type::element_type::max() && LOWER_SET.contains(ps.key.value()))
+    if (is_lower(ps.key))
         ps.key = std::toupper(ps.key);
     commands command = lookup_at(ps.key).command;
     while (prefixes.contains(command)) {

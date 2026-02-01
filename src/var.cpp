@@ -55,7 +55,7 @@ code_ptr code_list;
 prange<0, MAX_CODE> code_top;
 
 // VARIABLES USED IN INTERPRETING A COMMAND
-penumset<commands> prefixes;
+std::unordered_set<commands> prefixes;
 std::array<command_object, LOOKUP_SIZE> lookup;
 std::array<lookupexp_type, EXPAND_LIM> lookupexp;
 std::unordered_map<commands, std::pair<int, int>> lookupexp_ptr;
