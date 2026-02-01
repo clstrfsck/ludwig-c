@@ -44,9 +44,9 @@ bool current_word(mark_ptr dot) {
     // But were we in the blank line before a paragraph?
     if (dot->col == 0)
         return false;
-    while ((dot->col > 1) && word_elements[0].contains(dot->line->str->operator[](dot->col)))
+    while ((dot->col > 1) && word_elements[0].test(dot->line->str->operator[](dot->col)))
         dot->col -= 1;
-    if (word_elements[0].contains(dot->line->str->operator[](dot->col))) {
+    if (word_elements[0].test(dot->line->str->operator[](dot->col))) {
         // we must have been somewhere on the line before the first word
         if (dot->line->blink == nullptr) // oops top of the frame reached
             return false;
@@ -57,12 +57,12 @@ bool current_word(mark_ptr dot) {
     }
     // ASSERT: we now have dot sitting on part of a word
     word_set_range element = 0;
-    while (!word_elements[element].contains(dot->line->str->operator[](dot->col)))
+    while (!word_elements[element].test(dot->line->str->operator[](dot->col)))
         element += 1;
     // Now find the start of this word
-    while ((dot->col > 1) && word_elements[element].contains(dot->line->str->operator[](dot->col)))
+    while ((dot->col > 1) && word_elements[element].test(dot->line->str->operator[](dot->col)))
         dot->col -= 1;
-    if (!word_elements[element].contains(dot->line->str->operator[](dot->col)))
+    if (!word_elements[element].test(dot->line->str->operator[](dot->col)))
         dot->col += 1;
     return true;
 }
@@ -77,12 +77,12 @@ bool next_word(mark_ptr dot) {
         dot->col = dot->line->used;
     }
     word_set_range element = 0;
-    while (!word_elements[element].contains(dot->line->str->operator[](dot->col)))
+    while (!word_elements[element].test(dot->line->str->operator[](dot->col)))
         element += 1;
     while ((dot->col < dot->line->used) &&
-           word_elements[element].contains(dot->line->str->operator[](dot->col)))
+           word_elements[element].test(dot->line->str->operator[](dot->col)))
         dot->col += 1;
-    if (word_elements[element].contains(dot->line->str->operator[](dot->col))) {
+    if (word_elements[element].test(dot->line->str->operator[](dot->col))) {
         if (dot->line->flink == nullptr) // no more lines
             return false;
         if (dot->line->flink->used == 0) // end of paragraph
@@ -90,7 +90,7 @@ bool next_word(mark_ptr dot) {
         if (!mark_create(dot->line->flink, 1, dot))
             return false;
     }
-    while (word_elements[0].contains(dot->line->str->operator[](dot->col)))
+    while (word_elements[0].test(dot->line->str->operator[](dot->col)))
         dot->col += 1;
     return true;
 }
@@ -98,11 +98,11 @@ bool next_word(mark_ptr dot) {
 bool previous_word(mark_ptr dot) {
     // with dot^ do
     word_set_range element = 0;
-    while (!word_elements[element].contains(dot->line->str->operator[](dot->col)))
+    while (!word_elements[element].test(dot->line->str->operator[](dot->col)))
         element += 1;
-    while ((dot->col > 1) && word_elements[element].contains(dot->line->str->operator[](dot->col)))
+    while ((dot->col > 1) && word_elements[element].test(dot->line->str->operator[](dot->col)))
         dot->col -= 1;
-    if (word_elements[element].contains(dot->line->str->operator[](dot->col))) {
+    if (word_elements[element].test(dot->line->str->operator[](dot->col))) {
         if (dot->line->blink == nullptr) // no more lines
             return false;
         if (dot->line->blink->used == 0) // top of paragraph
@@ -292,9 +292,9 @@ bool current_paragraph(mark_ptr dot) {
     col_range pos;
     if (dot->col < dot->line->used) {
         pos = dot->col;
-        while ((pos > 1) && word_elements[0].contains(new_line->str->operator[](pos)))
+        while ((pos > 1) && word_elements[0].test(new_line->str->operator[](pos)))
             pos -= 1;
-        if (word_elements[0].contains(new_line->str->operator[](pos))) {
+        if (word_elements[0].test(new_line->str->operator[](pos))) {
             if (new_line->blink == nullptr)
                 return false;
             else
@@ -310,7 +310,7 @@ bool current_paragraph(mark_ptr dot) {
     if (new_line->used == 0)
         new_line = new_line->flink; // Oops too far!
     pos = 1;
-    while (word_elements[0].contains(new_line->str->operator[](pos)))
+    while (word_elements[0].test(new_line->str->operator[](pos)))
         pos += 1;
     if (!mark_create(new_line, pos, dot))
         return false;
@@ -322,12 +322,12 @@ bool next_paragraph(mark_ptr dot) {
     col_range pos;
     if (dot->col < dot->line->used) {
         pos = dot->col;
-        while ((pos > 1) && word_elements[0].contains(new_line->str->operator[](pos)))
+        while ((pos > 1) && word_elements[0].test(new_line->str->operator[](pos)))
             pos -= 1;
-        if (word_elements[0].contains(new_line->str->operator[](pos))) {
+        if (word_elements[0].test(new_line->str->operator[](pos))) {
             if (new_line->blink == nullptr) {
                 dot->col = 1;
-                while (word_elements[0].contains(new_line->str->operator[](dot->col)))
+                while (word_elements[0].test(new_line->str->operator[](dot->col)))
                     dot->col += 1;
                 return true;
             } else {
@@ -344,7 +344,7 @@ bool next_paragraph(mark_ptr dot) {
     if (new_line->used == 0)
         return false;
     pos = 1;
-    while (word_elements[0].contains(new_line->str->operator[](pos)))
+    while (word_elements[0].test(new_line->str->operator[](pos)))
         pos += 1;
     if (!mark_create(new_line, pos, dot))
         return false;
@@ -424,7 +424,7 @@ bool newword_advance_paragraph(leadparam rept, int count) {
             while (new_line->used == 0)
                 new_line = new_line->flink;
             col_range pos = 1;
-            while (word_elements[0].contains(new_line->str->operator[](pos)))
+            while (word_elements[0].test(new_line->str->operator[](pos)))
                 pos += 1;
             if (!mark_create(new_line, pos, current_frame->dot))
                 goto l98;

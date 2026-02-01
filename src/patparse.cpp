@@ -35,107 +35,134 @@ namespace {
     struct local_exception {};
     struct other_exception {};
 
-    const accept_set_type QUOTED({TPD_LIT, TPD_EXACT});
-    const accept_set_type DELIMITED(
-        {PATTERN_KSTAR,
-         '0',
-         '1',
-         '2',
-         '3',
-         '4',
-         '5',
-         '6',
-         '7',
-         '8',
-         '9',
-         PATTERN_LRANGE_DELIM,
-         PATTERN_PLUS}
-    );
-    const accept_set_type
-        CHARSETS({'s', 'S', 'a', 'A', 'c', 'C', 'l', 'L', 'u', 'U', 'n', 'N', 'p', 'P'});
-    const accept_set_type POSITIONALS({'<', '>', '{', '}', '^'});
-    const accept_set_type CH_AND_POS = CHARSETS.set_union(POSITIONALS);
-    const accept_set_type SYNTAX(
-        {TPD_SPAN,
-         TPD_PROMPT,
-         TPD_EXACT,
-         TPD_LIT, // strings
-         PATTERN_LPAREN,
-         PATTERN_LRANGE_DELIM,
-         PATTERN_KSTAR,
-         PATTERN_PLUS,
-         PATTERN_NEGATE,
-         PATTERN_MARK,
-         PATTERN_EQUALS,
-         PATTERN_MODIFIED,
-         '0',
-         '1',
-         '2',
-         '3',
-         '4',
-         '5',
-         '6',
-         '7',
-         '8',
-         '9',
-         PATTERN_DEFINE_SET_U,
-         PATTERN_DEFINE_SET_L,
-         'a',
-         'b',
-         'c',
-         'e',
-         'f',
-         'g',
-         'h',
-         'i',
-         'j',
-         'k',
-         'l',
-         'm',
-         'n',
-         'o',
-         'p',
-         'q',
-         'r',
-         's',
-         't',
-         'u',
-         'v',
-         'w',
-         'x',
-         'y',
-         'z',
-         'A',
-         'B',
-         'C',
-         'E',
-         'F',
-         'G',
-         'H',
-         'I',
-         'J',
-         'K',
-         'L',
-         'M',
-         'N',
-         'O',
-         'P',
-         'Q',
-         'R',
-         'S',
-         'T',
-         'U',
-         'V',
-         'W',
-         'X',
-         'Y',
-         'Z',
-         '{',
-         '}',
-         '<',
-         '>',
-         '^'}
-    );
+    constexpr accept_set_type make_set(const std::initializer_list<int> &bits) {
+        accept_set_type bs;
+        for (auto bit : bits) {
+            bs.set(static_cast<size_t>(bit));
+        }
+        return bs;
+    }
+
+    constexpr accept_set_type make_set(int start, int endInclusive) {
+        accept_set_type bs;
+        for (auto bit = start; bit <= endInclusive; ++bit) {
+            bs.set(static_cast<size_t>(bit));
+        }
+        return bs;
+    }
+
+    constexpr accept_set_type make_set(int bit) {
+        return make_set(bit, bit);
+    }
+
+    constexpr void add_range(accept_set_type &bs, int start, int endInclusive) {
+        for (auto bit = start; bit <= endInclusive; ++bit) {
+            bs.set(static_cast<size_t>(bit));
+        }
+    }
+
+    const accept_set_type QUOTED = make_set({TPD_LIT, TPD_EXACT});
+    const accept_set_type DELIMITED = make_set({
+        PATTERN_KSTAR,
+        '0',
+        '1',
+        '2',
+        '3',
+        '4',
+        '5',
+        '6',
+        '7',
+        '8',
+        '9',
+        PATTERN_LRANGE_DELIM,
+        PATTERN_PLUS
+    });
+    const accept_set_type CHARSETS = make_set({
+        's', 'S', 'a', 'A', 'c', 'C', 'l', 'L', 'u', 'U', 'n', 'N', 'p', 'P'
+    });
+    const accept_set_type POSITIONALS = make_set({'<', '>', '{', '}', '^'});
+    const accept_set_type CH_AND_POS = CHARSETS | POSITIONALS;
+    const accept_set_type SYNTAX = make_set({
+        TPD_SPAN,
+        TPD_PROMPT,
+        TPD_EXACT,
+        TPD_LIT, // strings
+        PATTERN_LPAREN,
+        PATTERN_LRANGE_DELIM,
+        PATTERN_KSTAR,
+        PATTERN_PLUS,
+        PATTERN_NEGATE,
+        PATTERN_MARK,
+        PATTERN_EQUALS,
+        PATTERN_MODIFIED,
+        '0',
+        '1',
+        '2',
+        '3',
+        '4',
+        '5',
+        '6',
+        '7',
+        '8',
+        '9',
+        PATTERN_DEFINE_SET_U,
+        PATTERN_DEFINE_SET_L,
+        'a',
+        'b',
+        'c',
+        'e',
+        'f',
+        'g',
+        'h',
+        'i',
+        'j',
+        'k',
+        'l',
+        'm',
+        'n',
+        'o',
+        'p',
+        'q',
+        'r',
+        's',
+        't',
+        'u',
+        'v',
+        'w',
+        'x',
+        'y',
+        'z',
+        'A',
+        'B',
+        'C',
+        'E',
+        'F',
+        'G',
+        'H',
+        'I',
+        'J',
+        'K',
+        'L',
+        'M',
+        'N',
+        'O',
+        'P',
+        'Q',
+        'R',
+        'S',
+        'T',
+        'U',
+        'V',
+        'W',
+        'X',
+        'Y',
+        'Z',
+        '{',
+        '}',
+        '<',
+        '>',
+        '^'
+    });
 }; // namespace
 
 bool pattern_parser(
@@ -455,7 +482,7 @@ bool pattern_parser(
                     while ((pat_ch != PATTERN_COMMA && pat_ch != PATTERN_RPAREN &&
                             pat_ch != PATTERN_BAR) &&
                            !end_of_input) {
-                        if (!SYNTAX.contains(pat_ch)) {
+                        if (!SYNTAX.test(pat_ch)) {
                             // pat_ch not in syntax
                             screen_message(MSG_PAT_ILLEGAL_SYMBOL);
                             throw local_exception();
@@ -489,7 +516,7 @@ bool pattern_parser(
                                 }
 
                                 // get the dereferenced span or whatever else it is
-                                if (QUOTED.contains(deref_span.dlm)) {
+                                if (QUOTED.test(deref_span.dlm)) {
                                     // with deref_span do
                                     //  H A C K !!!!!!!!!
                                     deref_span.str.insert(1, 1); // Tpar_get strips off the quotes
@@ -598,7 +625,7 @@ bool pattern_parser(
                         case '^':
                             // get the parameter if any
                             leading_param = parameter_type::null_param;
-                            if (DELIMITED.contains(pat_ch)) {
+                            if (DELIMITED.test(pat_ch)) {
                                 pattern_range_delimgen(
                                     range_patch,
                                     range_start,
@@ -689,10 +716,8 @@ bool pattern_parser(
                                         while (pat_ch != TPD_EXACT) {
                                             // with nfa_table[current_state] do
                                             nfa_table[current_state].epsilon_out = false;
-                                            nfa_table[current_state].epf.accept_set =
-                                                accept_set_type(pat_ch);
-                                            nfa_table[current_state].epf.next_state =
-                                                pattern_new_nfa();
+                                            nfa_table[current_state].epf.accept_set = make_set(pat_ch);
+                                            nfa_table[current_state].epf.next_state = pattern_new_nfa();
                                             current_state = nfa_table[current_state].epf.next_state;
                                             if (!pattern_getch(parse_count, pat_ch, in_string)) {
                                                 screen_message(MSG_PAT_NO_MATCHING_DELIM);
@@ -706,15 +731,13 @@ bool pattern_parser(
                                             nfa_table[current_state].epsilon_out = false;
                                             if (pat_ch >= 'a' && pat_ch <= 'z')
                                                 nfa_table[current_state].epf.accept_set =
-                                                    accept_set_type({pat_ch, std::toupper(pat_ch)});
+                                                    make_set({pat_ch, std::toupper(pat_ch)});
                                             else if (pat_ch >= 'A' && pat_ch <= 'Z')
                                                 nfa_table[current_state].epf.accept_set =
-                                                    accept_set_type({pat_ch, std::tolower(pat_ch)});
+                                                    make_set({pat_ch, std::tolower(pat_ch)});
                                             else
-                                                nfa_table[current_state].epf.accept_set =
-                                                    accept_set_type(pat_ch);
-                                            nfa_table[current_state].epf.next_state =
-                                                pattern_new_nfa();
+                                                nfa_table[current_state].epf.accept_set = make_set(pat_ch);
+                                            nfa_table[current_state].epf.next_state = pattern_new_nfa();
                                             current_state = nfa_table[current_state].epf.next_state;
                                             if (!pattern_getch(parse_count, pat_ch, in_string)) {
                                                 screen_message(MSG_PAT_NO_MATCHING_DELIM);
@@ -748,8 +771,7 @@ bool pattern_parser(
                                     }
                                     // with nfa_table[current_state] do
                                     nfa_table[current_state].epsilon_out = false;
-                                    nfa_table[current_state].epf.accept_set =
-                                        accept_set_type(auxi + PATTERN_MARKS_START);
+                                    nfa_table[current_state].epf.accept_set = make_set(auxi + PATTERN_MARKS_START);
                                     nfa_table[current_state].epf.next_state = pattern_new_nfa();
                                     current_state = nfa_table[current_state].epf.next_state;
                                 } else {
@@ -762,11 +784,9 @@ bool pattern_parser(
                                 // with nfa_table[current_state] do
                                 nfa_table[current_state].epsilon_out = false;
                                 if (pat_ch == PATTERN_EQUALS)
-                                    nfa_table[current_state].epf.accept_set =
-                                        accept_set_type(PATTERN_MARKS_EQUALS);
+                                    nfa_table[current_state].epf.accept_set = make_set(PATTERN_MARKS_EQUALS);
                                 else
-                                    nfa_table[current_state].epf.accept_set =
-                                        accept_set_type(PATTERN_MARKS_MODIFIED);
+                                    nfa_table[current_state].epf.accept_set = make_set(PATTERN_MARKS_MODIFIED);
                                 nfa_table[current_state].epf.next_state = pattern_new_nfa();
                                 current_state = nfa_table[current_state].epf.next_state;
                                 break;
@@ -785,7 +805,7 @@ bool pattern_parser(
                                 if ((pat_ch == PATTERN_DEFINE_SET_U) ||
                                     (pat_ch == PATTERN_DEFINE_SET_L)) {
                                     // make a set
-                                    aux_set.clear();
+                                    aux_set.reset();
                                     if (!pattern_getch(parse_count, pat_ch, in_string)) {
                                         screen_message(MSG_PAT_PREMATURE_PATTERN_END);
                                         throw local_exception();
@@ -840,7 +860,7 @@ bool pattern_parser(
                                         }
                                         deref_span.len = aux;
                                     } // user defined set string
-                                    aux_set.clear();
+                                    aux_set.reset();
                                     // with deref_span do
                                     //  Form the character set.
                                     aux = 1;
@@ -855,7 +875,7 @@ bool pattern_parser(
                                                 aux = aux + 3;
                                             }
                                         }
-                                        aux_set.add_range(aux_ch_1, aux_ch_2);
+                                        add_range(aux_set, aux_ch_1, aux_ch_2);
                                     }
                                     // with pattern_definition do
                                     //  put set definition into Pattern_definition
@@ -867,49 +887,37 @@ bool pattern_parser(
                                     pattern_definition.strng[pattern_definition.length] =
                                         '\0'; // put in other delimiter
                                     if (negate)
-                                        aux_set =
-                                            accept_set_type(PATTERN_ALPHA_START, MAX_SET_RANGE)
-                                                .remove(aux_set);
+                                        aux_set = make_set(PATTERN_ALPHA_START, MAX_SET_RANGE) & (~aux_set);
                                     // with nfa_table[current_state] do
                                     nfa_table[current_state].epsilon_out = false;
                                     nfa_table[current_state].epf.accept_set = aux_set;
                                     nfa_table[current_state].epf.next_state = pattern_new_nfa();
                                     current_state = nfa_table[current_state].epf.next_state;
-                                } else if (CH_AND_POS.contains(pat_ch)) {
+                                } else if (CH_AND_POS.test(pat_ch)) {
                                     // with nfa_table[current_state] do
                                     nfa_table[current_state].epsilon_out = false;
-                                    if (POSITIONALS.contains(pat_ch)) {
+                                    if (POSITIONALS.test(pat_ch)) {
                                         // predefined positional sets
                                         if (negate) {
                                             screen_message(MSG_PAT_ILLEGAL_PARAMETER);
                                             throw local_exception();
                                         }
-                                        nfa_table[current_state].epf.accept_set.clear();
+                                        nfa_table[current_state].epf.accept_set.reset();
                                         switch (pat_ch) {
                                         case '<':
-                                            nfa_table[current_state].epf.accept_set.add(
-                                                PATTERN_BEG_LINE
-                                            );
+                                            nfa_table[current_state].epf.accept_set.set(PATTERN_BEG_LINE);
                                             break;
                                         case '>':
-                                            nfa_table[current_state].epf.accept_set.add(
-                                                PATTERN_END_LINE
-                                            );
+                                            nfa_table[current_state].epf.accept_set.set(PATTERN_END_LINE);
                                             break;
                                         case '{':
-                                            nfa_table[current_state].epf.accept_set.add(
-                                                PATTERN_LEFT_MARGIN
-                                            );
+                                            nfa_table[current_state].epf.accept_set.set(PATTERN_LEFT_MARGIN);
                                             break;
                                         case '}':
-                                            nfa_table[current_state].epf.accept_set.add(
-                                                PATTERN_RIGHT_MARGIN
-                                            );
+                                            nfa_table[current_state].epf.accept_set.set(PATTERN_RIGHT_MARGIN);
                                             break;
                                         case '^':
-                                            nfa_table[current_state].epf.accept_set.add(
-                                                PATTERN_DOT_COLUMN
-                                            );
+                                            nfa_table[current_state].epf.accept_set.set(PATTERN_DOT_COLUMN);
                                             break;
                                         }
                                     } else {
@@ -940,10 +948,8 @@ bool pattern_parser(
                                         }
                                         if (negate) {
                                             nfa_table[current_state].epf.accept_set =
-                                                accept_set_type(PATTERN_ALPHA_START, MAX_SET_RANGE)
-                                                    .remove(
-                                                        nfa_table[current_state].epf.accept_set
-                                                    );
+                                                make_set(PATTERN_ALPHA_START, MAX_SET_RANGE)
+                                                    & (~nfa_table[current_state].epf.accept_set);
                                         }
                                     }
                                     nfa_table[current_state].epf.next_state = pattern_new_nfa();

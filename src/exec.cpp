@@ -828,7 +828,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
             key = vdu_get_key();
             if (tt_controlc)
                 goto l99;
-            if (PRINTABLE_SET.contains(key)) {
+            if (PRINTABLE_SET.test(key)) {
                 i += 1;
                 new_str[i] = key;
             } else if (key == 13) {

@@ -353,7 +353,7 @@ bool find_enquiry(const std::string &name, str_object &result, strlen_range &res
                 result.fillcopy(SYSTEM_NAME.data(), SYSTEM_NAME.size(), 1, MAX_STRLEN, ' ');
                 reslen = result.length(' ');
             } else if (item == "COMMAND_INTRODUCER") {
-                if (!PRINTABLE_SET.contains(command_introducer.value())) {
+                if (!PRINTABLE_SET.test(command_introducer.value())) {
                     reslen = 0;
                     screen_message(MSG_NONPRINTABLE_INTRODUCER);
                 } else {

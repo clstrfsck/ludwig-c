@@ -32,9 +32,10 @@
 #include "vdu.h"
 
 bool key_in_set(key_code_range key, const accept_set_type &s) {
-    if (key < 0 || key > ORD_MAXCHAR)
+    if (key < 0 || key > ORD_MAXCHAR) {
         return false;
-    return s.contains(key.value());
+    }
+    return s.test(key.value());
 }
 
 bool charcmd_insert(commands cmd, leadparam rept, int count, bool from_span) {

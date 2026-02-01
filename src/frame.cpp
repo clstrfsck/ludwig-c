@@ -45,8 +45,7 @@ namespace {
 
     const accept_set_type npunct() {
         // Here to ensure initialisation after ALPHA_SET et al
-        static const accept_set_type NPUNCT =
-            accept_set_type(ALPHA_SET).add(NUMERIC_SET).add(SPACE_SET);
+        static const accept_set_type NPUNCT = ALPHA_SET | NUMERIC_SET | SPACE_SET;
         return NPUNCT;
     }
 } // namespace
@@ -472,7 +471,7 @@ bool setcmdintr(const tpar_object &request, int &pos) {
         }
         key_code_range key_code;
         if (i == 1) {
-            if (!npunct().contains(key_name[1])) {
+            if (!npunct().test(key_name[0])) {
                 command_introducer = key_name[0];
                 vdu_new_introducer(command_introducer);
                 return true;
@@ -480,7 +479,7 @@ bool setcmdintr(const tpar_object &request, int &pos) {
                 screen_message(MSG_INVALID_CMD_INTRODUCER);
             }
         } else if (user_key_name_to_code(key_name, key_code)) {
-            if (key_introducers.contains(key_code)) {
+            if (key_introducers.test(key_code)) {
                 screen_message(MSG_INVALID_CMD_INTRODUCER);
             } else {
                 command_introducer = key_code;

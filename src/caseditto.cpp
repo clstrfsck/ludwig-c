@@ -45,9 +45,10 @@ char char_tolower(char ch) {
 }
 
 bool key_is_lower(key_code_range key) {
-    if (key < 0)
+    if (key < 0 || key > ORD_MAXCHAR) {
         return false;
-    return LOWER_SET.contains(key.value());
+    }
+    return LOWER_SET.test(key.value());
 }
 
 bool caseditto_command(commands command, leadparam rept, int count, bool from_span) {

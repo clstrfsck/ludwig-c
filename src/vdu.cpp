@@ -468,7 +468,7 @@ void vdu_keyboard_init(
     key_name_list[NUM_CONTROL_CHARS + 154].key_name = "WINDOW-RESIZE-EVENT";
     key_name_list[NUM_CONTROL_CHARS + 155].key_name = "SOME-OTHER-EVENT";
 
-    key_introducers.clear();
+    key_introducers.reset();
 
     terminal_info.name = ::termname();
     terminal_info.width = ::COLS;

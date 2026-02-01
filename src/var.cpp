@@ -104,23 +104,39 @@ std::array<accept_set_type, MAX_WORD_SETS> word_elements;
 
 // Pattern matcher parser stuff
 
+constexpr accept_set_type make_accept_set(int start, int end) {
+    accept_set_type bs;
+    for (auto c = start; c <= end; ++c) {
+        bs.set(static_cast<size_t>(c));
+    }
+    return bs;
+}
+
+constexpr accept_set_type make_accept_set(const std::initializer_list<int> &chars) {
+    accept_set_type bs;
+    for (auto c : chars) {
+        bs.set(static_cast<size_t>(c));
+    }
+    return bs;
+}
+
 // ' '
 // the S (space) pattern specifier
-const accept_set_type SPACE_SET(' ');
+const accept_set_type SPACE_SET = make_accept_set({' '});
 // 'a'..'z'
 // the L (lowercase) pattern specifier
-const accept_set_type LOWER_SET('a', 'z');
+const accept_set_type LOWER_SET = make_accept_set('a', 'z');
 // 'A'..'Z'
 // the U (uppercase) pattern specifier
-const accept_set_type UPPER_SET('A', 'Z');
+const accept_set_type UPPER_SET = make_accept_set('A', 'Z');
 // the A (alphabetic) pattern specifier
-const accept_set_type ALPHA_SET(LOWER_SET.set_union(UPPER_SET));
+const accept_set_type ALPHA_SET = LOWER_SET | UPPER_SET;
 // '0'..'9'
 // the N (numeric) pattern specifier
-const accept_set_type NUMERIC_SET('0', '9');
+const accept_set_type NUMERIC_SET = make_accept_set('0', '9');
 // ' '..'~'
 // the C (printable char) pattern specifier
-const accept_set_type PRINTABLE_SET(32, 126);
+const accept_set_type PRINTABLE_SET = make_accept_set(32, 126);
 // '!','"','''','(',')',',','.',':',';','?','`'
 // the P (punctuation) pattern specifier
-const accept_set_type PUNCTUATION_SET({33, 34, 39, 40, 41, 44, 46, 58, 59, 63, 96});
+const accept_set_type PUNCTUATION_SET = make_accept_set({33, 34, 39, 40, 41, 44, 46, 58, 59, 63, 96});

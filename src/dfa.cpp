@@ -36,6 +36,27 @@ namespace {
     };
     using partition_ptr_type = accept_set_partition_type *;
     using const_partition_ptr_type = const accept_set_partition_type *;
+
+    template <size_t N>
+    void set_range(std::bitset<N> &s, size_t from, size_t to) {
+        for (auto n = from; n <= to; ++n) {
+            s.set(n);
+        }
+    }
+
+    nfa_set_type set_from_range(int from, int to) {
+        nfa_set_type result;
+        set_range(result, from, to);
+        return result;
+    }
+
+    template <size_t N>
+    std::bitset<N> set_difference(const std::bitset<N> &set1, const std::bitset<N> &set2) {
+        auto result = set1;
+        result &= ~set2;
+        return result;
+    }
+
 }; // namespace
 
 void closure_kill(nfa_attribute_type &closure) {
@@ -145,7 +166,7 @@ bool pattern_dfa_convert(
             if (stack_top < MAX_STACK_SIZE) {
                 stack_top += 1;
                 stack[stack_top] = state;
-                closure.equiv_set.add(state);
+                closure.equiv_set.set(state);
             } else {
                 screen_message(MSG_PAT_PATTERN_TOO_COMPLEX);
                 return false;
@@ -154,8 +175,8 @@ bool pattern_dfa_convert(
         };
 
         stack_top = 0;
-        closure.equiv_set.clear();
-        closure.generator_set.clear();
+        closure.equiv_set.reset();
+        closure.generator_set.reset();
         fail_equivalent = false;
         state_elt_ptr = state_set.equiv_list;
         while (state_elt_ptr != nullptr) {
@@ -174,12 +195,12 @@ bool pattern_dfa_convert(
                 fail_equivalent = true;
             if (nta.epsilon_out) {
                 if (nta.ept.first_out != PATTERN_NULL) {
-                    if (!closure.equiv_set.contains(nta.ept.first_out))
+                    if (!closure.equiv_set.test(nta.ept.first_out))
                         if (!push_stack(nta.ept.first_out))
                             return false;
                 }
                 if (nta.ept.second_out != PATTERN_NULL) {
-                    if (!closure.equiv_set.contains(nta.ept.second_out))
+                    if (!closure.equiv_set.test(nta.ept.second_out))
                         if (!push_stack(nta.ept.second_out))
                             return false;
                 }
@@ -207,14 +228,14 @@ bool pattern_dfa_convert(
         closure = transition_set.equiv_set;
         if (maxim) {
             aux_elt = MAX_NFA_STATE_RANGE; // the elt corr to M-C is always present
-            while (!closure.contains(aux_elt))
+            while (!closure.test(aux_elt))
                 aux_elt -= 1;
-            mask.set_range(0, aux_elt);
+            set_range(mask, 0, aux_elt);
         } else {
             aux_elt = PATTERN_NFA_START;
-            while (!closure.contains(aux_elt))
+            while (!closure.test(aux_elt))
                 aux_elt += 1;
-            mask.set_range(0, aux_elt - 1);
+            set_range(mask, 0, aux_elt - 1);
         }
         return true;
     };
@@ -228,7 +249,7 @@ bool pattern_dfa_convert(
             dts.nfa_attributes = equivalent_set; // gets equiv set and generator set
             dts.nfa_attributes.equiv_list = nullptr;
             for (nfa_state_range i = 0; i <= MAX_NFA_STATE_RANGE; ++i) { // build list
-                if (equivalent_set.equiv_set.contains(i)) {
+                if (equivalent_set.equiv_set.test(i)) {
                     state_elt_ptr_type aux_elt = new state_elt_object;
                     aux_elt->next_elt = dts.nfa_attributes.equiv_list;
                     aux_elt->state_elt = i;
@@ -346,7 +367,7 @@ bool pattern_dfa_convert(
     dfa_state_type &dtk(dfa_table_pointer->dfa_table[PATTERN_DFA_KILL]);
     dtk.transitions = nullptr;
     dtk.marked = true;
-    dtk.nfa_attributes.equiv_set.clear();
+    dtk.nfa_attributes.equiv_set.reset();
     dtk.pattern_start = false;
     dtk.left_transition = false;
     dtk.right_transition = false;
@@ -378,7 +399,7 @@ bool pattern_dfa_convert(
             dfa_table_pointer->definition.length = 0; // invalidate the table
             return false; // DFA_table will be disposed on next call to DFA
         }
-        kill_set.set_range(0, MAX_SET_RANGE);
+        kill_set.set();
         partition_ptr = nullptr;
         // with dfa_table[current_state] do
         dfa_state_type &dtc(dfa_table_pointer->dfa_table[current_state]);
@@ -393,7 +414,7 @@ bool pattern_dfa_convert(
                 // with partition_ptr^ do
                 //  build list of transitions with accept sets
                 partition_ptr->accept_set_partition = nta.epf.accept_set;
-                kill_set.remove(nta.epf.accept_set);             // update kill set
+                kill_set &= ~nta.epf.accept_set;                 // update kill set
                 partition_ptr->flink = aux_partition_ptr;        // link forward
                 partition_ptr->blink = nullptr;                  // top of list so no blink
                 if (partition_ptr->flink != nullptr)             // if there is a next one down
@@ -435,18 +456,15 @@ bool pattern_dfa_convert(
                         delete killer_ptr;
                     } else {
                         // form partition
-                        intersection_set =
-                            current_partition_ptr->accept_set_partition.set_intersection(
-                                aux_partition_ptr->accept_set_partition
-                            );
-                        if (!intersection_set.empty()) { // preeety worthless if []
+                        intersection_set = current_partition_ptr->accept_set_partition & aux_partition_ptr->accept_set_partition;
+                        if (!intersection_set.none()) { // preeety worthless if []
                             if (intersection_set == current_partition_ptr->accept_set_partition) {
                                 current_partition_ptr->nfa_transition_list.equiv_list =
                                     transition_list_append(
                                         current_partition_ptr->nfa_transition_list.equiv_list,
                                         aux_partition_ptr->nfa_transition_list.equiv_list
                                     );
-                                aux_partition_ptr->accept_set_partition.remove(intersection_set);
+                                aux_partition_ptr->accept_set_partition &= ~intersection_set;
                             } else if (intersection_set ==
                                        aux_partition_ptr->accept_set_partition) {
                                 aux_partition_ptr->nfa_transition_list.equiv_list =
@@ -454,9 +472,7 @@ bool pattern_dfa_convert(
                                         aux_partition_ptr->nfa_transition_list.equiv_list,
                                         current_partition_ptr->nfa_transition_list.equiv_list
                                     );
-                                current_partition_ptr->accept_set_partition.remove(
-                                    intersection_set
-                                );
+                                current_partition_ptr->accept_set_partition &= ~intersection_set;
                             } else {
                                 // need to do a full partition
                                 insert_partition = new accept_set_partition_type;
@@ -472,10 +488,8 @@ bool pattern_dfa_convert(
                                         current_partition_ptr->nfa_transition_list.equiv_list,
                                         aux_partition_ptr->nfa_transition_list.equiv_list
                                     );
-                                current_partition_ptr->accept_set_partition.remove(
-                                    intersection_set
-                                );
-                                aux_partition_ptr->accept_set_partition.remove(intersection_set);
+                                current_partition_ptr->accept_set_partition &= ~intersection_set;
+                                aux_partition_ptr->accept_set_partition &= ~intersection_set;
                             } // of full partition
                         }
                         aux_partition_ptr = aux_partition_ptr->flink;
@@ -517,7 +531,7 @@ bool pattern_dfa_convert(
 
     // find all final states
     for (aux_count = 0; aux_count <= states_used; ++aux_count) {
-        if (dfa_table_pointer->dfa_table[aux_count].nfa_attributes.equiv_set.contains(nfa_end))
+        if (dfa_table_pointer->dfa_table[aux_count].nfa_attributes.equiv_set.test(nfa_end))
             dfa_table_pointer->dfa_table[aux_count].final_accept = true;
     }
 
@@ -538,10 +552,8 @@ bool pattern_dfa_convert(
                    (kill_tran_ptr->accept_next_state != PATTERN_DFA_KILL)) {
                 kill_tran_ptr = kill_tran_ptr->next_transition;
                 if (kill_tran_ptr != nullptr) {
-                    aux_transition_set = incoming_tran_ptr->transition_accept_set.set_intersection(
-                        kill_tran_ptr->transition_accept_set
-                    );
-                    if (!aux_transition_set.empty()) {
+                    aux_transition_set = incoming_tran_ptr->transition_accept_set & kill_tran_ptr->transition_accept_set;
+                    if (!aux_transition_set.none()) {
                         aux_tran_ptr = new transition_object;
                         // with aux_tran_ptr^ do
                         aux_tran_ptr->transition_accept_set = aux_transition_set;
@@ -550,9 +562,7 @@ bool pattern_dfa_convert(
                         // and are the same as the transitions leading in to state
                         aux_tran_ptr->next_transition = nullptr;
                         aux_tran_ptr->start_flag = true;
-                        kill_tran_ptr->transition_accept_set.remove(
-                            aux_tran_ptr->transition_accept_set
-                        );
+                        kill_tran_ptr->transition_accept_set &= ~aux_tran_ptr->transition_accept_set;
                         kill_tran_ptr->next_transition = aux_tran_ptr;
                     }
                 }
@@ -567,11 +577,10 @@ bool pattern_dfa_convert(
     for (aux_count = PATTERN_DFA_START; aux_count <= states_used; ++aux_count) {
         // with dfa_table[aux_count],nfa_attributes do
         dfa_state_type &dtac(dfa_table_pointer->dfa_table[aux_count]);
-        if (dtac.nfa_attributes.equiv_set.contains(middle_context_start) &&
-            dtac.nfa_attributes.equiv_set.set_difference(mask).empty())
+        if (dtac.nfa_attributes.equiv_set.test(middle_context_start) &&
+            set_difference(dtac.nfa_attributes.equiv_set, mask).none())
             dtac.left_transition = true;
-        aux_set =
-            closure_set.set_intersection(nfa_set_type(middle_context_start, right_context_start));
+        aux_set = closure_set & set_from_range(middle_context_start.value(), right_context_start.value());
         for (aux_count_2 = PATTERN_DFA_START; aux_count_2 <= states_used; ++aux_count_2) {
             if (dfa_table_pointer->dfa_table[aux_count_2].left_transition) {
                 // is a context start
@@ -599,9 +608,9 @@ bool pattern_dfa_convert(
                                 // and are within the scope of an indefinte repetition
                                 // but within the context under consideration
                                 if (nfa_table[aux_count].indefinite &&
-                                    aux_set.contains(aux_count) &&
+                                    aux_set.test(aux_count) &&
                                     dfa_table_pointer->dfa_table[state]
-                                        .nfa_attributes.equiv_set.contains(aux_count))
+                                        .nfa_attributes.equiv_set.test(aux_count))
                                     dfa_table_pointer->dfa_table[state].left_context_check = false;
                             }
                         }
@@ -618,8 +627,8 @@ bool pattern_dfa_convert(
     for (aux_count = 0; aux_count <= states_used; ++aux_count) {
         // with dfa_table[aux_count],nfa_attributes do
         dfa_state_type &dtac(dfa_table_pointer->dfa_table[aux_count]);
-        if (dtac.nfa_attributes.equiv_set.contains(right_context_start) &&
-            dtac.nfa_attributes.equiv_set.set_difference(mask).empty())
+        if (dtac.nfa_attributes.equiv_set.test(right_context_start) &&
+            set_difference(dtac.nfa_attributes.equiv_set, mask).none())
             dtac.right_transition = true;
     }
     //    if states_used = pattern_dfa_start then

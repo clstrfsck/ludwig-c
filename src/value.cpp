@@ -127,8 +127,7 @@ void setup_initial_values() {
     word_elements[0] = SPACE_SET;
     /* word_elements[1]  = ALPHA_SET + NUMERIC_SET; */
     /* word_elements[2]  = PRINTABLE_SET - (word_elements[0] + word_elements[1]); */
-    word_elements[1] = PRINTABLE_SET;
-    word_elements[1].remove(SPACE_SET);
+    word_elements[1] = PRINTABLE_SET & ~(SPACE_SET);
 }
 
 void init_cmd(

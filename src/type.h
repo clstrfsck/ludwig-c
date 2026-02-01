@@ -8,9 +8,9 @@
 #include "const.h"
 #include "parray.h"
 #include "prange.h"
-#include "prangeset.h"
 
 #include <array>
+#include <bitset>
 #include <list>
 #include <memory>
 #include <set>
@@ -91,8 +91,8 @@ enum class frame_options_elts {
 };
 using frame_options = std::unordered_set<frame_options_elts>;
 
-using nfa_set_type = prangeset<nfa_state_range>;
-using accept_set_type = prangeset<accept_set_range>;
+using nfa_set_type = std::bitset<MAX_NFA_STATE_RANGE + 1>;
+using accept_set_type = std::bitset<MAX_SET_RANGE + 1>;
 
 // Arrays
 using tab_array = std::array<bool, MAX_STRLENP + 1>;

@@ -1338,7 +1338,7 @@ verify_response screen_verify(const std::string_view &prompt) {
                     current_frame->dot->line->scr_row_nr
                 );
                 key = vdu_get_key();
-                if (LOWER_SET.contains(key.value())) {
+                if (LOWER_SET.test(key.value())) {
                     key = std::toupper(key.value());
                 }
                 if (key == 13)
@@ -1613,7 +1613,7 @@ std::string screen_help_prompt(const std::string_view &prompt) {
                         vdu_displaych(' ');
                         vdu_displaych(char(8));
                     }
-                } else if (PRINTABLE_SET.contains(int(key))) {
+                } else if (PRINTABLE_SET.test(int(key))) {
                     vdu_displaych(char(key));
                     reply.push_back(char(key));
                     terminated = (key == ' ') || (reply.size() == KEY_LEN);

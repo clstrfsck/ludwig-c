@@ -47,7 +47,7 @@ bool eqsgetrep_exactcase(tpar_object &target) {
     if (target.dlm != '"') {
         // only use non-exact if necessary
         for (int i = 1; i <= target.len; ++i) {
-            if (ALPHA_SET.contains(target.str[i]))
+            if (ALPHA_SET.test(target.str[i]))
                 target.str[i] = std::toupper(target.str[i]);
         }
         return false;

@@ -28,6 +28,12 @@
 
 namespace {
     const accept_set_type EMPTY_SET;
+
+    constexpr void add(accept_set_type& bs, const std::initializer_list<int> &bits) {
+        for (auto bit : bits) {
+            bs.set(static_cast<size_t>(bit));
+        }
+    }
 };
 
 void pattern_get_input_elt(
@@ -39,10 +45,10 @@ void pattern_get_input_elt(
     bool &mark_flag,
     bool &end_of_line
 ) {
-    input_set.clear();
+    input_set.reset();
     if (length == 0) {
         ch = PATTERN_SPACE; // not 100% corrrect but OK
-        input_set.add({PATTERN_BEG_LINE, PATTERN_END_LINE});
+        add(input_set, {PATTERN_BEG_LINE, PATTERN_END_LINE});
         mark_flag = true;
         end_of_line = true;
     } else {
@@ -50,24 +56,24 @@ void pattern_get_input_elt(
         if (!mark_flag) { // the last time through was not a mark so look for them this time
             // with current_frame^ do
             if (column == 1) {
-                input_set.add(PATTERN_BEG_LINE);
+                add(input_set, {PATTERN_BEG_LINE});
                 mark_found = true;
             }
             if (column > length) {
-                input_set.add(PATTERN_END_LINE);
+                add(input_set, {PATTERN_END_LINE});
                 end_of_line = true;
                 mark_found = true;
             }
             if (column == current_frame->margin_left) {
-                input_set.add(PATTERN_LEFT_MARGIN);
+                add(input_set, {PATTERN_LEFT_MARGIN});
                 mark_found = true;
             }
             if (column == current_frame->margin_right) {
-                input_set.add(PATTERN_RIGHT_MARGIN);
+                add(input_set, {PATTERN_RIGHT_MARGIN});
                 mark_found = true;
             }
             if (column == current_frame->dot->col) {
-                input_set.add(PATTERN_DOT_COLUMN);
+                add(input_set, {PATTERN_DOT_COLUMN});
                 mark_found = true;
             }
             if (!line->marks.empty()) { // if any marks on this line
@@ -76,7 +82,7 @@ void pattern_get_input_elt(
                     if (current_frame->marks[mark_no] != nullptr) {
                         if ((current_frame->marks[mark_no]->line == line) &&
                             (current_frame->marks[mark_no]->col == column)) {
-                            input_set.add(mark_no + PATTERN_MARKS_START);
+                            add(input_set, {mark_no + PATTERN_MARKS_START});
                             mark_found = true;
                         }
                     }
@@ -92,6 +98,8 @@ void pattern_get_input_elt(
             ch = (*line->str)[column];
             if (column <= length)
                 column += 1;
+        } else {
+            ch = 0; // not 100% corrrect but OK for debugging
         }
     }
 }
@@ -109,7 +117,7 @@ bool pattern_next_state(
     if (mark_flag) { // look for transitions on positionals only
         dfa_state_range aux_state;
         while ((transition_pointer != nullptr) && !found) {
-            if (!transition_pointer->transition_accept_set.set_intersection(input_set).empty()) {
+            if ((transition_pointer->transition_accept_set & input_set).any()) {
                 found = true;
                 if (transition_pointer->start_flag && !started)
                     aux_state = PATTERN_DFA_KILL;
@@ -126,7 +134,7 @@ bool pattern_next_state(
     } else {
         // look for transitions on characters
         while ((transition_pointer != nullptr) && !found) {
-            if (transition_pointer->transition_accept_set.contains(ch)) {
+            if (transition_pointer->transition_accept_set.test(ch)) {
                 found = true;
                 if (transition_pointer->start_flag && !started)
                     state = PATTERN_DFA_KILL;
