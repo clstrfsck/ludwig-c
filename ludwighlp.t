@@ -2666,30 +2666,30 @@
 {## LEADING PARAMETER: [none,   ,   ,    ,    ,   ,   ,   ] UP}
 {##!}
 {#elseif unix}
-{##\UP}
-{## UP      PARENT PROCESS}
-{## ==      ==============}
-{##}
-{##   This command suspends the process running Ludwig and transfers control}
-{## to the parent shell process.  The shell "fg" command can be used to}
-{## resume the suspended process.  This command is not allowed in}
-{## non-interactive mode.}
-{##}
-{##}
-{##}
-{##}
-{##}
-{##}
-{##}
-{##}
-{##}
-{##}
-{##}
-{##}
-{##}
-{##}
-{## LEADING PARAMETER: [none,   ,   ,    ,    ,   ,   ,   ] UP}
-{##!}
+\UP
+ UP      PARENT PROCESS
+ ==      ==============
+
+
+   This command suspends the process running Ludwig and transfers control
+ to the parent shell process.  The shell "fg" command can be used to
+ resume the suspended process.  This command is not allowed in
+ non-interactive mode.
+
+
+
+
+
+
+
+
+
+
+
+
+
+ LEADING PARAMETER: [none,   ,   ,    ,    ,   ,   ,   ] UP
+!
 {#endif}
 {#if vms}
 {##\US}
@@ -2717,30 +2717,30 @@
 {## LEADING PARAMETER: [none,   ,   ,    ,    ,   ,   ,   ] US}
 {##!}
 {#elseif unix}
-{##\US}
-{## US      SUBPROCESS}
-{## ==      ==========}
-{##}
-{##   This command creates a subprocess running the shell specificed by the}
-{## environment variable SHELL, or "/bin/sh" if the environment variable is}
-{## not defined.  The Ludwig process will be resumed when the shell process}
-{## terminates.  This command is not allowed in non-interactive mode.}
-{##}
-{##}
-{##}
-{##}
-{##}
-{##}
-{##}
-{##}
-{##}
-{##}
-{##}
-{##}
-{##}
-{##}
-{## LEADING PARAMETER: [none,   ,   ,    ,    ,   ,   ,   ] US}
-{##!}
+\US
+ US      SUBPROCESS
+ ==      ==========
+
+   This command creates a subprocess running the shell specificed by the
+ environment variable SHELL, or "/bin/sh" if the environment variable is
+ not defined.  The Ludwig process will be resumed when the shell process
+ terminates.  This command is not allowed in non-interactive mode.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ LEADING PARAMETER: [none,   ,   ,    ,    ,   ,   ,   ] US
+!
 {#endif}
 \V
  V       VERIFY
