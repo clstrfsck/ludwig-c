@@ -986,10 +986,10 @@ TEST_CASE("code_discard reference counting", "[code][discard][integration]") {
 
         // Record the code indices before deletion
         // span2 and span3 should have higher indices than span1
-        code_idx span1_idx = span1.code->code.value();
-        code_idx span2_idx = span2.code->code.value();
-        code_idx span3_idx = span3.code->code.value();
-        code_idx span1_len = span1.code->len;
+        code_idx span1_idx = span1.code->code;
+        code_idx span2_idx = span2.code->code;
+        code_idx span3_idx = span3.code->code;
+        code_len span1_len = span1.code->len;
 
         REQUIRE(span2_idx > span1_idx);
         REQUIRE(span3_idx > span2_idx);
@@ -1000,8 +1000,8 @@ TEST_CASE("code_discard reference counting", "[code][discard][integration]") {
         REQUIRE(span1.code == nullptr);
 
         // span2 and span3's code indices should be reduced by span1's length
-        REQUIRE(span2.code->code.value() == span2_idx - span1_len);
-        REQUIRE(span3.code->code.value() == span3_idx - span1_len);
+        REQUIRE(span2.code->code == span2_idx - span1_len);
+        REQUIRE(span3.code->code == span3_idx - span1_len);
 
         // The code should still work correctly after compaction
         g_execution_log.clear();

@@ -58,7 +58,7 @@ extern bool scr_needs_fix;        // Set when user is viewing a corrupt screen.
 // COMPILER VARIABLES.
 extern std::array<code_object, MAX_CODE> compiler_code;
 extern code_ptr code_list;
-extern prange<0, MAX_CODE> code_top;
+extern code_idx code_top;
 
 // VARIABLES USED IN INTERPRETING A COMMAND
 extern std::unordered_set<commands> prefixes;

@@ -60,9 +60,9 @@ enum class parse_type {
 
 // SUBRANGES.
 
-using code_idx = prange<0, MAX_CODE>;
+using code_idx = size_t;
+using code_len = size_t;
 using col_offset_range = prange<0, MAX_STRLEN>;
-using code_idx = prange<0, MAX_CODE>;
 using col_range = prange<1, MAX_STRLENP>;
 using col_width_range = prange<0, MAX_STRLENP>;
 using file_range = prange<0, MAX_FILES - 1>;
@@ -125,10 +125,10 @@ struct tpar_object {
 
 struct code_header {
     code_ptr flink;
-    code_ptr blink;           // Links into code_list
-    size_t ref;               // Reference count
-    prange<0, MAX_CODE - 1> code; // Pointer into code array (0-based)
-    prange<0, MAX_CODE> len;  // Length of segment
+    code_ptr blink;         // Links into code_list
+    size_t ref;             // Reference count
+    code_idx code;          // Pointer into code array (0-based)
+    code_len len;           // Length of segment
 };
 
 struct file_object {

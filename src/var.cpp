@@ -52,7 +52,7 @@ bool scr_needs_fix;        // Set when user is viewing a corrupt screen.
 // COMPILER VARIABLES.
 std::array<code_object, MAX_CODE> compiler_code;
 code_ptr code_list;
-prange<0, MAX_CODE> code_top;
+code_idx code_top;
 
 // VARIABLES USED IN INTERPRETING A COMMAND
 std::unordered_set<commands> prefixes;

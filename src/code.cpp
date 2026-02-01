@@ -89,7 +89,7 @@ void code_discard(code_ptr &code_head) {
     // with code_head^ do
     code_head->ref -= 1;
     if (code_head->ref == 0) {
-        code_idx start = code_head->code.value();
+        code_idx start = code_head->code;
         code_idx size = code_head->len;
 
         for (code_idx source = start; source < start + size; ++source) {
