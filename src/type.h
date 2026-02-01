@@ -96,7 +96,6 @@ using accept_set_type = std::bitset<MAX_SET_RANGE + 1>;
 
 // Arrays
 using tab_array = std::array<bool, MAX_STRLENP + 1>;
-using verify_array = parray<bool, prange<1, MAX_VERIFY>>;
 
 // Strings
 using file_name_str = std::string;

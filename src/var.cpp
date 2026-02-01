@@ -86,7 +86,6 @@ constexpr tab_array make_default_tab_stops() {
 }
 
 const str_object BLANK_STRING(' ');       // Blank chars only
-const verify_array INITIAL_VERIFY(false); //
 const tab_array DEFAULT_TAB_STOPS = make_default_tab_stops();
 
 // STRUCTURE POOLS

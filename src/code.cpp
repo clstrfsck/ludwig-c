@@ -34,18 +34,18 @@
 #include "vdu.h"
 
 namespace {
-    const std::unordered_set<commands> INTERP_CMDS(
-        {commands::cmd_pcjump,
-         commands::cmd_exitto,
-         commands::cmd_failto,
-         commands::cmd_iterate,
-         commands::cmd_exit_success,
-         commands::cmd_exit_fail,
-         commands::cmd_exit_abort,
-         commands::cmd_extended,
-         commands::cmd_verify,
-         commands::cmd_noop}
-    );
+    const std::unordered_set<commands> INTERP_CMDS({
+        commands::cmd_pcjump,
+        commands::cmd_exitto,
+        commands::cmd_failto,
+        commands::cmd_iterate,
+        commands::cmd_exit_success,
+        commands::cmd_exit_fail,
+        commands::cmd_exit_abort,
+        commands::cmd_extended,
+        commands::cmd_verify,
+        commands::cmd_noop
+    });
 
     constexpr bool is_punct(key_code_range ch) {
         if (ch < 0 || ch > ORD_MAXCHAR) {
@@ -77,6 +77,8 @@ namespace {
         int verify_count;
         bool from_span;
     };
+
+    using verify_array = std::bitset<MAX_VERIFY + 1>;
 } // namespace
 
 void code_discard(code_ptr &code_head) {
@@ -718,7 +720,7 @@ bool code_interpret_execute(
     if (rept == leadparam::pindef)
         count = -1;
     enum { success, failure, failforever } interp_status = success;
-    verify_array verify_always = INITIAL_VERIFY;
+    verify_array verify_always;
 
     while ((count != 0) && (interp_status == success)) {
         count -= 1;

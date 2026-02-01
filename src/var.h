@@ -97,7 +97,6 @@ extern frame_options initial_options;
 
 // USEFUL STUFF.
 extern const str_object BLANK_STRING;
-extern const verify_array INITIAL_VERIFY;
 extern const tab_array DEFAULT_TAB_STOPS;
 
 // STRUCTURE POOLS
