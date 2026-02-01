@@ -25,10 +25,11 @@ TEST_CASE("Basic constant values", "[const]") {
     }
 
     SECTION("Mark number ranges") {
-        REQUIRE(MIN_MARK_NUMBER == -1);
-        REQUIRE(MAX_MARK_NUMBER == 9);
+        REQUIRE(MIN_MARK_NUMBER == 0);
+        REQUIRE(MAX_USER_MARK_NUMBER == 9);
+        REQUIRE(MAX_MARK_NUMBER == 10);
         REQUIRE(MARK_EQUALS == 0);
-        REQUIRE(MARK_MODIFIED == -1);
+        REQUIRE(MARK_MODIFIED == 10);
     }
 }
 
@@ -141,12 +142,6 @@ TEST_CASE("Range types", "[const]") {
         using line_t = line_range;
         REQUIRE(line_t::min() == 0);
         REQUIRE(line_t::max() == MAX_LINES);
-    }
-
-    SECTION("mark_range has correct bounds") {
-        using mark_t = mark_range;
-        REQUIRE(mark_t::min() == MIN_MARK_NUMBER);
-        REQUIRE(mark_t::max() == MAX_MARK_NUMBER);
     }
 }
 

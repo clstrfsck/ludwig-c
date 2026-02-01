@@ -207,18 +207,18 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
     // with current_frame^,dot^ do
     //  Fix commands which use marks without using @ in the syntax.
     if (command == commands::cmd_mark) {
-        if ((count == 0) || (std::abs(count) > MAX_MARK_NUMBER)) {
+        if ((count == 0) || (std::abs(count) > MAX_USER_MARK_NUMBER)) {
             screen_message(MSG_ILLEGAL_MARK_NUMBER);
             goto l99;
         }
     } else if (command == commands::cmd_span_define) {
         if (rept == leadparam::none || rept == leadparam::pint) {
-            if ((count == 0) || (count > MAX_MARK_NUMBER)) {
+            if ((count == 0) || (count > MAX_USER_MARK_NUMBER)) {
                 screen_message(MSG_ILLEGAL_MARK_NUMBER);
                 goto l99;
             }
+            rept = leadparam::marker;
         }
-        rept = leadparam::marker;
     }
 
     // Check the mark, assign The_Mark to the mark.

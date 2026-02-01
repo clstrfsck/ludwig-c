@@ -765,7 +765,7 @@ bool pattern_parser(
                                 break;
                             case PATTERN_MARK:
                                 if (pattern_getnumb(parse_count, auxi, pat_ch, in_string)) {
-                                    if ((auxi == 0) || (auxi > MAX_MARK_NUMBER)) {
+                                    if ((auxi == 0) || (auxi > MAX_USER_MARK_NUMBER)) {
                                         screen_message(MSG_PAT_ILLEGAL_MARK_NUMBER);
                                         throw local_exception();
                                     }

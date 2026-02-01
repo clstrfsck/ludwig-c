@@ -28,12 +28,13 @@ const int MAX_GROUPLINEOFFSET = MAX_GROUPLINES - 1;
 // Max lines per frame
 const int MAX_LINES = MAXINT;
 
-const int MIN_MARK_NUMBER = -1;
+const int MIN_MARK_NUMBER = 0;
+const int MAX_MARK_NUMBER = 10;
 
 // Highest User Mark number
-const int MAX_MARK_NUMBER = 9;
+const int MAX_USER_MARK_NUMBER = 9;
 const int MARK_EQUALS = 0;
-const int MARK_MODIFIED = -1;
+const int MARK_MODIFIED = 10;
 
 //  Max chars allowed per frame
 const int MAX_SPACE = 1000000;
@@ -130,8 +131,8 @@ const int PATTERN_RIGHT_MARGIN = 4; // r.brace( right margin ) specifier
 const int PATTERN_DOT_COLUMN = 5;   // the ^  ( dots column)   specifier
 
 const int PATTERN_MARKS_START = 20;    // mark 1 = 21, 2 = 22, etc
-const int PATTERN_MARKS_MODIFIED = 19; // marks_start + mark_modified
-const int PATTERN_MARKS_EQUALS = 20;   // marks_start + mark_equals
+const int PATTERN_MARKS_MODIFIED = PATTERN_MARKS_START + MARK_MODIFIED;
+const int PATTERN_MARKS_EQUALS = PATTERN_MARKS_START + MARK_EQUALS;
 
 const int PATTERN_ALPHA_START = 32; // IE. ASCII
 

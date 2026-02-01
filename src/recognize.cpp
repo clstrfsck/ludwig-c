@@ -82,7 +82,7 @@ void pattern_get_input_elt(
                     if (current_frame->marks[mark_no] != nullptr) {
                         if ((current_frame->marks[mark_no]->line == line) &&
                             (current_frame->marks[mark_no]->col == column)) {
-                            add(input_set, {mark_no + PATTERN_MARKS_START});
+                            input_set.set(mark_no + PATTERN_MARKS_START);
                             mark_found = true;
                         }
                     }

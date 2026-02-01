@@ -352,7 +352,7 @@ bool scan_leading_param(parse_state &ps, leadparam &repsym, int &repcount) {
         repsym = leadparam::marker;
         if (!getcount(ps, repcount))
             return false;
-        if ((repcount <= 0) || (repcount > MAX_MARK_NUMBER)) {
+        if ((repcount <= 0) || (repcount > MAX_USER_MARK_NUMBER)) {
             error(ps, "Illegal mark number");
             return false;
         }

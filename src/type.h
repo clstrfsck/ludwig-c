@@ -60,8 +60,8 @@ enum class parse_type {
 
 // SUBRANGES.
 
-using code_idx = size_t;
-using code_len = size_t;
+using code_idx = unsigned int;
+using code_len = unsigned int;
 using col_offset_range = prange<0, MAX_STRLEN>;
 using col_range = prange<1, MAX_STRLENP>;
 using col_width_range = prange<0, MAX_STRLENP>;
@@ -70,7 +70,7 @@ using slot_range = prange<-1, MAX_FILES - 1>;
 using group_line_range = prange<0, MAX_GROUPLINES>;
 using line_offset_range = prange<0, MAX_GROUPLINEOFFSET>;
 using line_range = prange<0, MAX_LINES>;
-using mark_range = prange<MIN_MARK_NUMBER, MAX_MARK_NUMBER>;
+using mark_range = unsigned int;
 using space_range = prange<0, MAXINT>;
 using scr_col_range = prange<0, MAX_SCR_COLS>;
 using scr_row_range = prange<0, MAX_SCR_ROWS>;
@@ -183,7 +183,7 @@ struct mark_object {
 
     static size_t allocated_marks;
 };
-using mark_array = parray<mark_ptr, mark_range>;
+using mark_array = std::array<mark_ptr, MAX_MARK_NUMBER + 1>;
 
 struct frame_object {
     group_ptr first_group;
@@ -292,7 +292,7 @@ struct pattern_def_type {
 };
 
 struct dfa_table_object {
-    parray<dfa_state_type, dfa_state_range> dfa_table;
+    std::array<dfa_state_type, MAX_DFA_STATE_RANGE + 1> dfa_table;
     dfa_state_range dfa_states_used;
     pattern_def_type definition;
 };
@@ -586,7 +586,7 @@ struct nfa_transition_type {
     };
 };
 
-using nfa_table_type = parray<nfa_transition_type, nfa_state_range>;
+using nfa_table_type = std::array<nfa_transition_type, MAX_NFA_STATE_RANGE + 1>;
 
 enum class parameter_type { pattern_fail, pattern_range, null_param };
 
