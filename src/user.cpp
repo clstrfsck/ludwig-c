@@ -169,7 +169,7 @@ bool user_key(const tpar_object &key, const tpar_object &strng) {
     if (key.len == 1) {
         key_code = key.str[1];
     } else {
-        std::string key_name(key.str.data(), key.len);
+        std::string key_name = std::string(key.str.slice(1, key.len));
         if (!user_key_name_to_code(key_name, key_code)) {
             screen_message(MSG_UNRECOGNIZED_KEY_NAME);
             return false;

@@ -356,7 +356,8 @@ bool filesys_write(file_ptr fyle, str_ptr buffer, strlen_range bufsiz) {
             for (i = 1; i <= tabs; i++)
                 (*buffer)[offset + i] = '\t';
         }
-        int count = sys_write(fyle->fd, buffer->data() + offset, bufsiz - offset);
+        auto slice = buffer->slice(1 + offset, bufsiz - offset);
+        int count = sys_write(fyle->fd, slice.data(), slice.size());
         if (tabs) {
             for (int i = 1; i <= tabs; i++)
                 (*buffer)[offset + i] = ' ';

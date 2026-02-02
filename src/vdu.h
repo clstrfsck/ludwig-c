@@ -10,6 +10,7 @@ void vdu_flush();
 void vdu_beep();
 
 void vdu_displaych(char ch);
+void vdu_displaystr(std::string_view str, int opts);
 void vdu_displaystr(scr_col_range strlen, const char *str, int opts);
 
 void vdu_cleareol();

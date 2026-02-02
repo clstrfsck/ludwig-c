@@ -96,14 +96,6 @@ public:
         return m_array.end();
     }
 
-    const char *data(size_t index = MIN_INDEX) const {
-        return m_array.data() + adjust_index(index);
-    }
-
-    char *data(size_t index = MIN_INDEX) {
-        return m_array.data() + adjust_index(index);
-    }
-
     str_object &apply_n(const std::function<char(char)> &f, size_t n, size_t beg = MIN_INDEX) {
         if (n > 0) {
             check_index(beg, n - 1);
@@ -139,6 +131,17 @@ public:
         return *this;
     }
 
+    bool equals(const str_object &other, size_t n, size_t src_ofs = MIN_INDEX, size_t dst_ofs = MIN_INDEX) const {
+        if (n == 0) {
+            return true;
+        }
+        check_index(src_ofs, n - 1);
+        other.check_index(dst_ofs, n - 1);
+        auto beg = m_array.begin() + adjust_index(src_ofs);
+        auto bego = other.m_array.begin() + other.adjust_index(dst_ofs);
+        return std::equal(beg, beg + n, bego);
+    }
+
     str_object &erase(size_t n, size_t from) {
         if (n > 0) {
             check_index(from, n - 1);
@@ -171,7 +174,8 @@ public:
     }
 
     str_object &fillcopy(
-        const char *src,
+        const str_object &src,
+        size_t src_index,
         size_t src_len,
         size_t dst_index,
         size_t dst_len,
@@ -182,7 +186,33 @@ public:
             size_t len = std::min(src_len, dst_len);
             size_t dst = adjust_index(dst_index);
             if (len != 0) {
-                std::copy(src, src + len, m_array.begin() + dst);
+                auto src_beg = src.m_array.begin() + src.adjust_index(src_index);
+                auto src_end = src_beg + len;
+                std::copy(src_beg, src_end, m_array.begin() + dst);
+            }
+            if (dst_len > len) {
+                auto db = m_array.begin() + dst + len;
+                auto de = db + dst_len - len;
+                std::fill(db, de, value);
+            }
+        }
+        return *this;
+    }
+
+    str_object &fillcopy(
+        std::string_view src,
+        size_t dst_index,
+        size_t dst_len,
+        char value
+    ) {
+        if (dst_len > 0) {
+            check_index(dst_index, dst_len - 1);
+            size_t len = std::min(src.size(), dst_len);
+            size_t dst = adjust_index(dst_index);
+            if (len != 0) {
+                auto src_beg = src.begin();
+                auto src_end = src_beg + len;
+                std::copy(src_beg, src_end, m_array.begin() + dst);
             }
             if (dst_len > len) {
                 auto db = m_array.begin() + dst + len;
@@ -212,6 +242,11 @@ public:
         auto it = std::find_if(rbeg, rend, [value](char c) { return c != value; });
 
         return it.base() - m_array.begin();
+    }
+
+    std::string_view slice(size_t index, size_t length) const {
+        check_index(index, length - 1);
+        return std::string_view(m_array.data() + adjust_index(index), length);
     }
 
 private:

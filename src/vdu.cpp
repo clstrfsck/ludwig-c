@@ -108,6 +108,10 @@ void vdu_cleareol() {
     vdu_flush();
 }
 
+void vdu_displaystr(std::string_view str, int opts) {
+    vdu_displaystr(static_cast<scr_col_range>(str.size()), str.data(), opts);
+}
+
 void vdu_displaystr(scr_col_range strlen, const char *str, int opts) {
     int slen = int(strlen);
     int maxlen = ::COLS - getcurx(stdscr);

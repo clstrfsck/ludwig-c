@@ -165,7 +165,7 @@ bool tpar_substitute(tpar_object &tpar, user_commands cmd, tpcount_type this_tp)
         return false;
     }
     // Get the Span name
-    std::string name(tpar.str.data(), tpar.len);
+    std::string name(tpar.str.slice(1, tpar.len));
     // and Up Case it
     std::transform(name.begin(), name.end(), name.begin(), ch_toupper);
     span_ptr span;
@@ -184,7 +184,7 @@ bool tpar_substitute(tpar_object &tpar, user_commands cmd, tpcount_type this_tp)
             else
                 srclen = tpar.len;
             // with start_mark do
-            tpar.str.fillcopy(start_mark.line->str->data(start_mark.col), srclen, 1, tpar.len, ' ');
+            tpar.str.fillcopy(*start_mark.line->str, start_mark.col, srclen, 1, tpar.len, ' ');
         } else if (!cmd_attrib.at(cmd).tpar_info[this_tp].ml_allowed) {
             screen_message(MSG_SPAN_MUST_BE_ONE_LINE);
             return false;
@@ -226,7 +226,7 @@ bool tpar_substitute(tpar_object &tpar, user_commands cmd, tpcount_type this_tp)
             tmp_tp->nxt = nullptr;
             tmp_tp->con = nullptr;
             tmp_tp->len = end_mark.col - 1;
-            tmp_tp->str.fillcopy(end_mark.line->str->data(), end_mark.line->used, 1, tpar.len, ' ');
+            tmp_tp->str.fillcopy(*end_mark.line->str, 1, end_mark.line->used, 1, tpar.len, ' ');
         }
     } else {
         screen_message(MSG_NO_SUCH_SPAN);
@@ -268,20 +268,20 @@ bool find_enquiry(const std::string &name, str_object &result, strlen_range &res
             enquiry_result = true;
             if (item == "NAME") {
                 reslen = terminal_info.name.size();
-                result.fillcopy(terminal_info.name.data(), reslen, 1, MAX_STRLEN, ' ');
+                result.fillcopy(terminal_info.name, 1, MAX_STRLEN, ' ');
             } else if (item == "HEIGHT") {
                 std::string s = left_padded(ENQUIRY_NUM_LEN, terminal_info.height);
                 reslen = s.size();
-                result.fillcopy(s.data(), reslen, 1, MAX_STRLEN, ' ');
+                result.fillcopy(s, 1, MAX_STRLEN, ' ');
             } else if (item == "WIDTH") {
                 std::string s = left_padded(ENQUIRY_NUM_LEN, terminal_info.width);
                 reslen = s.size();
-                result.fillcopy(s.data(), reslen, 1, MAX_STRLEN, ' ');
+                result.fillcopy(s, 1, MAX_STRLEN, ' ');
             } else if (item == "SPEED") {
                 // FIXME: Maybe we could do something better here?
                 std::string s = left_padded(ENQUIRY_NUM_LEN, 0);
                 reslen = s.size();
-                result.fillcopy(s.data(), reslen, 1, MAX_STRLEN, ' ');
+                result.fillcopy(s, 1, MAX_STRLEN, ' ');
             } else {
                 enquiry_result = false;
             }
@@ -291,15 +291,14 @@ bool find_enquiry(const std::string &name, str_object &result, strlen_range &res
             enquiry_result = true;
             if (item == "NAME") {
                 reslen = current_frame->span->name.size();
-                result.fillcopy(current_frame->span->name.data(), reslen, 1, MAX_STRLEN, ' ');
+                result.fillcopy(current_frame->span->name, 1, MAX_STRLEN, ' ');
             } else if (item == "INPUTFILE") {
                 if (current_frame->input_file < 0) {
                     reslen = 0;
                 } else {
                     reslen = files[current_frame->input_file]->filename.size();
                     result.fillcopy(
-                        files[current_frame->input_file]->filename.data(),
-                        reslen,
+                        files[current_frame->input_file]->filename,
                         1,
                         MAX_STRLEN,
                         ' '
@@ -311,8 +310,7 @@ bool find_enquiry(const std::string &name, str_object &result, strlen_range &res
                 } else {
                     reslen = files[current_frame->output_file]->filename.size();
                     result.fillcopy(
-                        files[current_frame->output_file]->filename.data(),
-                        reslen,
+                        files[current_frame->output_file]->filename,
                         1,
                         MAX_STRLEN,
                         ' '
@@ -345,10 +343,10 @@ bool find_enquiry(const std::string &name, str_object &result, strlen_range &res
         case vartype::ludwig:
             enquiry_result = true;
             if (item == "VERSION") {
-                result.fillcopy(ludwig_version.data(), ludwig_version.size(), 1, MAX_STRLEN, ' ');
+                result.fillcopy(ludwig_version, 1, MAX_STRLEN, ' ');
                 reslen = result.length(' ');
             } else if (item == "OPSYS") {
-                result.fillcopy(SYSTEM_NAME.data(), SYSTEM_NAME.size(), 1, MAX_STRLEN, ' ');
+                result.fillcopy(SYSTEM_NAME, 1, MAX_STRLEN, ' ');
                 reslen = result.length(' ');
             } else if (item == "COMMAND_INTRODUCER") {
                 if (!PRINTABLE_SET.test(command_introducer.value())) {
@@ -390,7 +388,7 @@ bool find_enquiry(const std::string &name, str_object &result, strlen_range &res
 bool tpar_enquire(tpar_object &tpar) {
     // with tpar do
     tpar.dlm = '\0';
-    std::string name(tpar.str.data(), tpar.len);
+    std::string name(tpar.str.slice(1, tpar.len));
     if (find_enquiry(name, tpar.str, tpar.len)) {
         return true;
     } else {
@@ -467,9 +465,7 @@ bool tpar_analyse(user_commands cmd, tpar_object &tran, int depth, tpcount_type 
                             verify_reply = screen_verify(prompt);
                         } else {
                             // FIXME: messy cast
-                            const std::string_view prompt{
-                                tran.str.data(), static_cast<size_t>(tran.len)
-                            };
+                            const std::string_view prompt = tran.str.slice(1, tran.len);
                             verify_reply = screen_verify(prompt);
                         }
                         switch (verify_reply) {
@@ -502,9 +498,7 @@ bool tpar_analyse(user_commands cmd, tpar_object &tran, int depth, tpcount_type 
                             return false;
                         } else {
                             // FIXME: messy cast
-                            const std::string_view prompt{
-                                tran.str.data(), static_cast<size_t>(tran.len)
-                            };
+                            const std::string_view prompt = tran.str.slice(1, tran.len);
                             screen_getlinep(
                                 prompt, tran.str, tran.len, cmd_attrib.at(cmd).tpcount, this_tp
                             );

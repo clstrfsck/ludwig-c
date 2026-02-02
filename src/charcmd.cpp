@@ -192,7 +192,7 @@ bool charcmd_delete(commands cmd, leadparam rept, int count, bool from_span) {
                     );
                     if (length > current_frame->dot->line->used + 1 - first_col)
                         length = current_frame->dot->line->used + 1 - first_col;
-                    vdu_displaystr(length, current_frame->dot->line->str->data(first_col), 3);
+                    vdu_displaystr(current_frame->dot->line->str->slice(first_col, length), 3);
                 }
             }
             deleted += count;

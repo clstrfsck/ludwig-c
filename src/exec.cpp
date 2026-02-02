@@ -673,7 +673,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
     case commands::cmd_frame_edit:
         if (tpar_get_1(tparam, command, request)) {
             // with request do
-            new_name.assign(request.str.data(), request.len);
+            new_name = request.str.slice(1, request.len);
             cmd_success = frame_edit(new_name);
         }
         break;
@@ -681,7 +681,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
     case commands::cmd_frame_kill:
         if (tpar_get_1(tparam, command, request)) {
             // with request do
-            new_name.assign(request.str.data(), request.len);
+            new_name = request.str.slice(1, request.len);
             cmd_success = frame_kill(new_name);
         }
         break;
@@ -725,7 +725,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
         }
         if (tpar_get_1(tparam, command, request)) {
             // with request do
-            help_help(std::string(request.str.data(), request.len));
+            help_help(std::string(request.str.slice(1, request.len)));
             cmd_success = true; // Never Fails.
         }
         break;
@@ -1112,7 +1112,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
     case commands::cmd_span_transfer:
         if (tpar_get_1(tparam, command, request)) {
             // with request do
-            new_name.assign(request.str.data(), request.len);
+            new_name = request.str.slice(1, request.len);
             switch (command) {
             case commands::cmd_span_define:
                 if (rept == leadparam::minus) {
@@ -1223,7 +1223,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
         if (request.len == 0)
             goto l99;
         // with request do
-        new_name.assign(request.str.data(), request.len);
+        new_name = request.str.slice(1, request.len);
         if (span_find(new_name, new_span, old_span)) {
             // Grunge the old one
             if (new_span == frame_oops->span) {

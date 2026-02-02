@@ -140,7 +140,7 @@ void screen_draw_line(line_ptr line) {
     } else {
         if (strlen > scr_frame->scr_width)
             strlen = scr_frame->scr_width;
-        vdu_displaystr(strlen, line->str->data() + offset, 3);
+        vdu_displaystr(line->str->slice(offset + 1, strlen), 3);
     }
     if (line->scr_row_nr == scr_msg_row)
         scr_msg_row += 1;
@@ -184,7 +184,7 @@ void screen_slide_line(line_ptr line, int slide_dist, slide_type slide_state) {
                 vdu_insertchars(slide_dist);
                 overlap = slide_dist;
             }
-            vdu_displaystr(overlap, line->str->data() + offset, 2 /*anycurs*/);
+            vdu_displaystr(line->str->slice(offset + 1, overlap), 2 /*anycurs*/);
         }
     } else {
         if (offset - slide_dist < line->used) {
@@ -200,7 +200,7 @@ void screen_slide_line(line_ptr line, int slide_dist, slide_type slide_state) {
                 if (overlap > slide_dist)
                     overlap = slide_dist;
                 vdu_displaystr(
-                    overlap, line->str->data() + offset + width + 1 - slide_dist, 2 /*anycurs*/
+                    line->str->slice(offset + width + 1 - slide_dist + 1, overlap), 2 /*anycurs*/
                 );
             }
         }
@@ -763,7 +763,7 @@ void screen_load(line_ptr line) {
                 if (line->flink == nullptr)
                     buflen = line->len;
                 if (buflen > 0)
-                    writeln(line->str->data(), buflen);
+                    writeln(line->str->slice(1, buflen));
                 else
                     writeln("");
                 if (line == dot_line) {

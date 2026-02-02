@@ -46,7 +46,7 @@ void ch_fillcopy(
         if (srclen == 0) {
             dst->fill_n(fill, dstlen, dstofs);
         } else {
-            dst->fillcopy(src->data(srcofs), srclen, dstofs, dstlen, fill);
+            dst->fillcopy(*src, srcofs, srclen, dstofs, dstlen, fill);
         }
     }
 }
@@ -87,7 +87,9 @@ int ch_compare_str(
 }
 
 void ch_reverse_str(const str_object &src, str_object &dst, strlen_range len) {
-    std::reverse_copy(src.data(), src.data() + len, dst.data());
+    for (auto i = 1; i <= len; ++i) {
+        dst[i] = src[len - i + 1];
+    }
 }
 
 char ch_toupper(char ch) {
@@ -107,21 +109,23 @@ bool ch_search_str(
     strlen_range &found_loc
 ) {
     str_object s;
-    s.copy(text, st2, len2);
     if (backwards) {
-        std::reverse(s.data(), s.data() + len2);
+        ch_reverse_str(text, s, len2);
         found_loc = len2;
     } else {
+        s.copy(text, st2, len2);
         found_loc = 0;
     }
-    if (!exactcase)
+    if (!exactcase) {
         s.apply_n(ch_toupper, len2);
+    }
     for (int i = 1; i <= len2 - len1 + 1; ++i) {
-        if (std::equal(s.data(i), s.data(i) + len1, target.data(st1))) {
-            if (backwards)
+        if (s.equals(target, len1, i, st1)) {
+            if (backwards) {
                 found_loc = len2 - (i + len1) + 1;
-            else
+            } else {
                 found_loc = i - 1;
+            }
             return true;
         }
     }

@@ -165,7 +165,7 @@ bool text_insert(
                         dst_line->group->frame->scr_width + dst_line->group->frame->scr_offset;
                 int len_redraw = last_col_redraw - first_col_redraw + 1;
                 if (len_redraw > 0)
-                    vdu_displaystr(len_redraw, dst_line->str->data(first_col_redraw), 0);
+                    vdu_displaystr(dst_line->str->slice(first_col_redraw, len_redraw), 0);
             }
         }
     }
@@ -244,7 +244,7 @@ bool text_overtype(
                     first_col_on_scr - dst_line->group->frame->scr_offset, dst_line->scr_row_nr
                 );
                 vdu_displaystr(
-                    len_on_scr, dst_line->str->data(first_col_on_scr), 0 /*no-cleareol,no-anycurs*/
+                    dst_line->str->slice(first_col_on_scr, len_on_scr), 0 /*no-cleareol,no-anycurs*/
                 );
             }
         }
@@ -348,7 +348,7 @@ bool text_intra_remove(mark_ptr mark_one, strlen_range size) {
         return true;
     strlen_range dst_len = old_used + 1 - col_one;
     if (col_two <= old_used)
-        ln->str->fillcopy(ln->str->data(col_two), old_used + 1 - col_two, col_one, dst_len, ' ');
+        ln->str->fillcopy(*ln->str, col_two, old_used + 1 - col_two, col_one, dst_len, ' ');
     else
         ln->str->fill_n(' ', dst_len, col_one);
     ln->used = ln->str->length(' ', old_used);
@@ -386,7 +386,7 @@ bool text_intra_remove(mark_ptr mark_one, strlen_range size) {
         vdu_cleareol();
     else
         vdu_displaystr(
-            buf_len, ln->str->data(first_col_on_scr), 3 /*cleareol,leave cursor anywhere*/
+            ln->str->slice(first_col_on_scr, buf_len), 3 /*cleareol,leave cursor anywhere*/
         );
     return true;
 }
@@ -430,7 +430,7 @@ bool text_inter_remove(mark_ptr mark_one, mark_ptr mark_two) {
     if (mark_one->col <= text_len)
         text_len = mark_one->col - 1;
     if (mark_one->col > 1)
-        strng.fillcopy(mark_one->line->str->data(1), text_len, 1, mark_one->col - 1, ' ');
+        strng.fillcopy(*mark_one->line->str, 1, text_len, 1, mark_one->col - 1, ' ');
     text_len = mark_one->col - 1;
     delta = mark_one->col - mark_two->col;
     if (delta < 0) {
@@ -521,7 +521,7 @@ bool text_intra_move(
             if (col_two > mark_one->line->used)
                 text_len = mark_one->line->used + 1 - col_one;
         }
-        text_str.fillcopy(mark_one->line->str->data(col_one), text_len, 1, full_len, ' ');
+        text_str.fillcopy(*mark_one->line->str, col_one, text_len, 1, full_len, ' ');
         text_len = full_len;
         for (int i = 1; i < count; ++i) {
             text_str.copy(text_str, 1, text_len, 1 + full_len);
@@ -728,7 +728,7 @@ bool text_inter_move(
                 next_dst_line->str->copy(*next_src_line->str, 1, col_two - 1);
             } else {
                 next_dst_line->str->fillcopy(
-                    next_src_line->str->data(), next_src_line->used, 1, col_two - 1, ' '
+                    *next_src_line->str, 1, next_src_line->used, 1, col_two - 1, ' '
                 );
             }
         }
@@ -792,7 +792,7 @@ bool text_inter_move(
             if (text_len > 0) {
                 if (!line_change_length(first_line, text_len))
                     goto l99;
-                first_line->str->fillcopy(text_str.data(), text_len, 1, first_line->len, ' ');
+                first_line->str->fillcopy(text_str, 1, text_len, 1, first_line->len, ' ');
                 first_line->used = text_len;
             }
             if (!lines_inject(first_line, last_line, dst_line))
@@ -817,7 +817,7 @@ bool text_inter_move(
         if (!line_change_length(dst_line, dst_col + text_len - 1))
             goto l99;
         dst_line->str->fillcopy(
-            text_str.data(), text_len, dst_col, dst_line->len + 1 - dst_col, ' '
+            text_str, 1, text_len, dst_col, dst_line->len + 1 - dst_col, ' '
         );
         dst_line->used = dst_col + text_len - 1;
         // The following method of re-drawing the line is adequate given the

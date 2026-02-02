@@ -540,7 +540,7 @@ bool get_file_name(const_tpar_ptr tparam, file_name_str &fnm, commands command) 
     if (!tpar_get_1(tparam, command, tp_file_name))
         return false;
     // with tp_file_name do
-    fnm = std::string(tp_file_name.str.data(), tp_file_name.len);
+    fnm = tp_file_name.str.slice(1, tp_file_name.len);
     tpar_clean_object(tp_file_name);
     return true;
 }

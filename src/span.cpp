@@ -211,11 +211,10 @@ bool span_index() {
                 if (!continu) {
                     continu = p->mark_two->col - p->mark_one->col > NAME_LEN;
                     size_t to_copy = std::min(NAME_LEN, p->mark_two->col - p->mark_one->col);
-                    span_start.assign(p->mark_one->line->str->data(p->mark_one->col), to_copy);
+                    span_start = p->mark_one->line->str->slice(p->mark_one->col, to_copy);
                 } else {
-                    size_t to_copy =
-                        std::min(NAME_LEN, p->mark_one->line->used + 1 - p->mark_one->col);
-                    span_start.assign(p->mark_one->line->str->data(p->mark_one->col), to_copy);
+                    size_t to_copy = std::min(NAME_LEN, p->mark_one->line->used + 1 - p->mark_one->col);
+                    span_start = p->mark_one->line->str->slice(p->mark_one->col, to_copy);
                 }
             }
             screen_write_name_str(0, span_start, NAME_LEN);
