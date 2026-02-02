@@ -6,7 +6,6 @@
 #define TYPE_H
 
 #include "const.h"
-#include "parray.h"
 #include "prange.h"
 
 #include <array>
@@ -109,7 +108,7 @@ struct key_name_record {
 };
 
 // Objects
-using str_object = parray<char, prange<1, MAX_STRLEN>>;
+#include "str_object.h"
 using str_ptr = str_object *;
 using const_str_ptr = const str_object *;
 

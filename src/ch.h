@@ -27,8 +27,6 @@ char ch_toupper(char ch);
     strlen_range &found_loc
 );
 
-// FIXME: nullptr safe versions of parray::copy and parray::fillcopy
-// void ch_copy(str_ptr src, strlen_range srcofs, str_ptr dst, strlen_range dstofs, size_t len);
 void ch_fillcopy(
     str_ptr src,
     strlen_range srcofs,

@@ -44,7 +44,7 @@ make run_tests
 
 # Run specific tests by tag
 ./test/ludwig_tests "[prange]"
-./test/ludwig_tests "[parray]"
+./test/ludwig_tests "[str_object]"
 ./test/ludwig_tests "[const]"
 
 # List all tests

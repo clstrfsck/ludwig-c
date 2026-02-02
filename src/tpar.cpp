@@ -335,9 +335,7 @@ bool find_enquiry(const std::string &name, str_object &result, strlen_range &res
                 std::string env;
                 enquiry_result = sys_getenv(item, env);
                 if (enquiry_result) {
-                    reslen = str_object::index_type::size();
-                    if (env.size() < str_object::index_type::size())
-                        reslen = env.size();
+                    reslen = std::min(str_object::MAX_STRLEN, env.size());
                     result.fill(' ');
                     result.copy_n(env.data(), reslen);
                 }
@@ -538,7 +536,7 @@ void trim(tpar_object &request) {
             request.str.erase(i - 1, 1);
             request.str.apply_n(ch_toupper, request.len);
         }
-        if (request.len >= 0 && size_t(request.len) < str_object::index_type::size())
+        if (request.len >= 0 && size_t(request.len) < str_object::MAX_STRLEN)
             request.str.fill(' ', request.len + 1);
     }
 }

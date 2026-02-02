@@ -795,7 +795,7 @@ bool line_change_length(line_ptr line, strlen_range new_length) {
             new_length = MAX_STRLEN;
         // Create a new str_object and copy the text from the old one.
         // FIXME: for now, all strings are the same size
-        new_str = new str_object(new_length, ' ');
+        new_str = new str_object(' ');
         if (new_str == nullptr) {
             screen_message(MSG_EXCEEDED_DYNAMIC_MEMORY);
             return false;

@@ -32,7 +32,7 @@ namespace {
 
 }; // namespace
 
-// FIXME: Wrapper for parray::fillcopy that handles copies of length 0 to/from nullptrs
+// Wrapper for str_object that handles copies of length 0 to/from nullptrs
 void ch_fillcopy(
     str_ptr src,
     strlen_range srcofs,
