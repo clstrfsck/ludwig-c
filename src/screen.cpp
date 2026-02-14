@@ -1283,7 +1283,7 @@ void screen_free_bottom_line() {
             vdu_deletelines(1);
         } else if ((scr_frame->dot->line != scr_top_line) && // IF DOT NOT ON TOP LINE,
                    !((scr_frame->dot->line != scr_bot_line) &&
-                     (scr_bot_line->scr_row_nr =
+                     (scr_bot_line->scr_row_nr ==
                           terminal_info.height))) { // AND WE CANT USE THE BOT.
             screen_scroll(1, false);
         } else if (scr_msg_row <= terminal_info.height / 2) { // 1/2 SCREEN ALREADY MSGS.

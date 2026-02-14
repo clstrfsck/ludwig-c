@@ -115,7 +115,7 @@ void execute_immed() {
                             if (tt_controlc)
                                 goto l9;
                             vdu_take_back_key(key);
-                            if (PRINTABLE_SET.test(key) && key != command_introducer) {
+                            if (key >= 0 && PRINTABLE_SET.test(key) && key != command_introducer) {
                                 // If printing char, realize NULL, re-fix cursor.
                                 if (!text_realize_null(current_frame->dot->line)) {
                                     cmd_success = false;

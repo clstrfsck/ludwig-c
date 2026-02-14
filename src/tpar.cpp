@@ -464,7 +464,6 @@ bool tpar_analyse(user_commands cmd, tpar_object &tran, int depth, tpcount_type 
                             };
                             verify_reply = screen_verify(prompt);
                         } else {
-                            // FIXME: messy cast
                             const std::string_view prompt = tran.str.slice(1, tran.len);
                             verify_reply = screen_verify(prompt);
                         }
@@ -497,7 +496,6 @@ bool tpar_analyse(user_commands cmd, tpar_object &tran, int depth, tpcount_type 
                             screen_message(MSG_PROMPTS_ARE_ONE_LINE);
                             return false;
                         } else {
-                            // FIXME: messy cast
                             const std::string_view prompt = tran.str.slice(1, tran.len);
                             screen_getlinep(
                                 prompt, tran.str, tran.len, cmd_attrib.at(cmd).tpcount, this_tp

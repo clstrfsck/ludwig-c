@@ -795,7 +795,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
                 }
             } else {
                 for (i = 1; i <= count; ++i) {
-                    if (text_insert_tpar(
+                    if (!text_insert_tpar(
                             request, current_frame->dot, current_frame->marks[MARK_EQUALS]
                         ))
                         goto l99;

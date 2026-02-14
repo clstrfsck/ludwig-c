@@ -105,6 +105,8 @@ bool arrow_command(commands command, leadparam rept, int count, bool from_span) 
                             goto l1;
                         step = 1;
                     } else {
+                        if (new_col == 1)
+                            goto l1;
                         step = -1;
                     }
                     for (int counter = 1; counter <= count; ++counter) {

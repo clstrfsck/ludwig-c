@@ -664,16 +664,15 @@ bool pattern_parser(
                                     if (aux >= 2) { // one $ plus one "
                                         if (deref_tpar.str[aux - 1] == delimiter) {
                                             // criterion for a correct  deref
-                                            pattern_definition.length -=
-                                                (aux + 2); // wipe out the deref stuff and quotes
-                                            tpar_sort =
-                                                commands::cmd_pattern_dummy_text; // so prompts
-                                                                                  // "text  :" ##
+                                            // wipe out the deref stuff and quotes
+                                            pattern_definition.length -= (aux + 2);
+                                            // so prompts "text  :" ##
+                                            tpar_sort = commands::cmd_pattern_dummy_text;
                                             deref_tpar.len = aux - 2; // wipe out delim and quote
                                             deref_tpar.dlm = delimiter;
                                             if (!tpar_get_1(&deref_tpar, tpar_sort, deref_span)) {
-                                                throw other_exception(); // get the dereferenced
-                                                                         // span
+                                                // get the dereferenced span
+                                                throw other_exception();
                                             }
                                             // with deref_span do
                                             //  wrap it in quotes
