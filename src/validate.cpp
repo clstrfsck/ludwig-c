@@ -20,31 +20,12 @@
 ! Name:         VALIDATE
 !
 ! Description:  Validation of entire Ludwig data structure.
-!
-! $Log: validate.pas,v $
-! Revision 4.6  1990/10/19 14:35:30  ludwig
-! Make body of validate_command conditional on debug flag.  KBN
-!
-! Revision 4.5  90/01/18  17:16:22  ludwig
-! Entered into RCS at revision level 4.5
-!
-! Revision History:
-! 4-001 Ludwig V4.0 release.                                  7-Apr-1987
-! 4-002 Jeff Blows                                              Jul-1989
-!       IBM PC developments incorporated into main source code.
-! 4-003 Kelvin B. Nicolle                                    12-Jul-1989
-!       VMS include files renamed from ".ext" to ".h", and from ".inc"
-!       to ".i".  Remove the "/nolist" qualifiers.
-! 4-004 Kelvin B. Nicolle                                    13-Sep-1989
-!       Add includes etc. for Tower version.
-! 4-005 Kelvin B. Nicolle                                    25-Oct-1989
-!       Correct the includes for the Tower version.
 !**/
 
 #include "validate.h"
 
-#include "var.h"
 #include "screen.h"
+#include "var.h"
 
 bool validate_command() {
     /*
@@ -55,10 +36,11 @@ bool validate_command() {
     */
 #ifdef DEBUG
     const int OOPS = 0x0001;
-    const int CMD  = 0x0002;
+    const int CMD = 0x0002;
     const int HEAP = 0x0004;
 
-    if ((current_frame == nullptr) || (frame_oops == nullptr) || (frame_cmd == nullptr) || (frame_heap == nullptr)) {
+    if ((current_frame == nullptr) || (frame_oops == nullptr) || (frame_cmd == nullptr) ||
+        (frame_heap == nullptr)) {
         screen_message(DBG_INVALID_FRAME_PTR);
         return false;
     }
@@ -72,10 +54,10 @@ bool validate_command() {
     // Validate the data structure.
     int frame_list = 0; // Bit mask OOPS, CMD, HEAP
     scr_row_range scr_row = 0;
-    span_ptr this_span = first_span;
-    span_ptr prev_span = nullptr;
+    const_span_ptr this_span = first_span;
+    const_span_ptr prev_span = nullptr;
     while (this_span != nullptr) {
-        //with this_span^ do
+        // with this_span^ do
         if (this_span->blink != prev_span) {
             screen_message(DBG_INVALID_BLINK);
             return false;
@@ -98,7 +80,7 @@ bool validate_command() {
                 frame_list |= OOPS;
             if (this_frame == frame_heap)
                 frame_list |= HEAP;
-            //with this_frame^ do
+            // with this_frame^ do
             if ((this_frame->first_group == nullptr) || (this_frame->last_group == nullptr)) {
                 screen_message(DBG_INVALID_GROUP_PTR);
                 return false;
@@ -107,19 +89,19 @@ bool validate_command() {
                 screen_message(DBG_FIRST_NOT_AT_TOP);
                 return false;
             }
-            group_ptr end_group = this_frame->last_group->flink;
+            const_group_ptr end_group = this_frame->last_group->flink;
             if (end_group != nullptr) {
                 screen_message(DBG_LAST_NOT_AT_END);
                 return false;
             }
-            group_ptr  this_group = this_frame->first_group;
-            group_ptr  prev_group = nullptr;
-            line_ptr   this_line  = this_frame->first_group->first_line;
-            line_ptr   prev_line  = nullptr;
-            line_ptr   end_line   = nullptr;
-            line_range line_nr    = 1;
+            const_group_ptr this_group = this_frame->first_group;
+            const_group_ptr prev_group = nullptr;
+            const_line_ptr this_line = this_frame->first_group->first_line;
+            const_line_ptr prev_line = nullptr;
+            const_line_ptr end_line = nullptr;
+            line_range line_nr = 1;
             while (this_group != end_group) {
-                //with this_group^ do
+                // with this_group^ do
                 if (this_group->blink != prev_group) {
                     screen_message(DBG_INVALID_BLINK);
                     return false;
@@ -139,7 +121,7 @@ bool validate_command() {
                 group_line_range line_count = 0;
                 end_line = this_group->last_line->flink;
                 while (this_line != end_line) {
-                    //with this_line^ do
+                    // with this_line^ do
                     if (this_line->blink != prev_line) {
                         screen_message(DBG_INVALID_BLINK);
                         return false;
@@ -152,14 +134,11 @@ bool validate_command() {
                         screen_message(DBG_INVALID_OFFSET_NR);
                         return false;
                     }
-                    mark_ptr this_mark = this_line->mark;
-                    while (this_mark != nullptr) {
-                        //with this_mark^ do
+                    for (const auto &this_mark : this_line->marks) {
                         if (this_mark->line != this_line) {
                             screen_message(DBG_INVALID_LINE_PTR);
                             return false;
                         }
-                        this_mark = this_mark->next;
                     }
                     if ((this_line->str == nullptr) && (this_line->len != 0)) {
                         screen_message(DBG_INVALID_LINE_LENGTH);
@@ -248,7 +227,8 @@ bool validate_command() {
                 screen_message(DBG_MARK_IN_WRONG_FRAME);
                 return false;
             }
-        } else if (this_span->mark_one->line->group->frame != this_span->mark_two->line->group->frame) {
+        } else if (this_span->mark_one->line->group->frame !=
+                   this_span->mark_two->line->group->frame) {
             screen_message(DBG_MARKS_FROM_DIFF_FRAMES);
             return false;
         }

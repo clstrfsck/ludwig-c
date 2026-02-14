@@ -34,22 +34,22 @@
 #include <stdio.h>
 #include <string.h>
 
-size_t      lwoptind = 1;     // index into parent argv vector
-int         lwoptopt;         // character checked for validity
-bool        lwoptreset;       // reset getopt
-std::string lwoptarg;         // argument associated with option
+size_t lwoptind = 1;  // index into parent argv vector
+int lwoptopt;         // character checked for validity
+bool lwoptreset;      // reset getopt
+std::string lwoptarg; // argument associated with option
 
-#define BADCH   (int)'?'
-#define BADARG  (int)':'
-#define EMSG    ""
+#define BADCH (int)'?'
+#define BADARG (int)':'
+#define EMSG ""
 
 /*
  * lwgetopt --
  *  Parse argv argument vector.
  */
 int lwgetopt(const std::vector<std::string> &nargv, const std::string &ostr) {
-    static const char *place = EMSG;    /* option letter processing */
-    const char *oli;                    /* option letter list index */
+    static const char *place = EMSG; /* option letter processing */
+    const char *oli;                 /* option letter list index */
 
     if (lwoptreset || *place == 0) {
         /* update scanning pointer */
@@ -121,5 +121,5 @@ int lwgetopt(const std::vector<std::string> &nargv, const std::string &ostr) {
         place = EMSG;
         ++lwoptind;
     }
-    return (lwoptopt);      /* return option letter */
+    return (lwoptopt); /* return option letter */
 }

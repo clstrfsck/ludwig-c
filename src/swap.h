@@ -3,6 +3,6 @@
 
 #include "type.h"
 
-bool swap_line(leadparam rept, int count);
+[[nodiscard]] bool swap_line(leadparam rept, int count);
 
 #endif // !defined(SWAP_H)

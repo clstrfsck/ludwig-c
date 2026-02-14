@@ -20,36 +20,35 @@
 ! Name:         MARK
 !
 ! Description:  Mark manipulation routines.
-!
-! $Log: mark.pas,v $
-! Revision 4.5  1990/01/18 17:46:11  ludwig
-! Entered into RCS at revision level 4.5
-!
-! Revision History:
-! 4-001 Ludwig V4.0 release.                                  7-Apr-1987
-! 4-002 Jeff Blows                                              Jul-1989
-!       IBM PC developments incorporated into main source code.
-! 4-003 Kelvin B. Nicolle                                    12-Jul-1989
-!       VMS include files renamed from ".ext" to ".h", and from ".inc"
-!       to ".i".  Remove the "/nolist" qualifiers.
-! 4-004 Kelvin B. Nicolle                                    13-Sep-1989
-!       Add includes etc. for Tower version.
-! 4-005 Kelvin B. Nicolle                                    25-Oct-1989
-!       Correct the includes for the Tower version.
-!       Remove the superfluous include of system.h.
 !**/
 
 #include "mark.h"
 
-#include "var.h"
 #include "screen.h"
+#include "var.h"
 
-void mark_mark_pool_extend() {
-    for (int i = 0; i < 20; ++i) {
-        mark_ptr new_mark = new mark_object;
-        new_mark->next = free_mark_pool;
-        free_mark_pool = new_mark;
+size_t mark_object::allocated_marks = 0;
+
+namespace {
+
+    mark_ptr allocate() {
+        return std::make_shared<mark_object>();
     }
+
+    void deallocate(mark_ptr &mark) {
+        mark = nullptr;
+    }
+
+    void remove_from_marks(std::list<mark_ptr> &mark_list, mark_ptr mark) {
+        auto imark = std::ranges::find(mark_list, mark);
+        if (imark != mark_list.end()) {
+            mark_list.erase(imark);
+        }
+    }
+} // namespace
+
+size_t marks_allocated() {
+    return mark_object::allocated_marks;
 }
 
 bool mark_create(line_ptr in_line, col_range column, mark_ptr &mark) {
@@ -69,34 +68,19 @@ bool mark_create(line_ptr in_line, col_range column, mark_ptr &mark) {
     }
 #endif
     if (mark == nullptr) {
-        if (free_mark_pool == nullptr)
-            mark_mark_pool_extend();
-        mark           = free_mark_pool;
-        free_mark_pool = mark->next;
-
-        mark->next = in_line->mark;
+        mark = allocate();
+        in_line->marks.push_front(mark);
         mark->line = in_line;
-        mark->col  = column;
-        in_line->mark = mark;
+        mark->col = column;
     } else {
         line_ptr this_line = mark->line;
         if (this_line == in_line) {
             mark->col = column;
         } else {
-            mark_ptr this_mark = this_line->mark;
-            mark_ptr prev_mark = nullptr;
-            while (this_mark != mark) {
-                prev_mark = this_mark;
-                this_mark = this_mark->next;
-            }
-            if (prev_mark == nullptr)
-                this_line->mark = this_mark->next;
-            else
-                prev_mark->next = this_mark->next;
-            mark->next = in_line->mark;
+            remove_from_marks(this_line->marks, mark);
+            in_line->marks.push_front(mark);
             mark->line = in_line;
-            mark->col  = column;
-            in_line->mark = mark;
+            mark->col = column;
         }
     }
     return true;
@@ -116,24 +100,17 @@ bool mark_destroy(mark_ptr &mark) {
         return false;
     }
 #endif
-    line_ptr this_line = mark->line;
-    mark_ptr this_mark = this_line->mark;
-    mark_ptr prev_mark = nullptr;
-    while (this_mark != mark) {
-        prev_mark = this_mark;
-        this_mark = this_mark->next;
-    }
-    if (prev_mark == nullptr)
-        this_line->mark = this_mark->next;
-    else
-        prev_mark->next = this_mark->next;
-    mark->next     = free_mark_pool;
-    free_mark_pool = mark;
-    mark           = nullptr;
+    remove_from_marks(mark->line->marks, mark);
+    deallocate(mark);
     return true;
 }
 
-bool marks_squeeze(line_ptr first_line, col_range first_column, line_ptr last_line, col_range last_column) {
+bool marks_squeeze(
+    const line_ptr first_line,
+    col_range first_column,
+    const line_ptr last_line,
+    col_range last_column
+) {
     /*
       Purpose  : Move all marks between <first_line,first_column> and
                  <last_line,last_column> to the latter position.
@@ -159,12 +136,10 @@ bool marks_squeeze(line_ptr first_line, col_range first_column, line_ptr last_li
             return false;
         }
 #endif
-        mark_ptr this_mark = last_line->mark;
-        while (this_mark != nullptr) {
-            //with this_mark^ do
-            if ((this_mark->col >= first_column) && (this_mark->col < last_column))
+        for (auto &this_mark : last_line->marks) {
+            if ((this_mark->col >= first_column) && (this_mark->col < last_column)) {
                 this_mark->col = last_column;
-            this_mark = this_mark->next;
+            }
         }
     } else {
 #ifdef DEBUG
@@ -179,33 +154,23 @@ bool marks_squeeze(line_ptr first_line, col_range first_column, line_ptr last_li
         }
 #endif
         // Move marks in last_line.
-        mark_ptr this_mark = last_line->mark;
-        while (this_mark != nullptr) {
-            if (this_mark->col < last_column)
-                this_mark->col = last_column;
-            this_mark = this_mark->next;
+        for (auto &this_mark : last_line->marks) {
+            this_mark->col = std::max(this_mark->col, int(last_column));
         }
         // Move marks in lines first_line..last_line-1.
         line_ptr this_line = first_line;
         while (this_line != last_line) {
-            this_mark = this_line->mark;
-            mark_ptr prev_mark = nullptr;
-            while (this_mark != nullptr) {
-                // with this_mark^ do
-                mark_ptr next_mark = this_mark->next;
-                if (this_mark->col >= first_column) {
-                    if (prev_mark == nullptr)
-                        this_line->mark = this_mark->next;
-                    else
-                        prev_mark->next = this_mark->next;
-                    this_mark->next = last_line->mark;
-                    this_mark->line = last_line;
-                    this_mark->col = last_column;
-                    last_line->mark = this_mark;
+            auto &marks{this_line->marks};
+            for (auto it = marks.begin(); it != marks.end();) {
+                auto mark{*it};
+                if (mark->col >= first_column) {
+                    mark->col = last_column;
+                    mark->line = last_line;
+                    last_line->marks.push_front(mark);
+                    it = marks.erase(it);
                 } else {
-                    prev_mark = this_mark;
+                    ++it;
                 }
-                this_mark = next_mark;
             }
             this_line = this_line->flink;
             first_column = 1;
@@ -214,15 +179,20 @@ bool marks_squeeze(line_ptr first_line, col_range first_column, line_ptr last_li
     return true;
 }
 
-bool marks_shift(line_ptr source_line, col_range source_column, col_width_range width,
-                 line_ptr dest_line, col_range dest_column) {
+bool marks_shift(
+    const line_ptr source_line,
+    col_range source_column,
+    col_width_range width,
+    const line_ptr dest_line,
+    col_range dest_column
+) {
     /*
       Purpose  : Move all marks from the <width> columns starting at
                  <source_line,source_column> to corresponding positions
                  starting from <dest_line,dest_column>.
       Inputs   : source_line, source_column: location of the source range.
                  width: the size of the range.
-                 last_line, last_column: location of the destination range.
+                 dest_line, dest_column: location of the destination range.
       Outputs  : none.
       Bugchecks: .source or dest line pointer is nil
                  .source and dest lines in different frames
@@ -246,17 +216,10 @@ bool marks_shift(line_ptr source_line, col_range source_column, col_width_range 
     col_range source_end = source_column + width - 1;
     int offset = dest_column - source_column;
     if (source_line == dest_line) {
-        mark_ptr this_mark = source_line->mark;
-        while (this_mark != nullptr) {
-            //with this_mark^ do
-            if ((this_mark->col >= source_column) && (this_mark->col <= source_end)) {
-                int new_col = this_mark->col + offset;
-                if (new_col >= MAX_STRLENP)
-                    this_mark->col = MAX_STRLENP;
-                else
-                    this_mark->col = new_col;
+        for (auto &mark : source_line->marks) {
+            if ((mark->col >= source_column) && (mark->col <= source_end)) {
+                mark->col = std::min(MAX_STRLENP, mark->col + offset);
             }
-            this_mark = this_mark->next;
         }
     } else {
 #ifdef DEBUG
@@ -265,30 +228,18 @@ bool marks_shift(line_ptr source_line, col_range source_column, col_width_range 
             return false;
         }
 #endif
-        mark_ptr this_mark = source_line->mark;
-        mark_ptr prev_mark = nullptr;
-        while (this_mark != nullptr) {
-            //with this_mark^ do
-            mark_ptr next_mark = this_mark->next;
-            if ((this_mark->col >= source_column) && (this_mark->col <= source_end)) {
-                if (prev_mark == nullptr)
-                    source_line->mark = this_mark->next;
-                else
-                    prev_mark->next = this_mark->next;
-                this_mark->next = dest_line->mark;
-                this_mark->line = dest_line;
-                int new_col = this_mark->col + offset;
-                if (new_col >= MAX_STRLENP)
-                    this_mark->col = MAX_STRLENP;
-                else
-                    this_mark->col = new_col;
-                dest_line->mark = this_mark;
+        auto &marks{source_line->marks};
+        for (auto it = marks.begin(); it != marks.end();) {
+            auto mark{*it};
+            if ((mark->col >= source_column) && (mark->col <= source_end)) {
+                mark->line = dest_line;
+                mark->col = std::min(MAX_STRLENP, mark->col + offset);
+                dest_line->marks.push_front(mark);
+                it = marks.erase(it);
             } else {
-                prev_mark = this_mark;
+                ++it;
             }
-            this_mark = next_mark;
         }
     }
     return true;
 }
-

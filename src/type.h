@@ -2,125 +2,82 @@
  * Declarations of types used throughout the Ludwig code base.
  */
 
-/**
-! $Log: type.i,v $
-! Revision 4.10  2002/07/20 08:55:07  martin
-! Minor tweaks for fpc port
-!
-! Revision 4.9  1991/02/26 18:07:08  ludwig
-! modified the type definition of a frame object to include information on
-! the extent of the mouse specified selection (in the form of a new mark) SN.
-!
-! Revision 4.8  91/02/22  12:50:59  ludwig
-! Added prefix command for X mouse handling commands. SN
-!
-! Revision 4.7  91/02/21  13:36:33  ludwig
-! Added commands to handle mouse events and accessing the cut/paste buffer
-! for the X version.  SN
-!
-! Revision 4.6  90/02/08  10:38:25  ludwig
-! fixed pcc #if syntax
-!
-! Revision 4.5  90/02/05  13:32:45  ludwig
-! Steven Nairn.
-! Added cmd_resize_window to type commands.
-!
-! Revision 4.4  90/01/18  17:20:13  ludwig
-! Entered into RCS at revision level 4.3.
-!
-! Revision History:
-! 4-001 Ludwig V4.0 release.                                  7-Apr-1987
-! 4-002 Jeff Blows                                              Jul-1989
-!       IBM PC developments incorporated into main source code.
-! 4-003 Kelvin B. Nicolle                                    12-Jul-1989
-!       VMS include files renamed from ".ext" to ".h", and from ".inc"
-!       to ".i".  Remove the "/nolist" qualifiers.
-! 4-004 Kelvin B. Nicolle                                    17-Jan-1990
-!       Add cmd_file_save to type commands.
-!**/
-
 #ifndef TYPE_H
 #define TYPE_H
 
 #include "const.h"
-#include "parray.h"
 #include "prange.h"
-#include "perange.h"
-#include "penumset.h"
-#include "prangeset.h"
 
+#include <array>
+#include <bitset>
+#include <list>
+#include <memory>
 #include <set>
 #include <string>
+#include <unordered_set>
 #include <vector>
-
 
 // POINTERS TO ALL DYNAMIC OBJECTS.
 
-typedef struct code_header code_header;
-typedef struct file_object file_object;
-typedef struct frame_object frame_object;
-typedef struct group_object group_object;
-typedef struct line_hdr_object line_hdr_object;
-typedef struct mark_object mark_object;
-typedef struct span_object span_object;
-typedef struct tpar_object tpar_object;
-typedef struct dfa_table_object dfa_table_object;
-typedef struct transition_object transition_object;
-typedef struct state_elt_object state_elt_object;
-
-typedef code_header       *code_ptr;
-typedef file_object       *file_ptr;
-typedef frame_object      *frame_ptr;
-typedef group_object      *group_ptr;
-typedef line_hdr_object   *line_ptr;
-typedef mark_object       *mark_ptr;
-typedef span_object       *span_ptr;
-typedef tpar_object       *tpar_ptr;
-typedef dfa_table_object  *dfa_table_ptr;
-typedef transition_object *transition_ptr;
-typedef state_elt_object  *state_elt_ptr_type;
-
+using code_ptr = struct code_header *;
+using file_ptr = struct file_object *;
+using const_file_ptr = const struct file_object *;
+using frame_ptr = struct frame_object *;
+using group_ptr = struct group_object *;
+using const_group_ptr = const struct group_object *;
+using line_ptr = struct line_hdr_object *;
+using const_line_ptr = const struct line_hdr_object *;
+using mark_ptr = std::shared_ptr<struct mark_object>;
+using const_mark_ptr = std::shared_ptr<const struct mark_object>;
+using span_ptr = struct span_object *;
+using const_span_ptr = const struct span_object *;
+using tpar_ptr = struct tpar_object *;
+using const_tpar_ptr = const struct tpar_object *;
+using dfa_table_ptr = struct dfa_table_object *;
+using transition_ptr = struct transition_object *;
+using const_transition_ptr = const struct transition_object *;
+using state_elt_ptr_type = struct state_elt_object *;
+using const_state_elt_ptr_type = const struct state_elt_object *;
 
 // MISCELLANEOUS ENTITIES.
 
 enum class verify_response {
-    verify_reply_yes
-    ,verify_reply_no
-    ,verify_reply_always
-    ,verify_reply_quit
+    verify_reply_yes,
+    verify_reply_no,
+    verify_reply_always,
+    verify_reply_quit
 };
 
 enum class parse_type {
-    parse_command
-    ,parse_input
-    ,parse_output
-    ,parse_edit
-    ,parse_stdin
-    ,parse_execute
+    parse_command,
+    parse_input,
+    parse_output,
+    parse_edit,
+    parse_stdin,
+    parse_execute
 };
 
-
 // SUBRANGES.
-typedef prange<0, MAX_CODE>                      code_idx;
-typedef prange<0, MAX_STRLEN>                    col_offset_range;
-typedef prange<0, MAX_CODE>                      code_idx;
-typedef prange<0, MAX_STRLEN>                    col_offset_range;
-typedef prange<1, MAX_STRLENP>                   col_range;
-typedef prange<0, MAX_STRLENP>                   col_width_range;
-typedef prange<1, MAX_FILES>                     file_range;
-typedef prange<0, MAX_FILES>                     slot_range;
-typedef prange<0, MAX_GROUPLINES>                group_line_range;
-typedef prange<0, MAX_GROUPLINEOFFSET>           line_offset_range;
-typedef prange<0, MAX_LINES>                     line_range;
-typedef prange<MIN_MARK_NUMBER, MAX_MARK_NUMBER> mark_range;
-typedef prange<0, MAXINT>                        space_range;
-typedef prange<0, MAX_SCR_COLS>                  scr_col_range;
-typedef prange<0, MAX_SCR_ROWS>                  scr_row_range;
-typedef prange<0, MAX_STRLEN>                    strlen_range;
-typedef prange<0, MAX_NFA_STATE_RANGE>           nfa_state_range;
-typedef prange<0, MAX_DFA_STATE_RANGE>           dfa_state_range;
-typedef prange<0, MAX_SET_RANGE>                 accept_set_range;
-typedef prange<0, MAX_WORD_SETS_M1>              word_set_range;
+
+using code_idx = unsigned int;
+using code_len = unsigned int;
+using col_offset_range = prange<0, MAX_STRLEN>;
+using col_range = prange<1, MAX_STRLENP>;
+using col_width_range = prange<0, MAX_STRLENP>;
+using file_range = prange<0, MAX_FILES - 1>;
+using slot_range = prange<-1, MAX_FILES - 1>;
+using group_line_range = prange<0, MAX_GROUPLINES>;
+using line_offset_range = prange<0, MAX_GROUPLINEOFFSET>;
+using line_range = prange<0, MAX_LINES>;
+using mark_range = unsigned int;
+using space_range = prange<0, MAXINT>;
+using scr_col_range = prange<0, MAX_SCR_COLS>;
+using scr_row_range = prange<0, MAX_SCR_ROWS>;
+using strlen_range = prange<0, MAX_STRLEN>;
+using nfa_state_range = prange<0, MAX_NFA_STATE_RANGE>;
+using dfa_state_range = prange<0, MAX_DFA_STATE_RANGE>;
+using accept_set_range = prange<0, MAX_SET_RANGE>;
+using word_set_range = prange<0, MAX_WORD_SETS_M1>;
 
 // SETS.
 
@@ -131,202 +88,210 @@ enum class frame_options_elts {
     opt_special_frame, // OOPS,COMMAND,HEAP
     last_entry
 };
-typedef penumset<frame_options_elts> frame_options;
+using frame_options = std::unordered_set<frame_options_elts>;
 
-typedef prangeset<nfa_state_range>  nfa_set_type;
-typedef prangeset<dfa_state_range>  dfa_set_type;
-typedef prangeset<accept_set_range> accept_set_type;
+using nfa_set_type = std::bitset<MAX_NFA_STATE_RANGE + 1>;
+using accept_set_type = std::bitset<MAX_SET_RANGE + 1>;
 
 // Arrays
-typedef parray<bool, col_width_range>       tab_array;
-typedef parray<bool, prange<1, MAX_VERIFY>> verify_array;
+using tab_array = std::array<bool, MAX_STRLENP + 1>;
 
 // Strings
-typedef parray<char, prange<1, FILE_NAME_LEN>> file_name_str;
-typedef parray<char, prange<1, TPAR_PROM_LEN>> prompt_str;
-typedef parray<char, prange<1, WRITE_STR_LEN>> write_str;
-typedef parray<char, prange<1, MSG_STR_LEN>>   msg_str;
-typedef parray<char, prange<1, 20>>            number_str;
-typedef parray<char, prange<1, KEY_LEN>>       key_str; // Help File stuff
-
+using file_name_str = std::string;
 
 // Keyboard interface.
-typedef prange<-MAX_SPECIAL_KEYS, ORD_MAXCHAR> key_code_range;
-typedef prange<0, MAX_NR_KEY_NAMES>            key_names_range;
+using key_code_range = prange<-MAX_SPECIAL_KEYS, ORD_MAXCHAR>;
+using key_names_range = prange<0, MAX_NR_KEY_NAMES>;
 struct key_name_record {
-    std::string    key_name;
+    std::string key_name;
     key_code_range key_code;
 };
 
 // Objects
-typedef parray<char, prange<1, MAX_STRLEN>> str_object;
-typedef str_object *str_ptr;
+#include "str_object.h"
+using str_ptr = str_object *;
+using const_str_ptr = const str_object *;
 
 // Trailing parameter for command
 struct tpar_object {
     strlen_range len;
-    char         dlm;
-    str_object   str;
-    tpar_ptr     nxt;
-    tpar_ptr     con;
+    char dlm;
+    str_object str;
+    tpar_ptr nxt;
+    tpar_ptr con;
 };
 
 struct code_header {
-    code_ptr            flink;
-    code_ptr            blink; // Links into code_list
-    size_t              ref;   // Reference count
-    prange<1, MAX_CODE> code;  // Pointer into code array
-    prange<0, MAX_CODE> len;   // Length of segment
+    code_ptr flink;
+    code_ptr blink;         // Links into code_list
+    size_t ref;             // Reference count
+    code_idx code;          // Pointer into code array (0-based)
+    code_len len;           // Length of segment
 };
 
 struct file_object {
     // FIELDS FOR "FILE.PAS" ONLY.
-    bool          valid;
-    line_ptr      first_line;  // List of lines read in so far,
-    line_ptr      last_line;   // but not yet handed on to any
-    line_range    line_count;  // other place. # lines in list.
+    bool valid;
+    line_ptr first_line;   // List of lines read in so far,
+    line_ptr last_line;    // but not yet handed on to any
+    line_range line_count; // other place. # lines in list.
 
     // FIELDS SET BY "FILESYS", READ BY "FILE".
-    bool          output_flag; // Is this an output file?
-    bool          eof;         // Set when inp file reaches eof.
-    std::string   filename;    // Length of file name.
-    int           l_counter;
+    bool output_flag;     // Is this an output file?
+    bool eof;             // Set when inp file reaches eof.
+    std::string filename; // File name.
+    int l_counter;
 
     // FIELDS FOR "FILESYS" ONLY.
-    std::string   memory;
-    std::string   tnm;
-    bool          entab;
-    bool          create;
-    int           fd;
-    int           mode;
-    int           idx;
-    int           len;
+    std::string memory;
+    std::string tnm;
+    bool entab;
+    bool create;
+    int fd;
+    int mode;
+    int idx;
+    int len;
     std::vector<char> buf;
-    long          previous_file_id;
+    long previous_file_id;
 
     // Fields for controlling version backup
-    bool          purge;
-    size_t        versions;
+    bool purge;
+    size_t versions;
 
     // THE FOLLOWING FIELD SHOULD BE SET TO 'Z' BY "FILE",
     // IT IS CHECKED BY "FILESYS" AS A CONSISTENCY CHECK.
-    char          zed; // MUST BE 'Z'
+    char zed; // MUST BE 'Z'
 };
 
 struct mark_object {
-    mark_ptr          next;
-    line_ptr          line;
-    int               col;
+    line_ptr line;
+    int col;
+
+    mark_object() : line(nullptr), col(0) {
+        allocated_marks += 1;
+    }
+
+    mark_object(const mark_object &other) : line(other.line), col(other.col) {
+        allocated_marks += 1;
+    }
+
+    ~mark_object() {
+        allocated_marks -= 1;
+    }
+
+    static size_t allocated_marks;
 };
-typedef parray<mark_ptr, mark_range> mark_array;
+using mark_array = std::array<mark_ptr, MAX_MARK_NUMBER + 1>;
 
 struct frame_object {
-    group_ptr         first_group;
-    group_ptr         last_group;
-    mark_ptr          dot;
-    mark_array        marks;
-    scr_row_range     scr_height;
-    scr_col_range     scr_width;
-    col_offset_range  scr_offset;
-    scr_row_range     scr_dot_line;
-    span_ptr          span;
-    frame_ptr         return_frame;
-    prange<0, MAXINT> input_count;
-    space_range       space_limit;
-    space_range       space_left;
-    bool              text_modified;
-    col_range         margin_left;
-    col_range         margin_right;
-    scr_row_range     margin_top;
-    scr_row_range     margin_bottom;
-    tab_array         tab_stops;
-    frame_options     options;
-    slot_range        input_file;
-    slot_range        output_file;
-    tpar_object       get_tpar;        // Default search targ.
-    dfa_table_ptr     get_pattern_ptr; // and pattern
-    tpar_object       eqs_tpar;        // Default equals targ.
-    dfa_table_ptr     eqs_pattern_ptr;
-    tpar_object       rep1_tpar;       // Default replace targ.
-    dfa_table_ptr     rep_pattern_ptr;
-    tpar_object       rep2_tpar;       // Default replace new.
-    tpar_object       verify_tpar;     // Default verify answer
+    group_ptr first_group;
+    group_ptr last_group;
+    mark_ptr dot;
+    mark_array marks;
+    scr_row_range scr_height;
+    scr_col_range scr_width;
+    col_offset_range scr_offset;
+    scr_row_range scr_dot_line;
+    span_ptr span;
+    frame_ptr return_frame;
+    uint32_t input_count;
+    space_range space_limit;
+    space_range space_left;
+    bool text_modified;
+    col_range margin_left;
+    col_range margin_right;
+    scr_row_range margin_top;
+    scr_row_range margin_bottom;
+    tab_array tab_stops;
+    frame_options options;
+    slot_range input_file;
+    slot_range output_file;
+    tpar_object get_tpar;          // Default search targ.
+    dfa_table_ptr get_pattern_ptr; // and pattern
+    tpar_object eqs_tpar;          // Default equals targ.
+    dfa_table_ptr eqs_pattern_ptr;
+    tpar_object rep1_tpar; // Default replace targ.
+    dfa_table_ptr rep_pattern_ptr;
+    tpar_object rep2_tpar;   // Default replace new.
+    tpar_object verify_tpar; // Default verify answer
 };
 
 struct group_object {
-    group_ptr         flink;
-    group_ptr         blink;
-    frame_ptr         frame;
-    line_ptr          first_line;
-    line_ptr          last_line;
-    line_range        first_line_nr;
-    group_line_range  nr_lines;
+    group_ptr flink;
+    group_ptr blink;
+    frame_ptr frame;
+    line_ptr first_line;
+    line_ptr last_line;
+    line_range first_line_nr;
+    group_line_range nr_lines;
 };
 
 struct line_hdr_object {
-    line_ptr          flink;
-    line_ptr          blink;
-    group_ptr         group;
+    line_ptr flink;
+    line_ptr blink;
+    group_ptr group;
     line_offset_range offset_nr;
-    mark_ptr          mark;
-    str_ptr           str;
-    strlen_range      len;
-    strlen_range      used;
-    scr_row_range     scr_row_nr;
+    std::list<mark_ptr> marks;
+    str_ptr str;
+    strlen_range len;
+    strlen_range used;
+    scr_row_range scr_row_nr;
 };
 
 struct span_object {
-    span_ptr          flink;
-    span_ptr          blink;
-    frame_ptr         frame;
-    mark_ptr          mark_one;
-    mark_ptr          mark_two;
-    std::string       name;
-    code_ptr          code;
+    span_ptr flink;
+    span_ptr blink;
+    frame_ptr frame;
+    mark_ptr mark_one;
+    mark_ptr mark_two;
+    std::string name;
+    code_ptr code;
 };
 
 struct prompt_region_attrib {
-    scr_row_range     line_nr;
-    line_ptr          redraw;
+    scr_row_range line_nr;
+    line_ptr redraw;
 };
 
+using transition_ptr = struct transition_object *;
 struct transition_object {
-    accept_set_type   transition_accept_set; // on this input set
-    dfa_state_range   accept_next_state;     // goto this dfa state
-    transition_ptr    next_transition;       // link to next object
-    bool              start_flag;            // special case flag for starting patterns
+    accept_set_type transition_accept_set; // on this input set
+    dfa_state_range accept_next_state;     // goto this dfa state
+    transition_ptr next_transition;        // link to next object
+    bool start_flag;                       // special case flag for starting patterns
 };
 
 struct nfa_attribute_type {
-    nfa_set_type       generator_set;
+    nfa_set_type generator_set;
     state_elt_ptr_type equiv_list;
-    nfa_set_type       equiv_set;
+    nfa_set_type equiv_set;
 };
 
+using state_elt_ptr_type = struct state_elt_object *;
 struct state_elt_object {
-    nfa_state_range    state_elt;
+    nfa_state_range state_elt;
     state_elt_ptr_type next_elt;
 };
 
 struct dfa_state_type {
-    transition_ptr     transitions;
-    bool               marked;
+    transition_ptr transitions;
+    bool marked;
     nfa_attribute_type nfa_attributes;
-    bool               pattern_start;
-    bool               final_accept;
-    bool               left_transition;
-    bool               right_transition;
-    bool               left_context_check;
+    bool pattern_start;
+    bool final_accept;
+    bool left_transition;
+    bool right_transition;
+    bool left_context_check;
 };
 
 struct pattern_def_type {
-    str_object        strng;
-    int               length;
+    str_object strng;
+    int length;
 };
 
 struct dfa_table_object {
-    parray<dfa_state_type, dfa_state_range> dfa_table;
-    dfa_state_range  dfa_states_used;
+    std::array<dfa_state_type, MAX_DFA_STATE_RANGE + 1> dfa_table;
+    dfa_state_range dfa_states_used;
     pattern_def_type definition;
 };
 
@@ -336,7 +301,7 @@ struct dfa_table_object {
 enum class commands {
     cmd_noop,
 
-    cmd_up,                 // cursor movement
+    cmd_up, // cursor movement
     cmd_down,
     cmd_left,
     cmd_right,
@@ -352,7 +317,7 @@ enum class commands {
     cmd_position_line,
     cmd_op_sys_command,
 
-    cmd_window_forward,     // window control
+    cmd_window_forward, // window control
     cmd_window_backward,
     cmd_window_left,
     cmd_window_right,
@@ -364,7 +329,7 @@ enum class commands {
     cmd_window_setheight,
     cmd_window_update,
 
-    cmd_get,                // search and comparison
+    cmd_get, // search and comparison
     cmd_next,
     cmd_bridge,
     cmd_replace,
@@ -378,7 +343,7 @@ enum class commands {
     cmd_overtype_mode,
     cmd_insert_mode,
 
-    cmd_overtype_text,      // text insertion/deletion
+    cmd_overtype_text, // text insertion/deletion
     cmd_insert_text,
     cmd_type_text,
     cmd_insert_line,
@@ -387,7 +352,7 @@ enum class commands {
     cmd_delete_line,
     cmd_delete_char,
 
-    cmd_swap_line,          // text manipulation
+    cmd_swap_line, // text manipulation
     cmd_split_line,
     cmd_ditto_up,
     cmd_ditto_down,
@@ -397,7 +362,7 @@ enum class commands {
     cmd_set_margin_left,
     cmd_set_margin_right,
 
-    cmd_line_fill,          // word processing
+    cmd_line_fill, // word processing
     cmd_line_justify,
     cmd_line_squash,
     cmd_line_centre,
@@ -408,7 +373,7 @@ enum class commands {
     cmd_advance_paragraph,
     cmd_delete_paragraph,
 
-    cmd_span_define,        // span commands
+    cmd_span_define, // span commands
     cmd_span_transfer,
     cmd_span_copy,
     cmd_span_compile,
@@ -416,15 +381,15 @@ enum class commands {
     cmd_span_index,
     cmd_span_assign,
 
-    cmd_block_define,       // block commands
+    cmd_block_define, // block commands
     cmd_block_transfer,
     cmd_block_copy,
 
-    cmd_frame_kill,         // frame commands
+    cmd_frame_kill, // frame commands
     cmd_frame_edit,
     cmd_frame_return,
-    cmd_span_execute,              //###
-    cmd_span_execute_no_recompile, //###
+    cmd_span_execute,              // ###
+    cmd_span_execute_no_recompile, // ###
     cmd_frame_parameters,
 
     cmd_file_input,         // open and attach input file
@@ -451,25 +416,24 @@ enum class commands {
     cmd_user_learn,
     cmd_user_recall,
 
-    cmd_resize_window,      // window size has changed, so handle it
+    cmd_resize_window, // window size has changed, so handle it
 
-    cmd_help,               // miscellaneous
+    cmd_help, // miscellaneous
     cmd_verify,
     cmd_command,
     cmd_mark,
     cmd_page,
     cmd_quit,
-    cmd_dump,               // ~D in debug version.
-    cmd_validate,           // ~V in debug version.
+    cmd_dump,     // ~D in debug version.
+    cmd_validate, // ~V in debug version.
     cmd_execute_string,
     cmd_do_last_command,
 
     cmd_extended,
 
-    cmd_exit_abort,         // exit back to immediate mode
-    cmd_exit_fail,          // exit with failure
-    cmd_exit_success,       // exit with success
-
+    cmd_exit_abort,   // exit back to immediate mode
+    cmd_exit_fail,    // exit with failure
+    cmd_exit_success, // exit with success
 
     // -----End of user commands-----
 
@@ -478,12 +442,12 @@ enum class commands {
     cmd_pattern_dummy_text,
 
     // compiler commands
-    cmd_pcjump,             // Intermediate code jump
-    cmd_exitto,             // Set exit point from loop
-    cmd_failto,             // Set fail point from loop
-    cmd_iterate,            // Repeat loop n times
+    cmd_pcjump,  // Intermediate code jump
+    cmd_exitto,  // Set exit point from loop
+    cmd_failto,  // Set fail point from loop
+    cmd_iterate, // Repeat loop n times
 
-    cmd_prefix_ast,         // prefix commands
+    cmd_prefix_ast, // prefix commands
     cmd_prefix_a,
     cmd_prefix_b,
     cmd_prefix_c,
@@ -492,7 +456,7 @@ enum class commands {
     cmd_prefix_eo,
     cmd_prefix_eq,
     cmd_prefix_f,
-    cmd_prefix_fg,          // global files
+    cmd_prefix_fg, // global files
     cmd_prefix_i,
     cmd_prefix_k,
     cmd_prefix_l,
@@ -509,43 +473,41 @@ enum class commands {
     cmd_prefix_z,
     cmd_prefix_tilde,
 
-    cmd_nosuch,             // sentinel
+    cmd_nosuch, // sentinel
 
     last_entry
 };
 
-typedef perange<commands, commands::cmd_noop,       commands::cmd_pattern_dummy_text> user_commands;
-typedef perange<commands, commands::cmd_pcjump,     commands::cmd_iterate>            comp_commands;
-typedef perange<commands, commands::cmd_prefix_ast, commands::cmd_prefix_tilde>       prefix_commands;
-typedef perange<commands, commands::cmd_prefix_ast, commands::cmd_nosuch>             prefix_plus;
+// Was: from commands::cmd_noop to commands::cmd_pattern_dummy_text inclusive.
+using user_commands = commands;
 
 enum class leadparam {
-    none,           // no leading parameter
-    plus,           // + without integer
-    minus,          // - without integer
-    pint,           // +ve integer
-    nint,           // -ve integer
-    pindef,         // >
-    nindef,         // <
-    marker,         // @ or = or %
+    none,   // no leading parameter
+    plus,   // + without integer
+    minus,  // - without integer
+    pint,   // +ve integer
+    nint,   // -ve integer
+    pindef, // >
+    nindef, // <
+    marker, // @ or = or %
     last_entry
 };
 
 // equalaction is a command attribute type used to control the
 // behaviour of mark Equals.
 enum class equalaction {
-    eqnil,          // leave mark alone (N.B. action routine may
-                    // shift mark e.g. get and replace
-    eqdel,          // delete mark e.g. delete and kill
-    eqold           // set mark to cursor posn. before cmd
-                    // normal for cmds which shift cursor
+    eqnil, // leave mark alone (N.B. action routine may
+           // shift mark e.g. get and replace
+    eqdel, // delete mark e.g. delete and kill
+    eqold  // set mark to cursor posn. before cmd
+           // normal for cmds which shift cursor
 };
 
 // tpcount_type indicates the number of trailing parameters required
 // for the command.
 // if -ve, means the command requires no tp's iff leading parameter
 // is -ve (used for -FI)
-typedef prange<-MAX_TPCOUNT, MAX_TPCOUNT> tpcount_type;
+using tpcount_type = prange<-MAX_TPCOUNT, MAX_TPCOUNT>;
 
 enum class prompt_type {
     no_prompt,
@@ -566,28 +528,26 @@ enum class prompt_type {
     by_prompt,
     verify_prompt,
     pattern_prompt,
-    pattern_set_prompt,
-
-    last_entry
+    pattern_set_prompt
 };
 
 // used for default prompt strings
 struct tpar_attribute {
     prompt_type prompt_name;
-    bool        trim_reply;
-    bool        ml_allowed;
+    bool trim_reply;
+    bool ml_allowed;
 };
 
 struct cmd_attrib_rec {
-    penumset<leadparam> lp_allowed;
-    equalaction         eq_action;
-    tpcount_type        tpcount;
-    parray<tpar_attribute, prange<1, MAX_TPCOUNT>> tpar_info;
+    std::unordered_set<leadparam> lp_allowed;
+    equalaction eq_action;
+    tpcount_type tpcount;
+    std::array<tpar_attribute, MAX_TPCOUNT> tpar_info;
 };
 
 struct help_record {
-    key_str   key;
-    write_str txt;
+    std::string key;
+    std::string txt;
 };
 
 // more Pattern Matcher stuff
@@ -624,42 +584,38 @@ struct nfa_transition_type {
     };
 };
 
-typedef parray<nfa_transition_type, nfa_state_range> nfa_table_type;
+using nfa_table_type = std::array<nfa_transition_type, MAX_NFA_STATE_RANGE + 1>;
 
-enum class parameter_type {
-    pattern_fail,
-    pattern_range,
-    null_param
-};
+enum class parameter_type { pattern_fail, pattern_range, null_param };
 
 // global file defaults and other things filesys_parse would like to know
 
 struct file_data_type {
-    bool          old_cmds;
-    bool          entab;
-    size_t        space;
-    std::string   initial;
-    bool          purge;
-    size_t        versions;
+    bool old_cmds;
+    bool entab;
+    size_t space;
+    std::string initial;
+    bool purge;
+    size_t versions;
 };
 
 struct code_object {
-    leadparam     rep;      // Repeat type
-    int           cnt;      // Repeat count
-    commands      op;       // Opcode
-    tpar_ptr      tpar;     // Trailing param
-    code_ptr      code;     // Code for cmd_extended
-    code_idx      lbl;      // Label field
+    leadparam rep; // Repeat type
+    int cnt;       // Repeat count
+    commands op;   // Opcode
+    tpar_ptr tpar; // Trailing param
+    code_ptr code; // Code for cmd_extended
+    code_idx lbl;  // Label field
 };
 
 struct command_object {
-    commands      command;
-    code_ptr      code;
-    tpar_ptr      tpar;
+    commands command;
+    code_ptr code;
+    tpar_ptr tpar;
 };
 
 struct terminal_info_type {
-    std::string   name;
+    std::string name;
     scr_col_range width;
     scr_row_range height;
 };

@@ -2,5 +2,11 @@ ludwig
 ludwighlp.idx
 ludwighlpbld
 ludwignewhlp.idx
-build/
+.vscode/*
+build
+build/*
+build-coverage/*
+Debug/*
+Release/*
 system-test/
+system-test/*

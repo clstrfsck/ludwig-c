@@ -20,41 +20,25 @@
 ! Name:         SWAP
 !
 ! Description:  Swap Line command.
-!
-! $Log: swap.pas,v $
-! Revision 4.5  1990/01/18 17:31:21  ludwig
-! Entered into RCS at revision level 4.5
-!
-! Revision History:
-! 4-001 Ludwig V4.0 release.                                  7-Apr-1987
-! 4-002 Jeff Blows                                              Jul-1989
-!       IBM PC developments incorporated into main source code.
-! 4-003 Kelvin B. Nicolle                                    12-Jul-1989
-!       VMS include files renamed from ".ext" to ".h", and from ".inc"
-!       to ".i".  Remove the "/nolist" qualifiers.
-! 4-004 Kelvin B. Nicolle                                    13-Sep-1989
-!       Add includes etc. for Tower version.
-! 4-005 Kelvin B. Nicolle                                    25-Oct-1989
-!       Correct the includes for the Tower version.
 !**/
 
 #include "swap.h"
 
-#include "var.h"
 #include "mark.h"
 #include "text.h"
+#include "var.h"
 
 bool swap_line(leadparam rept, int count) {
     // SW is implemented as a ST of the dot line to before the other line.
     bool result = false;
-    mark_ptr  top_mark  = nullptr;
-    mark_ptr  end_mark  = nullptr;
-    mark_ptr  dest_mark = nullptr;
-    //with current_frame^ do
-    line_ptr  this_line = current_frame->dot->line;
-    col_range dot_col   = current_frame->dot->col;
-    line_ptr  next_line = this_line->flink;
-    line_ptr  dest_line;
+    mark_ptr top_mark = nullptr;
+    mark_ptr end_mark = nullptr;
+    mark_ptr dest_mark = nullptr;
+    // with current_frame^ do
+    line_ptr this_line = current_frame->dot->line;
+    col_range dot_col = current_frame->dot->col;
+    line_ptr next_line = this_line->flink;
+    line_ptr dest_line;
     if (next_line == nullptr)
         goto l99;
     switch (rept) {
@@ -100,10 +84,12 @@ bool swap_line(leadparam rept, int count) {
         goto l99;
     current_frame->text_modified = true;
     current_frame->dot->col = dot_col;
-    if (!mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_MODIFIED]))
+    if (!mark_create(
+            current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_MODIFIED]
+        ))
         goto l99;
     result = true;
- l99:;
+l99:;
     if (top_mark != nullptr)
         mark_destroy(top_mark);
     if (end_mark != nullptr)

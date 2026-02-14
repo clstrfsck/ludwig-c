@@ -20,42 +20,24 @@
 ! Name:         NEXTBRIDGE
 !
 ! Description:  The NEXT and BRIDGE commands.
-!
-! $Log: nextbridge.pas,v $
-! Revision 4.6  1990/01/18 17:44:20  ludwig
-! Entered into RCS at revision level 4.6
-!
-! Revision History:
-! 4-001 Ludwig V4.0 release.                                  7-Apr-1987
-! 4-002 Jeff Blows                                           15-May-1987
-!       Add conditional code to bypass a compiler problem on the Unity.
-! 4-003 Jeff Blows                                              Jul-1989
-!       IBM PC developments incorporated into main source code.
-! 4-004 Kelvin B. Nicolle                                    12-Jul-1989
-!       VMS include files renamed from ".ext" to ".h", and from ".inc"
-!       to ".i".  Remove the "/nolist" qualifiers.
-! 4-005 Kelvin B. Nicolle                                    13-Sep-1989
-!       Add includes etc. for Tower version.
-! 4-006 Kelvin B. Nicolle                                    25-Oct-1989
-!       Correct the includes for the Tower version.
 !**/
 
 #include "nextbridge.h"
 
-#include "var.h"
 #include "mark.h"
+#include "var.h"
 
 #include <unordered_set>
 
 namespace {
-    typedef prange<0, ORD_MAXCHAR> chset_range;
-    typedef prangeset<chset_range> chset;
-};
+    using chset_range = prange<0, ORD_MAXCHAR>;
+    using chset = std::unordered_set<chset_range>;
+}; // namespace
 
 bool nextbridge_command(int count, const tpar_object &tpar, bool bridge) {
     chset chars;
     // Form the character set.
-    //with tpar do
+    // with tpar do
     int i = 1;
     while (i <= tpar.len) {
         unsigned char ch1 = tpar.str[i];
@@ -67,15 +49,21 @@ bool nextbridge_command(int count, const tpar_object &tpar, bool bridge) {
                 i += 3;
             }
         }
-        chars.add_range(ch1, ch2);
+        for (auto ch = ch1; ch <= ch2; ++ch) {
+            chars.insert(ch);
+        }
     }
     if (bridge) {
         chset old(chars);
-        chars.add_range(0, ORD_MAXCHAR);
-        chars.remove(old);
+        for (chset_range ch = 0; ch <= ORD_MAXCHAR; ++ch) {
+            chars.insert(ch);
+        }
+        for (const auto& elem : old) {
+            chars.erase(elem);
+        }
     }
     // Search for a character in the set.
-    //with current_frame^ do
+    // with current_frame^ do
     line_ptr new_line = current_frame->dot->line;
     int new_col;
     if (count > 0) {
@@ -84,7 +72,7 @@ bool nextbridge_command(int count, const tpar_object &tpar, bool bridge) {
             new_col += 1;
         do {
             while (new_line != nullptr) {
-                //with new_line^ do
+                // with new_line^ do
                 i = new_col;
                 while (i <= new_line->used) {
                     if (chars.contains(new_line->str->operator[](i))) {
@@ -101,12 +89,14 @@ bool nextbridge_command(int count, const tpar_object &tpar, bool bridge) {
                 new_col = 1;
             }
             return false;
-    l1:;
+        l1:;
             new_col += 1;
             count -= 1;
         } while (count != 0);
         new_col -= 1;
-        if (!mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_EQUALS]))
+        if (!mark_create(
+                current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_EQUALS]
+            ))
             return false;
     } else if (count < 0) {
         new_col = current_frame->dot->col - 1;
@@ -114,7 +104,7 @@ bool nextbridge_command(int count, const tpar_object &tpar, bool bridge) {
             new_col -= 1;
         do {
             while (new_line != nullptr) {
-                //with new_line^ do
+                // with new_line^ do
                 if (new_line->used < new_col) {
                     if (chars.contains(' '))
                         goto l2;
@@ -134,15 +124,19 @@ bool nextbridge_command(int count, const tpar_object &tpar, bool bridge) {
                 else
                     return false;
             }
-    l2:;
+        l2:;
             new_col -= 1;
             count += 1;
         } while (count != 0);
         new_col += 2;
-        if (!mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_EQUALS]))
+        if (!mark_create(
+                current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_EQUALS]
+            ))
             return false;
     } else {
-        return mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_EQUALS]);
+        return mark_create(
+            current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_EQUALS]
+        );
     }
 
     // Found it, move dot to new point.

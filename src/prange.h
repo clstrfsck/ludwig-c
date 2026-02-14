@@ -5,10 +5,10 @@
 #ifndef PRANGE_H
 #define PRANGE_H
 
+#include <ranges>
 #include <stdexcept>
 
-template <int min_, int max_>
-class prange {
+template <int min_, int max_> class prange {
     static_assert(min_ < max_, "min must be strictly less than max");
 
     static constexpr int check_range(int value) {
@@ -19,7 +19,7 @@ class prange {
     }
 
 public:
-    typedef int type;
+    using type = int;
 
     static constexpr type min() {
         return min_;
@@ -35,6 +35,10 @@ public:
 
     static constexpr size_t zero_based(type n) {
         return n - min_;
+    }
+
+    static constexpr auto iota() {
+        return std::ranges::views::iota(min(), max() + 1);
     }
 
     prange() {
@@ -102,5 +106,14 @@ public:
 private:
     int m_value;
 };
+
+namespace std {
+    template <int min_, int max_>
+    struct hash<prange<min_, max_>> {
+        size_t operator()(const prange<min_, max_>& p) const noexcept {
+            return std::hash<int>{}(p.value());
+        }
+    };
+}
 
 #endif // !defined(PRANGE_H)

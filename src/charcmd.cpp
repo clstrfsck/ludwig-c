@@ -20,46 +20,22 @@
 ! Name:         CHARCMD
 !
 ! Description:  Character Insert/Delete/Rubout commands.
-!
-! $Log: charcmd.pas,v $
-! Revision 4.7  1990/01/18 18:24:01  ludwig
-! Entered into RCS at revision level 4.7
-!
-! Revision History:
-! 4-001 Ludwig V4.0 release.                                  7-Apr-1987
-! 4-002 Mark R. Prior                                        20-Feb-1988
-!       Strings passed to ch routines are now passed using conformant
-!         arrays, or as type str_object.
-!               string[offset],length -> string,offset,length
-!       In all calls of ch_length, ch_upcase_str, ch_locase_str, and
-!         ch_reverse_str, the offset was 1 and is now omitted.
-! 4-003 Kelvin B. Nicolle                                     9-Sep-1988
-!       Work around a code generation bug in the Multimax pc compiler.
-!       (See UMAX bug report 18.)
-! 4-004 Jeff Blows                                              Jul-1989
-!       IBM PC developments incorporated into main source code.
-! 4-005 Kelvin B. Nicolle                                    12-Jul-1989
-!       VMS include files renamed from ".ext" to ".h", and from ".inc"
-!       to ".i".  Remove the "/nolist" qualifiers.
-! 4-006 Kelvin B. Nicolle                                    13-Sep-1989
-!       Add includes etc. for Tower version.
-! 4-007 Kelvin B. Nicolle                                    25-Oct-1989
-!       Correct the includes for the Tower version.
 !**/
 
 #include "charcmd.h"
 
 #include "ch.h"
+#include "mark.h"
+#include "screen.h"
+#include "text.h"
 #include "var.h"
 #include "vdu.h"
-#include "mark.h"
-#include "text.h"
-#include "screen.h"
 
 bool key_in_set(key_code_range key, const accept_set_type &s) {
-    if (key < 0 || key > ORD_MAXCHAR)
+    if (key < 0 || key > ORD_MAXCHAR) {
         return false;
-    return s.contains(key.value());
+    }
+    return s.test(key.value());
 }
 
 bool charcmd_insert(commands cmd, leadparam rept, int count, bool from_span) {
@@ -67,8 +43,8 @@ bool charcmd_insert(commands cmd, leadparam rept, int count, bool from_span) {
     if (rept == leadparam::minus)
         rept = leadparam::nint;
     count = std::abs(count);
-    //with current_frame^ do
-    //with dot^,line^ do
+    // with current_frame^ do
+    // with dot^,line^ do
     col_range old_dot_col = current_frame->dot->col;
     strlen_range maximum;
     if (current_frame->dot->col <= current_frame->dot->line->used)
@@ -86,7 +62,7 @@ bool charcmd_insert(commands cmd, leadparam rept, int count, bool from_span) {
             inserted += count;
             if (!text_insert(true, 1, BLANK_STRING, count, current_frame->dot))
                 goto l9;
-            //with dot^ do
+            // with dot^ do
             if (rept == leadparam::nint) {
                 eql_col = current_frame->dot->col - count;
             } else {
@@ -109,12 +85,12 @@ bool charcmd_insert(commands cmd, leadparam rept, int count, bool from_span) {
         if (key_in_set(key, PRINTABLE_SET))
             cmd = commands::cmd_noop;
         else
-            cmd = lookup[key].command;
+            cmd = lookup_at(key).command;
     } while (cmd == commands::cmd_insert_char);
     vdu_take_back_key(key);
 
 l9:;
-    //with dot^ do
+    // with dot^ do
     if (tt_controlc) {
         cmd_status = false;
         current_frame->dot->col = old_dot_col;
@@ -125,7 +101,11 @@ l9:;
     } else {
         if (cmd_status) {
             current_frame->text_modified = true;
-            mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_MODIFIED]);
+            mark_create(
+                current_frame->dot->line,
+                current_frame->dot->col,
+                current_frame->marks[MARK_MODIFIED]
+            );
             mark_create(current_frame->dot->line, eql_col, current_frame->marks[MARK_EQUALS]);
         }
     }
@@ -134,10 +114,18 @@ l9:;
 
 bool charcmd_delete(commands cmd, leadparam rept, int count, bool from_span) {
     bool cmd_status = false;
-    //with current_frame^,dot^,line^ do
+    // with current_frame^,dot^,line^ do
     col_range old_dot_col = current_frame->dot->col;
     str_object old_str;
-    ch_fillcopy(current_frame->dot->line->str, 1, current_frame->dot->line->used, &old_str, 1, MAX_STRLEN, ' ');
+    ch_fillcopy(
+        current_frame->dot->line->str,
+        1,
+        current_frame->dot->line->used,
+        &old_str,
+        1,
+        MAX_STRLEN,
+        ' '
+    );
     int deleted = 0;
     key_code_range key;
     do {
@@ -199,10 +187,12 @@ bool charcmd_delete(commands cmd, leadparam rept, int count, bool from_span) {
                 }
                 int first_col = current_frame->scr_offset + current_frame->scr_width + 1 - length;
                 if (first_col <= current_frame->dot->line->used) { // If non-blank then redraw area.
-                    vdu_movecurs(current_frame->scr_width + 1 - length, current_frame->dot->line->scr_row_nr);
+                    vdu_movecurs(
+                        current_frame->scr_width + 1 - length, current_frame->dot->line->scr_row_nr
+                    );
                     if (length > current_frame->dot->line->used + 1 - first_col)
                         length = current_frame->dot->line->used + 1 - first_col;
-                    vdu_displaystr(length, current_frame->dot->line->str->data(first_col), 3);
+                    vdu_displaystr(current_frame->dot->line->str->slice(first_col, length), 3);
                 }
             }
             deleted += count;
@@ -222,12 +212,12 @@ bool charcmd_delete(commands cmd, leadparam rept, int count, bool from_span) {
         if (key_in_set(key, PRINTABLE_SET))
             cmd = commands::cmd_noop;
         else
-            cmd = lookup[key].command;
+            cmd = lookup_at(key).command;
         if ((cmd == commands::cmd_rubout) && (edit_mode == mode_type::mode_insert)) {
             // In insert_mode treat RUBOUT as \-D
-            rept  = leadparam::minus;
+            rept = leadparam::minus;
             count = -1;
-            cmd   = commands::cmd_delete_char;
+            cmd = commands::cmd_delete_char;
         }
     } while (cmd == commands::cmd_delete_char);
     vdu_take_back_key(key);
@@ -245,7 +235,13 @@ l9:;
             deleted = count;
         line_ptr line = current_frame->dot->line;
         marks_squeeze(line, old_dot_col, line, old_dot_col + deleted);
-        marks_shift(line, old_dot_col + deleted, MAX_STRLENP - (old_dot_col + deleted)+1, line, old_dot_col);
+        marks_shift(
+            line,
+            old_dot_col + deleted,
+            MAX_STRLENP - (old_dot_col + deleted) + 1,
+            line,
+            old_dot_col
+        );
         current_frame->text_modified = true;
         mark_create(line, current_frame->dot->col, current_frame->marks[MARK_MODIFIED]);
         if (current_frame->marks[MARK_EQUALS] != nullptr)
@@ -264,7 +260,7 @@ bool charcmd_rubout(commands cmd, leadparam rept, int count, bool from_span) {
         cmd_status = charcmd_delete(commands::cmd_delete_char, rept, -count, from_span);
     } else {
         cmd_status = false;
-        //with current_frame^,dot^ do
+        // with current_frame^,dot^ do
         col_range old_dot_col = current_frame->dot->col;
         strlen_range dot_used = current_frame->dot->line->used;
         str_object old_str;
@@ -280,12 +276,12 @@ bool charcmd_rubout(commands cmd, leadparam rept, int count, bool from_span) {
                 current_frame->dot->col -= count;
                 if (!text_overtype(true, 1, BLANK_STRING, count, current_frame->dot))
                     goto l9;
-// Comment retained for posterity
-//{#if ns32000}
-//{##          col = dot->col-count;   #<Multimax bug workaround#>}
-//{#else}
+                // Comment retained for posterity
+                //{#if ns32000}
+                //{##          col = dot->col-count;   #<Multimax bug workaround#>}
+                //{#else}
                 current_frame->dot->col -= count;
-//{#endif}
+                //{#endif}
                 cmd_status = true;
             }
             if (from_span)
@@ -297,16 +293,16 @@ bool charcmd_rubout(commands cmd, leadparam rept, int count, bool from_span) {
             key = vdu_get_key();
             if (tt_controlc)
                 goto l9;
-            rept  = leadparam::none;
+            rept = leadparam::none;
             count = 1;
             if (key_in_set(key, PRINTABLE_SET))
                 cmd = commands::cmd_noop;
             else
-                cmd = lookup[key].command;
+                cmd = lookup_at(key).command;
         } while (cmd == commands::cmd_rubout);
         vdu_take_back_key(key);
 
-l9:;
+    l9:;
         if (tt_controlc) {
             cmd_status = false;
             current_frame->dot->col = 1;
@@ -314,7 +310,11 @@ l9:;
             current_frame->dot->col = old_dot_col;
         } else if (cmd_status) {
             current_frame->text_modified = true;
-            mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_MODIFIED]);
+            mark_create(
+                current_frame->dot->line,
+                current_frame->dot->col,
+                current_frame->marks[MARK_MODIFIED]
+            );
             mark_create(current_frame->dot->line, eql_col, current_frame->marks[MARK_EQUALS]);
         }
     }

@@ -26,35 +26,42 @@
 
 namespace {
 
-    template <typename T>
-    int sgn(T val) {
+    template <typename T> int sgn(T val) {
         return (T(0) < val) - (val < T(0));
     }
 
-};
+}; // namespace
 
-// FIXME: Wrapper for parray::copy that handles copies of length 0 to nullptrs
-//void ch_copy(str_ptr src, strlen_range srcofs, str_ptr dst, strlen_range dstofs, size_t len) {
-//    if (len > 0) {
-//        dst->copy(src->data(srcofs), len, dstofs);
-//    }
-//}
-
-// FIXME: Wrapper for parray::fillcopy that handles copies of length 0 to/from nullptrs
-void ch_fillcopy(str_ptr src, strlen_range srcofs, size_t srclen, str_ptr dst, strlen_range dstofs, size_t dstlen, char fill) {
+// Wrapper for str_object that handles copies of length 0 to/from nullptrs
+void ch_fillcopy(
+    str_ptr src,
+    strlen_range srcofs,
+    size_t srclen,
+    str_ptr dst,
+    strlen_range dstofs,
+    size_t dstlen,
+    char fill
+) {
     if (dstlen > 0) {
         if (srclen == 0) {
             dst->fill_n(fill, dstlen, dstofs);
         } else {
-            dst->fillcopy(src->data(srcofs), srclen, dstofs, dstlen, fill);
+            dst->fillcopy(*src, srcofs, srclen, dstofs, dstlen, fill);
         }
     }
 }
 
 // FIXME: This could probably be improved.
-int ch_compare_str(const str_object &target, strlen_range st1, strlen_range len1,
-                   const str_object &text,   strlen_range st2, strlen_range len2,
-                   bool exactcase, strlen_range &nch_ident) {
+int ch_compare_str(
+    const str_object &target,
+    strlen_range st1,
+    strlen_range len1,
+    const str_object &text,
+    strlen_range st2,
+    strlen_range len2,
+    bool exactcase,
+    strlen_range &nch_ident
+) {
     int i;
     if (exactcase) {
         for (i = 0; i < len1 && i < len2; ++i) {
@@ -80,7 +87,9 @@ int ch_compare_str(const str_object &target, strlen_range st1, strlen_range len1
 }
 
 void ch_reverse_str(const str_object &src, str_object &dst, strlen_range len) {
-    std::reverse_copy(src.data(), src.data() + len, dst.data());
+    for (auto i = 1; i <= len; ++i) {
+        dst[i] = src[len - i + 1];
+    }
 }
 
 char ch_toupper(char ch) {
@@ -88,26 +97,35 @@ char ch_toupper(char ch) {
 }
 
 // FIXME: This could probably be improved.
-bool ch_search_str(const str_object &target, strlen_range st1, strlen_range len1,
-                   const str_object &text,   strlen_range st2, strlen_range len2,
-                   bool exactcase, bool backwards,
-                   strlen_range &found_loc) {
+bool ch_search_str(
+    const str_object &target,
+    strlen_range st1,
+    strlen_range len1,
+    const str_object &text,
+    strlen_range st2,
+    strlen_range len2,
+    bool exactcase,
+    bool backwards,
+    strlen_range &found_loc
+) {
     str_object s;
-    s.copy(text, st2, len2);
     if (backwards) {
-        std::reverse(s.data(), s.data() + len2);
+        ch_reverse_str(text, s, len2);
         found_loc = len2;
     } else {
+        s.copy(text, st2, len2);
         found_loc = 0;
     }
-    if (!exactcase)
+    if (!exactcase) {
         s.apply_n(ch_toupper, len2);
+    }
     for (int i = 1; i <= len2 - len1 + 1; ++i) {
-        if (std::equal(s.data(i), s.data(i) + len1, target.data(st1))) {
-            if (backwards)
+        if (s.equals(target, len1, i, st1)) {
+            if (backwards) {
                 found_loc = len2 - (i + len1) + 1;
-            else
+            } else {
                 found_loc = i - 1;
+            }
             return true;
         }
     }

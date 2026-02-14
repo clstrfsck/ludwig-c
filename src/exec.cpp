@@ -20,105 +20,44 @@
 ! Name:         EXEC
 !
 ! Description:  The primitive LUDWIG commands.
-!
-! $Log: exec.pas,v $
-! Revision 4.18  1991/02/22 14:56:45  ludwig
-! Added cases for the handling of X mouse handling and span manipulation
-!
-! Revision 4.17  90/02/08  10:22:24  ludwig
-! changed pcc preprocessor #if to the correct syntax
-!
-! Revision 4.16  90/02/05  12:04:16  ludwig
-! Steven Nairn.
-! code to handle window resizing. (on receipt of cmd_window_resize).
-!
-! Revision 4.15  90/01/18  18:15:52  ludwig
-! Entered into RCS at revision level 4.15
-!
-! Revision History:
-! 4-001 Ludwig V4.0 release.                                  7-Apr-1987
-! 4-002 Kelvin B. Nicolle                                     5-May-1987
-!       Modified replace code to correctly store multiple line
-!       replacement tpars.
-! 4-003 Mark R. Prior                                        11-Nov-1987
-!       Change the code for SA and KM to fail if their first parameter
-!       is empty, regardless of the length of the second parameter.
-! 4-004 Mark R. Prior                                        19-Dec-1987
-!       Add the NEWWORD module with modified AW and DW commands, and new
-!       AP and DP commands.
-! 4-005 Mark R. Prior                                        19-Dec-1987
-!       Modify the AC command semantics for the new command set.
-! 4-006 Mark R. Prior                                        20-Feb-1988
-!       Strings passed to ch routines are now passed using conformant
-!         arrays, or as type str_object.
-!               string[offset],length -> string,offset,length
-!       In all calls of ch_length, ch_upcase_str, ch_locase_str, and
-!         ch_reverse_str, the offset was 1 and is now omitted.
-!       Where conformant arrays are not implemented and the array is not
-!         of type str_object, separate routines are provided for each
-!         type.
-! 4-007 Kelvin B. Nicolle                                    26-Aug-1988
-!       The EXEC module is too big for the Multimax pc compiler.  Move
-!       the code for the quit command to the QUIT module.
-! 4-008 Kelvin B. Nicolle                                     2-Sep-1988
-!       Only the Ultrix Pascal compiler does not support underscores in
-!       identifiers:  Put the underscores back in the Pascal sources and
-!       make the macro definitions of the external names conditional in
-!       the C sources.
-! 4-009 Kelvin B. Nicolle                                    30-Sep-1988
-!       The EXEC module is too big for the Multimax pc compiler.  Move
-!       the code for the window commands to a new module.
-! 4-010 Kelvin B. Nicolle                                     1-Mar-1989
-!       Restore the old semantics of the AC command.
-! 4-011 Jeff Blows                                              Jul-1989
-!       IBM PC developments incorporated into main source code.
-! 4-012 Kelvin B. Nicolle                                    12-Jul-1989
-!       VMS include files renamed from ".ext" to ".h", and from ".inc"
-!       to ".i".  Remove the "/nolist" qualifiers.
-! 4-013 Kelvin B. Nicolle                                    13-Sep-1989
-!       Add includes etc. for Tower version.
-! 4-014 Kelvin B. Nicolle                                    25-Oct-1989
-!       Correct the includes for the Tower version.
-!       Change files.h to fyle.h.
-!       Remove the superfluous include of system.h.
-! 4-015 Kelvin B. Nicolle                                    17-Jan-1990
-!       Add cmd_file_save to the main case statement.
 !**/
 
 #include "exec.h"
 
-#include "var.h"
-#include "vdu.h"
+#include "arrow.h"
+#include "caseditto.h"
+#include "charcmd.h"
 #include "code.h"
+#include "eqsgetrep.h"
+#include "frame.h"
 #include "fyle.h"
 #include "help.h"
 #include "line.h"
 #include "mark.h"
+#include "newword.h"
+#include "nextbridge.h"
+#include "opsys.h"
 #include "quit.h"
+#include "screen.h"
 #include "span.h"
 #include "swap.h"
 #include "text.h"
 #include "tpar.h"
 #include "user.h"
-#include "word.h"
-#include "arrow.h"
-#include "frame.h"
-#include "opsys.h"
-#include "screen.h"
-#include "window.h"
-#include "charcmd.h"
-#include "newword.h"
 #include "validate.h"
-#include "caseditto.h"
-#include "eqsgetrep.h"
-#include "nextbridge.h"
+#include "var.h"
+#include "vdu.h"
+#include "window.h"
+#include "word.h"
 
 #ifdef DEBUG
 #include <iomanip>
 #include <iostream>
 #endif
 
-bool exec_compute_line_range(frame_ptr frame, leadparam rept, int count, line_ptr &first_line, line_ptr &last_line) {
+bool exec_compute_line_range(
+    frame_ptr frame, leadparam rept, int count, line_ptr &first_line, line_ptr &last_line
+) {
     // This routine returns the range of lines specified by the REPT/COUNT pair.
     // It returns FALSE if the range does not exist.
     // It returns First_Line as NIL if the range is empty.
@@ -126,9 +65,9 @@ bool exec_compute_line_range(frame_ptr frame, leadparam rept, int count, line_pt
     // It is assumed that the mark (if any) has been checked for validity.
 
     bool result = false;
-    //with frame^,dot^ do
+    // with frame^,dot^ do
     first_line = frame->dot->line;
-    last_line  = frame->dot->line;
+    last_line = frame->dot->line;
     switch (rept) {
     case leadparam::none:
     case leadparam::plus:
@@ -193,30 +132,31 @@ bool exec_compute_line_range(frame_ptr frame, leadparam rept, int count, line_pt
         else
             first_line = frame->first_group->first_line;
         break;
-    case leadparam::marker: {
-        line_ptr mark_line = frame->marks[count]->line;
-        if (mark_line == first_line)         // TRY TO OPTIMIZE MOST COMMON
-            first_line = nullptr;            // CASES.
-        else if (mark_line->flink == first_line) {
-            first_line = mark_line;
-            last_line  = mark_line;
-        } else if (mark_line->blink == first_line) {
-          last_line = first_line;
-        } else { // DO IT THE HARD WAY!
-            line_range mark_line_nr;
-            if (!line_to_number(mark_line, mark_line_nr))
-                goto l99;
-            line_range line_nr;
-            if (!line_to_number(frame->dot->line, line_nr))
-                goto l99;
-            if (mark_line_nr < line_nr) {
+    case leadparam::marker:
+        {
+            line_ptr mark_line = frame->marks[count]->line;
+            if (mark_line == first_line) // TRY TO OPTIMIZE MOST COMMON
+                first_line = nullptr;    // CASES.
+            else if (mark_line->flink == first_line) {
                 first_line = mark_line;
-                last_line  = last_line->blink;
-            } else {
-                last_line  = mark_line->blink;
+                last_line = mark_line;
+            } else if (mark_line->blink == first_line) {
+                last_line = first_line;
+            } else { // DO IT THE HARD WAY!
+                line_range mark_line_nr;
+                if (!line_to_number(mark_line, mark_line_nr))
+                    goto l99;
+                line_range line_nr;
+                if (!line_to_number(frame->dot->line, line_nr))
+                    goto l99;
+                if (mark_line_nr < line_nr) {
+                    first_line = mark_line;
+                    last_line = last_line->blink;
+                } else {
+                    last_line = mark_line->blink;
+                }
             }
         }
-    }
         break;
     default:
         // FIXME: Error?
@@ -228,29 +168,29 @@ l99:;
 }
 
 bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool from_span) {
-    bool           cmd_success;
-    col_range      new_col;
-    col_range      dot_col;
-    line_ptr       new_line;
-    line_ptr       first_line;
-    line_ptr       last_line;
+    bool cmd_success;
+    col_range new_col;
+    col_range dot_col;
+    line_ptr new_line;
+    line_ptr first_line;
+    line_ptr last_line;
     key_code_range key;
-    int            i;
-    int            j;
-    line_range     line_nr;
-    line_range     line2_nr;
-    std::string    new_name;
-    span_ptr       new_span;
-    span_ptr       old_span;
-    tpar_object    request;
-    tpar_object    request2;
-    mark_ptr       the_mark;
-    mark_ptr       the_other_mark;
-    mark_ptr       another_mark;
-    bool           eq_set;            // These 3 are used for
-    frame_ptr      old_frame;         // the setting up of
-    mark_object    old_dot;           // the commands = behaviour
-    str_object     new_str;
+    int i;
+    int j;
+    line_range line_nr;
+    line_range line2_nr;
+    std::string new_name;
+    span_ptr new_span;
+    span_ptr old_span;
+    tpar_object request;
+    tpar_object request2;
+    mark_ptr the_mark;
+    mark_ptr the_other_mark;
+    mark_ptr another_mark;
+    bool eq_set;         // These 3 are used for
+    frame_ptr old_frame; // the setting up of
+    mark_object old_dot; // the commands = behaviour
+    str_object new_str;
 
     cmd_success = false;
     request.nxt = nullptr;
@@ -264,21 +204,21 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
         screen_message(MSG_COMMAND_RECURSION_LIMIT);
         goto l99;
     }
-    //with current_frame^,dot^ do
-    // Fix commands which use marks without using @ in the syntax.
+    // with current_frame^,dot^ do
+    //  Fix commands which use marks without using @ in the syntax.
     if (command == commands::cmd_mark) {
-        if ((count == 0) || (std::abs(count) > MAX_MARK_NUMBER)) {
+        if ((count == 0) || (std::abs(count) > MAX_USER_MARK_NUMBER)) {
             screen_message(MSG_ILLEGAL_MARK_NUMBER);
             goto l99;
         }
     } else if (command == commands::cmd_span_define) {
         if (rept == leadparam::none || rept == leadparam::pint) {
-            if ((count == 0) || (count > MAX_MARK_NUMBER)) {
+            if ((count == 0) || (count > MAX_USER_MARK_NUMBER)) {
                 screen_message(MSG_ILLEGAL_MARK_NUMBER);
                 goto l99;
             }
+            rept = leadparam::marker;
         }
-        rept = leadparam::marker;
     }
 
     // Check the mark, assign The_Mark to the mark.
@@ -298,7 +238,8 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
     switch (command) {
     case commands::cmd_advance:
         // Establish which line to advance to.
-        cmd_success = (rept == leadparam::pindef || rept == leadparam::nindef || rept == leadparam::marker);
+        cmd_success =
+            (rept == leadparam::pindef || rept == leadparam::nindef || rept == leadparam::marker);
         new_line = current_frame->dot->line;
         switch (rept) {
         case leadparam::none:
@@ -347,8 +288,8 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
             cmd_success = true;
             break;
         case leadparam::pindef:
-              new_line = current_frame->last_group->last_line;
-              break;
+            new_line = current_frame->last_group->last_line;
+            break;
         case leadparam::nindef:
             new_line = current_frame->first_group->first_line;
             break;
@@ -359,7 +300,9 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
             // FIXME: Error?
             break;
         }
-        if (!mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_EQUALS]))
+        if (!mark_create(
+                current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_EQUALS]
+            ))
             goto l99;
         mark_create(new_line, 1, current_frame->dot);
         break;
@@ -387,32 +330,43 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
                 goto l99;
             if (!line_to_number(the_mark->line, line2_nr))
                 goto l99;
-            if  ((line_nr > line2_nr) || ((line_nr == line2_nr) && (current_frame->dot->col > the_mark->col))) {
+            if ((line_nr > line2_nr) ||
+                ((line_nr == line2_nr) && (current_frame->dot->col > the_mark->col))) {
                 // Reverse mark pointers to get The_Other_Mark first.
-                another_mark   = the_mark;
-                the_mark       = the_other_mark;
+                another_mark = the_mark;
+                the_mark = the_other_mark;
                 the_other_mark = another_mark;
             }
             if (current_frame != frame_oops) {
-                //with frame_oops^ do
-                // Make sure oops_span is okay.
+                // with frame_oops^ do
+                //  Make sure oops_span is okay.
                 if (!mark_create(frame_oops->last_group->last_line, 1, frame_oops->span->mark_two))
                     goto l99;
-                cmd_success = text_move(false,               // Dont copy,transfer
-                                        1,                   // One instance of
-                                        the_other_mark,      // starting pos.
-                                        the_mark,            // ending pos.
-                                        frame_oops->span->mark_two, // destination.
-                                        frame_oops->marks[MARK_EQUALS],// leave at start.
-                                        frame_oops->dot);    // leave at end.
+                cmd_success = text_move(
+                    false,                          // Dont copy,transfer
+                    1,                              // One instance of
+                    the_other_mark,                 // starting pos.
+                    the_mark,                       // ending pos.
+                    frame_oops->span->mark_two,     // destination.
+                    frame_oops->marks[MARK_EQUALS], // leave at start.
+                    frame_oops->dot
+                ); // leave at end.
                 frame_oops->text_modified = true;
-                mark_create(frame_oops->dot->line, frame_oops->dot->col, frame_oops->marks[MARK_MODIFIED]);
+                mark_create(
+                    frame_oops->dot->line, frame_oops->dot->col, frame_oops->marks[MARK_MODIFIED]
+                );
             } else {
-                cmd_success = text_remove(the_other_mark,  // starting pos.
-                                          the_mark);       // ending pos.
+                cmd_success = text_remove(
+                    the_other_mark, // starting pos.
+                    the_mark
+                ); // ending pos.
             }
             current_frame->text_modified = true;
-            mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_MODIFIED]);
+            mark_create(
+                current_frame->dot->line,
+                current_frame->dot->col,
+                current_frame->marks[MARK_MODIFIED]
+            );
         }
         break;
 
@@ -431,18 +385,24 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
             if (current_frame != frame_oops) {
                 if (!lines_inject(first_line, last_line, frame_oops->last_group->last_line))
                     goto l99;
-                //with frame_oops^ do
+                // with frame_oops^ do
                 if (!mark_create(first_line, 1, frame_oops->marks[MARK_EQUALS]))
                     goto l99;
                 if (!mark_create(frame_oops->last_group->last_line, 1, frame_oops->dot))
                     goto l99;
                 frame_oops->text_modified = true;
-                mark_create(frame_oops->dot->line, frame_oops->dot->col, frame_oops->marks[MARK_MODIFIED]);
+                mark_create(
+                    frame_oops->dot->line, frame_oops->dot->col, frame_oops->marks[MARK_MODIFIED]
+                );
             } else if (!lines_destroy(first_line, last_line))
                 goto l99;
             current_frame->dot->col = dot_col;
             current_frame->text_modified = true;
-            mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_MODIFIED]);
+            mark_create(
+                current_frame->dot->line,
+                current_frame->dot->col,
+                current_frame->marks[MARK_MODIFIED]
+            );
         }
         cmd_success = true;
         break;
@@ -481,9 +441,10 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
                 std::cout << "SCR_BOT_LINE:" << std::endl;
             if (first_line == scr_frame->dot->line)
                 std::cout << "DOT         :" << std::endl;
-            //with first_line^ do
+            // with first_line^ do
             if (line_to_number(first_line, line_nr))
-                std::cout << "     " << std::setw(2) << first_line->scr_row_nr << " " << std::setw(2) << line_nr << std::endl;
+                std::cout << "     " << std::setw(2) << first_line->scr_row_nr << " "
+                          << std::setw(2) << line_nr << std::endl;
             else
                 std::cout << "Line to number failed" << std::endl;
             first_line = first_line->flink;
@@ -543,7 +504,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
     case commands::cmd_equal_eof:
         cmd_success = (current_frame->dot->line->flink == nullptr);
         if (command == commands::cmd_equal_eof) {
-            if (current_frame->input_file != 0) {
+            if (current_frame->input_file >= 0) {
                 if (!files[current_frame->input_file]->eof)
                     cmd_success = false;
             }
@@ -563,7 +524,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
             case leadparam::plus:
             case leadparam::minus:
                 if ((current_frame->marks[j]->line == current_frame->dot->line) &&
-                    (current_frame->marks[j]->col  == current_frame->dot->col))
+                    (current_frame->marks[j]->col == current_frame->dot->col))
                     cmd_success = true;
                 if (rept == leadparam::minus)
                     cmd_success = !cmd_success;
@@ -612,7 +573,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
             screen_message(MSG_NOT_WHILE_EDITING_CMD);
             goto l99;
         }
-        //with frame_cmd^ do
+        // with frame_cmd^ do
         if (command == commands::cmd_execute_string) {
             if (!tpar_get_1(tparam, command, request))
                 goto l99;
@@ -622,7 +583,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
 
             // Zap frame COMMANDs current contents.
             first_line = frame_cmd->first_group->first_line;
-            last_line  = frame_cmd->last_group->last_line->blink;
+            last_line = frame_cmd->last_group->last_line->blink;
             if (last_line != nullptr) {
                 if (!marks_squeeze(first_line, 1, last_line->flink, 1))
                     goto l99;
@@ -645,7 +606,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
         // an operation.
         if (span_find(frame_cmd->span->name, new_span, old_span)) {
             if (!code_compile(*frame_cmd->span, true))
-              goto l99;
+                goto l99;
             cmd_success = code_interpret(rept, count, frame_cmd->span->code, true);
         }
         break;
@@ -672,12 +633,12 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
         }
         if (tpar_get_1(tparam, command, request)) {
             tpar_object new_tparam{request};
-            //with frame_cmd^ do
+            // with frame_cmd^ do
             frame_cmd->return_frame = current_frame;
             current_frame = frame_cmd;
             // Zap frame COMMANDs current contents.
             first_line = frame_cmd->first_group->first_line;
-            last_line  = frame_cmd->last_group->last_line->blink;
+            last_line = frame_cmd->last_group->last_line->blink;
             if (last_line != nullptr) {
                 if (!marks_squeeze(first_line, 1, last_line->flink, 1))
                     goto l99;
@@ -711,16 +672,16 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
 
     case commands::cmd_frame_edit:
         if (tpar_get_1(tparam, command, request)) {
-            //with request do
-            new_name.assign(request.str.data(), request.len);
+            // with request do
+            new_name = request.str.slice(1, request.len);
             cmd_success = frame_edit(new_name);
         }
         break;
 
     case commands::cmd_frame_kill:
         if (tpar_get_1(tparam, command, request)) {
-            //with request do
-            new_name.assign(request.str.data(), request.len);
+            // with request do
+            new_name = request.str.slice(1, request.len);
             cmd_success = frame_kill(new_name);
         }
         break;
@@ -731,8 +692,8 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
 
     case commands::cmd_frame_return:
         for (i = 1; i <= count; ++i) {
-            //with current_frame^ do
-            if (current_frame->return_frame == nullptr){
+            // with current_frame^ do
+            if (current_frame->return_frame == nullptr) {
                 current_frame = old_frame;
                 goto l99;
             }
@@ -763,8 +724,8 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
             goto l99;
         }
         if (tpar_get_1(tparam, command, request)) {
-            //with request do
-            help_help(std::string(request.str.data(), request.len));
+            // with request do
+            help_help(std::string(request.str.slice(1, request.len)));
             cmd_success = true; // Never Fails.
         }
         break;
@@ -780,48 +741,71 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
                 cmd_success = lines_inject(first_line, last_line, current_frame->dot->line);
             if (cmd_success) {
                 if (count > 0) {
-                    cmd_success = mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_EQUALS]);
-                    cmd_success = mark_create(first_line, current_frame->dot->col, current_frame->dot);
+                    cmd_success = mark_create(
+                        current_frame->dot->line,
+                        current_frame->dot->col,
+                        current_frame->marks[MARK_EQUALS]
+                    );
+                    cmd_success =
+                        mark_create(first_line, current_frame->dot->col, current_frame->dot);
                 } else {
-                    cmd_success = mark_create(first_line, current_frame->dot->col, current_frame->marks[MARK_EQUALS]);
+                    cmd_success = mark_create(
+                        first_line, current_frame->dot->col, current_frame->marks[MARK_EQUALS]
+                    );
                 }
                 current_frame->text_modified = true;
-                mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_MODIFIED]);
+                mark_create(
+                    current_frame->dot->line,
+                    current_frame->dot->col,
+                    current_frame->marks[MARK_MODIFIED]
+                );
             }
         } else {
-            cmd_success = mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_EQUALS]);
+            cmd_success = mark_create(
+                current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_EQUALS]
+            );
         }
         break;
 
     case commands::cmd_insert_mode:
-        edit_mode   = mode_type::mode_insert;
+        edit_mode = mode_type::mode_insert;
         cmd_success = true;
         break;
 
     case commands::cmd_insert_text:
         if (file_data.old_cmds && !from_span) {
             if (rept == leadparam::none) {
-                edit_mode   = mode_type::mode_insert;
+                edit_mode = mode_type::mode_insert;
                 cmd_success = true;
             } else {
                 screen_message(MSG_SYNTAX_ERROR);
             }
         } else if (tpar_get_1(tparam, command, request)) {
-            //with request do
+            // with request do
             if (request.con == nullptr) {
-                cmd_success = text_insert(true, count, request.str, request.len, current_frame->dot);
+                cmd_success =
+                    text_insert(true, count, request.str, request.len, current_frame->dot);
                 if (cmd_success && (count * request.len != 0)) {
                     current_frame->text_modified = true;
-                    cmd_success = mark_create(current_frame->dot->line, current_frame->dot->col,
-                                              current_frame->marks[MARK_MODIFIED]);
+                    cmd_success = mark_create(
+                        current_frame->dot->line,
+                        current_frame->dot->col,
+                        current_frame->marks[MARK_MODIFIED]
+                    );
                 }
             } else {
                 for (i = 1; i <= count; ++i) {
-                    if (text_insert_tpar(request, current_frame->dot, current_frame->marks[MARK_EQUALS]))
+                    if (!text_insert_tpar(
+                            request, current_frame->dot, current_frame->marks[MARK_EQUALS]
+                        ))
                         goto l99;
                 }
                 current_frame->text_modified = true;
-                cmd_success = mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_MODIFIED]);
+                cmd_success = mark_create(
+                    current_frame->dot->line,
+                    current_frame->dot->col,
+                    current_frame->marks[MARK_MODIFIED]
+                );
             }
         }
         break;
@@ -829,7 +813,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
     case commands::cmd_insert_invisible:
         if (ludwig_mode != ludwig_mode_type::ludwig_screen)
             goto l99;
-        //with line^ do
+        // with line^ do
         if (current_frame->dot->col > current_frame->dot->line->used)
             i = MAX_STRLENP - current_frame->dot->col;
         else
@@ -844,7 +828,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
             key = vdu_get_key();
             if (tt_controlc)
                 goto l99;
-            if (PRINTABLE_SET.contains(key)) {
+            if (PRINTABLE_SET.test(key)) {
                 i += 1;
                 new_str[i] = key;
             } else if (key == 13) {
@@ -859,13 +843,17 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
         cmd_success = text_insert(true, 1, new_str, count, current_frame->dot);
         if (cmd_success && (count != 0)) {
             current_frame->text_modified = true;
-            if (!mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_MODIFIED]))
+            if (!mark_create(
+                    current_frame->dot->line,
+                    current_frame->dot->col,
+                    current_frame->marks[MARK_MODIFIED]
+                ))
                 cmd_success = false;
         }
         break;
 
     case commands::cmd_jump:
-        switch(rept) {
+        switch (rept) {
         case leadparam::none:
         case leadparam::plus:
         case leadparam::pint:
@@ -911,16 +899,16 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
         break;
 
     case commands::cmd_line_squash:
-          cmd_success = word_squeeze(rept, count);
-          break;
+        cmd_success = word_squeeze(rept, count);
+        break;
 
     case commands::cmd_line_left:
-          cmd_success = word_left(rept, count);
-          break;
+        cmd_success = word_left(rept, count);
+        break;
 
     case commands::cmd_line_right:
-          cmd_success = word_right(rept, count);
-          break;
+        cmd_success = word_right(rept, count);
+        break;
 
     case commands::cmd_word_advance:
         if (file_data.old_cmds)
@@ -951,7 +939,9 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
             else
                 cmd_success = true;
         } else {
-            cmd_success = mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[count]);
+            cmd_success = mark_create(
+                current_frame->dot->line, current_frame->dot->col, current_frame->marks[count]
+            );
         }
         break;
 
@@ -982,24 +972,28 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
         break;
 
     case commands::cmd_overtype_mode:
-        edit_mode   = mode_type::mode_overtype;
+        edit_mode = mode_type::mode_overtype;
         cmd_success = true;
         break;
 
     case commands::cmd_overtype_text:
         if (file_data.old_cmds && !from_span) {
             if (rept == leadparam::none) {
-                edit_mode   = mode_type::mode_overtype;
+                edit_mode = mode_type::mode_overtype;
                 cmd_success = true;
             } else {
                 screen_message(MSG_SYNTAX_ERROR);
             }
         } else if (tpar_get_1(tparam, command, request)) {
-            //with request do
+            // with request do
             cmd_success = text_overtype(true, count, request.str, request.len, current_frame->dot);
             if (cmd_success && (count * request.len != 0)) {
                 current_frame->text_modified = true;
-                if (!mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_MODIFIED]))
+                if (!mark_create(
+                        current_frame->dot->line,
+                        current_frame->dot->col,
+                        current_frame->marks[MARK_MODIFIED]
+                    ))
                     cmd_success = false;
             }
         }
@@ -1024,7 +1018,7 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
             if (first_line != nullptr) {
                 if (!lines_inject(first_line, last_line, current_frame->dot->line))
                     goto l99;
-                if (!mark_create (first_line, 1, current_frame->marks[MARK_EQUALS]))
+                if (!mark_create(first_line, 1, current_frame->marks[MARK_EQUALS]))
                     goto l99;
                 current_frame->text_modified = true;
                 if (!mark_create(last_line->flink, 1, current_frame->marks[MARK_MODIFIED]))
@@ -1049,7 +1043,9 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
         if (new_line == nullptr)
             goto l99;
         cmd_success = true;
-        if (!mark_create(current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_EQUALS]))
+        if (!mark_create(
+                current_frame->dot->line, current_frame->dot->col, current_frame->marks[MARK_EQUALS]
+            ))
             goto l99;
         mark_create(new_line, 1, current_frame->dot);
         break;
@@ -1071,7 +1067,9 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
                 current_frame->rep2_tpar = request2;
                 request2.con = nullptr;
             }
-            cmd_success = eqsgetrep_rep(rept, count, current_frame->rep1_tpar, current_frame->rep2_tpar, from_span);
+            cmd_success = eqsgetrep_rep(
+                rept, count, current_frame->rep1_tpar, current_frame->rep2_tpar, from_span
+            );
         }
         break;
 
@@ -1113,8 +1111,8 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
     case commands::cmd_span_execute_no_recompile:
     case commands::cmd_span_transfer:
         if (tpar_get_1(tparam, command, request)) {
-            //with request do
-            new_name.assign(request.str.data(), request.len);
+            // with request do
+            new_name = request.str.slice(1, request.len);
             switch (command) {
             case commands::cmd_span_define:
                 if (rept == leadparam::minus) {
@@ -1129,23 +1127,26 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
 
             case commands::cmd_span_jump:
                 if (span_find(new_name, new_span, old_span)) {
-                    //with new_span^ do
+                    // with new_span^ do
                     if (rept == leadparam::minus) {
-                        //with mark_one^ do
+                        // with mark_one^ do
                         new_col = new_span->mark_one->col;
                         new_line = new_span->mark_one->line;
                     } else {
-                        //with mark_two^ do
+                        // with mark_two^ do
                         new_col = new_span->mark_two->col;
                         new_line = new_span->mark_two->line;
                     }
                     if (new_line->group->frame == current_frame) {
-                        cmd_success = mark_create(current_frame->dot->line, current_frame->dot->col,
-                                                  current_frame->marks[MARK_EQUALS]);
+                        cmd_success = mark_create(
+                            current_frame->dot->line,
+                            current_frame->dot->col,
+                            current_frame->marks[MARK_EQUALS]
+                        );
                         if (cmd_success)
                             cmd_success = mark_create(new_line, new_col, current_frame->dot);
                     } else {
-                        //with new_line->group->frame^ do
+                        // with new_line->group->frame^ do
                         frame_ptr fr = new_line->group->frame;
                         if (frame_edit(fr->span->name)) {
                             if (fr->marks[MARK_EQUALS] != nullptr)
@@ -1161,16 +1162,26 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
             case commands::cmd_span_copy:
             case commands::cmd_span_transfer:
                 if (span_find(new_name, new_span, old_span)) {
-                    //with new_span^ do
-                    cmd_success = text_move(command == commands::cmd_span_copy,
-                                            count, new_span->mark_one, new_span->mark_two,
-                                            current_frame->dot,                // Dest.
-                                            current_frame->marks[MARK_EQUALS], // New_Start.
-                                            current_frame->dot);               // New_End.
-                    if  ((command == commands::cmd_span_transfer) && (new_span->frame == nullptr) && cmd_success) {
-                        mark_create(current_frame->marks[MARK_EQUALS]->line,
-                                    current_frame->marks[MARK_EQUALS]->col, new_span->mark_one);
-                        mark_create(current_frame->dot->line, current_frame->dot->col, new_span->mark_two);
+                    // with new_span^ do
+                    cmd_success = text_move(
+                        command == commands::cmd_span_copy,
+                        count,
+                        new_span->mark_one,
+                        new_span->mark_two,
+                        current_frame->dot,                // Dest.
+                        current_frame->marks[MARK_EQUALS], // New_Start.
+                        current_frame->dot
+                    ); // New_End.
+                    if ((command == commands::cmd_span_transfer) && (new_span->frame == nullptr) &&
+                        cmd_success) {
+                        mark_create(
+                            current_frame->marks[MARK_EQUALS]->line,
+                            current_frame->marks[MARK_EQUALS]->col,
+                            new_span->mark_one
+                        );
+                        mark_create(
+                            current_frame->dot->line, current_frame->dot->col, new_span->mark_two
+                        );
                     }
                 } else {
                     screen_message(MSG_NO_SUCH_SPAN);
@@ -1181,7 +1192,8 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
             case commands::cmd_span_execute:
             case commands::cmd_span_execute_no_recompile:
                 if (span_find(new_name, new_span, old_span)) {
-                    if ((new_span->code == nullptr) || (command != commands::cmd_span_execute_no_recompile)) {
+                    if ((new_span->code == nullptr) ||
+                        (command != commands::cmd_span_execute_no_recompile)) {
                         if (!code_compile(*new_span, true))
                             goto l99;
                     }
@@ -1210,31 +1222,33 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
             goto l99;
         if (request.len == 0)
             goto l99;
-        //with request do
-        new_name.assign(request.str.data(), request.len);
+        // with request do
+        new_name = request.str.slice(1, request.len);
         if (span_find(new_name, new_span, old_span)) {
             // Grunge the old one
             if (new_span == frame_oops->span) {
-                //with frame_oops->span^ do
+                // with frame_oops->span^ do
                 if (!text_remove(frame_oops->span->mark_one, frame_oops->span->mark_two))
                     goto l99;
             } else {
-                //with frame_oops^ do
-                // Make sure oops_span is okay.
+                // with frame_oops^ do
+                //  Make sure oops_span is okay.
                 if (!mark_create(frame_oops->last_group->last_line, 1, frame_oops->span->mark_two))
                     goto l99;
-                if (!text_move(false,                          // Dont copy,transfer
-                               1,                              // One instance of
-                               new_span->mark_one,
-                               new_span->mark_two,
-                               frame_oops->span->mark_two,     // destination.
-                               frame_oops->marks[MARK_EQUALS], // leave at start.
-                               frame_oops->dot))               // leave at end.
+                if (!text_move(
+                        false, // Dont copy,transfer
+                        1,     // One instance of
+                        new_span->mark_one,
+                        new_span->mark_two,
+                        frame_oops->span->mark_two,     // destination.
+                        frame_oops->marks[MARK_EQUALS], // leave at start.
+                        frame_oops->dot
+                    )) // leave at end.
                     goto l99;
             }
         } else {
             // Create a span in frame "HEAP"
-            //with frame_heap^ do
+            // with frame_heap^ do
             if (!mark_create(frame_heap->last_group->last_line, 1, frame_heap->span->mark_two))
                 goto l99;
             if (!span_create(new_name, frame_heap->span->mark_two, frame_heap->span->mark_two))
@@ -1243,49 +1257,51 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
                 goto l99;
         }
         // Phew. Thats done. Now NEW_SPAN is an empty span
-        //with request2 do
+        // with request2 do
         //  begin
-/* We have not decided what 3sa should do yet.
-!           if rept in [none, pindef] then
-!             count = len
-!           else
-!             if rept in [plus, pint] then
-!               begin
-!               if count > max_strlen then
-!                 goto l99;
-!               if count > len then
-!                 begin <Fiddle>
-!                 ch_fill(str,len+1,count-len,' ');
-!                 len = count;
-!                 end
-!               else
-!                 len = count;
-!               end
-!             else
-!               begin <Take the last "Count" Chars.>
-!               if -count > max_strlen then
-!                 goto l99;
-!               if -count > len then
-!                 begin <Must put some spaces in>
-!                 ch_copy(str,1,len,str,1-count-len,len,' ');
-!                 ch_fill(str,1,-count-len,' ');
-!                 len = -count;
-!                 end
-!               else
-!                 begin <Just move the string>
-!                 ch_copy(str,len+count+1,-count,str,1,-count,' ');
-!                 len = -count;
-!                 end;
-!               end;
-*/
+        /* We have not decided what 3sa should do yet.
+        !           if rept in [none, pindef] then
+        !             count = len
+        !           else
+        !             if rept in [plus, pint] then
+        !               begin
+        !               if count > max_strlen then
+        !                 goto l99;
+        !               if count > len then
+        !                 begin <Fiddle>
+        !                 ch_fill(str,len+1,count-len,' ');
+        !                 len = count;
+        !                 end
+        !               else
+        !                 len = count;
+        !               end
+        !             else
+        !               begin <Take the last "Count" Chars.>
+        !               if -count > max_strlen then
+        !                 goto l99;
+        !               if -count > len then
+        !                 begin <Must put some spaces in>
+        !                 ch_copy(str,1,len,str,1-count-len,len,' ');
+        !                 ch_fill(str,1,-count-len,' ');
+        !                 len = -count;
+        !                 end
+        !               else
+        !                 begin <Just move the string>
+        !                 ch_copy(str,len+count+1,-count,str,1,-count,' ');
+        !                 len = -count;
+        !                 end;
+        !               end;
+        */
         // Now copy the tpar into the span.
         if (!text_insert_tpar(request2, new_span->mark_two, new_span->mark_one))
             goto l99;
-        //with new_span->mark_two^, line->group->frame^ do
+        // with new_span->mark_two^, line->group->frame^ do
         {
             frame_ptr fr = new_span->mark_two->line->group->frame;
             fr->text_modified = true;
-            cmd_success = mark_create(new_span->mark_two->line, new_span->mark_two->col, fr->marks[MARK_MODIFIED]);
+            cmd_success = mark_create(
+                new_span->mark_two->line, new_span->mark_two->col, fr->marks[MARK_MODIFIED]
+            );
         }
         break;
 
@@ -1379,13 +1395,14 @@ bool execute(commands command, leadparam rept, int count, tpar_ptr tparam, bool 
     }
 
     if (cmd_success) {
-        //with old_frame^,old_dot do
-        switch (cmd_attrib[command].eq_action) {
+        // with old_frame^,old_dot do
+        switch (cmd_attrib.at(command).eq_action) {
         case equalaction::eqold:
             eq_set = mark_create(old_dot.line, old_dot.col, old_frame->marks[MARK_EQUALS]);
             break;
         case equalaction::eqdel:
-            eq_set = (old_frame->marks[MARK_EQUALS] == nullptr) || mark_destroy(old_frame->marks[MARK_EQUALS]);
+            eq_set = (old_frame->marks[MARK_EQUALS] == nullptr) ||
+                     mark_destroy(old_frame->marks[MARK_EQUALS]);
             break;
         case equalaction::eqnil:
             eq_set = true;

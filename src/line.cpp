@@ -20,35 +20,13 @@
 ! Name:         LINE
 !
 ! Description:  Line manipulation commands.
-!
-! $Log: line.pas,v $
-! Revision 4.7  2002/07/15 13:56:45  martin
-! Fixed some memory handling issues with turbo pascal
-!
-! Revision 4.6  1990/09/21 12:36:14  ludwig
-! Change name of IBM-PC module system to msdos (system is reserved name).
-!
-! Revision 4.5  90/01/18  18:01:44  ludwig
-! Entered into RCS at revision level 4.5
-!
-! Revision History:
-! 4-001 Ludwig V4.0 release.                                  7-Apr-1987
-! 4-002 Jeff Blows                                              Jul-1989
-!       IBM PC developments incorporated into main source code.
-! 4-003 Kelvin B. Nicolle                                    12-Jul-1989
-!       VMS include files renamed from ".ext" to ".h", and from ".inc"
-!       to ".i".  Remove the "/nolist" qualifiers.
-! 4-004 Kelvin B. Nicolle                                    13-Sep-1989
-!       Add includes etc. for Tower version.
-! 4-005 Kelvin B. Nicolle                                    25-Oct-1989
-!       Correct the includes for the Tower version.
 !**/
 
 #include "line.h"
 
 #include "ch.h"
-#include "var.h"
 #include "screen.h"
+#include "var.h"
 
 //----------------------------------------------------------------------
 
@@ -56,12 +34,11 @@
 // This should enhance the Page Fault performance by keeping all
 // the Lines/Groups together in clusters.
 
-
-void line_line_pool_extend () {
+void line_line_pool_extend() {
     for (int i = 0; i < 20; ++i) {
         line_ptr new_line = new line_hdr_object;
         new_line->flink = free_line_pool;
-        free_line_pool  = new_line;
+        free_line_pool = new_line;
     }
 }
 
@@ -69,7 +46,7 @@ void line_group_pool_extend() {
     for (int i = 0; i < 20; ++i) {
         group_ptr new_group = new group_object;
         new_group->flink = free_group_pool;
-        free_group_pool  = new_group;
+        free_group_pool = new_group;
     }
 }
 
@@ -83,17 +60,17 @@ bool line_eop_create(frame_ptr inframe, group_ptr &group) {
     if (free_line_pool == nullptr)
         line_line_pool_extend();
     line_ptr new_line = free_line_pool;
-    free_line_pool    = new_line->flink;
+    free_line_pool = new_line->flink;
     if (free_group_pool == nullptr)
         line_group_pool_extend();
     group_ptr new_group = free_group_pool;
-    free_group_pool     = new_group->flink;
+    free_group_pool = new_group->flink;
 
     new_line->flink = nullptr;
     new_line->blink = nullptr;
     new_line->group = new_group;
     new_line->offset_nr = 0;
-    new_line->mark = nullptr;
+    new_line->marks.clear();
     new_line->str = nullptr;
     new_line->len = 0;
     new_line->used = 0;
@@ -157,7 +134,7 @@ bool line_eop_destroy(group_ptr &group) {
         screen_message(DBG_INVALID_OFFSET_NR);
         return false;
     }
-    if (eop_line->mark != nullptr) {
+    if (!eop_line->marks.empty()) {
         screen_message(DBG_LINE_HAS_MARKS);
         return false;
     }
@@ -168,14 +145,15 @@ bool line_eop_destroy(group_ptr &group) {
 #endif
     if (eop_line->str != nullptr) {
         delete eop_line->str;
+        eop_line->marks.clear();
 #ifdef DEBUG
         eop_line->str = nullptr;
 #endif
     }
-    eop_line->flink   = free_line_pool;
-    free_line_pool    = eop_line;
+    eop_line->flink = free_line_pool;
+    free_line_pool = eop_line;
     this_group->flink = free_group_pool;
-    free_group_pool   = this_group;
+    free_group_pool = this_group;
     group = nullptr;
     return true;
 }
@@ -188,24 +166,24 @@ bool lines_create(line_range line_count, line_ptr &first_line, line_ptr &last_li
       Bugchecks: None.
     */
 
-    line_ptr top_line  = nullptr;
+    line_ptr top_line = nullptr;
     line_ptr prev_line = nullptr;
     line_ptr this_line = nullptr;
     for (line_range line_nr = 1; line_nr <= line_count; ++line_nr) {
         if (free_line_pool == nullptr)
             line_line_pool_extend();
-        this_line      = free_line_pool;
+        this_line = free_line_pool;
         free_line_pool = this_line->flink;
         if (top_line == nullptr)
             top_line = this_line;
-        this_line->flink      = nullptr;
-        this_line->blink      = prev_line;
-        this_line->group      = nullptr;
-        this_line->offset_nr  = 0;
-        this_line->mark       = nullptr;
-        this_line->str        = nullptr;
-        this_line->len        = 0;
-        this_line->used       = 0;
+        this_line->flink = nullptr;
+        this_line->blink = prev_line;
+        this_line->group = nullptr;
+        this_line->offset_nr = 0;
+        this_line->marks.clear();
+        this_line->str = nullptr;
+        this_line->len = 0;
+        this_line->used = 0;
         this_line->scr_row_nr = 0;
         if (prev_line != nullptr)
             prev_line->flink = this_line;
@@ -242,7 +220,7 @@ bool lines_destroy(line_ptr &first_line, line_ptr &last_line) {
         screen_message(DBG_FLINK_OR_BLINK_NOT_NIL);
         return false;
     }
-    line_ptr prev_line = nullptr;
+    const_line_ptr prev_line = nullptr;
 #endif
     line_ptr this_line = first_line;
     while (this_line != nullptr) {
@@ -259,7 +237,7 @@ bool lines_destroy(line_ptr &first_line, line_ptr &last_line) {
             screen_message(DBG_INVALID_OFFSET_NR);
             return false;
         }
-        if (this_line->mark != nullptr) {
+        if (!this_line->marks.empty()) {
             screen_message(DBG_LINE_HAS_MARKS);
             return false;
         }
@@ -270,6 +248,7 @@ bool lines_destroy(line_ptr &first_line, line_ptr &last_line) {
 #endif
         if (this_line->str != nullptr) {
             delete this_line->str;
+            this_line->marks.clear();
 #ifdef DEBUG
             this_line->str = nullptr;
 #endif
@@ -288,12 +267,11 @@ bool lines_destroy(line_ptr &first_line, line_ptr &last_line) {
     }
 #endif
     last_line->flink = free_line_pool;
-    free_line_pool   = first_line;
+    free_line_pool = first_line;
     first_line = nullptr;
     last_line = nullptr;
     return true;
 }
-
 
 bool groups_destroy(group_ptr &first_group, group_ptr &last_group) {
     /*
@@ -317,8 +295,8 @@ bool groups_destroy(group_ptr &first_group, group_ptr &last_group) {
         screen_message(DBG_FLINK_OR_BLINK_NOT_NIL);
         return false;
     }
-    group_ptr prev_group = nullptr;
-    group_ptr this_group = first_group;
+    const_group_ptr prev_group = nullptr;
+    const_group_ptr this_group = first_group;
     while (this_group != nullptr) {
         if (this_group->blink != prev_group) {
             screen_message(DBG_INVALID_BLINK);
@@ -328,12 +306,13 @@ bool groups_destroy(group_ptr &first_group, group_ptr &last_group) {
             screen_message(DBG_INVALID_FRAME_PTR);
             return false;
         }
-        if ((this_group->first_line != nullptr) || (this_group->last_line != nullptr) || (this_group->nr_lines != 0)) {
+        if ((this_group->first_line != nullptr) || (this_group->last_line != nullptr) ||
+            (this_group->nr_lines != 0)) {
             screen_message(DBG_GROUP_HAS_LINES);
             return false;
         }
         prev_group = this_group;
-        group_ptr next_group = this_group->flink;
+        const_group_ptr next_group = this_group->flink;
         this_group = next_group;
     }
     if (prev_group != last_group) {
@@ -342,7 +321,7 @@ bool groups_destroy(group_ptr &first_group, group_ptr &last_group) {
     }
 #endif
     last_group->flink = free_group_pool;
-    free_group_pool   = first_group;
+    free_group_pool = first_group;
     first_group = nullptr;
     last_group = nullptr;
     return true;
@@ -379,9 +358,9 @@ bool lines_inject(line_ptr first_line, line_ptr last_line, line_ptr before_line)
     line_range nr_new_lines = 0;
     space_range space = 0;
 #ifdef DEBUG
-    line_ptr prev_line = nullptr;
+    const_line_ptr prev_line = nullptr;
 #endif
-    line_ptr this_line = first_line;
+    const_line_ptr this_line = first_line;
     while (this_line != nullptr) {
 #ifdef DEBUG
         if (this_line->blink != prev_line) {
@@ -396,7 +375,7 @@ bool lines_inject(line_ptr first_line, line_ptr last_line, line_ptr before_line)
             screen_message(DBG_INVALID_OFFSET_NR);
             return false;
         }
-        if (this_line->mark != nullptr) {
+        if (!this_line->marks.empty()) {
             screen_message(DBG_LINE_HAS_MARKS);
             return false;
         }
@@ -430,9 +409,9 @@ bool lines_inject(line_ptr first_line, line_ptr last_line, line_ptr before_line)
      *     | this_frame  |<--| end_group   |<--| before_line |
      *     +-------------+   +-------------+   +-------------+
      */
-    line_ptr top_line = before_line->blink;   // can be nil
+    line_ptr top_line = before_line->blink; // can be nil
     group_ptr end_group = before_line->group;
-    group_ptr top_group = end_group->blink;   // can be nil
+    group_ptr top_group = end_group->blink; // can be nil
     frame_ptr this_frame = end_group->frame;
 
     // Determine number of free lines available in end_group and top_group.
@@ -523,7 +502,9 @@ bool lines_inject(line_ptr first_line, line_ptr last_line, line_ptr before_line)
             adjust_group->first_line = adjust_line;
             adjust_group->first_line_nr = line_nr;
         }
-        for (group_line_range offset = adjust_group->nr_lines; offset < adjust_group->nr_lines + nr_lines_to_adjust_here; ++offset) {
+        for (group_line_range offset = adjust_group->nr_lines;
+             offset < adjust_group->nr_lines + nr_lines_to_adjust_here;
+             ++offset) {
             adjust_line->group = adjust_group;
             adjust_line->offset_nr = offset;
             adjust_line = adjust_line->flink;
@@ -540,7 +521,7 @@ bool lines_inject(line_ptr first_line, line_ptr last_line, line_ptr before_line)
         return false;
     }
 #endif
-    line_ptr next_group_first_line = end_group_last_line->flink;
+    const_line_ptr next_group_first_line = end_group_last_line->flink;
     group_line_range offset = end_group->nr_lines;
     do {
         // with adjust_line^ do
@@ -558,8 +539,8 @@ bool lines_inject(line_ptr first_line, line_ptr last_line, line_ptr before_line)
 
     adjust_group = end_group->flink;
     while (adjust_group != nullptr) {
-        //with adjust_group^ do
-        //begin
+        // with adjust_group^ do
+        // begin
         adjust_group->first_line_nr = adjust_group->first_line_nr + nr_new_lines;
         adjust_group = adjust_group->flink;
     }
@@ -624,7 +605,7 @@ bool lines_extract(line_ptr first_line, line_ptr last_line) {
      *      | this_frame  |<--| end_group   |<--| end_line    |
      *      +-------------+   +-------------+   +-------------+
      */
-    line_ptr top_line = first_line->blink;   // can be nil
+    line_ptr top_line = first_line->blink; // can be nil
     line_ptr end_line = last_line->flink;
     // The following group pointers may not be distinct.
     group_ptr first_group = first_line->group;
@@ -639,16 +620,15 @@ bool lines_extract(line_ptr first_line, line_ptr last_line) {
 
     line_offset_range first_line_offset_nr = first_line->offset_nr;
     line_range first_line_nr = first_group->first_line_nr + first_line_offset_nr;
-    int nr_lines_to_remove =
-        last_group->first_line_nr + last_line->offset_nr - first_line_nr + 1;
+    int nr_lines_to_remove = last_group->first_line_nr + last_line->offset_nr - first_line_nr + 1;
 #ifdef DEBUG
     {
         // Check that there are no marks on the lines to be removed.
-        line_ptr this_line = first_line;
+        const_line_ptr this_line = first_line;
         for (line_range line_nr = 1; line_nr <= nr_lines_to_remove; ++line_nr) {
-            //with this_line^ do
-            //begin
-            if (this_line->mark != nullptr) {
+            // with this_line^ do
+            // begin
+            if (!this_line->marks.empty()) {
                 screen_message(DBG_LINE_HAS_MARKS);
                 return false;
             }
@@ -666,7 +646,7 @@ bool lines_extract(line_ptr first_line, line_ptr last_line) {
         if (first_line->scr_row_nr != 0)
             first_scr_line = first_line;
         else {
-            //with scr_top_line^ do
+            // with scr_top_line^ do
             if (first_line_nr < scr_top_line->group->first_line_nr + scr_top_line->offset_nr)
                 first_scr_line = scr_top_line;
             else
@@ -676,7 +656,7 @@ bool lines_extract(line_ptr first_line, line_ptr last_line) {
         if (last_line->scr_row_nr != 0)
             last_scr_line = last_line;
         else {
-            //with scr_bot_line^ do
+            // with scr_bot_line^ do
             if (last_line->group->first_line_nr + last_line->offset_nr >
                 scr_bot_line->group->first_line_nr + scr_bot_line->offset_nr)
                 last_scr_line = scr_bot_line;
@@ -701,7 +681,7 @@ bool lines_extract(line_ptr first_line, line_ptr last_line) {
     space_range space = 0;
     line_ptr this_line = first_line;
     for (line_range line_nr = 1; line_nr <= nr_lines_to_remove; ++line_nr) {
-        //with this_line^ do
+        // with this_line^ do
         space += this_line->len;
 #ifdef DEBUG
         this_line->group = nullptr;
@@ -722,7 +702,7 @@ bool lines_extract(line_ptr first_line, line_ptr last_line) {
     // Adjust groups below end_group.
     group_ptr this_group = end_group->flink;
     while (this_group != nullptr) {
-        //with this_group^ do
+        // with this_group^ do
         this_group->first_line_nr -= nr_lines_to_remove;
         this_group = this_group->flink;
     }
@@ -736,7 +716,7 @@ bool lines_extract(line_ptr first_line, line_ptr last_line) {
     }
     this_group = first_group;
     while (nr_lines_to_remove > 0) {
-        //with this_group^ do
+        // with this_group^ do
         nr_lines_to_remove = nr_lines_to_remove - this_group->nr_lines;
         this_group->nr_lines = 0;
 #ifdef DEBUG
@@ -762,7 +742,7 @@ bool lines_extract(line_ptr first_line, line_ptr last_line) {
         }
         this_line = end_line;
         for (; offset < end_group->nr_lines; ++offset) {
-            //with this_line^ do
+            // with this_line^ do
             this_line->offset_nr = offset;
             this_line = this_line->flink;
         }
@@ -776,7 +756,7 @@ bool lines_extract(line_ptr first_line, line_ptr last_line) {
             last_group = end_group;
             end_group = end_group->flink;
         }
-        top_group = first_group->blink;   // can be nil
+        top_group = first_group->blink; // can be nil
         if (top_group != nullptr)
             top_group->flink = end_group;
         else
@@ -805,7 +785,7 @@ bool line_change_length(line_ptr line, strlen_range new_length) {
         return false;
     }
 #endif
-    //with line^ do
+    // with line^ do
     str_ptr new_str;
     if (new_length > 0) {
         // Quantize the length to get some slack..
@@ -815,7 +795,7 @@ bool line_change_length(line_ptr line, strlen_range new_length) {
             new_length = MAX_STRLEN;
         // Create a new str_object and copy the text from the old one.
         // FIXME: for now, all strings are the same size
-        new_str = new str_object(new_length, ' ');
+        new_str = new str_object(' ');
         if (new_str == nullptr) {
             screen_message(MSG_EXCEEDED_DYNAMIC_MEMORY);
             return false;
@@ -832,8 +812,8 @@ bool line_change_length(line_ptr line, strlen_range new_length) {
         line->group->frame->space_left += line->len - new_length;
 
     // Change line to refer to the new str_object.
-    line->str   = new_str;
-    line->len   = new_length;
+    line->str = new_str;
+    line->len = new_length;
     // FIXME: Don't see how this has changed: used  = ch_length(str^, len);
     return true;
 }

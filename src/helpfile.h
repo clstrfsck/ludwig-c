@@ -3,9 +3,11 @@
 
 #include "type.h"
 
-bool helpfile_open(bool old_version);
+[[nodiscard]] bool helpfile_open(bool old_version);
+[[nodiscard]] bool helpfile_open(const std::string_view &filename);
+void helpfile_close();
 
-int helpfile_read(const key_str &key, int keylen, help_record &buf, int &reclen);
-int helpfile_next(help_record &buf, int &reclen);
+[[nodiscard]] bool helpfile_read(const std::string &key, help_record &buf);
+[[nodiscard]] bool helpfile_next(help_record &buf);
 
 #endif

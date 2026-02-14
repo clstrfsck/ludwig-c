@@ -3,7 +3,7 @@
 
 #include "type.h"
 
-bool quit_command();
+[[nodiscard]] bool quit_command();
 void quit_close_files();
 
 #endif // !defined(QUIT_H)

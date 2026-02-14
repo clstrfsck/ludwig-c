@@ -20,72 +20,41 @@
 ! Name:         QUIT
 !
 ! Description:  Quit Ludwig
-!
-! $Log: quit.pas,v $
-! Revision 4.9  2002/07/15 14:09:28  martin
-! Replaced halt() for msdos with turbop
-!
-! Revision 4.8  1990/09/21 12:41:01  ludwig
-! Change name of IBM-PC module system to msdos (system is reserved name).
-!
-! Revision 4.7  90/04/26  17:21:34  ludwig
-! Fix VMS version of call to screen_verify. Strings are no longer
-! padded automatically.
-!
-! Revision 4.6  90/01/18  18:33:25  ludwig
-! Entered into RCS at revision level 4.6
-!
-! Revision History:
-! 4-001 Ludwig V4.0 release.                                  7-Apr-1987
-! 4-002 Kelvin B. Nicolle                                    26-Aug-1988
-!       The EXEC module is too big for the Multimax pc compiler.  Move
-!       the code for the quit command to the QUIT module.
-! 4-003 Jeff Blows                                              Jul-1989
-!       IBM PC developments incorporated into main source code.
-! 4-004 Kelvin B. Nicolle                                    12-Jul-1989
-!       VMS include files renamed from ".ext" to ".h", and from ".inc"
-!       to ".i".  Remove the "/nolist" qualifiers.
-! 4-005 Kelvin B. Nicolle                                    13-Sep-1989
-!       Add includes etc. for Tower version.
-! 4-006 Kelvin B. Nicolle                                    25-Oct-1989
-!       Correct the includes for the Tower version.
-!       Change files.h to fyle.h.
 !**/
 
 #include "quit.h"
 
+#include "const.h"
+#include "fyle.h"
+#include "mark.h"
+#include "screen.h"
 #include "sys.h"
 #include "var.h"
 #include "vdu.h"
-#include "fyle.h"
-#include "mark.h"
-#include "const.h"
-#include "screen.h"
 
 namespace {
-    const std::string NO_OUTPUT_FILE_MSG("This frame has no output file--are you sure you want to QUIT? ");
+    inline constexpr std::string_view NO_OUTPUT_FILE_MSG{
+        "This frame has no output file--are you sure you want to QUIT? "
+    };
 };
 
 bool quit_command() {
-    //with current_frame^ do
+    // with current_frame^ do
     if (ludwig_mode != ludwig_mode_type::ludwig_batch) {
         span_ptr new_span = first_span;
         while (new_span != nullptr) {
             if (new_span->frame != nullptr) {
-                //with new_span->frame^ do
-                if (new_span->frame->text_modified &&
-                    new_span->frame->output_file == 0 &&
-                    new_span->frame->input_file != 0) {
+                // with new_span->frame^ do
+                if (new_span->frame->text_modified && new_span->frame->output_file < 0 &&
+                    new_span->frame->input_file >= 0) {
                     current_frame = new_span->frame;
-                    //with marks[mark_modified]^ do
+                    // with marks[mark_modified]^ do
                     mark_ptr mm = new_span->frame->marks[MARK_MODIFIED];
                     mark_create(mm->line, mm->col, new_span->frame->dot);
                     if (ludwig_mode == ludwig_mode_type::ludwig_screen)
                         screen_fixup();
                     screen_beep();
-                    str_object tmp_buffer(' ');
-                    tmp_buffer.copy_n(NO_OUTPUT_FILE_MSG.data(), NO_OUTPUT_FILE_MSG.size());
-                    switch (screen_verify(tmp_buffer, NO_OUTPUT_FILE_MSG.size())) {
+                    switch (screen_verify(NO_OUTPUT_FILE_MSG)) {
                     case verify_response::verify_reply_yes:
                         // Nothing to do here.
                         break;
@@ -113,29 +82,28 @@ l2:;
     return true; // Given the exit above, this shouldn't happen
 }
 
-
 bool do_frame(frame_ptr f) {
-    //with f^ do
-    if (f->output_file == 0)
+    // with f^ do
+    if (f->output_file < 0)
         return true;
     if (files[f->output_file] == nullptr)
         return true;
     // Wind out and close the associated input file.
     if (!file_windthru(f, true))
         return false;
-    if (f->input_file != 0) {
-	if (files[f->input_file] != nullptr) {
+    if (f->input_file >= 0) {
+        if (files[f->input_file] != nullptr) {
             if (!file_close_delete(files[f->input_file], false, true))
                 return false;
-            f->input_file = 0;
+            f->input_file = -1;
         }
     }
     // Close the output file.
     bool result = true;
     if (!ludwig_aborted) {
-	result = file_close_delete(files[f->output_file], !f->text_modified, f->text_modified);
+        result = file_close_delete(files[f->output_file], !f->text_modified, f->text_modified);
     }
-    f->output_file = 0;
+    f->output_file = -1;
     return result;
 }
 
@@ -155,7 +123,7 @@ void quit_close_files() {
 
     // Close all remaining files.
     if (!ludwig_aborted) {
-        for (file_range file_index = 1; file_index <= MAX_FILES; ++file_index) {
+        for (file_range file_index : file_range::iota()) {
             if (files[file_index] != nullptr) {
                 if (!file_close_delete(files[file_index], false, true))
                     goto l99;
@@ -164,7 +132,7 @@ void quit_close_files() {
     }
 l99:;
     // Now free up the VDU, thus re-setting anything we have changed
-    if (!vdu_free_flag) {     // Has it been called already?
+    if (!vdu_free_flag) { // Has it been called already?
         vdu_free();
         vdu_free_flag = true; // Well it has now
         ludwig_mode = ludwig_mode_type::ludwig_batch;

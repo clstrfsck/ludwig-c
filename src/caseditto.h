@@ -3,6 +3,6 @@
 
 #include "type.h"
 
-bool caseditto_command(commands command, leadparam rept, int count, bool from_span);
+[[nodiscard]] bool caseditto_command(commands command, leadparam rept, int count, bool from_span);
 
 #endif

@@ -17,22 +17,20 @@
 !
 ! Implementation O/S support routines for Linux, likely to work OK on
 ! other Unix-like systems also.
-*/
+!**/
 
 #include "sys.h"
 
-#include <charconv>
 #include <algorithm>
-#include <filesystem>
-
-#include <pwd.h>
+#include <charconv>
 #include <fcntl.h>
-#include <dirent.h>
+#include <filesystem>
+#include <pwd.h>
 #include <signal.h>
-#include <unistd.h>
 #include <sys/stat.h>
-#include <sys/wait.h>
 #include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 namespace fs = std::filesystem;
 
@@ -43,7 +41,7 @@ namespace {
         // Here would be the spot to tear-down what sys_initsig did.
         ::exit(status);
     }
-};
+}; // namespace
 
 bool sys_suspend() {
     return ::kill(0, SIGTSTP) == 0;
@@ -245,7 +243,7 @@ long sys_tell(int fd) {
 file_status sys_file_status(const std::string &filename) {
     file_status fs;
     fs.valid = false;
-    fs.mode  = 0600;
+    fs.mode = 0600;
     fs.mtime = -1;
     fs.isdir = false;
 
@@ -253,7 +251,7 @@ file_status sys_file_status(const std::string &filename) {
     if (stat(filename.c_str(), &st) != 0)
         return fs;
     fs.valid = true;
-    fs.mode  = st.st_mode & 07777;
+    fs.mode = st.st_mode & 07777;
     fs.mtime = st.st_mtime;
     fs.isdir = S_ISDIR(st.st_mode);
     return fs;
@@ -269,13 +267,17 @@ std::vector<long> sys_list_backups(const std::string &backup_name) {
     std::vector<long> versions;
     std::error_code ec;
     for (auto const &de : fs::directory_iterator(dir, ec)) {
-        if (ec) break;
+        if (ec)
+            break;
         std::string name = de.path().filename().string();
-        if (name.size() < bname.size()) continue;
-        if (name.compare(0, bname.size(), bname) != 0) continue;
+        if (name.size() < bname.size())
+            continue;
+        if (name.compare(0, bname.size(), bname) != 0)
+            continue;
 
         std::string_view suffix = std::string_view(name).substr(bname.size());
-        if (suffix.empty()) continue;
+        if (suffix.empty())
+            continue;
 
         long v = 0;
         auto res = std::from_chars(suffix.data(), suffix.data() + suffix.size(), v);

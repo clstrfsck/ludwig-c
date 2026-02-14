@@ -38,8 +38,8 @@
 int lwgetopt(const std::vector<std::string> &argv, const std::string &opts);
 
 extern std::string lwoptarg;
-extern size_t      lwoptind;
-extern int         lwoptopt;
-extern bool        lwoptreset;
- 
+extern size_t lwoptind;
+extern int lwoptopt;
+extern bool lwoptreset;
+
 #endif /* !defined(LWGETOPT_H) */

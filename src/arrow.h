@@ -3,6 +3,6 @@
 
 #include "type.h"
 
-bool arrow_command(commands command, leadparam rept, int count, bool from_span);
+[[nodiscard]] bool arrow_command(commands command, leadparam rept, int count, bool from_span);
 
 #endif // !define(ARROW_H)

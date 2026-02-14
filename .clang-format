@@ -1,0 +1,53 @@
+---
+Language: Cpp
+BasedOnStyle: LLVM
+
+# Indentation Settings
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+NamespaceIndentation: All
+AccessModifierOffset: -4
+
+# Wrapping & Alignment Settings
+ColumnLimit: 100
+
+# Indent case statements
+IndentCaseBlocks: true
+
+# Format to put break statements on a new line
+AllowShortCaseLabelsOnASingleLine: false
+
+# BlockIndent puts the closing ')' on a new line and aligns args.
+AlignAfterOpenBracket: BlockIndent
+
+# If we wrap, we want every argument on its own line, not clumped together.
+BinPackParameters: false
+BinPackArguments: false
+
+# These settings allow clang-format to try keeping everything together first.
+AllowAllParametersOfDeclarationOnNextLine: true
+AllowAllArgumentsOnNextLine: true
+
+# We make it very "expensive" to break before the first parameter
+# unless we are absolutely forced to.
+PenaltyBreakBeforeFirstCallParameter: 1
+
+# However, once we DO break, we make it expensive to put things 
+# on the same line if they could be vertical.
+# (This interplay is handled by BinPack: false).
+
+# Function Body Specific Settings
+AllowShortFunctionsOnASingleLine: false
+
+# Include Files
+IncludeBlocks: Regroup
+
+# Define categories and their order
+IncludeCategories:
+  - Regex: '".*"'
+    Priority: 1
+  - Regex: '^<.*>'
+    Priority: 2
+  - Regex: '.*'
+    Priority: 3
